@@ -13,6 +13,8 @@ CubbyDNN is C++17 implementation of deep learning. It is suitable for deep learn
 - Easy to integrate with real applications
 - Simply implemented
 
+## Contact
+
 You can contact me via e-mail (utilForever at gmail.com). I am always happy to answer questions or help with any issues you might have, and please be sure to share any additional work or your creations with me, I love seeing what other people are making.
 
 ## License
