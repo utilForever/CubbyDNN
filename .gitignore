@@ -10,3 +10,4 @@ CTestTestfile.cmake
 
 # Visual Studio 2017 cache/options directory
 .vs/
+build/
