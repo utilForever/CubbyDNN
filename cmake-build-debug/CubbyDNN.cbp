@@ -429,6 +429,9 @@
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/backend.h">
 			<Option target="CubbyDNN"/>
 		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/storage/exceptions.h">
+			<Option target="CubbyDNN"/>
+		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/storage/storage.h">
 			<Option target="CubbyDNN"/>
 		</Unit>

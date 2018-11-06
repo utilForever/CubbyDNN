@@ -14,24 +14,41 @@ namespace cubby_dnn {
     public:
         tensor(std::vector<T> &&data, std::vector<int> &&shape);
 
+        tensor(std::vector<T> &&data, std::vector<int> &&shape, std::string name);
+
         tensor(tensor<T> &&rhs) noexcept;
 
-        tensor(const tensor<T> &rhs);
+        tensor(const tensor<T> &rhs) noexcept;
 
         tensor& operator=(tensor &&rhs) noexcept;
 
         tensor& operator=(const tensor &rhs);
 
-        tensor& operator+(const tensor &rhs);
+        virtual ~tensor() = default;
 
-        tensor& operator+(const tensor &&rhs);
+        virtual tensor operator+(const tensor &rhs);
+
+        virtual tensor& operator+=(const tensor &rhs);
+
+        virtual tensor operator-(const tensor &rhs);
+
+        virtual tensor& operator-=(const tensor &rhs);
+
+        virtual tensor operator*(const tensor<T> &rhs);
+
+        virtual tensor& operator*=(const tensor<T> &rhs);
+
+        virtual tensor matmul(const tensor<T> &rhs);
 
         virtual tensor& reshape();
 
         virtual tensor& transpose();
 
+        const std::string &getName() const;
+
     protected:
         std::unique_ptr<storage<T>> Data; //Stores data required
+        std::string name = nullptr;
     };
 }
 
