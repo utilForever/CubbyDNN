@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="CubbyDNN"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\CMake\;CMake Files\Libraries\;CMake Files\Libraries\googletest\;CMake Files\Libraries\googletest\googletest\;CMake Files\Libraries\googletest\googletest\cmake\;CMake Files\Libraries\googlebenchmark\;CMake Files\Libraries\googlebenchmark\cmake\;CMake Files\Libraries\googlebenchmark\src\;CMake Files\Sources\;CMake Files\Sources\cubbydnn\;CMake Files\Tests\;CMake Files\Tests\UnitTests\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gtest_main">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libgtest_maind.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gtest_main/fast">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libgtest_maind.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gtest">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libgtestd.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gtest/fast">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libgtestd.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libbenchmark.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DHAVE_STD_REGEX"/>
+					<Add option="-DHAVE_POSIX_REGEX"/>
+					<Add option="-DHAVE_STEADY_CLOCK"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/../include"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 benchmark"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark/fast">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libbenchmark.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DHAVE_STD_REGEX"/>
+					<Add option="-DHAVE_POSIX_REGEX"/>
+					<Add option="-DHAVE_STEADY_CLOCK"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/../include"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 benchmark/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark_main">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libbenchmark_main.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DHAVE_STD_REGEX"/>
+					<Add option="-DHAVE_POSIX_REGEX"/>
+					<Add option="-DHAVE_STEADY_CLOCK"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/../include"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 benchmark_main"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="benchmark_main/fast">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libbenchmark_main.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DHAVE_STD_REGEX"/>
+					<Add option="-DHAVE_POSIX_REGEX"/>
+					<Add option="-DHAVE_STEADY_CLOCK"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/../include"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 benchmark_main/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Libraries/googlebenchmark/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="CubbyDNN">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libCubbyDNN.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/../../Libraries"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn/Makefile&quot;  VERBOSE=1 CubbyDNN"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="CubbyDNN/fast">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/lib/libCubbyDNN.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/../../Libraries"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn/Makefile&quot;  VERBOSE=1 CubbyDNN/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Sources/cubbydnn/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="UnitTests">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/bin/UnitTests" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Tests/UnitTests"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Tests/UnitTests/Makefile&quot;  VERBOSE=1 UnitTests"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Tests/UnitTests/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Tests/UnitTests/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Tests/UnitTests/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="UnitTests/fast">
+				<Option output="/home/jwkim/projects/CubbyDNN/cmake-build-debug/bin/UnitTests" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/jwkim/projects/CubbyDNN/cmake-build-debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Tests/UnitTests"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Tests/UnitTests/Makefile&quot;  VERBOSE=1 UnitTests/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Tests/UnitTests/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Tests/UnitTests/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/jwkim/projects/CubbyDNN/cmake-build-debug/Tests/UnitTests/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/backend.h">
+			<Option target="CubbyDNN"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/storage/storage.h">
+			<Option target="CubbyDNN"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include/benchmark/benchmark.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/arraysize.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/benchmark.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/benchmark_api_internal.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/benchmark_api_internal.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/benchmark_main.cc">
+			<Option target="benchmark_main"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/benchmark_register.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/benchmark_register.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/benchmark_runner.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/benchmark_runner.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/check.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/colorprint.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/colorprint.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/commandlineflags.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/commandlineflags.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/complexity.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/complexity.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/console_reporter.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/counter.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/counter.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/csv_reporter.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/cycleclock.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/internal_macros.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/json_reporter.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/log.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/mutex.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/re.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/reporter.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/sleep.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/sleep.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/statistics.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/statistics.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/string_util.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/string_util.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/sysinfo.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/thread_manager.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/thread_timer.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/timers.cc">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/timers.h">
+			<Option target="benchmark"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/src/gtest-all.cc">
+			<Option target="gtest"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/src/gtest_main.cc">
+			<Option target="gtest_main"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/backend.cpp">
+			<Option target="CubbyDNN"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/storage.cpp">
+			<Option target="CubbyDNN"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Test.cpp">
+			<Option target="CubbyDNN"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Tests/UnitTests/SimpleTest.cpp">
+			<Option target="UnitTests"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Tests/UnitTests/UnitTests.cpp">
+			<Option target="UnitTests"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/CMake/CompileOptions.cmake">
+			<Option virtualFolder="CMake Files\CMake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Libraries\googletest\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Libraries\googletest\googletest\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/cmake/Config.cmake.in">
+			<Option virtualFolder="CMake Files\Libraries\googletest\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/cmake/gtest.pc.in">
+			<Option virtualFolder="CMake Files\Libraries\googletest\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/cmake/gtest_main.pc.in">
+			<Option virtualFolder="CMake Files\Libraries\googletest\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/cmake/internal_utils.cmake">
+			<Option virtualFolder="CMake Files\Libraries\googletest\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Libraries\googlebenchmark\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/cmake/AddCXXCompilerFlag.cmake">
+			<Option virtualFolder="CMake Files\Libraries\googlebenchmark\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/cmake/CXXFeatureCheck.cmake">
+			<Option virtualFolder="CMake Files\Libraries\googlebenchmark\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/cmake/Config.cmake.in">
+			<Option virtualFolder="CMake Files\Libraries\googlebenchmark\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/cmake/GetGitVersion.cmake">
+			<Option virtualFolder="CMake Files\Libraries\googlebenchmark\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/cmake/benchmark.pc.in">
+			<Option virtualFolder="CMake Files\Libraries\googlebenchmark\cmake\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Libraries\googlebenchmark\src\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Sources\cubbydnn\"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Tests/UnitTests/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Tests\UnitTests\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

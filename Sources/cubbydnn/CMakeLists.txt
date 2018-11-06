@@ -22,7 +22,7 @@ file(GLOB_RECURSE sources
 
 # Build library
 add_library(${target}
-    ${sources})
+    ${sources} ../../Includes/Backend/backend.h Backend/backend.cpp ../../Includes/Backend/storage/storage.h Backend/storage/storage.cpp)
 
 # Project options
 set_target_properties(${target}
