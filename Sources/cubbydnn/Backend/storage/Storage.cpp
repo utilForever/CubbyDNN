@@ -2,29 +2,29 @@
 // Created by Justin on 18. 11. 5.
 //
 
-#include <../../Includes/Backend/storage/storage.h>
+#include "../../../../Includes/Backend/storage/Storage.h"
 
 namespace cubby_dnn {
 
     template<typename T>
-    storage<T>::storage(std::vector<T> &&data, std::vector<int> &&shape) noexcept {
+    Storage<T>::Storage(std::vector<T> &&data, std::vector<int> &&shape) noexcept {
         this->shape = std::forward<std::vector<int>>(shape);
         this->data = std::forward<std::vector<T>>(data);
-        this->size_type = sizeof(T);
+        this->byte_size = static_cast<size_type>(sizeof(T)) * this->data.size();
     }
 
     template<typename T>
-    storage<T>::storage(storage<T> &&rhs) noexcept {
+    Storage<T>::Storage(Storage<T> &&rhs) noexcept {
         this->shape = std::forward<std::vector<int>>(rhs.shape);
         this->data = std::forward<std::vector<T>>(rhs.data);
-        this->size_type = sizeof(T);
+        this->byte_size = static_cast<size_type>(sizeof(T)) * this->data.size();
     }
 
     template<typename T>
-    storage<T> &storage<T>::operator=(storage<T> &&rhs) noexcept {
+    Storage<T> &Storage<T>::operator=(Storage<T> &&rhs) noexcept {
         this->shape = std::forward<std::vector<int>>(rhs.shape);
         this->data = std::forward<std::vector<T>>(rhs.data);
-        this->size_type = sizeof(T);
+        this->byte_size = static_cast<size_type>(sizeof(T)) * this->data.size();
         return *this;
     }
 

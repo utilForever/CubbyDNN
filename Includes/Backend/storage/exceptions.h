@@ -8,12 +8,27 @@
 #include <string>
 
 namespace cubby_dnn{
-    class exception{
+    class TensorException{
     public:
-        exception(std::string msg){
-            this.msg = msg;
-        }
+
+        TensorException() = default;
+
         std::string msg;
+    };
+
+    //TODO: Add more Exceptions if required
+    class ArgumentException: public TensorException{
+    public:
+        ArgumentException(){
+            msg = "Argument Exception";
+        }
+    };
+
+    class InvalidOperation: public TensorException{
+        InvalidOperation(){
+            msg = "Invalid Operation";
+        }
+
     };
 }
 

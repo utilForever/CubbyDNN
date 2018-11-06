@@ -17,12 +17,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e54383d0-5379-4a7a-90a5-5e0d53b776be" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Includes/Backend/storage/exceptions.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Includes/Backend/backend.h" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/Backend/backend.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/Backend/storage/exceptions.h" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/Backend/storage/exceptions.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/Backend/storage/storage.h" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/Backend/storage/Storage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sources/cubbydnn/Backend/backend.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/cubbydnn/Backend/backend.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/storage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/Storage.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CubbyDNN.cbp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CubbyDNN.cbp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/lib/libCubbyDNN.a" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/lib/libCubbyDNN.a" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -39,8 +42,11 @@
             <file pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/Includes/Backend/backend.h">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="358">
-                    <caret line="26" column="36" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
+                  <state relative-caret-position="70">
+                    <caret line="8" column="17" lean-forward="true" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+                    <folding>
+                      <element signature="e#97#148#0" expanded="true" />
+                    </folding>
                   </state>
                 </provider>
               </entry>
@@ -54,10 +60,10 @@
         <state>
           <leaf>
             <file pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/storage.cpp">
+              <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/Storage.cpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="216">
-                    <caret line="12" column="36" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
+                  <state relative-caret-position="342">
+                    <caret line="19" column="80" lean-forward="true" selection-start-line="19" selection-start-column="80" selection-end-line="19" selection-end-column="80" />
                     <folding>
                       <element signature="e#130#142#0" expanded="true" />
                     </folding>
@@ -74,10 +80,10 @@
         <state>
           <leaf>
             <file pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/Includes/Backend/storage/storage.h">
+              <entry file="file://$PROJECT_DIR$/Includes/Backend/storage/Storage.h">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="360">
-                    <caret line="20" column="17" selection-start-line="20" selection-start-column="17" selection-end-line="20" selection-end-column="17" />
+                  <state relative-caret-position="414">
+                    <caret line="23" column="28" lean-forward="true" selection-start-line="23" selection-start-column="28" selection-end-line="23" selection-end-column="28" />
                   </state>
                 </provider>
               </entry>
@@ -122,15 +128,15 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="3005" />
-          <entry key="h" value="1876" />
+          <entry key="cpp" value="3324" />
+          <entry key="h" value="2402" />
           <entry key="txt" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CMakeLists.txt" value="2" />
-          <entry key="ObjectiveC" value="4881" />
+          <entry key="ObjectiveC" value="5726" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -142,8 +148,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/backend.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="511">
-              <caret line="52" column="8" selection-start-line="52" selection-start-column="8" selection-end-line="52" selection-end-column="20" />
+            <state relative-caret-position="-216">
+              <caret line="14" column="5" lean-forward="true" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="5" />
               <folding>
                 <element signature="e#104#121#0" expanded="true" />
                 <element signature="e#470#482#0" expanded="true" />
@@ -158,8 +164,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Includes/Backend/storage/exceptions.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="14" column="9" lean-forward="true" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
+            <state relative-caret-position="288">
+              <caret line="16" column="6" lean-forward="true" selection-start-line="16" selection-start-column="6" selection-end-line="16" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -201,11 +207,12 @@
         <option value="$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp" />
         <option value="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/Backend.cpp" />
-        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/storage.cpp" />
         <option value="$PROJECT_DIR$/Includes/Backend/storage/storage.h" />
+        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/storage.cpp" />
         <option value="$PROJECT_DIR$/Includes/Backend/storage/exceptions.h" />
-        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/backend.cpp" />
         <option value="$PROJECT_DIR$/Includes/Backend/backend.h" />
+        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/Storage.cpp" />
+        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/backend.cpp" />
       </list>
     </option>
   </component>
@@ -215,7 +222,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="5">
+  <component name="ProjectFrameBounds" extendedState="4">
     <option name="y" value="25" />
     <option name="width" value="1102" />
     <option name="height" value="1055" />
@@ -387,12 +394,12 @@
       <option name="presentableId" value="Default" />
       <updated>1541401714089</updated>
       <workItem from="1541401715437" duration="12118000" />
-      <workItem from="1541476629359" duration="8254000" />
+      <workItem from="1541476629359" duration="12623000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20372000" />
+    <option name="totallyTimeSpent" value="24741000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="25" width="1102" height="1055" extended-state="4" />
@@ -402,8 +409,8 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info active="true" anchor="bottom" id="Find" order="1" visible="true" weight="0.13507378" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.24517594" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.34506243" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.24517594" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -539,34 +546,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/storage.cpp">
+    <entry file="file://$PROJECT_DIR$/Includes/Backend/storage/exceptions.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="36" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
+        <state relative-caret-position="288">
+          <caret line="16" column="6" lean-forward="true" selection-start-line="16" selection-start-column="6" selection-end-line="16" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/Storage.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="19" column="80" lean-forward="true" selection-start-line="19" selection-start-column="80" selection-end-line="19" selection-end-column="80" />
           <folding>
             <element signature="e#130#142#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/Backend/storage/storage.h">
+    <entry file="file://$PROJECT_DIR$/Includes/Backend/storage/Storage.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="20" column="17" selection-start-line="20" selection-start-column="17" selection-end-line="20" selection-end-column="17" />
+        <state relative-caret-position="414">
+          <caret line="23" column="28" lean-forward="true" selection-start-line="23" selection-start-column="28" selection-end-line="23" selection-end-column="28" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/Backend/storage/exceptions.h">
+    <entry file="file://$PROJECT_DIR$/Includes/Backend/backend.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="14" column="9" lean-forward="true" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
+        <state relative-caret-position="70">
+          <caret line="8" column="17" lean-forward="true" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+          <folding>
+            <element signature="e#97#148#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/backend.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="511">
-          <caret line="52" column="8" selection-start-line="52" selection-start-column="8" selection-end-line="52" selection-end-column="20" />
+        <state relative-caret-position="-216">
+          <caret line="14" column="5" lean-forward="true" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="5" />
           <folding>
             <element signature="e#104#121#0" expanded="true" />
             <element signature="e#470#482#0" expanded="true" />
@@ -574,13 +591,6 @@
             <element signature="e#818#830#0" expanded="true" />
             <element signature="e#1650#1662#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/Backend/backend.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="358">
-          <caret line="26" column="36" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
         </state>
       </provider>
     </entry>

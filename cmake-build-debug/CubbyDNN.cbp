@@ -429,10 +429,10 @@
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/backend.h">
 			<Option target="CubbyDNN"/>
 		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/storage/exceptions.h">
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/storage/Storage.h">
 			<Option target="CubbyDNN"/>
 		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/storage/storage.h">
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/Backend/storage/exceptions.h">
 			<Option target="CubbyDNN"/>
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include/benchmark/benchmark.h">
@@ -561,7 +561,7 @@
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/backend.cpp">
 			<Option target="CubbyDNN"/>
 		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/storage.cpp">
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/Storage.cpp">
 			<Option target="CubbyDNN"/>
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Test.cpp">

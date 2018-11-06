@@ -5,49 +5,49 @@
 #ifndef CUBBYDNN_BACKEND_H
 #define CUBBYDNN_BACKEND_H
 
-#include <../../Includes/Backend/storage/storage.h>
+#include "storage/Storage.h"
 #include <memory>
 
 namespace cubby_dnn {
     template<typename T>
-    class tensor: private storage<T> {
+    class Tensor: private Storage<T> {
     public:
-        tensor(std::vector<T> &&data, std::vector<int> &&shape);
+        Tensor(std::vector<T> &&data, std::vector<int> &&shape);
 
-        tensor(std::vector<T> &&data, std::vector<int> &&shape, std::string name);
+        Tensor(std::vector<T> &&data, std::vector<int> &&shape, std::string name);
 
-        tensor(tensor<T> &&rhs) noexcept;
+        Tensor(Tensor<T> &&rhs) noexcept;
 
-        tensor(const tensor<T> &rhs) noexcept;
+        Tensor(const Tensor<T> &rhs) noexcept;
 
-        tensor& operator=(tensor &&rhs) noexcept;
+        Tensor& operator=(Tensor &&rhs) noexcept;
 
-        tensor& operator=(const tensor &rhs);
+        Tensor& operator=(const Tensor &rhs);
 
-        virtual ~tensor() = default;
+        virtual ~Tensor() = default;
 
-        virtual tensor operator+(const tensor &rhs);
+        virtual Tensor operator+(const Tensor &rhs); //Add
 
-        virtual tensor& operator+=(const tensor &rhs);
+        virtual Tensor& operator+=(const Tensor &rhs);
 
-        virtual tensor operator-(const tensor &rhs);
+        virtual Tensor operator-(const Tensor &rhs); //Sub
 
-        virtual tensor& operator-=(const tensor &rhs);
+        virtual Tensor& operator-=(const Tensor &rhs);
 
-        virtual tensor operator*(const tensor<T> &rhs);
+        virtual Tensor operator*(const Tensor<T> &rhs); //Dot product
 
-        virtual tensor& operator*=(const tensor<T> &rhs);
+        virtual Tensor& operator*=(const Tensor<T> &rhs);
 
-        virtual tensor matmul(const tensor<T> &rhs);
+        virtual Tensor matmul(const Tensor<T> &rhs); //matrix multiplication
 
-        virtual tensor& reshape();
+        virtual Tensor& reshape();
 
-        virtual tensor& transpose();
+        virtual Tensor& transpose();
 
         const std::string &getName() const;
 
     protected:
-        std::unique_ptr<storage<T>> Data; //Stores data required
+        std::unique_ptr<Storage<T>> Data; //Stores data required
         std::string name = nullptr;
     };
 }
