@@ -6,49 +6,49 @@ set(root_dir ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 # Includes
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries
 )
 
 # Sources
 file(GLOB header_dir
-    ${root_dir}/Includes)
+        ${root_dir}/Includes)
 
 file(GLOB_RECURSE headers
-    ${header_dir}/*.h)
+        ${header_dir}/*.h)
 
 file(GLOB_RECURSE sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp Backend/storage/backend.cpp Backend/storage/baseOp.cpp Backend/storage/storage.cpp)
 
 # Build library
 add_library(${target}
-    ${sources} ../../Includes/Backend/backend.h Backend/backend.cpp ../../Includes/Backend/storage/Storage.h Backend/storage/Storage.cpp ../../Includes/Backend/storage/exceptions.h)
+        ${sources})
 
 # Project options
 set_target_properties(${target}
-    PROPERTIES
-    ${DEFAULT_PROJECT_OPTIONS}
-)
+        PROPERTIES
+        ${DEFAULT_PROJECT_OPTIONS}
+        )
 
 # Compile options
 target_compile_options(${target}
-    PRIVATE
+        PRIVATE
 
-    PUBLIC
-    ${DEFAULT_COMPILE_OPTIONS}
+        PUBLIC
+        ${DEFAULT_COMPILE_OPTIONS}
 
-    INTERFACE
-)
+        INTERFACE
+        )
 
 target_link_libraries(${target}
-    PRIVATE
+        PRIVATE
 
-    PUBLIC
-    ${DEFAULT_LINKER_OPTIONS}
-	${DEFAULT_LIBRARIES}
+        PUBLIC
+        ${DEFAULT_LINKER_OPTIONS}
+        ${DEFAULT_LIBRARIES}
 
-    INTERFACE
-)
+        INTERFACE
+        )
 
 # Install
 install(TARGETS ${target} DESTINATION lib)

@@ -10,13 +10,13 @@
 namespace cubby_dnn {
 
     template<typename T>
-    class Storage final {
+    class storage{
     protected:
-        Storage(std::vector<T> &&data, std::vector<int> &&shape) noexcept;
+        storage(std::vector<T> &&data, std::vector<int> &&shape);
 
-        Storage(Storage<T> &&rhs) noexcept;
+        storage(storage<T> &&rhs) noexcept;
 
-        Storage<T> &operator=(Storage<T> &&rhs) noexcept;
+        storage<T> &operator=(storage<T> &&rhs) noexcept;
 
         std::vector<T> data; //stores actual data with data type 'T'
         std::vector<int> shape; //shape of the data

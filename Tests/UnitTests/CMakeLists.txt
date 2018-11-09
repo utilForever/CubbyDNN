@@ -12,7 +12,7 @@ file(GLOB sources
 add_executable(${target}
     ${sources})
 
-# Project options
+# Project options{
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
