@@ -426,6 +426,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn/Backend/storage/management.h">
+			<Option target="CubbyDNN"/>
+		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include/benchmark/benchmark.h">
 			<Option target="benchmark"/>
 		</Unit>
@@ -553,6 +556,9 @@
 			<Option target="CubbyDNN"/>
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/baseOp.cpp">
+			<Option target="CubbyDNN"/>
+		</Unit>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/management.cpp">
 			<Option target="CubbyDNN"/>
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/storage.cpp">

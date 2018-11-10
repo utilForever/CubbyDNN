@@ -22,7 +22,7 @@ file(GLOB_RECURSE sources
 
 # Build library
 add_library(${target}
-        ${sources})
+        ${sources} ../../Includes/cubbydnn/Backend/storage/management.h Backend/storage/management.cpp)
 
 # Project options
 set_target_properties(${target}

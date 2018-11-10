@@ -7,20 +7,23 @@
 
 #include "storage.h"
 #include <memory>
+#include "Backend/storage/exceptions.h"
 
 namespace cubby_dnn {
 
-    enum TensorType{
+    enum class TensorType{
         weight,
         bias,
-        filter
+        filter,
+        other
     };
+
+    template<typename T>
+    void verify(std::vector<T> &data, std::vector<int> &shape); //throws exception if input in invalid
 
     template<typename T>
     class Tensor: private storage<T> {
     public:
-        Tensor(storage<T> storage);
-
         Tensor(std::vector<T> &data, std::vector<int> &shape, TensorType type);
 
         Tensor(std::vector<T> &data, std::vector<int> &shape, TensorType type, std::string name);
@@ -28,14 +31,6 @@ namespace cubby_dnn {
         Tensor(std::vector<T> &&data, std::vector<int> &&shape, TensorType type);
 
         Tensor(std::vector<T> &&data, std::vector<int> &&shape, TensorType type, std::string name);
-
-        Tensor(Tensor<T> &&rhs) noexcept; //This will get ownership of storage
-
-        Tensor(const Tensor<T> &rhs) noexcept; //This will copy the storage
-
-        Tensor& operator=(Tensor &&rhs) noexcept;
-
-        Tensor& operator=(const Tensor &rhs);
 
 
 //        virtual ~Tensor();
@@ -64,28 +59,32 @@ namespace cubby_dnn {
         bool trainable = true;
         TensorType type;
 
+        Tensor(Tensor<T> &&rhs) noexcept; //This will get ownership of storage
+
+        Tensor(const Tensor<T> &rhs) noexcept; //This will copy the storage
+
+        Tensor& operator=(Tensor &&rhs) noexcept;
+
+        Tensor& operator=(const Tensor &rhs);
+
     public:
-        //getters
+        ///getters
         const TensorType getType() const { return type; };
 
-        const std::string& getName() const {return name; };
+        const std::string& getName() const { return name; };
 
-        const unsigned long getDataSize() const {return Data->data.size(); };
+        const unsigned long getDataSize() const { return Data->data.size(); };
 
-        const std::vector<int>& getShape() const { return Data->shape; };
+        const std::vector<int>& getShape() const { return Data->data.shape(); };
 
         const std::vector<int>& getData() const { return Data->data; };
 
         const bool isTrainable() const { return trainable; }
 
+        ///setters
         void disableTraining() { trainable = false; }
 
         void enableTraining() { trainable = true; }
-
-
-    private:
-        int prevOp = -1;
-        int nextOp = -1;
     };
 }
 

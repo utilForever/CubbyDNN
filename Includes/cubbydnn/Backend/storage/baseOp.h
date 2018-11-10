@@ -12,7 +12,6 @@
 
 namespace cubby_dnn{
 
-
     template<typename T>
     class Operation{
     protected:
@@ -21,11 +20,10 @@ namespace cubby_dnn{
             edge(Tensor<T> tensor, Operation<T> &from, Operation<T> &to) {
                 this->tensor = tensor;
                 this->from = from;
-                this->to = to;
+                this->to = std::make_shared<Operation<T>>(to);
             }
-            Operation<T> from;
-            Operation<T> to;
-            Tensor<T> tensor;
+            std::weak_ptr<Operation<T>> from;
+            std::shared_ptr<Operation<T>> to;
         };
         std::vector<edge> edgeIn; //edges as inputs of this operation
         std::vector<edge> edgeOut; //edges as outputs of this operation
@@ -46,32 +44,32 @@ namespace cubby_dnn{
     template<typename T>
     class MatMul: public Operation<T>{
     public:
-        MatMul(Tensor<T> tensor1, const Operation<T> &from1,
-                Tensor<T> tensor2, const Operation<T>& from2);
+        MatMul(Tensor<T> &tensor1, const Operation<T> &from1,
+                Tensor<T> &tensor2, const Operation<T>& from2);
     };
 
     template<typename T, typename U>
     class MatDot: public Operation<T>{
     public:
-        MatDot(Tensor<T> tensor1, const Operation<T> &from1, U mul);
+        MatDot(Tensor<T> &tensor1, const Operation<T> &from1, U mul);
     };
 
     template<typename T>
     class MatAdd: public Operation<T>{
     public:
-        MatAdd(Tensor<T> tensor1, const Operation<T> &from1);
+        MatAdd(Tensor<T> &tensor1, const Operation<T> &from1);
     };
 
     template<typename T>
     class MatSub: public Operation<T>{
     public:
-        MatSub(Tensor<T> tensor1, const Operation<T> &from1);
+        MatSub(Tensor<T> &tensor1, const Operation<T> &from1);
     };
 
     template<typename T>
     class Reshape: public Operation<T>{
     public:
-        Reshape(Tensor<T> tensor1, const Operation<T> &from1);
+        Reshape(Tensor<T> &tensor1, const Operation<T> &from1);
     };
 }
 
