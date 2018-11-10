@@ -35,17 +35,19 @@ namespace cubby_dnn{
             this->msg = default_msg + msg;
             std::cout<<msg<<std::endl;
         }
-
-
     };
 
     class InvalidOperation: public TensorException{
+    public:
         InvalidOperation(){
-            msg = "Invalid Operation";
+            default_msg = "Invalid Operation";
+            msg = default_msg;
+            std::cout<<msg<<std::endl;
         }
 
         explicit InvalidOperation(std::string msg){
-            this->msg = msg;
+            this->msg = default_msg + msg;
+            std::cout<<msg<<std::endl;
         }
 
     };

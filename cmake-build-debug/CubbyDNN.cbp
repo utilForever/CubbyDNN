@@ -552,7 +552,7 @@
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/src/gtest_main.cc">
 			<Option target="gtest_main"/>
 		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/backend.cpp">
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/Tensor_object.cpp">
 			<Option target="CubbyDNN"/>
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/baseOp.cpp">

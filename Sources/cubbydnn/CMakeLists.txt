@@ -18,7 +18,7 @@ file(GLOB_RECURSE headers
         ${header_dir}/*.h)
 
 file(GLOB_RECURSE sources
-        ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp Backend/storage/backend.cpp Backend/storage/baseOp.cpp Backend/storage/storage.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp Backend/storage/Tensor_object.cpp Backend/storage/baseOp.cpp Backend/storage/storage.cpp)
 
 # Build library
 add_library(${target}

@@ -2,7 +2,7 @@
 // Created by Justin on 18. 11. 5.
 //
 
-#include "Backend/storage/storage.h"
+#include "Backend/util/storage.h"
 
 namespace cubby_dnn {
 
