@@ -5,13 +5,13 @@
 #ifndef CUBBYDNN_BACKEND_H
 #define CUBBYDNN_BACKEND_H
 
-#include "storage.h"
+#include <vector>
 #include <memory>
-#include "Backend/storage/exceptions.h"
+#include "../../../../Includes/cubbydnn/Backend/util/exceptions.hpp"
 
 namespace cubby_dnn {
 
-    enum class TensorType{
+    enum class Tensor_type{
         weight,
         bias,
         filter,
@@ -40,14 +40,14 @@ namespace cubby_dnn {
 
     private:
 
-        Tensor(std::vector<int> &shape, TensorType type, const int from, std::string name) noexcept;
+        Tensor(std::vector<int> &shape, Tensor_type type, const int from, std::string name) noexcept;
 
-        Tensor(std::vector<int> &&shape, TensorType type, const int from, std::string name) noexcept;
+        Tensor(std::vector<int> &&shape, Tensor_type type, const int from, std::string name) noexcept;
 
 
     public:
         ///getters
-        const TensorType getType() const { return type; }
+        const Tensor_type getType() const { return type; }
 
         const std::string& getName() const { return name; }
 
@@ -58,7 +58,7 @@ namespace cubby_dnn {
         bool trainable = true;
         int from;
         int to = -1;
-        TensorType type;
+        Tensor_type type;
         std::vector<int> shape;
     };
 
@@ -66,48 +66,51 @@ namespace cubby_dnn {
     void verify(std::vector<T> &data, std::vector<int> &shape); //throws exception if input in invalid
 
     template<typename T>
-    class Tensor_object: private storage<T> {
+    class Tensor_container{
     public:
 
-        Tensor_object(std::vector<T> &data, std::vector<int> &shape, TensorType type, std::string name);
+        Tensor_container(std::vector<T> &data, std::vector<int> &shape, Tensor_type type, std::string name);
 
-        Tensor_object(std::vector<T> &&data, std::vector<int> &&shape, TensorType type, std::string name);
+        Tensor_container(std::vector<T> &&data, std::vector<int> &&shape, Tensor_type type, std::string name);
 
 
     private:
-        std::unique_ptr<storage<T>> Data; //container of actual data
+
+        struct storage;
+        std::unique_ptr<storage> tensor_object; //container of actual data
         std::string name = nullptr;
         bool trainable = true;
-        TensorType type;
+        Tensor_type type;
 
         ///Copy constructors are not allowed
-        Tensor_object(const Tensor_object<T> &rhs) noexcept;
+        Tensor_container(const Tensor_container<T> &rhs) noexcept;
 
         ///Copy assignments are not allowed
-        Tensor_object& operator=(Tensor_object &rhs) noexcept;
+        Tensor_container& operator=(Tensor_container &rhs) noexcept;
 
         int op_from, op_to;
 
     public:
         ///getters
-        const TensorType getType() const { return type; };
+        const Tensor_type get_type() const { return type; };
 
-        const std::string& getName() const { return name; };
+        const std::string& get_name() const { return name; };
 
-        const unsigned long getDataSize() const { return Data->data.size(); };
+        const unsigned long get_data_size() const { return tensor_object->data.size(); };
 
-        const std::vector<int>& getShape() const { return Data->data.shape(); };
+        const std::vector<int>& get_shape() const { return tensor_object->data.shape(); };
 
-        const std::vector<int>& getData() const { return Data->data; };
+        const std::vector<int>& get_data() const { return tensor_object->data; };
 
-        const bool isTrainable() const { return trainable; }
+        const bool is_trainable() const { return trainable; }
+
 
         const int from() const { return op_from; }
 
         ///setters
-        void disableTraining() { trainable = false; }
+        void disable_training() { trainable = false; }
 
-        void enableTraining() { trainable = true; }
+        void enable_training() { trainable = true; }
     };
 }
 

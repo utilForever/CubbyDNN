@@ -9,14 +9,15 @@
 #include <iostream>
 
 namespace cubby_dnn{
+    
     class TensorException{
     public:
-
         TensorException() = default;
 
         std::string message(){
             return msg;
         }
+
     protected:
         std::string msg;
         std::string default_msg;

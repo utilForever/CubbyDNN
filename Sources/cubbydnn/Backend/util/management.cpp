@@ -2,14 +2,14 @@
 // Created by jwkim on 18. 11. 10.
 //
 
-#include "../../../../Includes/cubbydnn/Backend/util/management.h"
+#include "Backend/util/management.hpp"
 
 namespace cubby_dnn{
     //TODO: make these thread-safe!
     template<typename T>
     int Management<T>::add_op() noexcept{
         unsigned long graph_size = adj_forward.size();
-        std::vector<std::unique_ptr<Tensor_object<T>>> temp(graph_size + 1, nullptr);
+        std::vector<std::unique_ptr<Tensor_container<T>>> temp(graph_size + 1, nullptr);
 
         std::lock_guard<std::mutex> guard(adj_mutex);
         adj_forward.emplace_back(temp); // graph_size += 1
@@ -17,7 +17,7 @@ namespace cubby_dnn{
     }
 
     template<typename T>
-    void Management<T>::add_edge(const int from, const int to, Tensor_object<T> &tensor) noexcept{
+    void Management<T>::add_edge(const int from, const int to, Tensor_container<T> &tensor) noexcept{
 
         try{
             int graph_size = static_cast<int>(adj_forward.size());
@@ -46,7 +46,7 @@ namespace cubby_dnn{
     }
 
     template<typename T>
-    std::unique_ptr<Tensor_object<T>> Management<T>::get_tensor_ptr(const int from, const int to) noexcept{
+    std::unique_ptr<Tensor_container<T>> Management<T>::get_tensor_ptr(const int from, const int to) noexcept{
         try {
             if (from >= adj_forward.size() || to >= adj_forward.size()) {
                 std::string error_msg = "pointing to operation that doesn't exist";
@@ -62,7 +62,7 @@ namespace cubby_dnn{
     }
 
     template<typename T>
-    void Management<T>::add_placeHolder(std::unique_ptr<Tensor_object<T>> placeHolder) noexcept{
+    void Management<T>::add_placeHolder(std::unique_ptr<Tensor_container<T>> placeHolder) noexcept{
 
         std::lock_guard<std::mutex> guard(adj_mutex);
         placeHolders.emplace_back(placeHolder);
