@@ -83,22 +83,47 @@ namespace cubby_dnn {
     template<typename T>
     Tensor_container<T>::Tensor_container(std::vector<T> &data, std::vector<int> &shape,
             Tensor_type type, std::string name): type(type) {
-        verify<T>(data, shape); //throws exception if arguments are invalid
 
-        this->tensor_object = std::make_unique<storage>(std::forward<std::vector<T>>(data),
-                                                  std::forward<std::vector<int>>(shape));
-        this->name = name;
-    }
-
-    template<typename T>
-    Tensor_container<T>::Tensor_container(std::vector<T> &&data, std::vector<int> &&shape,
-            Tensor_type type, std::string name): type(type) {
         verify<T>(data, shape); //throws exception if arguments are invalid
 
         this->tensor_object = std::make_unique<storage>(std::forward<std::vector<T>>(data),
                 std::forward<std::vector<int>>(shape));
         this->name = name;
     }
+
+    template<typename T>
+    Tensor_container<T>::Tensor_container(std::vector<T> &&data, std::vector<int> &&shape,
+            Tensor_type type, std::string name): type(type) {
+
+        verify<T>(data, shape); //throws exception if arguments are invalid
+
+        this->tensor_object = std::make_unique<storage>(std::forward<std::vector<T>>(data),
+                std::forward<std::vector<int>>(shape));
+        this->name = name;
+    }
+
+    template<typename T>
+    Tensor_container<T>::Tensor_container(const Tensor_container<T> &rhs): tensor_object(nullptr) {
+
+        if(rhs.tensor_object)
+            this->tensor_object = std::make_unique<Tensor_container<T>::tensor_object>(*rhs.tensor_object);
+    }
+
+    template<typename T>
+    Tensor_container<T>::Tensor_container(Tensor_container<T> &&rhs) noexcept = default;
+
+    template<typename T>
+    Tensor_container<T>& Tensor_container<T>::operator=(const cubby_dnn::Tensor_container<T> & rhs) {
+        if(rhs.object)
+            this->tensor_object = std::make_unique<Tensor_container<T>::tensor_object>(*rhs.tensor_object);
+        return *this;
+    }
+
+    template<typename T>
+    Tensor_container<T>& Tensor_container<T>::operator=(cubby_dnn::Tensor_container<T> &&rhs) noexcept = default;
+
+    template<typename T>
+    Tensor_container<T>::~Tensor_container() = default;
 
 
     template<typename T>

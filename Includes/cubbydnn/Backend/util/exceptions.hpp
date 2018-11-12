@@ -10,7 +10,7 @@
 
 namespace cubby_dnn{
     
-    class TensorException{
+class TensorException: private std::exception{
     public:
         TensorException() = default;
 

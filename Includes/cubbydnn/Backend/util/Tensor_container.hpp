@@ -73,6 +73,15 @@ namespace cubby_dnn {
 
         Tensor_container(std::vector<T> &&data, std::vector<int> &&shape, Tensor_type type, std::string name);
 
+        Tensor_container(const Tensor_container<T>& rhs);
+
+        Tensor_container(Tensor_container<T>&& rhs) noexcept;
+
+        Tensor_container& operator=(const Tensor_container<T>& rhs);
+
+        Tensor_container& operator=(Tensor_container<T>&& rhs) noexcept;
+
+        ~Tensor_container();
 
     private:
 
@@ -81,12 +90,6 @@ namespace cubby_dnn {
         std::string name = nullptr;
         bool trainable = true;
         Tensor_type type;
-
-        ///Copy constructors are not allowed
-        Tensor_container(const Tensor_container<T> &rhs) noexcept;
-
-        ///Copy assignments are not allowed
-        Tensor_container& operator=(Tensor_container &rhs) noexcept;
 
         int op_from, op_to;
 
