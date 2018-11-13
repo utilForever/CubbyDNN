@@ -325,6 +325,7 @@
 					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
 					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn"/>
 					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/../../Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/../../Includes"/>
 					<Add directory="/usr/include/c++/7"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
 					<Add directory="/usr/include/c++/7/backward"/>
@@ -353,6 +354,7 @@
 					<Add directory="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/include"/>
 					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn"/>
 					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/../../Libraries"/>
+					<Add directory="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/../../Includes"/>
 					<Add directory="/usr/include/c++/7"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
 					<Add directory="/usr/include/c++/7/backward"/>
@@ -426,9 +428,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn/Backend/storage/management.h">
-			<Option target="CubbyDNN"/>
-		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include/benchmark/benchmark.h">
 			<Option target="benchmark"/>
 		</Unit>
@@ -551,18 +550,6 @@
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/src/gtest_main.cc">
 			<Option target="gtest_main"/>
-		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/Tensor_object.cpp">
-			<Option target="CubbyDNN"/>
-		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/baseOp.cpp">
-			<Option target="CubbyDNN"/>
-		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/management.cpp">
-			<Option target="CubbyDNN"/>
-		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/storage/storage.cpp">
-			<Option target="CubbyDNN"/>
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Test.cpp">
 			<Option target="CubbyDNN"/>

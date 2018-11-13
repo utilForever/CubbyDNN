@@ -15,6 +15,7 @@ add_executable(${target}
 # Project options{
 set_target_properties(${target}
     PROPERTIES
+        
     ${DEFAULT_PROJECT_OPTIONS}
 )
 

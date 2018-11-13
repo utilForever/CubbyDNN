@@ -1,13 +1,19 @@
 //
-// Created by Justin on 18. 11. 9.
+// Created by jwkim on 18. 11. 13.
 //
+
+#ifndef CUBBYDNN_BASE_OPERATIONS_HPP
+#define CUBBYDNN_BASE_OPERATIONS_HPP
+
+#include <Backend/util_decl/Tensor_container_decl.hpp>
+#include <Backend/util_decl/base_operations_decl.hpp>
 #include <iostream>
-#include "Backend/util/baseOp.hpp"
 
 namespace cubby_dnn{
-
     template<typename T>
-    emptyOp<T>::emptyOp() = default;
+    void emptyOp<T>::print(){
+        std::cout<<"emptyOp"<<std::endl;
+    }
 
     //TODO: implement these constructors! (Add new operation and tensor on adj matrix)
 
@@ -41,3 +47,4 @@ namespace cubby_dnn{
         //TODO: make return tensor
     }
 }
+#endif //CUBBYDNN_BASE_OPERATIONS_HPP

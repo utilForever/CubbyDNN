@@ -10,6 +10,11 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries
 )
 
+#Added by Justin
+include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../Includes
+)
+
 # Sources
 file(GLOB header_dir
         ${root_dir}/Includes)
@@ -18,11 +23,11 @@ file(GLOB_RECURSE headers
         ${header_dir}/*.h)
 
 file(GLOB_RECURSE sources
-        ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp Backend/storage/Tensor_object.cpp Backend/storage/baseOp.cpp Backend/storage/storage.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 # Build library
 add_library(${target}
-        ${sources} ../../Includes/cubbydnn/Backend/storage/management.h Backend/storage/management.cpp)
+        ${sources})
 
 # Project options
 set_target_properties(${target}

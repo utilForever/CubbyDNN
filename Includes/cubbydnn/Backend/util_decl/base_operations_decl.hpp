@@ -2,11 +2,11 @@
 // Created by Justin on 18. 11. 8.
 //
 
+
 #ifndef CUBBYDNN_BASEOP_H
 #define CUBBYDNN_BASEOP_H
 
-#include "Tensor_container.hpp"
-#include "management.hpp"
+#include "Tensor_container_decl.hpp"
 #include <vector>
 #include <variant>
 
@@ -19,16 +19,18 @@ namespace cubby_dnn{
             int this_id = Management<T>::add_op();
             Management<T>::add_edge(from, this_id, tensor);
         }
-
-    private:
         Operation() {};///disable the constructor
     };
 
     template<typename T>
     class emptyOp: public Operation<T>{
     public:
-        emptyOp();// do nothing
+        emptyOp(){
+            std::cout<<"emptyOp"<<std::endl;
+        }
+        void print();
     };
+
 
     template<typename T>
     class MatMul: public Operation<T>{
@@ -59,6 +61,8 @@ namespace cubby_dnn{
     public:
         Reshape(Tensor_container<T> &tensor1);
     };
+
+
 }
 
 #endif //CUBBYDNN_BASEOP_H

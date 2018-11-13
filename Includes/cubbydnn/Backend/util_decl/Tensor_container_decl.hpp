@@ -1,0 +1,138 @@
+//
+// Created by Justin on 18. 11. 5.
+//
+
+#ifndef CUBBYDNN_BACKEND_H
+#define CUBBYDNN_BACKEND_H
+
+#include <vector>
+#include <memory>
+#include "../../../../Includes/cubbydnn/Backend/util_decl/exceptions.hpp"
+
+#include <vector>
+#include <deque>
+#include <mutex>
+
+namespace cubby_dnn {
+
+    enum class Tensor_type{
+        weight,
+        bias,
+        filter,
+        placeHolder,
+        other
+    };
+
+    template<typename T>
+    class Tensor{
+
+    private:
+
+        Tensor(std::vector<int> &shape, Tensor_type type, int from, std::string name);
+
+        Tensor(std::vector<int> &&shape, Tensor_type type, int from, std::string name) noexcept;
+
+    public:
+        ///getters
+        const Tensor_type getType() const { return type; }
+
+        const std::string& getName() const { return name; }
+
+        const bool isTrainable() const { return trainable; }
+
+    private:
+
+        std::string name = nullptr;
+        bool trainable = true;
+        int id; ///specific ID to identify the tensor
+        int from;
+        int to = -1;
+        Tensor_type type;
+        std::vector<int> shape;
+    };
+
+    template<typename T>
+    void verify(std::vector<T> &data, std::vector<int> &shape); //throws exception if input in invalid
+
+    template<typename T>
+    class Tensor_container{
+    public:
+
+        Tensor_container(const std::vector<T> &data, const std::vector<int> &shape, Tensor_type type, std::string name,
+                         int tensor_id);
+
+        Tensor_container(std::vector<T> &&data, std::vector<int> &&shape, Tensor_type type, std::string name,
+                                 int tensor_id) noexcept;
+
+        Tensor_container(const Tensor_container<T>& rhs);
+
+        Tensor_container(Tensor_container<T>&& rhs) noexcept;
+
+        Tensor_container& operator=(const Tensor_container<T>& rhs);
+
+        Tensor_container& operator=(Tensor_container<T>&& rhs) noexcept;
+
+        ~Tensor_container();
+
+    private:
+
+        struct storage;
+        std::unique_ptr<storage> tensor_object; //container of actual data
+        std::string name = nullptr;
+        bool trainable = true;
+        Tensor_type type;
+        int id;
+
+    public:
+        ///getters
+        const Tensor_type get_type() const { return type; }
+
+        const std::string& get_name() const { return name; }
+
+        const unsigned long get_data_size() const { return tensor_object->data.size(); }
+
+        const std::vector<int>& get_shape() const { return tensor_object->data.shape(); }
+
+        const std::vector<int>& get_data() const { return tensor_object->data; }
+
+        const bool is_trainable() const { return trainable; }
+
+        ///setters
+        void disable_training() { trainable = false; }
+
+        void enable_training() { trainable = true; }
+    };
+
+///management
+
+    template<typename T>
+    class Management{
+    public:
+        ///Adds new operation
+        static int add_op() noexcept;
+        ///Adds new edge between two
+        static void add_edge(int from, int to, Tensor_container<T> &tensor) noexcept;
+        ///Adds placeholders that can stream data into the graph
+        static void add_placeHolder(std::unique_ptr<Tensor_container<T>> placeHolder) noexcept;
+
+        static int get_graph_size(){
+            return static_cast<int>(adj_forward.size());
+        }
+
+        static std::unique_ptr<Tensor_container<T>> get_tensor_ptr(const int from, const int to) noexcept;
+
+    private:
+
+        static std::deque<std::unique_ptr<Tensor_container<T>>> placeHolders;
+
+        static std::deque<std::vector<std::unique_ptr<Tensor_container<T>>>> adj_forward;
+
+        Management(){} ///disable the constructor
+
+        static std::mutex adj_mutex;
+    };
+
+
+}
+
+#endif //CUBBYDNN_BACKEND_H
