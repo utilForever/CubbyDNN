@@ -1,6 +1,9 @@
 
 #Code Structure
 
+Graph generation will be single-threaded
+However, analyzing the graph and executing the graph can be multi-threaded
+
 * Management class
     * This class is able to manage resources used in 
     _graph-construction process_
@@ -11,6 +14,7 @@
     * getters and setters for adj matrix
     * abilities to manage placeholders (which can stream data into graph)
     * declaration of private resources:
+    
     '''
             static std::deque<std::unique_ptr<Tensor_container<T>>> placeHolders;
     

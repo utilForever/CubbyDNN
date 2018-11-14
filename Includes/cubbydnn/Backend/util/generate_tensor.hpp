@@ -14,11 +14,11 @@ namespace cubby_dnn{
         else if(shape.size() > 3)
             throw ArgumentException("dimension of shape is over 3");
 
-        int this_num = Management<T>::get_plalsceHolder_num();
+        int this_num = Management<T>::get_plalceHolder_num();
         std::string name = "placeHolder{" + std::to_string(this_num +1 ) + "}";
 
-        Tensor<T> tensor(shape, Tensor_type::placeHolder,
-                         placeHolder_operation_index, name);
+        Tensor<T> tensor(shape, Tensor_type::placeHolder, 0,
+                         placeHolder_operation_index, name, false);
 
         unsigned long size = 1;
         for(auto elem : shape){
@@ -37,7 +37,7 @@ namespace cubby_dnn{
     Tensor<T> generate_tensor<T>::placeHolder(std::vector<int> shape, std::string name){
 
         Tensor<T> tensor(shape, Tensor_type::placeHolder, -1,
-                         placeHolder_operation_index, name);
+                         placeHolder_operation_index, name, false);
 
         unsigned long size = 1;
         for(auto elem : shape)

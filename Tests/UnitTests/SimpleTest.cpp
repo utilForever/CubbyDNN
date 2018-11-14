@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include "Backend/util/basic_operations.hpp"
+#include "Backend/util/Tensor_container.hpp"
+#include "Backend/util/generate_tensor.hpp"
+
 
 #include <Test.h>
 

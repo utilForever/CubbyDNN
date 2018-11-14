@@ -24,6 +24,7 @@ class TensorException: public std::exception{
     };
 
     //TODO: Add more Exceptions if required
+
     class ArgumentException: public TensorException{
     public:
         ArgumentException(){
@@ -32,7 +33,7 @@ class TensorException: public std::exception{
             std::cout<<msg<<std::endl;
         }
 
-        explicit ArgumentException(std::string msg) {
+        explicit ArgumentException(const std::string& msg) {
             this->msg = default_msg + msg;
             std::cout<<msg<<std::endl;
         }
@@ -46,7 +47,7 @@ class TensorException: public std::exception{
             std::cout<<msg<<std::endl;
         }
 
-        explicit InvalidOperation(std::string msg){
+        explicit InvalidOperation(const std::string& msg){
             this->msg = default_msg + msg;
             std::cout<<msg<<std::endl;
         }

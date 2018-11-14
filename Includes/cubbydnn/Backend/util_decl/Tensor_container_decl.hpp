@@ -23,42 +23,6 @@ namespace cubby_dnn {
         other
     };
 
-    template<typename T>
-    class Tensor{
-
-    private:
-
-        Tensor(std::vector<int> &shape, Tensor_type type, int tensor_id, int from, std::string name, bool _mutable = true);
-
-        Tensor(std::vector<int> &&shape, Tensor_type type, int tensor_id, int from, std::string name, bool _mutable = true) noexcept;
-
-    public:
-        ///getters
-        constexpr Tensor_type get_type() const { return type; }
-
-        const std::string& get_name() const { return name; }
-
-        constexpr bool is_mutable() const { return _mutable; }
-
-        //TODO: Actual modification on the Tensor_container required
-        ///setters
-        void set_type(Tensor_type type) { this->type = type; }
-
-        void set_name(const std::string &name) { this->name = name; }
-
-        void make_mutable() { this->_mutable = true; }
-
-        void make_constant() { this->_mutable =  false; }
-    private:
-
-        std::string name; //name of this tensor
-        bool _mutable = true; // determines whether data of this tensor can be modified
-        int id; // specific ID to identify the tensor
-        int from; // ID of operation that this tensor is generated
-        int to = -1; // ID of operation that receives this tensor
-        Tensor_type type; // type of this tensor
-        std::vector<int> shape; // shape of this tensor
-    };
 
     template<typename T>
     void verify(std::vector<T> &data, std::vector<int> &shape); //throws exception if input in invalid
@@ -68,10 +32,10 @@ namespace cubby_dnn {
     public:
 
         Tensor_container(const std::vector<T> &data, const std::vector<int> &shape, Tensor_type type, std::string name,
-                         int tensor_id);
+                int tensor_id);
 
         Tensor_container(std::vector<T> &&data, std::vector<int> &&shape, Tensor_type type, std::string name,
-                                 int tensor_id) noexcept;
+                int tensor_id) noexcept;
 
         Tensor_container(const Tensor_container<T>& rhs);
 
@@ -114,7 +78,51 @@ namespace cubby_dnn {
         void enable_training() { trainable = true; }
     };
 
-///management
+    template<typename T>
+    class Tensor{
+
+    private:
+
+        Tensor(std::vector<int> &shape, Tensor_type type, int tensor_id, int from, std::string name,
+               bool _mutable = true);
+
+        Tensor(std::vector<int> &&shape, Tensor_type type, int tensor_id, int from, std::string name,
+               bool _mutable = true) noexcept;
+
+    public:
+        ///getters
+        constexpr Tensor_type get_type() const { return type; }
+
+        const std::string& get_name() const { return name; }
+
+        constexpr bool is_mutable() const { return _mutable; }
+
+        //TODO: Actual modification on the Tensor_container required
+        ///setters
+        void set_type(Tensor_type type) { this->type = type; }
+
+        void set_name(const std::string &name) { this->name = name; }
+
+        void make_mutable() { this->_mutable = true; }
+
+        void make_constant() { this->_mutable =  false; }
+
+    private:
+        //properties of the tensor
+
+        std::string name; //name of this tensor
+        bool _mutable = true; // determines whether data of this tensor can be modified
+        int id; // specific ID to identify the tensor
+        int from; // ID of operation that this tensor is generated
+        int to = -1; // ID of operation that receives this tensor
+        Tensor_type type; // type of this tensor
+        std::vector<int> shape; // shape of this tensor
+
+        std::weak_ptr<Tensor_container<T>> tensor_container_ptr;
+
+    };
+
+/// Resource management
 
     template<typename T>
     class Management{
@@ -126,23 +134,22 @@ namespace cubby_dnn {
         ///Adds placeholders that can stream data into the graph
         static void add_placeHolder(std::unique_ptr<Tensor_container<T>> placeHolder) noexcept;
 
-        static int get_graph_size(){
-            return static_cast<int>(adj_forward.size());
-        }
+        static int get_graph_size() { return static_cast<int>(adj_forward.size()); }
 
         static std::unique_ptr<Tensor_container<T>> get_tensor_ptr(int from, int to) noexcept;
 
     private:
 
-        static std::deque<std::unique_ptr<Tensor_container<T>>> placeHolders;
+        static constexpr int default_graph_size = 30;
 
-        static std::deque<std::vector<std::unique_ptr<Tensor_container<T>>>> adj_forward;
+        static std::deque<std::shared_ptr<Tensor_container<T>>> placeHolders;
+
+        static std::deque<std::deque<std::shared_ptr<Tensor_container<T>>>> adj_forward;
 
         Management() = default; ///disable the constructor
 
-        static std::mutex adj_mutex;
+        static std::mutex adj_mutex; //mutex for restricting access to adj matrix
     };
-
 
 }
 
