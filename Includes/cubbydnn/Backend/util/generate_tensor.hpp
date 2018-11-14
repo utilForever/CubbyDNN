@@ -17,8 +17,8 @@ namespace cubby_dnn{
         int this_num = Management<T>::get_plalceHolder_num();
         std::string name = "placeHolder{" + std::to_string(this_num +1 ) + "}";
 
-        Tensor<T> tensor(shape, Tensor_type::placeHolder, 0,
-                         placeHolder_operation_index, name, false);
+        Tensor<T> tensor(Tensor_type::placeHolder,
+                         placeHolder_operation_index, false);
 
         unsigned long size = 1;
         for(auto elem : shape){
@@ -27,7 +27,7 @@ namespace cubby_dnn{
 
         std::vector<T> data(size);
 
-        Tensor_container<T> tensor_object(std::move(data), std::move(shape),
+        Tensor_object<T> tensor_object(std::move(data), std::move(shape),
                                                Tensor_type::placeHolder, name, 0);
         std::unique_ptr<Tensor<T>> tensor_ptr = std::make_unique(tensor);
         Management<T>::add_placeHolder(tensor_ptr);
@@ -36,8 +36,8 @@ namespace cubby_dnn{
     template<typename T>
     Tensor<T> generate_tensor<T>::placeHolder(std::vector<int> shape, std::string name){
 
-        Tensor<T> tensor(shape, Tensor_type::placeHolder, -1,
-                         placeHolder_operation_index, name, false);
+        Tensor<T> tensor(Tensor_type::placeHolder,
+                         placeHolder_operation_index, false);
 
         unsigned long size = 1;
         for(auto elem : shape)
@@ -45,7 +45,7 @@ namespace cubby_dnn{
 
         std::vector<T> data(size);
 
-        Tensor_container<T> tensor_object(data, shape, Tensor_type::placeHolder, name, 0);
+        Tensor_object<T> tensor_object(data, shape, Tensor_type::placeHolder, name, 0);
         std::unique_ptr<Tensor<T>> tensor_ptr = std::make_unique(tensor);
         Management<T>::add_placeHolder(tensor_ptr);
     }
