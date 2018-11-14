@@ -119,7 +119,7 @@ namespace cubby_dnn {
             return static_cast<int>(adj_forward.size());
         }
 
-        static std::unique_ptr<Tensor_container<T>> get_tensor_ptr(const int from, const int to) noexcept;
+        static std::unique_ptr<Tensor_container<T>> get_tensor_ptr(int from, int to) noexcept;
 
     private:
 
@@ -127,7 +127,7 @@ namespace cubby_dnn {
 
         static std::deque<std::vector<std::unique_ptr<Tensor_container<T>>>> adj_forward;
 
-        Management(){} ///disable the constructor
+        Management() = default; ///disable the constructor
 
         static std::mutex adj_mutex;
     };
