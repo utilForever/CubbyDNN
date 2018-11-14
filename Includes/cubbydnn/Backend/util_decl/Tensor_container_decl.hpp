@@ -28,27 +28,36 @@ namespace cubby_dnn {
 
     private:
 
-        Tensor(std::vector<int> &shape, Tensor_type type, int from, std::string name);
+        Tensor(std::vector<int> &shape, Tensor_type type, int tensor_id, int from, std::string name, bool _mutable = true);
 
-        Tensor(std::vector<int> &&shape, Tensor_type type, int from, std::string name) noexcept;
+        Tensor(std::vector<int> &&shape, Tensor_type type, int tensor_id, int from, std::string name, bool _mutable = true) noexcept;
 
     public:
         ///getters
-        const Tensor_type getType() const { return type; }
+        constexpr Tensor_type get_type() const { return type; }
 
-        const std::string& getName() const { return name; }
+        const std::string& get_name() const { return name; }
 
-        const bool isTrainable() const { return trainable; }
+        constexpr bool is_mutable() const { return _mutable; }
 
+        //TODO: Actual modification on the Tensor_container required
+        ///setters
+        void set_type(Tensor_type type) { this->type = type; }
+
+        void set_name(const std::string &name) { this->name = name; }
+
+        void make_mutable() { this->_mutable = true; }
+
+        void make_constant() { this->_mutable =  false; }
     private:
 
-        std::string name = nullptr;
-        bool trainable = true;
-        int id; ///specific ID to identify the tensor
-        int from;
-        int to = -1;
-        Tensor_type type;
-        std::vector<int> shape;
+        std::string name; //name of this tensor
+        bool _mutable = true; // determines whether data of this tensor can be modified
+        int id; // specific ID to identify the tensor
+        int from; // ID of operation that this tensor is generated
+        int to = -1; // ID of operation that receives this tensor
+        Tensor_type type; // type of this tensor
+        std::vector<int> shape; // shape of this tensor
     };
 
     template<typename T>
@@ -85,17 +94,19 @@ namespace cubby_dnn {
 
     public:
         ///getters
-        const Tensor_type get_type() const { return type; }
+        constexpr Tensor_type get_type() const { return type; }
 
         const std::string& get_name() const { return name; }
 
-        const unsigned long get_data_size() const { return tensor_object->data.size(); }
+        constexpr unsigned long get_data_size() const { return tensor_object->data.size(); }
+
+        constexpr unsigned long get_data_byte_size() const { return tensor_object->data.size()*sizeof(T); }
 
         const std::vector<int>& get_shape() const { return tensor_object->data.shape(); }
 
         const std::vector<int>& get_data() const { return tensor_object->data; }
 
-        const bool is_trainable() const { return trainable; }
+        constexpr bool is_trainable() const { return trainable; }
 
         ///setters
         void disable_training() { trainable = false; }
