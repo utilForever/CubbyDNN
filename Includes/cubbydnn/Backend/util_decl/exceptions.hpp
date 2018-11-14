@@ -10,15 +10,20 @@
 
 namespace cubby_dnn{
     
-class TensorException: public std::exception{
+class TensorException: public std::runtime_error{
     public:
-        TensorException() = default;
-
         std::string message(){
             return msg;
         }
 
+        TensorException():std::runtime_error("TensorException"){}
+
+        explicit TensorException(const std::string &msg):std::runtime_error("TensorException"){
+            this->msg = msg;
+        }
+
     protected:
+
         std::string msg;
         std::string default_msg;
     };
@@ -51,7 +56,20 @@ class TensorException: public std::exception{
             this->msg = default_msg + msg;
             std::cout<<msg<<std::endl;
         }
+    };
 
+    class EmptyObjectException: public TensorException{
+    public:
+        EmptyObjectException(){
+            default_msg = "Requesting object that doesn't exist";
+            msg = default_msg;
+            std::cout<<msg<<std::endl;
+        }
+
+        explicit EmptyObjectException(const std::string& msg){
+            this->msg = default_msg + msg;
+            std::cout<<msg<<std::endl;
+        }
     };
 }
 

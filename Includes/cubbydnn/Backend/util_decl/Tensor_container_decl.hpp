@@ -62,9 +62,9 @@ namespace cubby_dnn {
 
         const std::string& get_name() const { return name; }
 
-        constexpr unsigned long get_data_size() const { return tensor_object->data.size(); }
+        constexpr int get_data_size() const { return static_cast<int>(tensor_object->data.size()); }
 
-        constexpr unsigned long get_data_byte_size() const { return tensor_object->data.size()*sizeof(T); }
+        constexpr int get_data_byte_size() const { return static_cast<int>(tensor_object->data.size()*sizeof(T)); }
 
         const std::vector<int>& get_shape() const { return tensor_object->data.shape(); }
 
@@ -93,24 +93,32 @@ namespace cubby_dnn {
         ///getters
         constexpr Tensor_type get_type() const { return type; }
 
-        const std::string& get_name() const { return name; }
+        const std::string& get_name() const {
+            if(tensor_container_ptr)
+                return tensor_container_ptr->name;
+            else
+                throw EmptyObjectException();
+        }
 
         constexpr bool is_mutable() const { return _mutable; }
+
+        const std::weak_ptr<Tensor_container<T>> &get_tensor_container_ptr() const {
+            return tensor_container_ptr;
+        }
 
         //TODO: Actual modification on the Tensor_container required
         ///setters
         void set_type(Tensor_type type) { this->type = type; }
 
-        void set_name(const std::string &name) { this->name = name; }
+        void set_name(const std::string &name) { tensor_container_ptr->name = name; }
 
         void make_mutable() { this->_mutable = true; }
 
         void make_constant() { this->_mutable =  false; }
 
-    private:
+    private:;
         //properties of the tensor
 
-        std::string name; //name of this tensor
         bool _mutable = true; // determines whether data of this tensor can be modified
         int id; // specific ID to identify the tensor
         int from; // ID of operation that this tensor is generated

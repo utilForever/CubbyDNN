@@ -121,13 +121,13 @@ namespace cubby_dnn{
 
 /// management
 
-    //TODO: make these thread-safe!
-    //TODO: verify exception_safety!
+    //TODO: make these thread-safe
+    //TODO: verify exception_safety
     template<typename T>
     int Management<T>::add_op() noexcept{
-        auto graph_size = static_cast<int>(adj_forward.size());
+        int graph_size = static_cast<int>(adj_forward.size());
 
-        unsigned long row_size = (graph_size + 1 > default_graph_size) ? graph_size + 1 : default_graph_size;
+        int row_size = (graph_size + 1 > default_graph_size) ? graph_size + 1 : default_graph_size;
 
         std::deque<std::shared_ptr<Tensor_container<T>>> temp(row_size, nullptr);
 
@@ -136,7 +136,7 @@ namespace cubby_dnn{
             while(row_size > graph_size){
                 arg.emplace_back(
                         std::make_shared<decltype(temp)>(temp));
-                graph_size = arg.size();
+                graph_size = static_cast<int>(arg.size());
             }
         };
 
