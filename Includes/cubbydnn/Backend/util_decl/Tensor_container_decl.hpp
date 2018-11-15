@@ -120,8 +120,8 @@ namespace cubby_dnn {
         constexpr Tensor_type get_type() const { return type; }
 
         const std::string& get_name() const {
-            if(tensor_container_ptr)
-                return tensor_container_ptr->name;
+            if(auto temp_ptr = tensor_container_ptr.lock())
+                return temp_ptr->name;
             else
                 throw EmptyObjectException();
         }
@@ -132,34 +132,33 @@ namespace cubby_dnn {
             return tensor_container_ptr;
         }
 
-        //TODO: think about ways to check if tensor_container_ptr is empty
-
         ///setters
-        void set_tensor_object(std::weak_ptr<Tensor_object<T>> ptr){
+        void set_tensor_object(std::shared_ptr<Tensor_object<T>> ptr){
             tensor_container_ptr = ptr;
         }
 
         void set_type(Tensor_type type) {
             this->type = type;
-            if(tensor_container_ptr)
-                tensor_container_ptr->set_type(type);
+            if(auto temp_ptr = tensor_container_ptr.lock())
+                temp_ptr->set_type(type);
+
         }
 
         void set_name(const std::string &name) { 
-            if(tensor_container_ptr)
-                tensor_container_ptr->set_name(name);
+            if(auto temp_ptr = tensor_container_ptr.lock())
+                temp_ptr->set_name(name);
         }
 
         void make_mutable() {
             this->_mutable = true;
-            if(tensor_container_ptr)
-                tensor_container_ptr->make_mutable();
+            if(auto temp_ptr = tensor_container_ptr.lock())
+                temp_ptr->make_mutable();
         }
 
         void make_constant() {
             this->_mutable = false;
-            if (tensor_container_ptr)
-                tensor_container_ptr->make_constant();
+            if (auto temp_ptr = tensor_container_ptr.lock())
+                temp_ptr->make_constant();
         }
 
     private:

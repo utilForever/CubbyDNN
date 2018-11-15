@@ -428,6 +428,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn/Backend/util_decl/stream_decl.hpp">
+			<Option target="CubbyDNN"/>
+		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include/benchmark/benchmark.h">
 			<Option target="benchmark"/>
 		</Unit>
