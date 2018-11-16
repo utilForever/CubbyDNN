@@ -10,9 +10,25 @@
 
 template<typename T>
 class Stream{
-    virtual std::vector<T> next();
+public:
+    virtual std::vector<T> next() = 0;
 
-    virtual bool has_next();
+    virtual bool has_next() = 0;
+
+    long get_stream_size() { return stream_size; }
+
+private:
+    long stream_size = 0;
+};
+
+template<typename T>
+class File_stream: public Stream<T>{
+
+};
+
+template<typename T>
+class Data_stream: public Stream<T>{
+
 };
 
 #endif //CUBBYDNN_STREAM_DECL_HPP

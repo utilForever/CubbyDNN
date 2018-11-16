@@ -45,8 +45,8 @@ namespace cubby_dnn{
     }
 
     template<typename T>
-    Tensor_object<T>::Tensor_object(const std::vector<T> &data, const std::vector<int> &shape,
-                                          Tensor_type type, const std::string &name, int tensor_id): type(type) {
+    Tensor_object<T>::Tensor_object(const std::vector<T> &data, const std::vector<int> &shape, Tensor_type type, const std::string &name,
+                                        int tensor_id, int from, int to): type(type), from(from), to(to) {
 
         verify<T>(data, shape); //throws exception if arguments are invalid
 
@@ -56,8 +56,8 @@ namespace cubby_dnn{
     }
 
     template<typename T>
-    Tensor_object<T>::Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
-                                          Tensor_type type, std::string &&name, int tensor_id): type(type) {
+    Tensor_object<T>::Tensor_object(std::vector<T> &&data, std::vector<int> &&shape, Tensor_type type, std::string &&name, int tensor_id,
+                                        int from, int to): type(type), from(from), to(to) {
 
         verify<T>(data, shape); //throws exception if arguments are invalid
 
@@ -110,13 +110,43 @@ namespace cubby_dnn{
         }
     }
 
+    //getters
+
+    template<typename T>
+    constexpr int Tensor_object<T>::get_data_size() const {
+        if(!tensor_object)
+            throw EmptyObjectException("tensor_object is empty");
+        return static_cast<int>(tensor_object->data.size());
+    }
+
+    template<typename T>
+    constexpr long Tensor_object<T>::get_data_byte_size() const {
+        if(!tensor_object)
+            throw EmptyObjectException("tensor_object is empty");
+        return static_cast<long>(tensor_object->data.size()*sizeof(T));
+    }
+
+    template<typename T>
+    const std::vector<int> &Tensor_object<T>::get_shape() const {
+        if(!tensor_object)
+            throw EmptyObjectException("tensor_object is empty");
+        return tensor_object->data.shape();
+    }
+
+    template<typename T>
+    const std::vector<int> &Tensor_object<T>::get_data() const {
+        if(!tensor_object)
+            throw EmptyObjectException("tensor_object is empty");
+        return tensor_object->data;
+    }
+
 /// management
 
     //TODO: make these thread-safe
     //TODO: verify exception_safety
     template<typename T>
     int Management<T>::add_op() noexcept{
-        int graph_size = static_cast<int>(adj_forward.size());
+        auto graph_size = static_cast<int>(adj_forward.size());
 
         int expected_row_size = (graph_size + 1 > default_graph_size) ? graph_size + 1 : default_graph_size;
 
@@ -139,7 +169,7 @@ namespace cubby_dnn{
 
         adj_forward.emplace_back(std::make_shared<decltype(temp)>(temp)); // graph_size += 1
 
-        return graph_size;
+        return static_cast<int>(adj_forward.size());
     }
 
     template<typename T>
@@ -172,8 +202,9 @@ namespace cubby_dnn{
         adj_forward[from][to] = make_shared(tensor);
     }
 
+
     template<typename T>
-    std::unique_ptr<Tensor_object<T>> Management<T>::get_tensor_ptr(int from, int to) noexcept{
+    std::shared_ptr<Tensor_object <T>> Management<T>::get_tensor_ptr(int from, int to) noexcept{
         try {
             if (from >= adj_forward.size() || to >= adj_forward.size()) {
                 std::string error_msg = "pointing to operation that doesn't exist";
@@ -186,13 +217,6 @@ namespace cubby_dnn{
             return nullptr;
         }
         return adj_forward[from][to]; ///get ownership from adj (thread-safe);
-    }
-
-    template<typename T>
-    void Management<T>::add_placeHolder(std::unique_ptr<Tensor_object<T>> placeHolder) noexcept{
-
-        std::lock_guard<std::mutex> guard(adj_mutex);
-        placeHolders.emplace_back(placeHolder);
     }
 }
 #endif //CUBBYDNN_TENSOR_CONTAINER_DEF_HPP

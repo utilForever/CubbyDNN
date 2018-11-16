@@ -5,10 +5,8 @@
 #ifndef CUBBYDNN_BACKEND_H
 #define CUBBYDNN_BACKEND_H
 
-#include <vector>
+#include "exceptions.hpp"
 #include <memory>
-#include "../../../../Includes/cubbydnn/Backend/util_decl/exceptions.hpp"
-
 #include <vector>
 #include <deque>
 #include <mutex>
@@ -31,12 +29,11 @@ namespace cubby_dnn {
     class Tensor_object{
     public:
 
-        Tensor_object(const std::vector<T> &data, const std::vector<int> &shape, Tensor_type type,
-                         const std::string &name,
-                         int tensor_id); //(1)
+        Tensor_object(const std::vector<T> &data, const std::vector<int> &shape, Tensor_type type, const std::string &name,
+                              int tensor_id, int from, int to); //(1)
 
-        Tensor_object(std::vector<T> &&data, std::vector<int> &&shape, Tensor_type type, std::string &&name,
-                         int tensor_id); //(2)
+        Tensor_object(std::vector<T> &&data, std::vector<int> &&shape, Tensor_type type, std::string &&name, int tensor_id,
+                              int from, int to); //(2)
 
         Tensor_object(const Tensor_object<T>& rhs); //(3)
 
@@ -65,6 +62,8 @@ namespace cubby_dnn {
 
         int tensor_id;
 
+        int from, to;
+
         struct storage;
 
         std::unique_ptr<storage> tensor_object; //container of actual data
@@ -72,17 +71,19 @@ namespace cubby_dnn {
 
     public:
         ///getters
+        constexpr bool has_data() const { if (!tensor_object) return false; else return true; }
+
         constexpr Tensor_type get_type() const { return type; }
 
         const std::string& get_name() const { return name; }
 
-        constexpr int get_data_size() const { return static_cast<int>(tensor_object->data.size()); }
+        constexpr int get_data_size() const;
 
-        constexpr long get_data_byte_size() const { return static_cast<long>(tensor_object->data.size()*sizeof(T)); }
+        constexpr long get_data_byte_size() const;
 
-        const std::vector<int>& get_shape() const { return tensor_object->data.shape(); }
+        const std::vector<int>& get_shape() const;
 
-        const std::vector<int>& get_data() const { return tensor_object->data; }
+        const std::vector<int>& get_data() const;
 
         constexpr int get_tensor_id() const { return tensor_id; }
 
@@ -117,13 +118,19 @@ namespace cubby_dnn {
             return !tensor_container_ptr.expired();
         }
 
-        constexpr Tensor_type get_type() const { return type; }
+        constexpr Tensor_type get_type() const{ return type; }
 
         const std::string& get_name() const {
             if(auto temp_ptr = tensor_container_ptr.lock())
                 return temp_ptr->name;
             else
-                throw EmptyObjectException();
+                return this->name;
+        }
+
+        const std::vector<int>& get_shape() const{
+            if(auto temp_ptr = tensor_container_ptr.lock())
+                return temp_ptr->get_shape();
+            else return this->shape;
         }
 
         constexpr bool is_mutable() const { return _mutable; }
@@ -163,6 +170,10 @@ namespace cubby_dnn {
 
     private:
         //properties of the tensor
+        std::string name;
+
+        std::vector<int> shape;
+
         bool _mutable = true; // determines whether data of this tensor can be modified
 
         int from; // ID of operation that this tensor is generated
@@ -184,17 +195,15 @@ namespace cubby_dnn {
         ///Adds new edge between two
         static void add_edge(int from, int to, Tensor_object<T> &tensor) noexcept;
         ///Adds placeholders that can stream data into the graph
-        static void add_placeHolder(std::unique_ptr<Tensor_object<T>> placeHolder) noexcept;
+        static void add_placeHolder(std::shared_ptr<Tensor_object < T>> placeHolder) noexcept;
 
         static int get_graph_size() { return static_cast<int>(adj_forward.size()); }
 
-        static std::unique_ptr<Tensor_object<T>> get_tensor_ptr(int from, int to) noexcept;
+        static std::shared_ptr<Tensor_object <T>> get_tensor_ptr(int from, int to) noexcept;
 
     private:
 
         static constexpr int default_graph_size = 30;
-
-        static std::deque<std::shared_ptr<Tensor_object<T>>> placeHolders;
 
         static std::deque<std::deque<std::shared_ptr<Tensor_object<T>>>> adj_forward;
 

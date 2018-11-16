@@ -9,9 +9,8 @@
 #include "stream_decl.hpp"
 
 namespace cubby_dnn{
-
     template<typename T>
-    class generate_tensor{
+    class generate_Ops{
         static const int placeHolder_operation_index = -1;
 
         static const int max_dim = 3;

@@ -27,7 +27,7 @@ file(GLOB_RECURSE sources
 
 # Build library
 add_library(${target}
-        ${sources} ../../Includes/cubbydnn/Backend/util_decl/stream_decl.hpp)
+        ${sources})
 
 # Project options
 set_target_properties(${target}
