@@ -6,78 +6,77 @@
 #define CUBBYDNN_GENERATOR_TENSOR_HPP
 
 #include "Backend/util_decl/generate_tensor_decl.hpp"
+#include "Backend/operations_decl/base_operations_decl.hpp"
 
-namespace cubby_dnn{
+namespace cubby_dnn
+{
+template <typename T>
+Tensor<T> generate_ops<T>::placeHolder(const std::vector<int> &shape,
+                                       Stream<T> stream)
+{
+    check_arguments(shape);
 
-    template<typename T>
-    Tensor <T> generate_Ops<T>::placeHolder(std::vector<int> shape, Stream<T> stream) {
-        if(shape.empty())
-            throw ArgumentException("argument 'shape' is empty");
-        else if(shape.size() > max_dim)
-            throw ArgumentException("dimension of shape is over 3");
+    auto id = static_cast<int>(Adj_management<T>::add_op_adj());
 
-        int this_num = Management<T>::get_plalceHolder_num();
-        auto name = "placeHolder{" + std::to_string(this_num + 1 ) + "}";
-
-        long size = 1;
-        for(auto elem : shape){
-            size *= elem;
-        }
-
-        if(size < 0) throw ArgumentException("invalid shape");
-
-        Tensor<T> tensor(Tensor_type::placeHolder, placeHolder_operation_index);
-
-        std::vector<T> data(static_cast<unsigned long>(size));
-
-        Tensor_object<T> tensor_object(std::move(data), std::move(shape), Tensor_type::placeHolder, name, 0, 0, 0);
-        std::shared_ptr<Tensor<T>> tensor_ptr = std::make_shared(tensor);
-        Management<T>::add_placeHolder(tensor_ptr);
-    }
-
-    template<typename T>
-    Tensor<T> generate_Ops<T>::placeHolder(std::vector<int> shape, std::string name){
-        if(shape.empty())
-            throw ArgumentException("argument 'shape' is empty");
-        else if(shape.size() > max_dim)
-            throw ArgumentException("dimension of shape is over 3");
-
-        long size = 1;
-        for(auto elem : shape)
-            size *= elem;
-
-        if(size < 0) throw ArgumentException("invalid shape");
-
-        Tensor<T> tensor(Tensor_type::placeHolder, placeHolder_operation_index);
-
-        std::vector<T> data(static_cast<unsigned long>(size));
-
-        Tensor_object<T> tensor_object(data, shape, Tensor_type::placeHolder, name, 0, 0, 0);
-        std::unique_ptr<Tensor<T>> tensor_ptr = std::make_unique(tensor);
-        Management<T>::add_placeHolder(tensor_ptr);
-    }
-
-    template<typename T>
-    Tensor<T> generate_Ops<T>::weight(std::vector<int> shape, std::string name, bool trainable) {
-        return Tensor<T>(placeHolder, 0);
-    }
-
-    template<typename T>
-    Tensor<T> generate_Ops<T>::weight(std::vector<int> shape, bool trainable) {
-        return Tensor<T>(placeHolder, 0);
-    }
-
-    template<typename T>
-    Tensor<T> generate_Ops<T>::filter(std::vector<int> shape, std::string name, bool trainable) {
-        return Tensor<T>(placeHolder, 0);
-    }
-
-    template<typename T>
-    Tensor<T> generate_Ops<T>::filter(std::vector<int> shape, bool trainable) {
-        return Tensor<T>(placeHolder, 0);
-    }
-
-
+    Tensor<T> rtn(Tensor_type::placeHolder, shape, id, true);
+    return rtn;
 }
 
-#endif //CUBBYDNN_GENERATOR_TENSOR_HPP
+template <typename T>
+Tensor<T> generate_ops<T>::placeHolder(const std::vector<int> &shape,
+                                       Stream<T> stream,
+                                       const std::string &name)
+{
+    check_arguments(shape);
+    auto id = static_cast<int>(Adj_management<T>::add_op_adj());
+
+    return Tensor<T>(Tensor_type::placeHolder, shape, id, true);
+}
+
+template <typename T>
+Tensor<T> generate_ops<T>::weight(const std::vector<int> &shape,
+                                  const std::string &name, bool trainable)
+{
+    check_arguments(shape);
+    return Tensor<T>(placeHolder, shape, 0, false);
+}
+
+template <typename T>
+Tensor<T> generate_ops<T>::weight(const std::vector<int> &shape, bool trainable)
+{
+    return Tensor<T>(placeHolder, shape, 0, false);
+}
+
+template <typename T>
+Tensor<T> generate_ops<T>::filter(const std::vector<int> &shape,
+                                  const std::string &name, bool trainable)
+{
+    return Tensor<T>(placeHolder, shape, 0, false);
+}
+
+template <typename T>
+Tensor<T> generate_ops<T>::filter(const std::vector<int> &shape, bool trainable)
+{
+    return Tensor<T>(placeHolder, shape, 0, false);
+}
+
+template <typename T>
+bool generate_ops<T>::check_arguments(const std::vector<int> &shape)
+{
+    if (shape.empty())
+        std::cout << "Argument shape is empty" << std::endl;
+    else if (shape.size() > max_dim)
+        std::cout << "dimension of shape is over 3" << std::endl;
+
+    long size = 1;
+    for (auto elem : shape)
+        size *= elem;
+
+    if (size < 0)
+        std::cout << "Invalid shape" << std::endl;
+    return false;
+}
+
+}  // namespace cubby_dnn
+
+#endif  // CUBBYDNN_GENERATOR_TENSOR_HPP

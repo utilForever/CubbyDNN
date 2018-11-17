@@ -19,21 +19,20 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e54383d0-5379-4a7a-90a5-5e0d53b776be" name="Default Changelist" comment="operation classes(storing operation information) implemented (TODO: implement static functions adding and deleting tensors/operation )">
-      <change afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations/base_operations.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations_decl.hpp" afterDir="false" />
+    <list default="true" id="e54383d0-5379-4a7a-90a5-5e0d53b776be" name="Default Changelist" comment="clang-formatted, Exceptions removed">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations/base_operations.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations/base_operations.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations_decl.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/Tensor_container.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/Tensor_container.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/basic_operations.hpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/generate_tensor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/generate_tensor.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/Tensor_container_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/Tensor_container_decl.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/base_operations_decl.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/exceptions.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/exceptions.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/generate_tensor_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/generate_tensor_decl.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/stream_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/stream_decl.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googlebenchmark" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googlebenchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googlebenchmark/docs/tools.md" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googlebenchmark/docs/tools.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googlemock/CHANGES" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googlemock/CHANGES" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/googletest/googlemock/docs/CookBook.md" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googlemock/docs/CookBook.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googlemock/include/gmock/gmock-matchers.h" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googlemock/include/gmock/gmock-matchers.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googlemock/include/gmock/internal/gmock-generated-internal-utils.h" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googlemock/include/gmock/internal/gmock-generated-internal-utils.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googlemock/include/gmock/internal/gmock-generated-internal-utils.h.pump" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googlemock/include/gmock/internal/gmock-generated-internal-utils.h.pump" afterDir="false" />
@@ -51,9 +50,7 @@
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googletest/include/gtest/internal/gtest-type-util.h" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googletest/include/gtest/internal/gtest-type-util.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googletest/src/gtest-death-test.cc" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googletest/src/gtest-death-test.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googletest/test/googletest-output-test_.cc" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googletest/test/googletest-output-test_.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CubbyDNN.cbp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CubbyDNN.cbp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/bin/UnitTests" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/bin/UnitTests" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -87,27 +84,54 @@
                 <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
                   <state split_layout="SPLIT">
                     <first_editor relative-caret-position="684">
-                      <caret line="38" column="68" selection-start-line="38" selection-start-column="68" selection-end-line="38" selection-end-column="68" />
+                      <caret line="38" column="35" selection-start-line="38" selection-start-column="35" selection-end-line="38" selection-end-column="35" />
                     </first_editor>
                     <second_editor />
                   </state>
                 </provider>
               </entry>
             </file>
-            <file pinned="false" current-in-tab="false">
+            <file pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/generate_tensor.hpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="432">
-                    <caret line="24" column="9" selection-start-line="24" selection-start-column="9" selection-end-line="24" selection-end-column="9" />
+                  <state relative-caret-position="441">
+                    <caret line="38" column="1" lean-forward="true" selection-start-line="38" selection-start-column="1" selection-end-line="38" selection-end-column="1" />
+                    <folding>
+                      <element signature="e#120#173#0" expanded="true" />
+                      <element signature="e#206#218#0" expanded="true" />
+                      <element signature="e#971#983#0" expanded="true" />
+                      <element signature="e#1650#1662#0" expanded="true" />
+                      <element signature="e#2197#2209#0" expanded="true" />
+                      <element signature="e#2357#2369#0" expanded="true" />
+                      <element signature="e#2576#2588#0" expanded="true" />
+                      <element signature="e#2736#2748#0" expanded="true" />
+                    </folding>
                   </state>
                 </provider>
               </entry>
             </file>
-            <file pinned="false" current-in-tab="true">
+            <file pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/Tensor_container.hpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="243">
-                    <caret line="145" column="24" lean-forward="true" selection-start-line="145" selection-start-column="24" selection-end-line="145" selection-end-column="24" />
+                  <state relative-caret-position="135">
+                    <caret line="183" column="33" selection-start-line="183" selection-start-column="33" selection-end-line="183" selection-end-column="33" />
+                    <folding>
+                      <element signature="e#128#148#0" expanded="true" />
+                      <element signature="e#275#287#0" expanded="true" />
+                      <element signature="e#486#498#0" expanded="true" />
+                      <element signature="e#547#559#0" expanded="true" />
+                      <element signature="e#618#630#0" expanded="true" />
+                      <element signature="e#1005#1017#0" expanded="true" />
+                      <element signature="e#1244#1256#0" expanded="true" />
+                      <element signature="e#1534#1546#0" expanded="true" />
+                      <element signature="e#2058#2070#0" expanded="true" />
+                      <element signature="e#2666#2678#0" expanded="true" />
+                      <element signature="e#2925#2937#0" expanded="true" />
+                      <element signature="e#3024#3036#0" expanded="true" />
+                      <element signature="e#3374#3386#0" expanded="true" />
+                      <element signature="e#3503#3515#0" expanded="true" />
+                      <element signature="e#3572#3584#0" expanded="true" />
+                    </folding>
                   </state>
                 </provider>
               </entry>
@@ -115,8 +139,21 @@
             <file pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/operations/base_operations.hpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="180">
-                    <caret line="10" column="40" lean-forward="true" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
+                  <state relative-caret-position="1224">
+                    <caret line="110" column="60" lean-forward="true" selection-start-line="110" selection-start-column="60" selection-end-line="110" selection-end-column="60" />
+                    <folding>
+                      <element signature="e#207#219#0" expanded="true" />
+                      <element signature="e#267#279#0" expanded="true" />
+                      <element signature="e#695#707#0" expanded="true" />
+                      <element signature="e#1094#1106#0" expanded="true" />
+                      <element signature="e#1522#1534#0" expanded="true" />
+                      <element signature="e#1920#1932#0" expanded="true" />
+                      <element signature="e#2364#2376#0" expanded="true" />
+                      <element signature="e#2761#2773#0" expanded="true" />
+                      <element signature="e#3064#3076#0" expanded="true" />
+                      <element signature="e#3347#3359#0" expanded="true" />
+                      <element signature="e#3638#3650#0" expanded="true" />
+                    </folding>
                   </state>
                 </provider>
               </entry>
@@ -131,15 +168,15 @@
     <session id="1330051793">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="30" />
+          <entry key="project.closed" value="33" />
           <entry key="project.open.time.0" value="2" />
-          <entry key="project.open.time.1" value="2" />
+          <entry key="project.open.time.1" value="3" />
           <entry key="project.open.time.11" value="1" />
           <entry key="project.open.time.2" value="4" />
           <entry key="project.open.time.3" value="1" />
-          <entry key="project.open.time.5" value="11" />
-          <entry key="project.open.time.6" value="12" />
-          <entry key="project.opened" value="33" />
+          <entry key="project.open.time.5" value="13" />
+          <entry key="project.open.time.6" value="13" />
+          <entry key="project.opened" value="37" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -149,7 +186,7 @@
           <entry key="cmake" value="8" />
           <entry key="cpp" value="42" />
           <entry key="doxygen" value="1" />
-          <entry key="h" value="41" />
+          <entry key="h" value="42" />
           <entry key="hpp" value="22" />
           <entry key="json" value="1" />
           <entry key="md" value="9" />
@@ -165,7 +202,7 @@
           <entry key="Image" value="1" />
           <entry key="JSON" value="1" />
           <entry key="Markdown" value="9" />
-          <entry key="ObjectiveC" value="105" />
+          <entry key="ObjectiveC" value="106" />
           <entry key="PLAIN_TEXT" value="6" />
         </counts>
       </usages-collector>
@@ -173,10 +210,10 @@
         <counts>
           <entry key="cpp" value="10960" />
           <entry key="h" value="11349" />
-          <entry key="hpp" value="13967" />
+          <entry key="hpp" value="17437" />
           <entry key="md" value="1930" />
-          <entry key="mm" value="149" />
-          <entry key="txt" value="1429" />
+          <entry key="mm" value="314" />
+          <entry key="txt" value="1486" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
@@ -184,8 +221,8 @@
           <entry key="CMakeLists.txt" value="200" />
           <entry key="Doxygen file" value="7" />
           <entry key="Markdown" value="1930" />
-          <entry key="ObjectiveC" value="36418" />
-          <entry key="PLAIN_TEXT" value="1229" />
+          <entry key="ObjectiveC" value="40053" />
+          <entry key="PLAIN_TEXT" value="1286" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -197,10 +234,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/exceptions.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="16" column="9" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
+            <state relative-caret-position="18">
+              <caret line="14" column="8" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="8" />
               <folding>
-                <element signature="e#102#119#0" expanded="true" />
+                <element signature="e#102#121#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -209,10 +246,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/Tensor_container_decl.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
-              <caret line="31" column="13" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
+            <state relative-caret-position="321">
+              <caret line="252" column="31" selection-start-line="252" selection-start-column="31" selection-end-line="252" selection-end-column="31" />
               <folding>
-                <element signature="e#97#122#0" expanded="true" />
+                <element signature="e#97#113#0" expanded="true" />
+                <element signature="e#315#327#0" expanded="true" />
+                <element signature="e#451#463#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -221,8 +260,19 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations_decl.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+            <state relative-caret-position="195">
+              <caret line="15" column="21" lean-forward="true" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
+              <folding>
+                <element signature="e#230#242#0" expanded="true" />
+                <element signature="e#478#490#0" expanded="true" />
+                <element signature="e#886#898#0" expanded="true" />
+                <element signature="e#1294#1306#0" expanded="true" />
+                <element signature="e#1565#1577#0" expanded="true" />
+                <element signature="e#1862#1874#0" expanded="true" />
+                <element signature="e#2111#2123#0" expanded="true" />
+                <element signature="e#2345#2357#0" expanded="true" />
+                <element signature="e#2585#2597#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -230,8 +280,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
+            <state relative-caret-position="144">
+              <caret line="8" selection-start-line="8" selection-end-line="8" />
               <folding>
                 <element signature="e#0#24#0" expanded="true" />
               </folding>
@@ -240,19 +290,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="23" selection-start-line="23" selection-end-line="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/generate_tensor_decl.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="11" column="24" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
+            <state relative-caret-position="627">
+              <caret line="37" column="33" selection-start-line="37" selection-start-column="33" selection-end-line="37" selection-end-column="33" />
               <folding>
                 <element signature="e#118#154#0" expanded="true" />
                 <element signature="e#216#228#0" expanded="true" />
@@ -273,6 +314,7 @@
       <find>training</find>
       <find>make_unique</find>
       <find>Tensor</find>
+      <find>throw</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/Includes/cubbydnn/Backend</dir>
@@ -330,17 +372,17 @@
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/exceptions.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/code_structure.md" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/stream_decl.hpp" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/generate_tensor.hpp" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/generate_tensor_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/base_operations_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/basic_operations.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations.hpp" />
         <option value="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/Tensor_container.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/generate_tensor_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/Tensor_container_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations/base_operations.hpp" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/Tensor_container.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/generate_tensor.hpp" />
       </list>
     </option>
   </component>
@@ -387,99 +429,17 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="ProjectPane" />
       <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Includes" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Includes" type="462c0819:PsiDirectoryNode" />
-              <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Includes" type="462c0819:PsiDirectoryNode" />
-              <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Includes" type="462c0819:PsiDirectoryNode" />
-              <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
-              <item name="operations" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Includes" type="462c0819:PsiDirectoryNode" />
-              <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
-              <item name="operations_decl" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Includes" type="462c0819:PsiDirectoryNode" />
-              <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
-              <item name="util" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Includes" type="462c0819:PsiDirectoryNode" />
-              <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
-              <item name="util_decl" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Sources" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Sources" type="462c0819:PsiDirectoryNode" />
-              <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Tests" type="462c0819:PsiDirectoryNode" />
-              <item name="UnitTests" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SearchEverywhereHistoryKey" value="generate&#9;FILE&#9;file:///home/jwkim/projects/CubbyDNN/Includes/cubbydnn/Backend/util/generate_tensor.hpp&#10;gtest&#9;RUN_CONFIGURATION&#9;gtest&#10;Cubb&#9;FILE&#9;file:///home/jwkim/projects/CubbyDNN&#10;CubbyDNN&#9;FILE&#9;file:///home/jwkim/projects/CubbyDNN/cmake-build-debug/CubbyDNN.cbp&#10;cmake&#9;FILE&#9;file:///home/jwkim/projects/CubbyDNN/CMakeLists.txt&#10;cmakel&#9;FILE&#9;file:///home/jwkim/projects/CubbyDNN/CMakeLists.txt&#10;main&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="/usr/bin/clang-format-6.0" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -590,7 +550,11 @@
       <workItem from="1542356181154" duration="1911000" />
       <workItem from="1542358119937" duration="816000" />
       <workItem from="1542358962624" duration="2496000" />
-      <workItem from="1542361492568" duration="288000" />
+      <workItem from="1542361492568" duration="340000" />
+      <workItem from="1542434562628" duration="11192000" />
+      <workItem from="1542447707529" duration="1786000" />
+      <workItem from="1542449517802" duration="1684000" />
+      <workItem from="1542451438403" duration="2078000" />
     </task>
     <task id="LOCAL-00001" summary="data storage moved inside tensor_container class (TODO: copy constructor, copy operator implementation required)">
       <created>1542010515021</created>
@@ -662,11 +626,18 @@
       <option name="project" value="LOCAL" />
       <updated>1542267239575</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="operation classes(storing operation information) implemented (TODO: implement static functions adding and deleting tensors/operation )">
+      <created>1542361818596</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1542361818596</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="174171000" />
+    <option name="totallyTimeSpent" value="190963000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -681,12 +652,12 @@
     <frame x="0" y="28" width="960" height="1052" extended-state="4" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.27040815" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.2679372" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3809524" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.24489796" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.27210885" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -702,28 +673,6 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Database" order="3" weight="0.32899022" />
     </layout>
-    <layout-to-restore>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12473002" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.3813848" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.24517594" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Messages" order="8" weight="0.3291714" />
-      <window_info anchor="bottom" id="Terminal" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="11" show_stripe_button="false" />
-      <window_info anchor="bottom" id="CMake" order="12" weight="0.328125" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Database" order="3" weight="0.32899022" />
-    </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
@@ -779,7 +728,8 @@
     <MESSAGE value="setters/ getters of tensor_object re-implemented (updated implementation, exception safety checked)" />
     <MESSAGE value="data-race problem on weak_ptr solved, added base class for data-streaming(TODO: implement streaming class, and implement operations)" />
     <MESSAGE value="operation classes(storing operation information) implemented (TODO: implement static functions adding and deleting tensors/operation )" />
-    <option name="LAST_COMMIT_MESSAGE" value="operation classes(storing operation information) implemented (TODO: implement static functions adding and deleting tensors/operation )" />
+    <MESSAGE value="clang-formatted, Exceptions removed" />
+    <option name="LAST_COMMIT_MESSAGE" value="clang-formatted, Exceptions removed" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Libraries/googlebenchmark/cmake/AddCXXCompilerFlag.cmake">
@@ -907,23 +857,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/exceptions.hpp">
+    <entry file="file:///usr/include/c++/7/bits/stl_vector.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="16" column="9" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
-          <folding>
-            <element signature="e#102#119#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/Tensor_container_decl.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="31" column="13" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
-          <folding>
-            <element signature="e#97#122#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="309">
+          <caret line="282" column="6" selection-start-line="282" selection-start-column="6" selection-end-line="282" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -934,10 +871,44 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/code_structure.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="684">
+            <caret line="38" column="35" selection-start-line="38" selection-start-column="35" selection-end-line="38" selection-end-column="35" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/Tensor_container.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="183" column="33" selection-start-line="183" selection-start-column="33" selection-end-line="183" selection-end-column="33" />
+          <folding>
+            <element signature="e#128#148#0" expanded="true" />
+            <element signature="e#275#287#0" expanded="true" />
+            <element signature="e#486#498#0" expanded="true" />
+            <element signature="e#547#559#0" expanded="true" />
+            <element signature="e#618#630#0" expanded="true" />
+            <element signature="e#1005#1017#0" expanded="true" />
+            <element signature="e#1244#1256#0" expanded="true" />
+            <element signature="e#1534#1546#0" expanded="true" />
+            <element signature="e#2058#2070#0" expanded="true" />
+            <element signature="e#2666#2678#0" expanded="true" />
+            <element signature="e#2925#2937#0" expanded="true" />
+            <element signature="e#3024#3036#0" expanded="true" />
+            <element signature="e#3374#3386#0" expanded="true" />
+            <element signature="e#3503#3515#0" expanded="true" />
+            <element signature="e#3572#3584#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/generate_tensor_decl.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="11" column="24" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
+        <state relative-caret-position="627">
+          <caret line="37" column="33" selection-start-line="37" selection-start-column="33" selection-end-line="37" selection-end-column="33" />
           <folding>
             <element signature="e#118#154#0" expanded="true" />
             <element signature="e#216#228#0" expanded="true" />
@@ -945,51 +916,90 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/code_structure.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="684">
-            <caret line="38" column="68" selection-start-line="38" selection-start-column="68" selection-end-line="38" selection-end-column="68" />
-          </first_editor>
-          <second_editor />
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/exceptions.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="14" column="8" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="8" />
+          <folding>
+            <element signature="e#102#121#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/generate_tensor.hpp">
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/Tensor_container_decl.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="24" column="9" selection-start-line="24" selection-start-column="9" selection-end-line="24" selection-end-column="9" />
+        <state relative-caret-position="321">
+          <caret line="252" column="31" selection-start-line="252" selection-start-column="31" selection-end-line="252" selection-end-column="31" />
+          <folding>
+            <element signature="e#97#113#0" expanded="true" />
+            <element signature="e#315#327#0" expanded="true" />
+            <element signature="e#451#463#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/operations/base_operations.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" column="40" lean-forward="true" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
+        <state relative-caret-position="1224">
+          <caret line="110" column="60" lean-forward="true" selection-start-line="110" selection-start-column="60" selection-end-line="110" selection-end-column="60" />
+          <folding>
+            <element signature="e#207#219#0" expanded="true" />
+            <element signature="e#267#279#0" expanded="true" />
+            <element signature="e#695#707#0" expanded="true" />
+            <element signature="e#1094#1106#0" expanded="true" />
+            <element signature="e#1522#1534#0" expanded="true" />
+            <element signature="e#1920#1932#0" expanded="true" />
+            <element signature="e#2364#2376#0" expanded="true" />
+            <element signature="e#2761#2773#0" expanded="true" />
+            <element signature="e#3064#3076#0" expanded="true" />
+            <element signature="e#3347#3359#0" expanded="true" />
+            <element signature="e#3638#3650#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations_decl.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+        <state relative-caret-position="195">
+          <caret line="15" column="21" lean-forward="true" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
+          <folding>
+            <element signature="e#230#242#0" expanded="true" />
+            <element signature="e#478#490#0" expanded="true" />
+            <element signature="e#886#898#0" expanded="true" />
+            <element signature="e#1294#1306#0" expanded="true" />
+            <element signature="e#1565#1577#0" expanded="true" />
+            <element signature="e#1862#1874#0" expanded="true" />
+            <element signature="e#2111#2123#0" expanded="true" />
+            <element signature="e#2345#2357#0" expanded="true" />
+            <element signature="e#2585#2597#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        <state relative-caret-position="144">
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/Tensor_container.hpp">
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/generate_tensor.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="243">
-          <caret line="145" column="24" lean-forward="true" selection-start-line="145" selection-start-column="24" selection-end-line="145" selection-end-column="24" />
+        <state relative-caret-position="441">
+          <caret line="38" column="1" lean-forward="true" selection-start-line="38" selection-start-column="1" selection-end-line="38" selection-end-column="1" />
+          <folding>
+            <element signature="e#120#173#0" expanded="true" />
+            <element signature="e#206#218#0" expanded="true" />
+            <element signature="e#971#983#0" expanded="true" />
+            <element signature="e#1650#1662#0" expanded="true" />
+            <element signature="e#2197#2209#0" expanded="true" />
+            <element signature="e#2357#2369#0" expanded="true" />
+            <element signature="e#2576#2588#0" expanded="true" />
+            <element signature="e#2736#2748#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
