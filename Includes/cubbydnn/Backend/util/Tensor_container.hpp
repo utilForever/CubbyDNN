@@ -15,10 +15,11 @@ namespace cubby_dnn
 
 template <typename T>
 Tensor<T>::Tensor(Tensor_type type, const std::vector<int> &shape, int from,
-                  bool _mutable)
+                  bool _mutable, const std::string &name)
     : type(type), from(from), _mutable(_mutable)
 {
     this->shape = shape;
+    this->name = name;
 }
 
 template <typename T>
@@ -66,21 +67,19 @@ Tensor_object<T>::storage::storage(std::vector<T> &&data,
 template <typename T>
 Tensor_object<T>::Tensor_object(const std::vector<T> &data,
                                 const std::vector<int> &shape, Tensor_type type,
-                                const std::string &name, int tensor_id,
-                                int from, int to)
+                                const std::string &name, int from, int to)
     : type(type), from(from), to(to)
 {
     verify<T>(data, shape);  // checks exception if arguments are invalid
 
     this->tensor_object = std::make_unique<storage>(data, shape);
     this->name = name;
-    this->tensor_id = tensor_id;
 }
 
 template <typename T>
 Tensor_object<T>::Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
-                                Tensor_type type, std::string &&name,
-                                int tensor_id, int from, int to)
+                                Tensor_type type, std::string &&name, int from,
+                                int to)
     : type(type), from(from), to(to)
 {
     verify<T>(data, shape);  // checks exception if arguments are invalid
@@ -89,7 +88,6 @@ Tensor_object<T>::Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
         std::make_unique<storage>(std::forward<std::vector<T>>(data),
                                   std::forward<std::vector<int>>(shape));
     this->name = std::forward<std::string>(name);
-    this->tensor_id = tensor_id;
 }
 
 template <typename T>
@@ -126,7 +124,7 @@ template <typename T>
 void verify(std::vector<T> &data, std::vector<int> &shape)
 {
     if (data.empty() || shape.empty())
-        std::cout<<"empty data"<<std::endl;
+        std::cout << "empty data" << std::endl;
 
     unsigned long expected_size = 1;
     for (auto elem : shape)
@@ -218,8 +216,8 @@ unsigned long Adj_management<T>::add_op_adj()
 }
 
 template <typename T>
-void Adj_management<T>::add_edge(const int from, const int to,
-                                 Tensor_object<T> &tensor)
+void Adj_management<T>::add_edge(int from, int to,
+                                 std::shared_ptr<Tensor_object<T>> &tensor_object_ptr)
 {
     auto graph_size = (adj_forward.size());
     if (from == to)
@@ -244,7 +242,7 @@ void Adj_management<T>::add_edge(const int from, const int to,
     }
 
     std::lock_guard<std::mutex> guard(adj_mutex);
-    adj_forward[from][to] = make_shared(tensor);
+    adj_forward[from][to] = tensor_object_ptr;
 }
 
 template <typename T>
@@ -261,5 +259,5 @@ std::shared_ptr<Tensor_object<T>> Adj_management<T>::get_tensor_ptr(int from,
     }
     return adj_forward[from][to];  /// get ownership from adj (thread-safe);
 }
-}
+}  // namespace cubby_dnn
 #endif  // CUBBYDNN_TENSOR_CONTAINER_DEF_HPP

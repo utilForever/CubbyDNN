@@ -11,106 +11,149 @@ template <typename T>
 Operation<T>::Operation() = default;
 
 template <typename T>
-Mat_mul_op<T>::Mat_mul_op(std::shared_ptr<Tensor<T>> tensor1,
-                          std::shared_ptr<Tensor<T>> tensor2,
-                          std::shared_ptr<Tensor<T>> output_tensor)
+Mat_mul_op<T>::Mat_mul_op(std::shared_ptr<Tensor_object<T>> tensor1,
+                          std::shared_ptr<Tensor_object<T>> tensor2,
+                          std::shared_ptr<Tensor_object<T>> output_tensor,
+                          unsigned long operation_id,
+                          const std::string &name)
 {
     this->input_tensor_vect.emplace_back(tensor1);
     this->input_tensor_vect.emplace_back(tensor2);
     this->output_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::basic);
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-Mat_mul_op<T>::Mat_mul_op(std::vector<std::shared_ptr<Tensor<T>>> tensor_vect,
-                          std::shared_ptr<Tensor<T>> output_tensor)
+Mat_mul_op<T>::Mat_mul_op(
+    std::vector<std::shared_ptr<Tensor_object<T>>> tensor_vect,
+    std::shared_ptr<Tensor_object<T>> output_tensor,
+    unsigned long operation_id,
+    const std::string &name)
 {
-    for (std::shared_ptr<Tensor<T>> ptr : tensor_vect)
+    for (std::shared_ptr<Tensor_object<T>> ptr : tensor_vect)
     {
         this->input_tensor_vect.emplace_back(ptr);
     }
     this->output_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::basic);
+    this->name = name;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-Mat_add_op<T>::Mat_add_op(std::shared_ptr<Tensor<T>> tensor1,
-                          std::shared_ptr<Tensor<T>> tensor2,
-                          std::shared_ptr<Tensor<T>> output_tensor)
+Mat_add_op<T>::Mat_add_op(std::shared_ptr<Tensor_object<T>> tensor1,
+                          std::shared_ptr<Tensor_object<T>> tensor2,
+                          std::shared_ptr<Tensor_object<T>> output_tensor,
+                          unsigned long operation_id,
+                          const std::string &name)
 {
     this->input_tensor_vect.emplace_back(tensor1);
     this->input_tensor_vect.emplace_back(tensor2);
     this->output_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::basic);
+    this->name = name;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-Mat_add_op<T>::Mat_add_op(std::vector<std::shared_ptr<Tensor<T>>> tensor_vect,
-                          std::shared_ptr<Tensor<T>> output_tensor)
+Mat_add_op<T>::Mat_add_op(
+    std::vector<std::shared_ptr<Tensor_object<T>>> tensor_vect,
+    std::shared_ptr<Tensor_object<T>> output_tensor,
+    unsigned long operation_id,
+    const std::string &name)
 {
-    for (std::shared_ptr<Tensor<T>> ptr : tensor_vect)
+    for (std::shared_ptr<Tensor_object<T>> ptr : tensor_vect)
     {
         this->input_tensor_vect.emplace_back(ptr);
     }
     this->outpt_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::basic);
+    this->name = name;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-Mat_dot_op<T>::Mat_dot_op(std::shared_ptr<Tensor<T>> tensor1,
-                          std::shared_ptr<Tensor<T>> identity_tensor,
-                          std::shared_ptr<Tensor<T>> output_tensor)
+Mat_dot_op<T>::Mat_dot_op(std::shared_ptr<Tensor_object<T>> tensor1,
+                          std::shared_ptr<Tensor_object<T>> identity_tensor,
+                          std::shared_ptr<Tensor_object<T>> output_tensor,
+                          unsigned long operation_id,
+                          const std::string &name)
 {
     this->input_tensor_vect.emplace_back(tensor1);
     this->input_tensor_vect.emplace_back(identity_tensor);
     this->output_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::basic);
+    this->name = name;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-Reshape_op<T>::Reshape_op(std::shared_ptr<Tensor<T>> tensor1,
-                          std::shared_ptr<Tensor<T>> output_tensor,
-                          const std::vector<int> &shape)
+Reshape_op<T>::Reshape_op(std::shared_ptr<Tensor_object<T>> tensor1,
+                          std::shared_ptr<Tensor_object<T>> output_tensor,
+                          const std::vector<int> &shape,
+                          unsigned long operation_id,
+                          const std::string &name)
 {
     this->input_tensor_vect.emplace_back(tensor1);
     this->output_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::basic);
     this->shape = shape;
+    this->name = name;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-placeHolder_op<T>::placeHolder_op(std::shared_ptr<Tensor<T>> output_tensor,
-                                  const std::vector<int> &shape)
+placeHolder_op<T>::placeHolder_op(
+    std::shared_ptr<Tensor_object<T>> output_tensor,
+    const std::vector<int> &shape,
+    unsigned long operation_id,
+    const std::string &name)
 {
     this->output_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::generate);
     this->shape = shape;
+    this->name = name;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-weight_op<T>::weight_op(std::shared_ptr<Tensor<T>> output_tensor,
-                        const std::vector<int> &shape)
+weight_op<T>::weight_op(std::shared_ptr<Tensor_object<T>> output_tensor,
+                        const std::vector<int> &shape,
+                        unsigned long operation_id,
+                        const std::string &name)
 {
     this->output_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::generate);
     this->shape = shape;
+    this->name = name;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-constant_op<T>::constant_op(std::shared_ptr<Tensor<T>> output_tensor,
-                            const std::vector<int> &shape)
+constant_op<T>::constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
+                            const std::vector<int> &shape,
+                            unsigned long operation_id,
+                            const std::string &name)
 {
     this->output_tensor_vect.emplace_back(output_tensor);
     this->operation_type(operation_type::generate);
     this->shape = shape;
+    this->name = name;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
-void Operation_management<T>::add_op(const Operation <T> &operation, unsigned long id)
+void Operation_management<T>::add_op(Operation<T> operation)
 {
     std::lock_guard<std::mutex> guard(operation_list_mutex);
-    operation_list.emplace_back();
-    operation.operation_id = id;
+    operation_list.emplace_back(operation);
+}
+
+template<typename T>
+void Operation_management<T>::set_op(unsigned int id, const Operation<T> &operation){
+    std::lock_guard<std::mutex> guard(operation_list_mutex);
+    operation_list[id] = operation;
 }
 
 }  // namespace cubby_dnn

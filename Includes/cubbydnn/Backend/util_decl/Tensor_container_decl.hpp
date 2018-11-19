@@ -31,11 +31,11 @@ class Tensor_object
 {
  public:
     Tensor_object(const std::vector<T> &data, const std::vector<int> &shape,
-                  Tensor_type type, const std::string &name, int tensor_id,
-                  int from, int to);  //(1)
+                  Tensor_type type, const std::string &name, int from,
+                  int to);  //(1)
 
     Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
-                  Tensor_type type, std::string &&name, int tensor_id, int from,
+                  Tensor_type type, std::string &&name, int from,
                   int to);  //(2)
 
     Tensor_object(const Tensor_object<T> &rhs);  //(3)
@@ -62,8 +62,6 @@ class Tensor_object
     bool _mutable = true;
 
     Tensor_type type;
-
-    int tensor_id;
 
     int from, to;
 
@@ -99,10 +97,6 @@ class Tensor_object
 
     const std::vector<int> &get_data() const;
 
-    int get_tensor_id() const
-    {
-        return tensor_id;
-    }
 
     bool is_mutable() const
     {
@@ -148,7 +142,8 @@ class Tensor
 {
  private:
     Tensor(Tensor_type type, const std::vector<int> &shape, int from,
-           bool _mutable = true);  //(1)
+           bool _mutable = true,
+           const std::string &name = "Tensor");  //(1)
 
     Tensor(Tensor<T> &rhs);
 
@@ -158,7 +153,7 @@ class Tensor
     /// getters
     bool has_tensor_object()
     {
-        return !tensor_container_ptr.expired();
+        return tensor_object_ptr.lock();
     }
 
     Tensor_type get_type() const
@@ -168,7 +163,7 @@ class Tensor
 
     const std::string &get_name() const
     {
-        if (auto temp_ptr = tensor_container_ptr.lock())
+        if (auto temp_ptr = tensor_object_ptr.lock())
             return temp_ptr->name;
         else
             return this->name;
@@ -176,10 +171,18 @@ class Tensor
 
     const std::vector<int> &get_shape() const
     {
-        if (auto temp_ptr = tensor_container_ptr.lock())
+        if (auto temp_ptr = tensor_object_ptr.lock())
             return temp_ptr->get_shape();
         else
             return this->shape;
+    }
+
+    unsigned long get_data_size(){
+        long size = 1;
+        for(auto element : shape){
+            size *= element;
+        }
+        return static_cast<unsigned long>(size);
     }
 
     bool is_mutable() const
@@ -189,39 +192,39 @@ class Tensor
 
     const std::weak_ptr<Tensor_object<T>> &get_tensor_container_ptr() const
     {
-        return tensor_container_ptr;
+        return tensor_object_ptr;
     }
 
     /// setters
     void set_tensor_object(std::shared_ptr<Tensor_object<T>> ptr)
     {
-        tensor_container_ptr = ptr;
+        tensor_object_ptr = ptr;
     }
 
     void set_type(Tensor_type type)
     {
         this->type = type;
-        if (auto temp_ptr = tensor_container_ptr.lock())
+        if (auto temp_ptr = tensor_object_ptr.lock())
             temp_ptr->set_type(type);
     }
 
     void set_name(const std::string &name)
     {
-        if (auto temp_ptr = tensor_container_ptr.lock())
+        if (auto temp_ptr = tensor_object_ptr.lock())
             temp_ptr->set_name(name);
     }
 
     void make_mutable()
     {
         this->_mutable = true;
-        if (auto temp_ptr = tensor_container_ptr.lock())
+        if (auto temp_ptr = tensor_object_ptr.lock())
             temp_ptr->make_mutable();
     }
 
     void make_constant()
     {
         this->_mutable = false;
-        if (auto temp_ptr = tensor_container_ptr.lock())
+        if (auto temp_ptr = tensor_object_ptr.lock())
             temp_ptr->make_constant();
     }
 
@@ -240,7 +243,7 @@ class Tensor
 
     Tensor_type type;  // type of the tensor_container it is pointing to
 
-    std::weak_ptr<Tensor_object<T>> tensor_container_ptr;
+    std::weak_ptr<Tensor_object<T>> tensor_object_ptr;
 };
 
 /// Resource management
@@ -252,11 +255,11 @@ class Adj_management
     /// Adds new operation
     static unsigned long add_op_adj();
     /// Adds new edge between two
-    static void add_edge(int from, int to, Tensor_object<T> &tensor);
+    static void add_edge(int from, int to, std::shared_ptr<Tensor_object<T>> &tensor_object_ptr);
 
     static unsigned long get_graph_size()
     {
-        adj_forward.size();
+        return adj_forward.size();
     }
 
     static std::shared_ptr<Tensor_object<T>> get_tensor_ptr(int from, int to);
@@ -271,6 +274,6 @@ class Adj_management
 
     static std::mutex adj_mutex;  // mutex for restricting access to adj matrix
 };
-}
+}  // namespace cubby_dnn
 
 #endif  // CUBBYDNN_BACKEND_H
