@@ -3,6 +3,7 @@
 #define CUBBYDNN_BASE_OPERATIONS_DECL_HPP
 
 #include "Backend/util/Tensor_container.hpp"
+#include "Backend/util_decl/stream_decl.hpp"
 
 namespace cubby_dnn
 {
@@ -145,14 +146,16 @@ class placeHolder_op : public Operation<T>
                             unsigned long operation_id,
                             const std::string &name = "placeHolder");
 
-    explicit placeHolder_op(unsigned long operation_id, const std::string &name)
+    explicit placeHolder_op(unsigned long operation_id, Stream<T> &stream, const std::string &name)
     {
         this->operation_id = operation_id;
+        this->stream = stream;
         this->name = name;
     }  // empty constructor for operation
 
  private:
     std::vector<int> shape;
+    Stream<T> stream;
 };
 
 template <typename T>
@@ -194,13 +197,13 @@ class constant_op : public Operation<T>
 };
 
 template <typename T>
-class wrapper_op : public Operation<T>
+class Wrapper_op : public Operation<T>
 {
  public:
-    explicit wrapper_op(std::shared_ptr<Tensor_object<T>> input_tensor,
+    explicit Wrapper_op(std::shared_ptr<Tensor_object<T>> input_tensor,
                         unsigned long operation_id,
                         const std::string &name = "constant");
-    explicit wrapper_op(unsigned long operation_id, const std::string &name)
+    explicit Wrapper_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
@@ -211,18 +214,25 @@ template <typename T>
 class Operation_management
 {
  public:
-    void add_op(Operation<T> operation);
-    void set_op(unsigned int id, const Operation<T> &operation);
-    void add_output_of(long id, std::shared_ptr<Tensor_object<T>> tensor_ptr);
+    static void add_op(Operation<T> operation);
+    static void set_op(unsigned int id, const Operation<T> &operation);
+    static void add_output_of(long id, std::shared_ptr<Tensor_object<T>> tensor_ptr);
 
  private:
-    Operation<T> &get_op(long operation_id)
+    static Operation<T> &get_op(long operation_id)
     {
         return operation_list[operation_id];
     }
-    std::deque<Operation<T>> operation_list;
-    std::mutex operation_list_mutex;
+    static std::deque<Operation<T>> operation_list;
+    static std::mutex operation_list_mutex;
 };
+
+template<typename T>
+std::deque<Operation<T>> Operation_management<T>::operation_list = std::deque<Operation<T>>();
+
+template<typename T>
+std::mutex Operation_management<T>::operation_list_mutex = std::mutex();
+
 }  // namespace cubby_dnn
 
 #endif

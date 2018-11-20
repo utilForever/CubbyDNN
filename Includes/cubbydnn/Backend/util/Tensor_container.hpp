@@ -16,7 +16,7 @@ namespace cubby_dnn
 template <typename T>
 Tensor<T>::Tensor(Tensor_type type, const std::vector<int> &shape, int from,
                   bool _mutable, const std::string &name)
-    : type(type), from(from), _mutable(_mutable)
+    : from(from), _mutable(_mutable), type(type)
 {
     this->shape = shape;
     this->name = name;
@@ -35,7 +35,7 @@ Tensor<T>::Tensor(Tensor<T> &&rhs) noexcept
 template <typename T>
 struct Tensor_object<T>::storage
 {
- private:
+ public:
     storage(const std::vector<T> &data, const std::vector<int> &shape);
 
     storage(std::vector<T> &&data, std::vector<int> &&shape);
@@ -121,7 +121,7 @@ template <typename T>
 Tensor_object<T>::~Tensor_object() = default;
 
 template <typename T>
-void verify(std::vector<T> &data, std::vector<int> &shape)
+void verify(const std::vector<T> &data, const std::vector<int> &shape)
 {
     if (data.empty() || shape.empty())
         std::cout << "empty data" << std::endl;
@@ -159,13 +159,14 @@ long Tensor_object<T>::get_data_byte_size() const
     return static_cast<long>(tensor_object->data.size() * sizeof(T));
 }
 
-template <typename T>
-const std::vector<int> &Tensor_object<T>::get_shape() const
-{
-    if (!tensor_object)
-        std::cout << "tensor_object is empty" << std::endl;
-    return tensor_object->data.shape();
-}
+//template <typename T>
+//const std::vector<int> &Tensor_object<T>::get_shape() const
+//{
+//    if (!tensor_object) {
+//        std::cout << "tensor_object is empty" << std::endl;
+//    }
+//    return tensor_object->data.shape();
+//}
 
 template <typename T>
 const std::vector<int> &Tensor_object<T>::get_data() const
@@ -195,8 +196,7 @@ unsigned long Adj_management<T>::add_op_adj()
             std::deque<std::shared_ptr<Tensor_object<T>>> &arg) mutable {
             while (expected_row_size > graph_size)
             {
-                arg.emplace_back(std::make_shared<Tensor_object<T>>(
-                    nullptr));  // copy-construct new temp
+                arg.emplace_back(nullptr);  // copy-construct new temp
                 graph_size = arg.size();
             }
         };
@@ -219,7 +219,7 @@ template <typename T>
 void Adj_management<T>::add_edge(
     long from, long to, std::shared_ptr<Tensor_object<T>> &tensor_object_ptr)
 {
-    auto graph_size = (adj_forward.size());
+    auto graph_size = static_cast<long>(adj_forward.size());
     if (from == to)
     {
         std::string error_msg = "Operation may not connect to itself";

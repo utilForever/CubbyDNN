@@ -22,14 +22,10 @@ class Generate
         default_state
     };
 
-    static const int placeHolder_operation_index = -1;
-
-    static const int max_dim = 3;
-
     // TODO: think about ways to put data stream through placeholders
 
     static Tensor<T> placeHolder(const std::vector<int> &shape,
-                                 Stream<T> stream,
+                                 Stream<T> &stream,
                                  const std::string &name = "PlaceHolder");
 
     static Tensor<T> weight(const std::vector<int> &shape,
@@ -41,7 +37,6 @@ class Generate
                             const std::string &name = "filter");
 
  private:
-
     static Tensor<T> get_default_tensor()
     {
         // default tensor to return when error occurs
@@ -51,9 +46,8 @@ class Generate
 };
 
 template <typename T>
-class Operate
+class Operate : protected Tensor<T>
 {
-    friend class Tensor<T>;
     // friend class Operation_management;
 
  public:
@@ -77,14 +71,18 @@ class Operate
                          "default Tensor due to error");
     }
 
-    static bool is_valid_tensor(const std::vector<Tensor<T>> &tensor_list){
-        //Tensors should always have right shape, or empty shape
-        for(Tensor<T> tensor : tensor_list){
-            if(!tensor.is_valid())
-                return false;
-        }
-        return true;
-    }
+
+};
+
+template <typename T>
+class Final
+{
+    friend class Tensor<T>;
+
+ public:
+    static void wrapper(Tensor<T> &tensor1,
+                        const std::string &name = "wrapper_op");
+
 };
 }  // namespace cubby_dnn
 

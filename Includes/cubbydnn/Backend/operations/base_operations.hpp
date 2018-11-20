@@ -135,7 +135,7 @@ constant_op<T>::constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
 }
 
 template <typename T>
-wrapper_op<T>::wrapper_op(std::shared_ptr<Tensor_object<T>> input_tensor,
+Wrapper_op<T>::Wrapper_op(std::shared_ptr<Tensor_object<T>> input_tensor,
                           unsigned long operation_id, const std::string &name)
 {
     this->input_tensor_vect.emplace_back(input_tensor);

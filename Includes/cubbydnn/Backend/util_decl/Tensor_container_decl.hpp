@@ -24,8 +24,8 @@ enum class Tensor_type
 };
 
 template <typename T>
-void verify(std::vector<T> &data,
-            std::vector<int> &shape);  // throws exception if input in invalid
+void verify(const std::vector<T> &data,
+            const std::vector<int> &shape);  // throws exception if input in invalid
 
 template <typename T>
 class Tensor_object
@@ -68,7 +68,7 @@ class Tensor_object
 
     struct storage;
 
-    std::unique_ptr<storage> tensor_object;  // container of actual data
+    std::unique_ptr<storage> tensor_object = std::make_unique<storage>(std::vector<T>(), std::vector<int>());  // container of actual data
 
  public:
     /// getters
@@ -94,10 +94,7 @@ class Tensor_object
 
     long get_data_byte_size() const;
 
-    const std::vector<int> &get_shape() const;
-
     const std::vector<int> &get_data() const;
-
 
     bool is_mutable() const
     {
@@ -141,7 +138,7 @@ class Tensor_object
 template <typename T>
 class Tensor
 {
- private:
+ public:
     Tensor(Tensor_type type, const std::vector<int> &shape, int from,
            bool _mutable = true,
            const std::string &name = "Tensor");  //(1)
@@ -157,7 +154,8 @@ class Tensor
         return tensor_object_ptr.lock();
     }
 
-    bool is_valid(){
+    bool is_valid() const
+    {
         return !shape.empty();
     }
 
@@ -176,13 +174,11 @@ class Tensor
 
     const std::vector<int> &get_shape() const
     {
-        if (auto temp_ptr = tensor_object_ptr.lock())
-            return temp_ptr->get_shape();
-        else
             return this->shape;
     }
 
-    unsigned long get_data_size(){
+    unsigned long get_data_size()
+    {
         return shape::get_shape_size(shape);
     }
 
@@ -196,10 +192,20 @@ class Tensor
         return tensor_object_ptr;
     }
 
+
+    long get_from(){
+        return from;
+    }
+
+
+    long get_to() const {
+        return to;
+    }
+
     /// setters
     void set_tensor_object(std::shared_ptr<Tensor_object<T>> ptr)
     {
-        tensor_object_ptr = ptr; //make weak pointer from shared pointer
+        tensor_object_ptr = ptr;  // make weak pointer from shared pointer
     }
 
     void set_type(Tensor_type type)
@@ -229,22 +235,28 @@ class Tensor
             temp_ptr->make_constant();
     }
 
- private:
-    // properties of the tensor
-    std::string name;
+    void set_to(long to) {
+        this->to = to;
+    }
+
+private:
+    long from;  // ID of operation that this tensor is generated
+
+    long to = -1;
+
+    // ID of operation that receives this tensor
 
     std::vector<int> shape;
 
     bool _mutable =
-        true;  // determines whether data of this tensor can be modified
+            true;  // determines whether data of this tensor can be modified
+    // properties of the tensor
+    std::string name;
 
-    long from;  // ID of operation that this tensor is generated
+    Tensor_type type = Tensor_type::None;  // type of the tensor_container it is pointing to
 
-    long to = -1;  // ID of operation that receives this tensor
-
-    Tensor_type type;  // type of the tensor_container it is pointing to
-
-    std::weak_ptr<Tensor_object<T>> tensor_object_ptr; // weak pointer pointing to tensor object
+    std::weak_ptr<Tensor_object<T>>
+        tensor_object_ptr;  // weak pointer pointing to tensor object
 };
 
 /// Resource management
@@ -256,7 +268,8 @@ class Adj_management
     /// Adds new operation
     static unsigned long add_op_adj();
     /// Adds new edge between two
-    static void add_edge(long from, long to, std::shared_ptr<Tensor_object<T>> &tensor_object_ptr);
+    static void add_edge(long from, long to,
+                         std::shared_ptr<Tensor_object<T>> &tensor_object_ptr);
 
     static unsigned long get_graph_size()
     {
@@ -275,6 +288,12 @@ class Adj_management
 
     static std::mutex adj_mutex;  // mutex for restricting access to adj matrix
 };
+
+template<typename T>
+std::deque<std::deque<std::shared_ptr<Tensor_object<T>>>> Adj_management<T>::adj_forward;
+
+template<typename T>
+std::mutex Adj_management<T>::adj_mutex;
 }  // namespace cubby_dnn
 
 #endif  // CUBBYDNN_BACKEND_H

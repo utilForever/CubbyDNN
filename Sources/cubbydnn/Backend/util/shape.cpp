@@ -17,20 +17,20 @@ bool shape::check_shape(const std::vector<int> &shape,
         has_been_valid = false;
         std::cout << "Argument shape is empty" << std::endl;
     }
-    else if (shape.size() > max_dim)
+    else if (shape.size() != 3)
     {
+        //dimension over 3 is not allowed
         has_been_valid = false;
-        std::cout << "dimension of shape is over 3" << std::endl;
+        std::cout << "shape is not 3-dimensional" << std::endl;
     }
 
-    long size = 1;
-    for (auto elem : shape)
-        size *= elem;
-
-    if (size < 0)
-    {
-        has_been_valid = false;
-        std::cout << "Invalid shape" << std::endl;
+    for (auto elem : shape){
+        //every dimension should be at least 1
+        if (elem <= 0)
+        {
+            has_been_valid = false;
+            std::cout << "Invalid shape" << std::endl;
+        }
     }
 
     if (!has_been_valid)

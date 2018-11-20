@@ -7,13 +7,22 @@
 #define CUBBYDNN_STREAM_DECL_HPP
 
 #include <vector>
+#include <iostream>
 
 template<typename T>
 class Stream{
 public:
-    virtual std::vector<T> next() = 0;
+    Stream() = default;
 
-    virtual bool has_next() = 0;
+    virtual std::vector<T> next(){
+        std::cout<<"Stream next() not implemented"<<std::endl;
+        return std::vector<T>();
+    };
+
+    virtual bool has_next(){
+        std::cout<<"Stream has_next() not implemented"<<std::endl;
+        return false;
+    };
 
     long get_stream_size() { return stream_size; }
 
@@ -23,11 +32,37 @@ private:
 
 template<typename T>
 class File_stream: public Stream<T>{
+public:
+    File_stream(){
+        std::cout<<"File_stream not implemented"<<std::endl;
+    }
 
+    std::vector<T> next() override{
+        std::cout<<"File_stream next() not implemented"<<std::endl;
+        return std::vector<T>();
+
+    }
+
+    bool has_next() override{
+        std::cout<<"File_stream has_next() not implemented"<<std::endl;
+        return false;
+    }
 };
 
 template<typename T>
 class Data_stream: public Stream<T>{
+    Data_stream(){
+        std::cout<<"Data_stream not implemented"<<std::endl;
+    }
+    std::vector<T> next() override{
+        std::cout<<"Data_stream next() not implemented"<<std::endl;
+        return std::vector<T>();
+    }
+
+    bool has_next() override{
+        std::cout<<"Data_stream has_next() not implemented"<<std::endl;
+        return false;
+    }
 
 };
 

@@ -1,11 +1,6 @@
-#include <gtest/gtest.h>
-#include "Backend/operations/base_operations.hpp"
-#include "Backend/util/Tensor_container.hpp"
-#include "Backend/util/generate_tensor.hpp"
-
 #include <Test.h>
+#include <gtest/gtest.h>
 
-using namespace cubby_dnn;
 TEST(SimpleTest, Add)
 {
     EXPECT_EQ(5, Add(2, 3));
