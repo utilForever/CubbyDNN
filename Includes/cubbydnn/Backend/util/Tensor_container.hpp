@@ -216,13 +216,13 @@ unsigned long Adj_management<T>::add_op_adj()
 }
 
 template <typename T>
-void Adj_management<T>::add_edge(int from, int to,
-                                 std::shared_ptr<Tensor_object<T>> &tensor_object_ptr)
+void Adj_management<T>::add_edge(
+    long from, long to, std::shared_ptr<Tensor_object<T>> &tensor_object_ptr)
 {
     auto graph_size = (adj_forward.size());
     if (from == to)
     {
-        std::string error_msg = "cannot connect to operation itself";
+        std::string error_msg = "Operation may not connect to itself";
         std::cout << error_msg << std::endl;
     }
 

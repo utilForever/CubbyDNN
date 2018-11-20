@@ -19,7 +19,8 @@ enum class Tensor_type
     bias,
     filter,
     placeHolder,
-    other
+    other,
+    None
 };
 
 template <typename T>
@@ -198,7 +199,7 @@ class Tensor
     /// setters
     void set_tensor_object(std::shared_ptr<Tensor_object<T>> ptr)
     {
-        tensor_object_ptr = ptr;
+        tensor_object_ptr = ptr; //make weak pointer from shared pointer
     }
 
     void set_type(Tensor_type type)
@@ -237,13 +238,13 @@ class Tensor
     bool _mutable =
         true;  // determines whether data of this tensor can be modified
 
-    int from;  // ID of operation that this tensor is generated
+    long from;  // ID of operation that this tensor is generated
 
-    int to = -1;  // ID of operation that receives this tensor
+    long to = -1;  // ID of operation that receives this tensor
 
     Tensor_type type;  // type of the tensor_container it is pointing to
 
-    std::weak_ptr<Tensor_object<T>> tensor_object_ptr;
+    std::weak_ptr<Tensor_object<T>> tensor_object_ptr; // weak pointer pointing to tensor object
 };
 
 /// Resource management
@@ -255,7 +256,7 @@ class Adj_management
     /// Adds new operation
     static unsigned long add_op_adj();
     /// Adds new edge between two
-    static void add_edge(int from, int to, std::shared_ptr<Tensor_object<T>> &tensor_object_ptr);
+    static void add_edge(long from, long to, std::shared_ptr<Tensor_object<T>> &tensor_object_ptr);
 
     static unsigned long get_graph_size()
     {
