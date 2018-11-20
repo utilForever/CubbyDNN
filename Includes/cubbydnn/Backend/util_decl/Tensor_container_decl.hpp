@@ -9,7 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
-#include "exceptions.hpp"
+#include "shape.hpp"
 
 namespace cubby_dnn
 {
@@ -19,7 +19,7 @@ enum class Tensor_type
     bias,
     filter,
     placeHolder,
-    other,
+    normal,
     None
 };
 
@@ -157,6 +157,10 @@ class Tensor
         return tensor_object_ptr.lock();
     }
 
+    bool is_valid(){
+        return !shape.empty();
+    }
+
     Tensor_type get_type() const
     {
         return type;
@@ -179,11 +183,7 @@ class Tensor
     }
 
     unsigned long get_data_size(){
-        long size = 1;
-        for(auto element : shape){
-            size *= element;
-        }
-        return static_cast<unsigned long>(size);
+        return shape::get_shape_size(shape);
     }
 
     bool is_mutable() const

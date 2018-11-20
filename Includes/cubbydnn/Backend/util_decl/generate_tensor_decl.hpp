@@ -41,7 +41,13 @@ class Generate
                             const std::string &name = "filter");
 
  private:
-    static bool check_arguments(const std::vector<int> &shape);
+
+    static Tensor<T> get_default_tensor()
+    {
+        // default tensor to return when error occurs
+        return Tensor<T>(Tensor_type::None, std::vector<int>(), -1,
+                         "default Tensor due to error");
+    }
 };
 
 template <typename T>
@@ -62,6 +68,23 @@ class Operate
 
     static Tensor<T> reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
                              const std::string &name = "reshape_op");
+
+ private:
+    static Tensor<T> get_default_tensor()
+    {
+        // default tensor to return when error occurs
+        return Tensor<T>(Tensor_type::None, std::vector<int>(), -1,
+                         "default Tensor due to error");
+    }
+
+    static bool is_valid_tensor(const std::vector<Tensor<T>> &tensor_list){
+        //Tensors should always have right shape, or empty shape
+        for(Tensor<T> tensor : tensor_list){
+            if(!tensor.is_valid())
+                return false;
+        }
+        return true;
+    }
 };
 }  // namespace cubby_dnn
 
