@@ -18,7 +18,12 @@ void simple_Example()
                                                true, "test weight operation");
 
     auto multiplied_tensor1 = Operate<int>::matMul(input_tensor1, input_tensor2,
-                                                   "test matMul operation");
+                                                   "test matMul operation1");
 
-    Final<int>::wrapper(multiplied_tensor1, "test wrapper operation");
+    auto multiplied_tensor2 = Operate<int>::matMul(input_tensor1, input_tensor2,
+            "test matMul operation2");
+
+    Final<int>::wrapper(multiplied_tensor1, "test wrapper operation1");
+
+    Final<int>::wrapper(multiplied_tensor2, "test wrapper operation2");
 }

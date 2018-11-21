@@ -24,8 +24,9 @@ enum class Tensor_type
 };
 
 template <typename T>
-void verify(const std::vector<T> &data,
-            const std::vector<int> &shape);  // throws exception if input in invalid
+void verify(
+    const std::vector<T> &data,
+    const std::vector<int> &shape);  // throws exception if input in invalid
 
 template <typename T>
 class Tensor_object
@@ -68,7 +69,8 @@ class Tensor_object
 
     struct storage;
 
-    std::unique_ptr<storage> tensor_object = std::make_unique<storage>(std::vector<T>(), std::vector<int>());  // container of actual data
+    std::unique_ptr<storage> tensor_object = std::make_unique<storage>(
+        std::vector<T>(), std::vector<int>());  // container of actual data
 
  public:
     /// getters
@@ -139,7 +141,7 @@ template <typename T>
 class Tensor
 {
  public:
-    Tensor(Tensor_type type, const std::vector<int> &shape, int from,
+    Tensor(Tensor_type type, const std::vector<int> &shape, long from,
            bool _mutable = true,
            const std::string &name = "Tensor");  //(1)
 
@@ -174,7 +176,7 @@ class Tensor
 
     const std::vector<int> &get_shape() const
     {
-            return this->shape;
+        return this->shape;
     }
 
     unsigned long get_data_size()
@@ -192,14 +194,9 @@ class Tensor
         return tensor_object_ptr;
     }
 
-
-    long get_from(){
+    long get_from()
+    {
         return from;
-    }
-
-
-    long get_to() const {
-        return to;
     }
 
     /// setters
@@ -235,28 +232,39 @@ class Tensor
             temp_ptr->make_constant();
     }
 
-    void set_to(long to) {
-        this->to = to;
+    // adds operation ids that this tensor heads to
+    void add_to(long to)
+    {
+        this->to_vect.emplace_back(to);
     }
 
-private:
+    // adds tensor objects this tensor is giving output of
+    void add_tensor_object(std::shared_ptr<Tensor_object<T>> tensor_ptr)
+    {
+        this->tensor_object_ptr_vect.emplace_back(tensor_ptr);
+    }
+
+ private:
     long from;  // ID of operation that this tensor is generated
 
-    long to = -1;
+    // TODO: make this vector in order to connect it towards multiple vectors
 
-    // ID of operation that receives this tensor
+    std::vector<long> to_vect;
 
     std::vector<int> shape;
 
     bool _mutable =
-            true;  // determines whether data of this tensor can be modified
+        true;  // determines whether data of this tensor can be modified
     // properties of the tensor
     std::string name;
 
-    Tensor_type type = Tensor_type::None;  // type of the tensor_container it is pointing to
+    Tensor_type type =
+        Tensor_type::None;  // type of the tensor_container it is pointing to
 
     std::weak_ptr<Tensor_object<T>>
         tensor_object_ptr;  // weak pointer pointing to tensor object
+
+    std::vector<std::weak_ptr<Tensor_object<T>>> tensor_object_ptr_vect;
 };
 
 /// Resource management
@@ -289,10 +297,11 @@ class Adj_management
     static std::mutex adj_mutex;  // mutex for restricting access to adj matrix
 };
 
-template<typename T>
-std::deque<std::deque<std::shared_ptr<Tensor_object<T>>>> Adj_management<T>::adj_forward;
+template <typename T>
+std::deque<std::deque<std::shared_ptr<Tensor_object<T>>>>
+    Adj_management<T>::adj_forward;
 
-template<typename T>
+template <typename T>
 std::mutex Adj_management<T>::adj_mutex;
 }  // namespace cubby_dnn
 

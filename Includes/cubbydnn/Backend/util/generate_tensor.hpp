@@ -92,26 +92,26 @@ Tensor<T> Operate<T>::matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
         return get_default_tensor();
     }
 
-    auto id = static_cast<long>(Adj_management<T>::add_op_adj());
-    tensor1.set_to(id);
-    tensor2.set_to(id);
+    auto this_id = static_cast<long>(Adj_management<T>::add_op_adj());
+    tensor1.add_to(this_id);
+    tensor2.add_to(this_id);
     // TODO: find way to initialize the default data
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
         std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(), tensor1.get_type(),
-        "container of :" + name, tensor1.get_from(), tensor1.get_to());
+        "container of :" + name, tensor1.get_from(), this_id);
 
     auto tensor_object_ptr2 = std::make_shared<Tensor_object<T>>(
         std::vector<T>(tensor2.get_data_size()), tensor2.get_shape(), tensor2.get_type(),
-        "container_of :" + name, tensor2.get_from(), tensor2.get_to());
+        "container_of :" + name, tensor2.get_from(), this_id);
 
-    tensor1.set_tensor_object(tensor_object_ptr1);
-    tensor2.set_tensor_object(tensor_object_ptr2);
+    tensor1.add_tensor_object(tensor_object_ptr1);
+    tensor2.add_tensor_object(tensor_object_ptr2);
 
     // add parameter tensor_objects to new global adjacency matrix
-    Adj_management<T>::add_edge(tensor1.get_from(), tensor1.get_to(), tensor_object_ptr1);
-    Adj_management<T>::add_edge(tensor2.get_from(), tensor2.get_to(), tensor_object_ptr2);
+    Adj_management<T>::add_edge(tensor1.get_from(), this_id, tensor_object_ptr1);
+    Adj_management<T>::add_edge(tensor2.get_from(), this_id, tensor_object_ptr2);
 
     Operation_management<T>::add_output_of(tensor1.get_from(), tensor_object_ptr1);
     Operation_management<T>::add_output_of(tensor2.get_from(), tensor_object_ptr2);
@@ -123,9 +123,9 @@ Tensor<T> Operate<T>::matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
                                 tensor1.get_shape()[2] };
     // row size of the first tensor * col size of the second tensor
 
-    Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, id, true,
+    Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
                          "tensor_from_op: " + name);
-    Mat_mul_op<T> mat_mul_op(static_cast<unsigned long>(id), name);
+    Mat_mul_op<T> mat_mul_op(static_cast<unsigned long>(this_id), name);
     Operation_management<T>::add_op(mat_mul_op);
     return rtn_tensor;
 }
@@ -146,26 +146,26 @@ Tensor<T> Operate<T>::matAdd(Tensor<T> &tensor1, Tensor<T> &tensor2,
         return get_default_tensor();
     }
 
-    auto id = static_cast<int>(Adj_management<T>::add_op_adj());
-    tensor1.set_to(id);
-    tensor2.set_to(id);
+    auto this_id = static_cast<int>(Adj_management<T>::add_op_adj());
+    tensor1.add_to(this_id);
+    tensor2.add_to(this_id);
     // TODO: find way to initialize the default data
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
         std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(), tensor1.get_type(),
-        "container of :" + name, tensor1.get_from(), tensor1.get_to());
+        "container of :" + name, tensor1.get_from(), this_id);
 
     auto tensor_object_ptr2 = std::make_shared<Tensor_object<T>>(
         std::vector<T>(tensor2.get_data_size()), tensor2.get_shape(), tensor2.get_type(),
-        "container_of :" + name, tensor2.get_from(), tensor2.get_to());
+        "container_of :" + name, tensor2.get_from(), this_id);
 
-    tensor1.set_tensor_object(tensor_object_ptr1);
-    tensor2.set_tensor_object(tensor_object_ptr2);
+    tensor1.add_tensor_object(tensor_object_ptr1);
+    tensor2.add_tensor_object(tensor_object_ptr2);
 
     // add parameter tensor_objects to new global adjacency matrix
-    Adj_management<T>::add_edge(tensor1.get_from(), tensor1.get_to(), tensor_object_ptr1);
-    Adj_management<T>::add_edge(tensor2.get_from(), tensor2.get_to(), tensor_object_ptr2);
+    Adj_management<T>::add_edge(tensor1.get_from(), this_id, tensor_object_ptr1);
+    Adj_management<T>::add_edge(tensor2.get_from(), this_id, tensor_object_ptr2);
 
     Operation_management<T>::add_output_of(tensor1.get_from(), tensor_object_ptr1);
     Operation_management<T>::add_output_of(tensor2.from, tensor_object_ptr2);
@@ -174,9 +174,9 @@ Tensor<T> Operate<T>::matAdd(Tensor<T> &tensor1, Tensor<T> &tensor2,
     std::vector<int> new_shape{ tensor1.get_shape()[0], tensor2.get_shape()[1] };
     // row size of the first tensor * col size of the second tensor
 
-    Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, id, true,
+    Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
                          "tensor_from_op: " + name);
-    Mat_mul_op<T> mat_mul_op(static_cast<unsigned long>(id), name);
+    Mat_mul_op<T> mat_mul_op(static_cast<unsigned long>(this_id), name);
     Operation_management<T>::add_op(mat_mul_op);
     return rtn_tensor;
 }
@@ -190,19 +190,19 @@ Tensor<T> Operate<T>::matDot(Tensor<T> &tensor1, T multiplier,
         return get_default_tensor();
     }
 
-    auto id = static_cast<int>(Adj_management<T>::add_op_adj());
-    tensor1.set_to(id);
+    auto this_id = static_cast<int>(Adj_management<T>::add_op_adj());
+    tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
         std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(), tensor1.get_type(),
-        "container of :" + name, tensor1.get_from(), tensor1.get_to());
+        "container of :" + name, tensor1.get_from(), this_id);
 
-    tensor1.set_tensor_object(tensor_object_ptr1);
+    tensor1.add_tensor_object(tensor_object_ptr1);
 
     // add parameter tensor_objects to new global adjacency matrix
-    Adj_management<T>::add_edge(tensor1.get_from(), tensor1.get_to(), tensor_object_ptr1);
+    Adj_management<T>::add_edge(tensor1.get_from(), this_id, tensor_object_ptr1);
 
     Operation_management<T>::add_output_of(tensor1.from, tensor_object_ptr1);
 
@@ -210,9 +210,9 @@ Tensor<T> Operate<T>::matDot(Tensor<T> &tensor1, T multiplier,
     std::vector<int> new_shape = tensor1.get_shape();
     // row size of the first tensor * col size of the second tensor
 
-    Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, id, true,
+    Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
                          "tensor_from_op: " + name);
-    Mat_mul_op<T> mat_mul_op(static_cast<unsigned long>(id), name);
+    Mat_mul_op<T> mat_mul_op(static_cast<unsigned long>(this_id), name);
     Operation_management<T>::add_op(mat_mul_op);
     return rtn_tensor;
 }
@@ -245,19 +245,19 @@ Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
         std::cout << "This Error occurs from operation: " << name << std::endl;
     }
 
-    auto id = static_cast<int>(Adj_management<T>::add_op_adj());
-    tensor1.set_to(id);
+    auto this_id = static_cast<int>(Adj_management<T>::add_op_adj());
+    tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
         std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(), tensor1.get_type(),
-        "container of :" + name, tensor1.get_from(), tensor1.get_to());
+        "container of :" + name, tensor1.get_from(), this_id);
 
-    tensor1.set_tensor_object(tensor_object_ptr1);
+    tensor1.add_tensor_object(tensor_object_ptr1);
 
     // add parameter tensor_objects to new global adjacency matrix
-    Adj_management<T>::add_edge(tensor1.get_from(), tensor1.get_to(), tensor_object_ptr1);
+    Adj_management<T>::add_edge(tensor1.get_from(), this_id, tensor_object_ptr1);
 
     Operation_management<T>::add_output_of(tensor1.get_from(), tensor_object_ptr1);
 
@@ -265,9 +265,9 @@ Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
     std::vector<int> new_shape = shape;
     // row size of the first tensor * col size of the second tensor
 
-    Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, id, true,
+    Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
                          "tensor_from_op: " + name);
-    Mat_mul_op<T> mat_mul_op(static_cast<unsigned long>(id), name);
+    Mat_mul_op<T> mat_mul_op(static_cast<unsigned long>(this_id), name);
     Operation_management<T>::add_op(mat_mul_op);
     return rtn_tensor;
 }
@@ -280,23 +280,23 @@ void Final<T>::wrapper(Tensor<T> &tensor1, const std::string &name)
         return;
     }
 
-    auto id = static_cast<int>(Adj_management<T>::add_op_adj());
-    tensor1.set_to(id);
+    auto this_id = static_cast<int>(Adj_management<T>::add_op_adj());
+    tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
             std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(), tensor1.get_type(),
-            "container of :" + name, tensor1.get_from(), tensor1.get_to());
+            "container of :" + name, tensor1.get_from(), this_id);
 
-    tensor1.set_tensor_object(tensor_object_ptr1);
+    tensor1.add_tensor_object(tensor_object_ptr1);
 
     // add parameter tensor_objects to new global adjacency matrix
-    Adj_management<T>::add_edge(tensor1.get_from(), tensor1.get_to(), tensor_object_ptr1);
+    Adj_management<T>::add_edge(tensor1.get_from(), this_id, tensor_object_ptr1);
 
     Operation_management<T>::add_output_of(tensor1.get_from(), tensor_object_ptr1);
 
-    Wrapper_op<T> wrapper_op(static_cast<unsigned long>(id), name);
+    Wrapper_op<T> wrapper_op(static_cast<unsigned long>(this_id), name);
     Operation_management<T>::add_op(wrapper_op);
 }
 }  // namespace cubby_dnn

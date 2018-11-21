@@ -14,7 +14,7 @@ namespace cubby_dnn
 /// definitions
 
 template <typename T>
-Tensor<T>::Tensor(Tensor_type type, const std::vector<int> &shape, int from,
+Tensor<T>::Tensor(Tensor_type type, const std::vector<int> &shape, long from,
                   bool _mutable, const std::string &name)
     : from(from), _mutable(_mutable), type(type)
 {
