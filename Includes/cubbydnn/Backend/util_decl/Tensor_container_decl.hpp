@@ -127,7 +127,6 @@ class Tensor_object
         this->_mutable = false;
     }
 
-    // void set_id(int id){ this->tensor_id = id; }
 };
 
 template <typename T>
