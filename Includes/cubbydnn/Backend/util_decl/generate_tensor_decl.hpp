@@ -49,7 +49,6 @@ template <typename T>
 class Operate : protected Tensor<T>
 {
     // friend class Operation_management;
-
  public:
     static Tensor<T> matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
                             const std::string &name = "matMul_op");
@@ -70,8 +69,6 @@ class Operate : protected Tensor<T>
         return Tensor<T>(Tensor_type::None, std::vector<int>(), -1,
                          "default Tensor due to error");
     }
-
-
 };
 
 template <typename T>

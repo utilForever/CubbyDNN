@@ -23,6 +23,9 @@ enum class Tensor_type
     None
 };
 
+const static long error_id = -1;
+
+
 template <typename T>
 void verify(
     const std::vector<T> &data,
@@ -33,11 +36,11 @@ class Tensor_object
 {
  public:
     Tensor_object(const std::vector<T> &data, const std::vector<int> &shape,
-                  Tensor_type type, const std::string &name, int from,
+                  Tensor_type type, int from,
                   int to);  //(1)
 
     Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
-                  Tensor_type type, std::string &&name, int from,
+                  Tensor_type type, int from,
                   int to);  //(2)
 
     Tensor_object(const Tensor_object<T> &rhs);  //(3)
@@ -59,7 +62,6 @@ class Tensor_object
      */
 
  private:
-    std::string name = nullptr;
 
     bool _mutable = true;
 
@@ -69,8 +71,7 @@ class Tensor_object
 
     struct storage;
 
-    std::unique_ptr<storage> tensor_object = std::make_unique<storage>(
-        std::vector<T>(), std::vector<int>());  // container of actual data
+    std::unique_ptr<storage> tensor_object;
 
  public:
     /// getters
@@ -87,16 +88,12 @@ class Tensor_object
         return type;
     }
 
-    const std::string &get_name() const
-    {
-        return name;
-    }
 
     long get_data_size() const;
 
     long get_data_byte_size() const;
 
-    const std::vector<int> &get_data() const;
+    const std::vector<T> &get_data() const;
 
     bool is_mutable() const
     {
@@ -114,10 +111,6 @@ class Tensor_object
         _mutable = true;
     }
 
-    void set_name(std::string name)
-    {
-        this->name = name;
-    }
 
     void set_type(Tensor_type type)
     {
@@ -168,10 +161,7 @@ class Tensor
 
     const std::string &get_name() const
     {
-        if (auto temp_ptr = tensor_object_ptr.lock())
-            return temp_ptr->name;
-        else
-            return this->name;
+        return this->name;
     }
 
     const std::vector<int> &get_shape() const
@@ -194,16 +184,12 @@ class Tensor
         return tensor_object_ptr;
     }
 
-    long get_from()
+    long get_from() const
     {
         return from;
     }
 
     /// setters
-    void set_tensor_object(std::shared_ptr<Tensor_object<T>> ptr)
-    {
-        tensor_object_ptr = ptr;  // make weak pointer from shared pointer
-    }
 
     void set_type(Tensor_type type)
     {
@@ -239,7 +225,7 @@ class Tensor
     }
 
     // adds tensor objects this tensor is giving output of
-    void add_tensor_object(std::shared_ptr<Tensor_object<T>> tensor_ptr)
+    void add_tensor_object(const std::shared_ptr<Tensor_object<T>> tensor_ptr)
     {
         this->tensor_object_ptr_vect.emplace_back(tensor_ptr);
     }
@@ -247,11 +233,9 @@ class Tensor
  private:
     long from;  // ID of operation that this tensor is generated
 
-    // TODO: make this vector in order to connect it towards multiple vectors
+    std::vector<long> to_vect; // vector for storing operations this tensor will head to
 
-    std::vector<long> to_vect;
-
-    std::vector<int> shape;
+    std::vector<int> shape; // shape of this tensor
 
     bool _mutable =
         true;  // determines whether data of this tensor can be modified

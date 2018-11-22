@@ -11,7 +11,8 @@ enum class operation_type
 {
     generate,
     basic,
-    final
+    final,
+    empty
 };
 
 template <typename T>
@@ -35,6 +36,11 @@ class Operation
         output_tensor_vect.emplace_back(tensor_ptr);
     }
 
+    void add_input(std::shared_ptr<Tensor_object<T>> tensor_ptr)
+    {
+        input_tensor_vect.emplace_back(tensor_ptr);
+    }
+
     bool has_input_vector()
     {
         return !input_tensor_vect.empty();
@@ -45,15 +51,47 @@ class Operation
         return !output_tensor_vect.empty();
     }
 
+    const std::string &get_name()
+    {
+        return name;
+    }
+
+    long get_id()
+    {
+        return operation_id;
+    }
+
+    const std::string print_info()
+    {
+        std::string info = name;
+        info+="\noperation id: " + std::to_string(operation_id);
+        info +=
+            "\ninput tensor num: " + std::to_string(input_tensor_vect.size());
+        info +=
+            "\noutput tensor num: " + std::to_string(output_tensor_vect.size());
+        return info;
+    }
+
  protected:
     explicit Operation();
 
  protected:
     operation_type op_type;
-    unsigned long operation_id;
+    unsigned long operation_id = 0;
     std::vector<std::shared_ptr<Tensor_object<T>>> input_tensor_vect;
     std::vector<std::shared_ptr<Tensor_object<T>>> output_tensor_vect;
     std::string name;
+};
+
+template <typename T>
+class Empty_op : public Operation<T>
+{
+ public:
+    explicit Empty_op()
+    {
+        this->op_type = operation_type::empty;
+        this->name = "Empty operation";
+    }
 };
 
 template <typename T>
@@ -146,7 +184,8 @@ class placeHolder_op : public Operation<T>
                             unsigned long operation_id,
                             const std::string &name = "placeHolder");
 
-    explicit placeHolder_op(unsigned long operation_id, Stream<T> &stream, const std::string &name)
+    explicit placeHolder_op(unsigned long operation_id, Stream<T> &stream,
+                            const std::string &name)
     {
         this->operation_id = operation_id;
         this->stream = stream;
@@ -216,21 +255,38 @@ class Operation_management
  public:
     static void add_op(Operation<T> operation);
     static void set_op(unsigned int id, const Operation<T> &operation);
-    static void add_output_of(long id, std::shared_ptr<Tensor_object<T>> tensor_ptr);
+    static void add_output_of(long id,
+                              std::shared_ptr<Tensor_object<T>> tensor_ptr);
+    static void add_input_of(long id,
+                             std::shared_ptr<Tensor_object<T>> tensor_ptr);
+    static void get_operation_infos()
+    {
+        for (auto op : operation_list)
+        {
+            std::cout << op.print_info() << std::endl;
+        }
+    }
 
  private:
     static Operation<T> &get_op(long operation_id)
     {
-        return operation_list[operation_id];
+        for (decltype(auto) operation : operation_list)
+        {
+            if (operation.get_id() == operation_id)
+                return operation;
+        }
+        // returns empty operation if nothing is found
+        return operation_list[0];
     }
     static std::deque<Operation<T>> operation_list;
     static std::mutex operation_list_mutex;
 };
 
-template<typename T>
-std::deque<Operation<T>> Operation_management<T>::operation_list = std::deque<Operation<T>>();
+template <typename T>
+std::deque<Operation<T>> Operation_management<T>::operation_list =
+    std::deque<Operation<T>>{ Empty_op<T>() };
 
-template<typename T>
+template <typename T>
 std::mutex Operation_management<T>::operation_list_mutex = std::mutex();
 
 }  // namespace cubby_dnn

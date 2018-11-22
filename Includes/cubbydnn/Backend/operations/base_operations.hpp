@@ -141,7 +141,7 @@ Wrapper_op<T>::Wrapper_op(std::shared_ptr<Tensor_object<T>> input_tensor,
     this->input_tensor_vect.emplace_back(input_tensor);
     this->op_type = operation_type::final;
     this->name = name;
-    this-> operation_id = operation_id;
+    this->operation_id = operation_id;
 }
 
 template <typename T>
@@ -161,10 +161,18 @@ void Operation_management<T>::set_op(unsigned int id,
 
 template <typename T>
 void Operation_management<T>::add_output_of(
-        long id, std::shared_ptr<Tensor_object<T>> tensor_ptr)
+    long id, std::shared_ptr<Tensor_object<T>> tensor_ptr)
 {
-    auto operation = get_op(id);
+    decltype(auto) operation = get_op(id);
     operation.add_output(tensor_ptr);
+}
+
+template <typename T>
+void Operation_management<T>::add_input_of(
+    long id, std::shared_ptr<Tensor_object<T>> tensor_ptr)
+{
+    decltype(auto) operation = get_op(id);
+    operation.add_input(tensor_ptr);
 }
 }  // namespace cubby_dnn
 #endif  // CUBBYDNN_BASE_OPERATIONS_HPP

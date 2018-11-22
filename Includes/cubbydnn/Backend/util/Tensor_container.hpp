@@ -23,14 +23,10 @@ Tensor<T>::Tensor(Tensor_type type, const std::vector<int> &shape, long from,
 }
 
 template <typename T>
-Tensor<T>::Tensor(Tensor<T> &rhs)
-{
-}
+Tensor<T>::Tensor(Tensor<T> &rhs) = default;
 
 template <typename T>
-Tensor<T>::Tensor(Tensor<T> &&rhs) noexcept
-{
-}
+Tensor<T>::Tensor(Tensor<T> &&rhs) noexcept = default;
 
 template <typename T>
 struct Tensor_object<T>::storage
@@ -67,19 +63,17 @@ Tensor_object<T>::storage::storage(std::vector<T> &&data,
 template <typename T>
 Tensor_object<T>::Tensor_object(const std::vector<T> &data,
                                 const std::vector<int> &shape, Tensor_type type,
-                                const std::string &name, int from, int to)
+                                int from, int to)
     : type(type), from(from), to(to)
 {
     verify<T>(data, shape);  // checks exception if arguments are invalid
 
     this->tensor_object = std::make_unique<storage>(data, shape);
-    this->name = name;
 }
 
 template <typename T>
 Tensor_object<T>::Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
-                                Tensor_type type, std::string &&name, int from,
-                                int to)
+                                Tensor_type type, int from, int to)
     : type(type), from(from), to(to)
 {
     verify<T>(data, shape);  // checks exception if arguments are invalid
@@ -87,7 +81,6 @@ Tensor_object<T>::Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
     this->tensor_object =
         std::make_unique<storage>(std::forward<std::vector<T>>(data),
                                   std::forward<std::vector<int>>(shape));
-    this->name = std::forward<std::string>(name);
 }
 
 template <typename T>
@@ -147,7 +140,10 @@ template <typename T>
 long Tensor_object<T>::get_data_size() const
 {
     if (!tensor_object)
+    {
         std::cout << "tensor_object is empty" << std::endl;
+        return error_id;
+    }
     return static_cast<int>(tensor_object->data.size());
 }
 
@@ -155,12 +151,15 @@ template <typename T>
 long Tensor_object<T>::get_data_byte_size() const
 {
     if (!tensor_object)
+    {
         std::cout << "tensor_object is empty" << std::endl;
+        return error_id;
+    }
     return static_cast<long>(tensor_object->data.size() * sizeof(T));
 }
 
-//template <typename T>
-//const std::vector<int> &Tensor_object<T>::get_shape() const
+// template <typename T>
+// const std::vector<int> &Tensor_object<T>::get_shape() const
 //{
 //    if (!tensor_object) {
 //        std::cout << "tensor_object is empty" << std::endl;
@@ -169,10 +168,13 @@ long Tensor_object<T>::get_data_byte_size() const
 //}
 
 template <typename T>
-const std::vector<int> &Tensor_object<T>::get_data() const
+const std::vector<T> &Tensor_object<T>::get_data() const
 {
     if (!tensor_object)
+    {
         std::cout << "tensor_object is empty" << std::endl;
+        return std::vector<T>();
+    }
     return tensor_object->data;
 }
 
