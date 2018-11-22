@@ -29,19 +29,19 @@ const static long error_id = -1;
 template <typename T>
 void verify(
     const std::vector<T> &data,
-    const std::vector<int> &shape);  // throws exception if input in invalid
+    const std::vector<int> &shape);
 
 template <typename T>
 class Tensor_object
 {
  public:
     Tensor_object(const std::vector<T> &data, const std::vector<int> &shape,
-                  Tensor_type type, int from,
-                  int to);  //(1)
+                  Tensor_type type, long from,
+                  long to);  //(1)
 
     Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
-                  Tensor_type type, int from,
-                  int to);  //(2)
+                  Tensor_type type, long from,
+                  long to);  //(2)
 
     Tensor_object(const Tensor_object<T> &rhs);  //(3)
 
@@ -52,6 +52,8 @@ class Tensor_object
     Tensor_object &operator=(Tensor_object<T> &&rhs) noexcept;  //(6)
 
     ~Tensor_object();
+
+
 
     /*
       for (4), (6) no exceptions can be thrown
@@ -67,7 +69,7 @@ class Tensor_object
 
     Tensor_type type;
 
-    int from, to;
+    long from, to;
 
     struct storage;
 
@@ -127,6 +129,13 @@ class Tensor_object
         this->_mutable = false;
     }
 
+    long get_from() const{
+        return from;
+    };
+
+    long get_to() const{
+        return to;
+    };
 };
 
 template <typename T>
@@ -168,7 +177,7 @@ class Tensor
         return this->shape;
     }
 
-    unsigned long get_data_size()
+    unsigned long get_data_size() const
     {
         return shape::get_shape_size(shape);
     }
@@ -268,6 +277,18 @@ class Adj_management
     }
 
     static std::shared_ptr<Tensor_object<T>> get_tensor_ptr(int from, int to);
+
+    static void print_adj(){
+        for(auto row: adj_forward){
+            for(auto col: row){
+                if(col)
+                    std::cout<<col->get_from()<<" ";
+                else
+                    std::cout<<0<<" ";
+            }
+            std::cout<<std::endl;
+        }
+    }
 
  private:
     static constexpr int default_graph_size = 30;

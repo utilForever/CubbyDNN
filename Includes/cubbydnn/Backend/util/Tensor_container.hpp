@@ -63,7 +63,7 @@ Tensor_object<T>::storage::storage(std::vector<T> &&data,
 template <typename T>
 Tensor_object<T>::Tensor_object(const std::vector<T> &data,
                                 const std::vector<int> &shape, Tensor_type type,
-                                int from, int to)
+                                long from, long to)
     : type(type), from(from), to(to)
 {
     verify<T>(data, shape);  // checks exception if arguments are invalid
@@ -73,7 +73,7 @@ Tensor_object<T>::Tensor_object(const std::vector<T> &data,
 
 template <typename T>
 Tensor_object<T>::Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
-                                Tensor_type type, int from, int to)
+                                Tensor_type type, long from, long to)
     : type(type), from(from), to(to)
 {
     verify<T>(data, shape);  // checks exception if arguments are invalid
@@ -158,14 +158,6 @@ long Tensor_object<T>::get_data_byte_size() const
     return static_cast<long>(tensor_object->data.size() * sizeof(T));
 }
 
-// template <typename T>
-// const std::vector<int> &Tensor_object<T>::get_shape() const
-//{
-//    if (!tensor_object) {
-//        std::cout << "tensor_object is empty" << std::endl;
-//    }
-//    return tensor_object->data.shape();
-//}
 
 template <typename T>
 const std::vector<T> &Tensor_object<T>::get_data() const
@@ -180,7 +172,6 @@ const std::vector<T> &Tensor_object<T>::get_data() const
 
 /// management
 
-// TODO: make these thread-safe
 template <typename T>
 unsigned long Adj_management<T>::add_op_adj()
 {
@@ -196,10 +187,9 @@ unsigned long Adj_management<T>::add_op_adj()
     auto emplace_until_size =
         [expected_row_size, graph_size](
             std::deque<std::shared_ptr<Tensor_object<T>>> &arg) mutable {
-            while (expected_row_size > graph_size)
+            while (expected_row_size > arg.size())
             {
                 arg.emplace_back(nullptr);  // copy-construct new temp
-                graph_size = arg.size();
             }
         };
 

@@ -41,7 +41,8 @@ bool shape::check_shape(const std::vector<int> &shape,
     return has_been_valid;
 }
 
-unsigned long shape::get_shape_size(const std::vector<int> &shape) {
+unsigned long shape::get_shape_size(const std::vector<int> &shape)
+{
     unsigned long size = 1;
     for(auto element : shape){
         size *= element;

@@ -9,8 +9,8 @@ namespace cubby_dnn
 {
 enum class operation_type
 {
-    generate,
-    basic,
+    start,
+    middle,
     final,
     empty
 };
@@ -259,12 +259,16 @@ class Operation_management
                               std::shared_ptr<Tensor_object<T>> tensor_ptr);
     static void add_input_of(long id,
                              std::shared_ptr<Tensor_object<T>> tensor_ptr);
-    static void get_operation_infos()
+    static void print_operation_infos()
     {
         for (auto op : operation_list)
         {
             std::cout << op.print_info() << std::endl;
         }
+    }
+
+    static unsigned long number_of_operations(){
+        return operation_list.size();
     }
 
  private:

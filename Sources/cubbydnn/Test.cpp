@@ -17,6 +17,9 @@ void simple_Example()
     auto multiplied_tensor1 = Operate<int>::matMul(input_tensor2, input_tensor1,
                                                    "test matMul operation1");
 
+    Final<int>::wrapper(multiplied_tensor1, "test wrapper operation1");
+
+
     auto multiplied_tensor2 = Operate<int>::matMul(input_tensor2, input_tensor1,
                                                    "test matMul operation2");
 
@@ -32,8 +35,9 @@ void simple_Example()
 
     Final<int>::wrapper(reshaped_tensor1, "test wrapper operation3");
 
+    Operation_management<int>::print_operation_infos();
 
-    Operation_management<int>::get_operation_infos();
+    Adj_management<int>::print_adj();
 }
 int Add(int a, int b)
 {
