@@ -11,7 +11,6 @@ void simple_Example()
     auto input_tensor1 = Generate<int>::placeHolder(
             std::vector<int>{ 2, 2, 1 }, file_stream, "test placeHolder operation");
 
-
     auto input_tensor2 = Generate<int>::weight(std::vector<int>{ 2, 2, 1 },
                                                true, "test weight operation2");
 
@@ -23,13 +22,16 @@ void simple_Example()
 
     auto added_tensor1 = Operate<int>::matAdd(input_tensor1, input_tensor2, "test matAdd operation1");
 
-    auto dot_operated_tensor1 = Operate<int>::matDot(input_tensor1, 5, "test matDot operation");
+    auto dot_operated_tensor1 = Operate<int>::matDot(added_tensor1, 5, "test matDot operation");
 
-    auto reshaped_tensor1 = Operate<int>::reshape(input_tensor2, std::vector<int>{1, 4, 1}, "test reshape operation1");
+    auto reshaped_tensor1 = Operate<int>::reshape(dot_operated_tensor1, std::vector<int>{1, 4, 1}, "test reshape operation1");
 
     Final<int>::wrapper(multiplied_tensor1, "test wrapper operation1");
 
     Final<int>::wrapper(multiplied_tensor2, "test wrapper operation2");
+
+    Final<int>::wrapper(reshaped_tensor1, "test wrapper operation3");
+
 
     Operation_management<int>::get_operation_infos();
 }

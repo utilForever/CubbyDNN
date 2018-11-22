@@ -181,8 +181,7 @@ Tensor<T> Operate<T>::matAdd(Tensor<T> &tensor1, Tensor<T> &tensor2,
     Operation_management<T>::add_output_of(tensor2.get_from(), tensor_object_ptr2);
 
     // setting the return tensor
-    std::vector<int> new_shape{ tensor1.get_shape()[0],
-                                tensor2.get_shape()[1] };
+    std::vector<int> new_shape = tensor1.get_shape();
     // row size of the first tensor * col size of the second tensor
 
     Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
