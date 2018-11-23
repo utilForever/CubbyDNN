@@ -9,7 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
-#include "shape.hpp"
+#include "shape_checker.hpp"
 
 namespace cubby_dnn
 {
@@ -25,22 +25,19 @@ enum class Tensor_type
 
 const static long error_id = -1;
 
-
 template <typename T>
-void verify(
-    const std::vector<T> &data,
-    const std::vector<int> &shape);
+bool verify(const std::vector<T> &data, const Shape &shape);
 
 template <typename T>
 class Tensor_object
 {
  public:
-    Tensor_object(const std::vector<T> &data, const std::vector<int> &shape,
+    Tensor_object(const std::vector<T> &data, const Shape &shape,
                   Tensor_type type, long from,
                   long to);  //(1)
 
-    Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
-                  Tensor_type type, long from,
+    Tensor_object(std::vector<T> &&data, Shape &&shape, Tensor_type type,
+                  long from,
                   long to);  //(2)
 
     Tensor_object(const Tensor_object<T> &rhs);  //(3)
@@ -53,8 +50,6 @@ class Tensor_object
 
     ~Tensor_object();
 
-
-
     /*
       for (4), (6) no exceptions can be thrown
       for (3), (5) std::bad_alloc may be thrown
@@ -64,7 +59,6 @@ class Tensor_object
      */
 
  private:
-
     bool _mutable = true;
 
     Tensor_type type;
@@ -90,7 +84,6 @@ class Tensor_object
         return type;
     }
 
-
     long get_data_size() const;
 
     long get_data_byte_size() const;
@@ -113,7 +106,6 @@ class Tensor_object
         _mutable = true;
     }
 
-
     void set_type(Tensor_type type)
     {
         this->type = type;
@@ -129,11 +121,13 @@ class Tensor_object
         this->_mutable = false;
     }
 
-    long get_from() const{
+    long get_from() const
+    {
         return from;
     };
 
-    long get_to() const{
+    long get_to() const
+    {
         return to;
     };
 };
@@ -142,7 +136,7 @@ template <typename T>
 class Tensor
 {
  public:
-    Tensor(Tensor_type type, const std::vector<int> &shape, long from,
+    Tensor(Tensor_type type, const Shape &shape, long from,
            bool _mutable = true,
            const std::string &name = "Tensor");  //(1)
 
@@ -172,14 +166,14 @@ class Tensor
         return this->name;
     }
 
-    const std::vector<int> &get_shape() const
+    const Shape &get_shape() const
     {
         return this->shape;
     }
 
-    unsigned long get_data_size() const
+    long get_data_size() const
     {
-        return shape::get_shape_size(shape);
+        return shape.size();
     }
 
     bool is_mutable() const
@@ -241,9 +235,10 @@ class Tensor
  private:
     long from;  // ID of operation that this tensor is generated
 
-    std::vector<long> to_vect; // vector for storing operations this tensor will head to
+    std::vector<long>
+        to_vect;  // vector for storing operations this tensor will head to
 
-    std::vector<int> shape; // shape of this tensor
+    Shape shape;  // shape of this tensor
 
     bool _mutable =
         true;  // determines whether data of this tensor can be modified
@@ -278,22 +273,28 @@ class Adj_management
 
     static std::shared_ptr<Tensor_object<T>> get_tensor_ptr(int from, int to);
 
-    static void print_adj(){
-        std::cout<<"--Adjacency Matrix--"<<std::endl;
-        for(auto row: adj_forward){
-            for(auto col: row){
-                if(col)
-                    std::cout<<col->get_from()<<" ";
+    static void print_adj()
+    {
+        std::cout << "--Adjacency Matrix--" << std::endl;
+        for (auto row : adj_forward)
+        {
+            for (auto col : row)
+            {
+                if (col)
+                    std::cout << col->get_from() << " ";
                 else
-                    std::cout<<"*"<<" ";
+                    std::cout << "*"
+                              << " ";
             }
-            std::cout<<std::endl;
+            std::cout << std::endl;
         }
     }
 
-    static void reserve_adj(long size){
-        for(long i = 0; i<size; i++){
-            add_op_adj(); // increment size of adj matrix
+    static void reserve_adj(long size)
+    {
+        for (long i = 0; i < size; i++)
+        {
+            add_op_adj();  // increment size of adj matrix
         }
     }
 

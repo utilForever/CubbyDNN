@@ -7,15 +7,15 @@
 
 #include "Backend/operations/base_operations.hpp"
 #include "Backend/util_decl/generate_tensor_decl.hpp"
-#include "Backend/util_decl/shape.hpp"
+#include "Backend/util_decl/shape_checker.hpp"
 
 namespace cubby_dnn
 {
 template <typename T>
-Tensor<T> Generate<T>::placeHolder(const std::vector<int> &shape,
+Tensor<T> Generate<T>::placeHolder(const Shape &shape,
                                    Stream<T> &stream, const std::string &name)
 {
-    if (!shape::check_shape(shape, name))
+    if (!shape_checker::check_shape(shape, name))
     {
         return get_default_tensor();  // check if shape is valid
     }
@@ -32,10 +32,10 @@ Tensor<T> Generate<T>::placeHolder(const std::vector<int> &shape,
 }
 
 template <typename T>
-Tensor<T> Generate<T>::weight(const std::vector<int> &shape, bool trainable,
+Tensor<T> Generate<T>::weight(const Shape &shape, bool trainable,
                               const std::string &name)
 {
-    if (!shape::check_shape(shape, name))
+    if (!shape_checker::check_shape(shape, name))
     {
         return get_default_tensor();  // check if shape is valid
     }
@@ -53,10 +53,10 @@ Tensor<T> Generate<T>::weight(const std::vector<int> &shape, bool trainable,
 }
 
 template <typename T>
-Tensor<T> Generate<T>::filter(const std::vector<int> &shape, bool trainable,
+Tensor<T> Generate<T>::filter(const Shape &shape, bool trainable,
                               const std::string &name)
 {
-    if (!shape::check_shape(shape, name))
+    if (!shape_checker::check_shape(shape, name))
     {
         return get_default_tensor();  // check if shape is valid
     }
@@ -85,8 +85,8 @@ Tensor<T> Operate<T>::matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
         return get_default_tensor();
     }
 
-    if (tensor1.get_shape()[1] != tensor2.get_shape()[0] ||
-        tensor1.get_shape()[2] != tensor2.get_shape()[2])
+    if (tensor1.get_shape().cols() != tensor2.get_shape().rows() ||
+        tensor1.get_shape().height() != tensor2.get_shape().height())
     {
         // number of rows of first tensor should be identical to number of
         // columns of second tensor
@@ -104,11 +104,11 @@ Tensor<T> Operate<T>::matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
-        std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(),
+        std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())), tensor1.get_shape(),
         tensor1.get_type(), tensor1.get_from(), this_id);
 
     auto tensor_object_ptr2 = std::make_shared<Tensor_object<T>>(
-        std::vector<T>(tensor2.get_data_size()), tensor2.get_shape(),
+        std::vector<T>(static_cast<unsigned long>(tensor2.get_data_size())), tensor2.get_shape(),
         tensor2.get_type(), tensor2.get_from(), this_id);
 
     tensor1.add_tensor_object(tensor_object_ptr1);
@@ -122,8 +122,8 @@ Tensor<T> Operate<T>::matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
     // setting the return tensor
     // numCols of first tensor, numRows of second tensor and dimension of third
     // tensor
-    std::vector<int> new_shape{ tensor1.get_shape()[0], tensor2.get_shape()[1],
-                                tensor1.get_shape()[2] };
+    Shape new_shape( tensor1.get_shape().rows(), tensor2.get_shape().cols(),
+                                tensor1.get_shape().height() );
     // row size of the first tensor * col size of the second tensor
 
     Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
@@ -159,11 +159,11 @@ Tensor<T> Operate<T>::matAdd(Tensor<T> &tensor1, Tensor<T> &tensor2,
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
-        std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(),
+        std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())), tensor1.get_shape(),
         tensor1.get_type(), tensor1.get_from(), this_id);
 
     auto tensor_object_ptr2 = std::make_shared<Tensor_object<T>>(
-        std::vector<T>(tensor2.get_data_size()), tensor2.get_shape(),
+        std::vector<T>(static_cast<unsigned long>(tensor2.get_data_size())), tensor2.get_shape(),
         tensor2.get_type(), tensor2.get_from(), this_id);
 
     tensor1.add_tensor_object(tensor_object_ptr1);
@@ -174,7 +174,7 @@ Tensor<T> Operate<T>::matAdd(Tensor<T> &tensor1, Tensor<T> &tensor2,
     Operation_management<T>::add_output_of(tensor2.get_from(), tensor_object_ptr2);
 
     // setting the return tensor
-    std::vector<int> new_shape = tensor1.get_shape();
+    Shape new_shape = tensor1.get_shape();
     // row size of the first tensor * col size of the second tensor
 
     Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
@@ -203,7 +203,7 @@ Tensor<T> Operate<T>::matDot(Tensor<T> &tensor1, T multiplier,
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
-        std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(),
+        std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())), tensor1.get_shape(),
         tensor1.get_type(), tensor1.get_from(), this_id);
 
     tensor1.add_tensor_object(tensor_object_ptr1);
@@ -211,7 +211,7 @@ Tensor<T> Operate<T>::matDot(Tensor<T> &tensor1, T multiplier,
     Operation_management<T>::add_output_of(tensor1.get_from(), tensor_object_ptr1);
 
     // setting the return tensor
-    std::vector<int> new_shape = tensor1.get_shape();
+    Shape new_shape = tensor1.get_shape();
     // row size of the first tensor * col size of the second tensor
 
     Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
@@ -223,7 +223,7 @@ Tensor<T> Operate<T>::matDot(Tensor<T> &tensor1, T multiplier,
 }
 
 template <typename T>
-Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
+Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const Shape &shape,
                               const std::string &name)
 {
     if (!tensor1.is_valid())
@@ -231,7 +231,7 @@ Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
         return get_default_tensor();
     }
 
-    if (!shape::check_shape(tensor1.get_shape(), name))
+    if (!shape_checker::check_shape(tensor1.get_shape(), name))
     {
         std::cout << "tensor shapes doesn't match for reshaping" << std::endl;
         std::cout << "This Error occurs from operation: " << name << std::endl;
@@ -239,12 +239,12 @@ Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
     }
 
     // if reshaping size is different, make it false
-    if (tensor1.get_data_size() != shape::get_shape_size(shape))
+    if (tensor1.get_data_size() != shape.size())
     {
         std::cout << "size of new shape doesn't match for reshaping"
                   << std::endl;
         std::cout << "new size: "
-                  << std::to_string(shape::get_shape_size(shape))
+                  << std::to_string(shape.size())
                   << "original size: "
                   << std::to_string(tensor1.get_data_size()) << std::endl;
         std::cout << "This Error occurs from operation: " << name << std::endl;
@@ -257,7 +257,7 @@ Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
-        std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(),
+        std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())), tensor1.get_shape(),
         tensor1.get_type(), tensor1.get_from(), this_id);
 
     tensor1.add_tensor_object(tensor_object_ptr1);
@@ -266,7 +266,7 @@ Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
                                            tensor_object_ptr1);
 
     // setting the return tensor
-    std::vector<int> new_shape = shape;
+    Shape new_shape = shape;
     // row size of the first tensor * col size of the second tensor
 
     Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
@@ -292,7 +292,7 @@ void Final<T>::wrapper(Tensor<T> &tensor1, const std::string &name)
     // initialize(initialization_method)
 
     auto tensor_object_ptr1 = std::make_shared<Tensor_object<T>>(
-        std::vector<T>(tensor1.get_data_size()), tensor1.get_shape(),
+        std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())), tensor1.get_shape(),
         tensor1.get_type(), tensor1.get_from(), this_id);
 
     tensor1.add_tensor_object(tensor_object_ptr1);

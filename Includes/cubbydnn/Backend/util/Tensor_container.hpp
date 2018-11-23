@@ -14,7 +14,7 @@ namespace cubby_dnn
 /// definitions
 
 template <typename T>
-Tensor<T>::Tensor(Tensor_type type, const std::vector<int> &shape, long from,
+Tensor<T>::Tensor(Tensor_type type, const Shape &shape, long from,
                   bool _mutable, const std::string &name)
     : from(from), _mutable(_mutable), type(type)
 {
@@ -32,19 +32,19 @@ template <typename T>
 struct Tensor_object<T>::storage
 {
  public:
-    storage(const std::vector<T> &data, const std::vector<int> &shape);
+    storage(const std::vector<T> &data, const Shape &shape);
 
-    storage(std::vector<T> &&data, std::vector<int> &&shape);
+    storage(Shape &&data, Shape &&shape);
 
-    std::vector<T> data;     // stores actual data with data type 'T'
-    std::vector<int> shape;  // shape of the data
+    std::vector<T> data;  // stores actual data with data type 'T'
+    Shape shape;          // shape of the data
     typedef std::size_t size_type;
     size_type byte_size;
 };
 
 template <typename T>
 Tensor_object<T>::storage::storage(const std::vector<T> &data,
-                                   const std::vector<int> &shape)
+                                   const Shape &shape)
 {
     this->data = data;
     this->shape = shape;
@@ -52,35 +52,32 @@ Tensor_object<T>::storage::storage(const std::vector<T> &data,
 }
 
 template <typename T>
-Tensor_object<T>::storage::storage(std::vector<T> &&data,
-                                   std::vector<int> &&shape)
+Tensor_object<T>::storage::storage(Shape &&data, Shape &&shape)
 {
     this->data = std::forward<std::vector<T>>(data);
-    this->shape = std::forward<std::vector<int>>(data);
+    this->shape = std::forward<Shape>(data);
     byte_size = this->data.size();
 }
 
 template <typename T>
-Tensor_object<T>::Tensor_object(const std::vector<T> &data,
-                                const std::vector<int> &shape, Tensor_type type,
-                                long from, long to)
+Tensor_object<T>::Tensor_object(const std::vector<T> &data, const Shape &shape,
+                                Tensor_type type, long from, long to)
     : type(type), from(from), to(to)
 {
-    verify<T>(data, shape);  // checks exception if arguments are invalid
+    verify<T>(data, shape);
 
     this->tensor_object = std::make_unique<storage>(data, shape);
 }
 
 template <typename T>
-Tensor_object<T>::Tensor_object(std::vector<T> &&data, std::vector<int> &&shape,
+Tensor_object<T>::Tensor_object(std::vector<T> &&data, Shape &&shape,
                                 Tensor_type type, long from, long to)
     : type(type), from(from), to(to)
 {
     verify<T>(data, shape);  // checks exception if arguments are invalid
 
-    this->tensor_object =
-        std::make_unique<storage>(std::forward<std::vector<T>>(data),
-                                  std::forward<std::vector<int>>(shape));
+    this->tensor_object = std::make_unique<storage>(
+        std::forward<std::vector<T>>(data), std::forward<Shape>(shape));
 }
 
 template <typename T>
@@ -114,24 +111,23 @@ template <typename T>
 Tensor_object<T>::~Tensor_object() = default;
 
 template <typename T>
-void verify(const std::vector<T> &data, const std::vector<int> &shape)
+bool verify(const std::vector<T> &data, const Shape &shape)
 {
-    if (data.empty() || shape.empty())
-        std::cout << "empty data" << std::endl;
-
-    unsigned long expected_size = 1;
-    for (auto elem : shape)
+    if (data.empty())
     {
-        expected_size *= elem;
+        std::cout << "empty data" << std::endl;
+        return false;
     }
 
-    if (expected_size != data.size())
+    if (data.size() != static_cast<unsigned long>(shape.size()))
     {
         std::string err_message = "data shape doesn't match";
-        err_message += "Expected Size = " + std::to_string(expected_size);
+        err_message += "Expected Size = " + std::to_string(shape.size());
         err_message += "given data size = " + std::to_string(data.size());
         std::cout << err_message << std::endl;
+        return false;
     }
+    return true;
 }
 
 // getters
@@ -157,7 +153,6 @@ long Tensor_object<T>::get_data_byte_size() const
     }
     return static_cast<long>(tensor_object->data.size() * sizeof(T));
 }
-
 
 template <typename T>
 const std::vector<T> &Tensor_object<T>::get_data() const

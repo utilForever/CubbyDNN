@@ -169,7 +169,7 @@ class Reshape_op : public Operation<T>
  public:
     explicit Reshape_op(std::shared_ptr<Tensor_object<T>> tensor1,
                         std::shared_ptr<Tensor_object<T>> output_tensor,
-                        const std::vector<int> &shape,
+                        const Shape &shape,
                         unsigned long operation_id,
                         const std::string &name = "reshape");
 
@@ -180,7 +180,7 @@ class Reshape_op : public Operation<T>
     }  // empty constructor for operation
 
  private:
-    std::vector<int> shape;
+    Shape shape;
 };
 
 template <typename T>
@@ -188,7 +188,7 @@ class placeHolder_op : public Operation<T>
 {
  public:
     explicit placeHolder_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                            const std::vector<int> &shape,
+                            const Shape &shape,
                             unsigned long operation_id,
                             const std::string &name = "placeHolder");
 
@@ -201,7 +201,7 @@ class placeHolder_op : public Operation<T>
     }  // empty constructor for operation
 
  private:
-    std::vector<int> shape;
+    Shape shape;
     Stream<T> stream;
 };
 
@@ -210,7 +210,7 @@ class weight_op : public Operation<T>
 {
  public:
     explicit weight_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                       const std::vector<int> &shape,
+                       const Shape &shape,
                        unsigned long operation_id,
                        const std::string &name = "weight");
 
@@ -221,7 +221,7 @@ class weight_op : public Operation<T>
     }  // empty constructor for operation
 
  private:
-    std::vector<int> shape;
+    Shape shape;
 };
 
 template <typename T>
@@ -229,7 +229,7 @@ class constant_op : public Operation<T>
 {
  public:
     explicit constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                         const std::vector<int> &shape,
+                         const Shape &shape,
                          unsigned long operation_id,
                          const std::string &name = "constant");
 
@@ -240,7 +240,7 @@ class constant_op : public Operation<T>
     }  // empty constructor for operation
 
  private:
-    std::vector<int> shape;
+    Shape shape;
 };
 
 template <typename T>

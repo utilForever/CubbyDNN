@@ -9,9 +9,9 @@ std::vector<std::tuple<long, unsigned long, unsigned long>> Example1()
 {
     File_stream<int> file_stream;
     auto input_tensor1 = Generate<int>::placeHolder(
-            std::vector<int>{ 2, 2, 1 }, file_stream, "test placeHolder operation"); //1
+            Shape(2,2,1), file_stream, "test placeHolder operation"); //1
 
-    auto input_tensor2 = Generate<int>::weight(std::vector<int>{ 2, 2, 1 },
+    auto input_tensor2 = Generate<int>::weight(Shape(2,2,1),
                                                true, "test weight operation2"); //2
 
     auto multiplied_tensor1 = Operate<int>::matMul(input_tensor2, input_tensor1,
@@ -27,7 +27,7 @@ std::vector<std::tuple<long, unsigned long, unsigned long>> Example1()
 
     auto dot_operated_tensor1 = Operate<int>::matDot(added_tensor1, 5, "test matDot operation"); //7
 
-    auto reshaped_tensor1 = Operate<int>::reshape(dot_operated_tensor1, std::vector<int>{1, 4, 1}, "test reshape operation1"); //8
+    auto reshaped_tensor1 = Operate<int>::reshape(dot_operated_tensor1, Shape(1,2,2), "test reshape operation1"); //8
 
     Final<int>::wrapper(multiplied_tensor1, "test wrapper operation1"); //9
 

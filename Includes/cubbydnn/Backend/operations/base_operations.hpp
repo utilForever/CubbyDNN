@@ -86,7 +86,7 @@ Mat_dot_op<T>::Mat_dot_op(std::shared_ptr<Tensor_object<T>> tensor1,
 template <typename T>
 Reshape_op<T>::Reshape_op(std::shared_ptr<Tensor_object<T>> tensor1,
                           std::shared_ptr<Tensor_object<T>> output_tensor,
-                          const std::vector<int> &shape,
+                          const Shape &shape,
                           unsigned long operation_id, const std::string &name)
 {
     this->input_tensor_vect.emplace_back(tensor1);
@@ -99,9 +99,9 @@ Reshape_op<T>::Reshape_op(std::shared_ptr<Tensor_object<T>> tensor1,
 
 template <typename T>
 placeHolder_op<T>::placeHolder_op(
-    std::shared_ptr<Tensor_object<T>> output_tensor,
-    const std::vector<int> &shape, unsigned long operation_id,
-    const std::string &name)
+        std::shared_ptr<Tensor_object<T>> output_tensor,
+        const Shape &shape, unsigned long operation_id,
+        const std::string &name)
 {
     this->output_tensor_vect.emplace_back(output_tensor);
     this->op_type(operation_type::start);
@@ -112,7 +112,7 @@ placeHolder_op<T>::placeHolder_op(
 
 template <typename T>
 weight_op<T>::weight_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                        const std::vector<int> &shape,
+                        const Shape &shape,
                         unsigned long operation_id, const std::string &name)
 {
     this->output_tensor_vect.emplace_back(output_tensor);
@@ -124,7 +124,7 @@ weight_op<T>::weight_op(std::shared_ptr<Tensor_object<T>> output_tensor,
 
 template <typename T>
 constant_op<T>::constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                            const std::vector<int> &shape,
+                            const Shape &shape,
                             unsigned long operation_id, const std::string &name)
 {
     this->output_tensor_vect.emplace_back(output_tensor);

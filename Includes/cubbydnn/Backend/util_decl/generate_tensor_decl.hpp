@@ -24,15 +24,15 @@ class Generate
 
     // TODO: think about ways to put data stream through placeholders
 
-    static Tensor<T> placeHolder(const std::vector<int> &shape,
+    static Tensor<T> placeHolder(const Shape &shape,
                                  Stream<T> &stream,
                                  const std::string &name = "PlaceHolder");
 
-    static Tensor<T> weight(const std::vector<int> &shape,
+    static Tensor<T> weight(const Shape &shape,
                             bool trainable = true,
                             const std::string &name = "weight");
 
-    static Tensor<T> filter(const std::vector<int> &shape,
+    static Tensor<T> filter(const Shape &shape,
                             bool trainable = true,
                             const std::string &name = "filter");
 
@@ -40,7 +40,7 @@ class Generate
     static Tensor<T> get_default_tensor()
     {
         // default tensor to return when error occurs
-        return Tensor<T>(Tensor_type::None, std::vector<int>(), -1,
+        return Tensor<T>(Tensor_type::None, Shape(), -1,
                          "default Tensor due to error");
     }
 };
@@ -59,14 +59,14 @@ class Operate : protected Tensor<T>
     static Tensor<T> matDot(Tensor<T> &tensor1, T multiplier,
                             const std::string &name = "matDot_op");
 
-    static Tensor<T> reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
+    static Tensor<T> reshape(Tensor <T> &tensor1, const Shape &shape,
                              const std::string &name = "reshape_op");
 
  private:
     static Tensor<T> get_default_tensor()
     {
         // default tensor to return when error occurs
-        return Tensor<T>(Tensor_type::None, std::vector<int>(), -1,
+        return Tensor<T>(Tensor_type::None, Shape(), -1,
                          "default Tensor due to error");
     }
 };

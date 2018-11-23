@@ -27,7 +27,7 @@ file(GLOB_RECURSE sources
 
 # Build library
 add_library(${target}
-        ${sources} ../../Includes/cubbydnn/Backend/util_decl/shape.hpp Backend/util/shape.cpp)
+        ${sources} ../../Includes/cubbydnn/Backend/util_decl/shape_checker.hpp Backend/util/shape_checker.cpp)
 
 # Project options
 set_target_properties(${target}

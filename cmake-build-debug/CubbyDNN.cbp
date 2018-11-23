@@ -428,7 +428,7 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn/Backend/util_decl/shape.hpp">
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Includes/cubbydnn/Backend/util_decl/shape_checker.hpp">
 			<Option target="CubbyDNN"/>
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googlebenchmark/include/benchmark/benchmark.h">
@@ -554,7 +554,7 @@
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Libraries/googletest/googletest/src/gtest_main.cc">
 			<Option target="gtest_main"/>
 		</Unit>
-		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/util/shape.cpp">
+		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Backend/util/shape_checker.cpp">
 			<Option target="CubbyDNN"/>
 		</Unit>
 		<Unit filename="/home/jwkim/projects/CubbyDNN/Sources/cubbydnn/Test.cpp">
