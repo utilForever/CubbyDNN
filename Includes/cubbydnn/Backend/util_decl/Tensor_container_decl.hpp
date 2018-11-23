@@ -279,7 +279,7 @@ class Adj_management
     static std::shared_ptr<Tensor_object<T>> get_tensor_ptr(int from, int to);
 
     static void print_adj(){
-        std::cout<<"--Adjecenmcy Matrix--"<<std::endl;
+        std::cout<<"--Adjacency Matrix--"<<std::endl;
         for(auto row: adj_forward){
             for(auto col: row){
                 if(col)

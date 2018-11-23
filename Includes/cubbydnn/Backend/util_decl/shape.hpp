@@ -12,6 +12,9 @@
 struct shape
 {
  public:
+    shape(int first, int second, int third){
+
+    }
     static bool check_shape(const std::vector<int> &shape,
                             const std::string &op_name);
 

@@ -9,7 +9,7 @@ TEST(SimpleTest, Add)
 
 TEST(Test1, Example1)
 {
-    std::vector<std::tuple<long, unsigned long, unsigned long>> vect
+    std::vector<std::tuple<long, unsigned long, unsigned long>> ans
             {
                     {0, 0, 0},//operation_id, input_size, output_size
                     {1, 0, 3},
@@ -25,5 +25,5 @@ TEST(Test1, Example1)
                     {11, 1, 0}
             };
 
-    EXPECT_EQ(vect, Example1());
+    EXPECT_EQ(ans, Example1());
 }

@@ -20,7 +20,6 @@ Tensor<T> Generate<T>::placeHolder(const std::vector<int> &shape,
         return get_default_tensor();  // check if shape is valid
     }
 
-    //Adj_management<T>::add_op_adj();
     auto operation_id = Operation_management<T>::number_of_operations();
     Tensor<T> rtn_tensor(Tensor_type::placeHolder, shape,
                          static_cast<int>(operation_id), true,
@@ -41,7 +40,6 @@ Tensor<T> Generate<T>::weight(const std::vector<int> &shape, bool trainable,
         return get_default_tensor();  // check if shape is valid
     }
 
-    //Adj_management<T>::add_op_adj();
     auto operation_id = Operation_management<T>::number_of_operations();
 
     Tensor<T> rtn_tensor(Tensor_type ::weight, shape,
@@ -98,7 +96,6 @@ Tensor<T> Operate<T>::matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
         return get_default_tensor();
     }
 
-    //Adj_management<T>::add_op_adj();
     auto this_id = Operation_management<T>::number_of_operations();
 
     tensor1.add_to(this_id);
@@ -116,12 +113,6 @@ Tensor<T> Operate<T>::matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
 
     tensor1.add_tensor_object(tensor_object_ptr1);
     tensor2.add_tensor_object(tensor_object_ptr2);
-
-    // add parameter tensor_objects to new global adjacency matrix
-//    Adj_management<T>::add_edge(tensor1.get_from(), this_id,
-//                                tensor_object_ptr1);
-//    Adj_management<T>::add_edge(tensor2.get_from(), this_id,
-//                                tensor_object_ptr2);
 
     Operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
@@ -160,7 +151,6 @@ Tensor<T> Operate<T>::matAdd(Tensor<T> &tensor1, Tensor<T> &tensor2,
         return get_default_tensor();
     }
 
-    //Adj_management<T>::add_op_adj();
     auto this_id = Operation_management<T>::number_of_operations();
 
     tensor1.add_to(this_id);
@@ -178,12 +168,6 @@ Tensor<T> Operate<T>::matAdd(Tensor<T> &tensor1, Tensor<T> &tensor2,
 
     tensor1.add_tensor_object(tensor_object_ptr1);
     tensor2.add_tensor_object(tensor_object_ptr2);
-
-    // add parameter tensor_objects to new global adjacency matrix
-//    Adj_management<T>::add_edge(tensor1.get_from(), this_id,
-//                                tensor_object_ptr1);
-//    Adj_management<T>::add_edge(tensor2.get_from(), this_id,
-//                                tensor_object_ptr2);
 
     Operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
@@ -212,7 +196,6 @@ Tensor<T> Operate<T>::matDot(Tensor<T> &tensor1, T multiplier,
         return get_default_tensor();
     }
 
-    //Adj_management<T>::add_op_adj();
     auto this_id = Operation_management<T>::number_of_operations();
 
     tensor1.add_to(this_id);
@@ -224,10 +207,6 @@ Tensor<T> Operate<T>::matDot(Tensor<T> &tensor1, T multiplier,
         tensor1.get_type(), tensor1.get_from(), this_id);
 
     tensor1.add_tensor_object(tensor_object_ptr1);
-
-    // add parameter tensor_objects to new global adjacency matrix
-//    Adj_management<T>::add_edge(tensor1.get_from(), this_id,
-//                                tensor_object_ptr1);
 
     Operation_management<T>::add_output_of(tensor1.get_from(), tensor_object_ptr1);
 
@@ -271,7 +250,6 @@ Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
         std::cout << "This Error occurs from operation: " << name << std::endl;
     }
 
-    //Adj_management<T>::add_op_adj();
     auto this_id = Operation_management<T>::number_of_operations();
 
     tensor1.add_to(this_id);
@@ -283,10 +261,6 @@ Tensor<T> Operate<T>::reshape(Tensor<T> &tensor1, const std::vector<int> &shape,
         tensor1.get_type(), tensor1.get_from(), this_id);
 
     tensor1.add_tensor_object(tensor_object_ptr1);
-
-    // add parameter tensor_objects to new global adjacency matrix
-//    Adj_management<T>::add_edge(tensor1.get_from(), this_id,
-//                                tensor_object_ptr1);
 
     Operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
@@ -311,7 +285,6 @@ void Final<T>::wrapper(Tensor<T> &tensor1, const std::string &name)
         return;
     }
 
-    //Adj_management<T>::add_op_adj();
     auto this_id = Operation_management<T>::number_of_operations();
 
     tensor1.add_to(this_id);
@@ -323,10 +296,6 @@ void Final<T>::wrapper(Tensor<T> &tensor1, const std::string &name)
         tensor1.get_type(), tensor1.get_from(), this_id);
 
     tensor1.add_tensor_object(tensor_object_ptr1);
-
-    // add parameter tensor_objects to new global adjacency matrix
-//    Adj_management<T>::add_edge(tensor1.get_from(), this_id,
-//                                tensor_object_ptr1);
 
     Operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
