@@ -279,19 +279,26 @@ class Adj_management
     static std::shared_ptr<Tensor_object<T>> get_tensor_ptr(int from, int to);
 
     static void print_adj(){
+        std::cout<<"--Adjecenmcy Matrix--"<<std::endl;
         for(auto row: adj_forward){
             for(auto col: row){
                 if(col)
                     std::cout<<col->get_from()<<" ";
                 else
-                    std::cout<<0<<" ";
+                    std::cout<<"*"<<" ";
             }
             std::cout<<std::endl;
         }
     }
 
+    static void reserve_adj(long size){
+        for(long i = 0; i<size; i++){
+            add_op_adj(); // increment size of adj matrix
+        }
+    }
+
  private:
-    static constexpr int default_graph_size = 30;
+    static constexpr int default_graph_size = 0;
 
     static std::deque<std::deque<std::shared_ptr<Tensor_object<T>>>>
         adj_forward;

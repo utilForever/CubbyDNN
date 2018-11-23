@@ -72,6 +72,14 @@ class Operation
         return info;
     }
 
+    std::tuple<long,unsigned long, unsigned long> get_info() const {
+        return std::tuple{operation_id, input_tensor_vect.size(), output_tensor_vect.size()};
+    }
+
+    decltype(auto) get_input_tensor_vect() const {
+        return input_tensor_vect;
+    }
+
  protected:
     explicit Operation();
 
@@ -259,7 +267,8 @@ class Operation_management
                               std::shared_ptr<Tensor_object<T>> tensor_ptr);
     static void add_input_of(long id,
                              std::shared_ptr<Tensor_object<T>> tensor_ptr);
-    static void print_operation_infos()
+
+    static void print_operation_info()
     {
         for (auto op : operation_list)
         {
@@ -267,8 +276,29 @@ class Operation_management
         }
     }
 
+    static decltype(auto) get_operation_info(){
+
+        std::vector<std::tuple<long, unsigned long, unsigned long>> op_vect;
+        for (decltype(auto) operation : operation_list)
+        {
+                op_vect.emplace_back(operation.get_info());
+        }
+
+        return op_vect;
+    }
+
     static unsigned long number_of_operations(){
         return operation_list.size();
+    }
+
+    static void create_adj(){
+        Adj_management<T>::reserve_adj(operation_list.size());
+        for(Operation<T> operation: operation_list){
+            decltype(auto) input_tensor_vect = operation.get_input_tensor_vect();
+            for(auto tensor_ptr: input_tensor_vect){
+                Adj_management<T>::add_edge(tensor_ptr->get_from(), tensor_ptr->get_to(), tensor_ptr);
+            }
+        }
     }
 
  private:
