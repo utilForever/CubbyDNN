@@ -9,21 +9,28 @@ TEST(SimpleTest, Add)
 
 TEST(Test1, Example1)
 {
-    std::vector<std::tuple<long, unsigned long, unsigned long>> ans
-            {
-                    {0, 0, 0},//operation_id, input_size, output_size
-                    {1, 0, 3},
-                    {2, 0, 3},
-                    {3, 2, 2},
-                    {4, 1, 0},
-                    {5, 2, 1},
-                    {6, 2, 1},
-                    {7, 1, 1},
-                    {8, 1, 1},
-                    {9, 1, 0},
-                    {10, 1, 0},
-                    {11, 1, 0}
-            };
+    std::vector<std::tuple<long, unsigned long, unsigned long>> ans{
+        { 0, 0, 0 },  // operation_id, input_size, output_size
+        { 1, 0, 3 }, { 2, 0, 3 },  { 3, 2, 2 }, { 4, 1, 0 },
+        { 5, 2, 1 }, { 6, 2, 1 },  { 7, 1, 1 }, { 8, 1, 1 },
+        { 9, 1, 0 }, { 10, 1, 0 }, { 11, 1, 0 }
+    };
 
     EXPECT_EQ(ans, Example1());
+}
+
+TEST(Test2, Example2)
+{
+    std::vector<std::tuple<long, unsigned long, unsigned long>> ans{
+        { 0, 0, 0 }, { 1, 0, 1 }, { 2, 0, 1 }, { 3, 2, 1 }, { 4, 1, 0 }
+    };
+
+    EXPECT_EQ(ans, Example2());
+}
+
+
+TEST(Test2, Example3){
+    std::vector<std::tuple<long, unsigned long, unsigned long>> ans{
+
+    };
 }

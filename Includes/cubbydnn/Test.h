@@ -8,4 +8,6 @@ int Add(int a, int b);
 
 std::vector<std::tuple<long, unsigned long, unsigned long>> Example1();
 
-#endif 
+std::vector<std::tuple<long, unsigned long, unsigned long>> Example2();
+
+#endif

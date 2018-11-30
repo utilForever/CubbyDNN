@@ -98,7 +98,7 @@ Reshape_op<T>::Reshape_op(std::shared_ptr<Tensor_object<T>> tensor1,
 }
 
 template <typename T>
-placeHolder_op<T>::placeHolder_op(
+PlaceHolder_op<T>::PlaceHolder_op(
         std::shared_ptr<Tensor_object<T>> output_tensor,
         const Shape &shape, unsigned long operation_id,
         const std::string &name)
@@ -123,7 +123,7 @@ weight_op<T>::weight_op(std::shared_ptr<Tensor_object<T>> output_tensor,
 }
 
 template <typename T>
-constant_op<T>::constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
+Constant_op<T>::Constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
                             const Shape &shape,
                             unsigned long operation_id, const std::string &name)
 {

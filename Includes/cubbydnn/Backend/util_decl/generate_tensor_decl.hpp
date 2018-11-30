@@ -24,16 +24,13 @@ class Generate
 
     // TODO: think about ways to put data stream through placeholders
 
-    static Tensor<T> placeHolder(const Shape &shape,
-                                 Stream<T> &stream,
+    static Tensor<T> placeHolder(const Shape &shape, Stream<T> &stream,
                                  const std::string &name = "PlaceHolder");
 
-    static Tensor<T> weight(const Shape &shape,
-                            bool trainable = true,
+    static Tensor<T> weight(const Shape &shape, bool trainable = true,
                             const std::string &name = "weight");
 
-    static Tensor<T> filter(const Shape &shape,
-                            bool trainable = true,
+    static Tensor<T> filter(const Shape &shape, bool trainable = true,
                             const std::string &name = "filter");
 
  private:
@@ -59,8 +56,12 @@ class Operate : protected Tensor<T>
     static Tensor<T> matDot(Tensor<T> &tensor1, T multiplier,
                             const std::string &name = "matDot_op");
 
-    static Tensor<T> reshape(Tensor <T> &tensor1, const Shape &shape,
+    static Tensor<T> reshape(Tensor<T> &tensor1, const Shape &shape,
                              const std::string &name = "reshape_op");
+
+    static Tensor<T> oneHot(Tensor<T> &tensor1, unsigned long size,
+             const std::string &name = "oneHot_op");
+
 
  private:
     static Tensor<T> get_default_tensor()
@@ -79,7 +80,6 @@ class Final
  public:
     static void wrapper(Tensor<T> &tensor1,
                         const std::string &name = "wrapper_op");
-
 };
 }  // namespace cubby_dnn
 

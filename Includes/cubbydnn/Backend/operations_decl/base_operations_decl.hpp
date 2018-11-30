@@ -64,7 +64,7 @@ class Operation
     const std::string print_info()
     {
         std::string info = name;
-        info+="\noperation id: " + std::to_string(operation_id);
+        info += "\noperation id: " + std::to_string(operation_id);
         info +=
             "\ninput tensor num: " + std::to_string(input_tensor_vect.size());
         info +=
@@ -72,11 +72,14 @@ class Operation
         return info;
     }
 
-    std::tuple<long,unsigned long, unsigned long> get_info() const {
-        return std::tuple{operation_id, input_tensor_vect.size(), output_tensor_vect.size()};
+    std::tuple<long, unsigned long, unsigned long> get_info() const
+    {
+        return std::tuple{ operation_id, input_tensor_vect.size(),
+                           output_tensor_vect.size() };
     }
 
-    decltype(auto) get_input_tensor_vect() const {
+    decltype(auto) get_input_tensor_vect() const
+    {
         return input_tensor_vect;
     }
 
@@ -169,8 +172,7 @@ class Reshape_op : public Operation<T>
  public:
     explicit Reshape_op(std::shared_ptr<Tensor_object<T>> tensor1,
                         std::shared_ptr<Tensor_object<T>> output_tensor,
-                        const Shape &shape,
-                        unsigned long operation_id,
+                        const Shape &shape, unsigned long operation_id,
                         const std::string &name = "reshape");
 
     explicit Reshape_op(unsigned long operation_id, const std::string &name)
@@ -184,15 +186,14 @@ class Reshape_op : public Operation<T>
 };
 
 template <typename T>
-class placeHolder_op : public Operation<T>
+class PlaceHolder_op : public Operation<T>
 {
  public:
-    explicit placeHolder_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                            const Shape &shape,
-                            unsigned long operation_id,
+    explicit PlaceHolder_op(std::shared_ptr<Tensor_object<T>> output_tensor,
+                            const Shape &shape, unsigned long operation_id,
                             const std::string &name = "placeHolder");
 
-    explicit placeHolder_op(unsigned long operation_id, Stream<T> &stream,
+    explicit PlaceHolder_op(unsigned long operation_id, Stream<T> &stream,
                             const std::string &name)
     {
         this->operation_id = operation_id;
@@ -210,8 +211,7 @@ class weight_op : public Operation<T>
 {
  public:
     explicit weight_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                       const Shape &shape,
-                       unsigned long operation_id,
+                       const Shape &shape, unsigned long operation_id,
                        const std::string &name = "weight");
 
     explicit weight_op(unsigned long operation_id, const std::string &name)
@@ -225,15 +225,14 @@ class weight_op : public Operation<T>
 };
 
 template <typename T>
-class constant_op : public Operation<T>
+class Constant_op : public Operation<T>
 {
  public:
-    explicit constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                         const Shape &shape,
-                         unsigned long operation_id,
+    explicit Constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
+                         const Shape &shape, unsigned long operation_id,
                          const std::string &name = "constant");
 
-    explicit constant_op(unsigned long operation_id, const std::string &name)
+    explicit Constant_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
@@ -276,27 +275,33 @@ class Operation_management
         }
     }
 
-    static decltype(auto) get_operation_info(){
-
+    static decltype(auto) get_operation_info()
+    {
         std::vector<std::tuple<long, unsigned long, unsigned long>> op_vect;
         for (decltype(auto) operation : operation_list)
         {
-                op_vect.emplace_back(operation.get_info());
+            op_vect.emplace_back(operation.get_info());
         }
 
         return op_vect;
     }
 
-    static unsigned long number_of_operations(){
+    static unsigned long number_of_operations()
+    {
         return operation_list.size();
     }
 
-    static void create_adj(){
+    static void create_adj()
+    {
         Adj_management<T>::reserve_adj(operation_list.size());
-        for(Operation<T> operation: operation_list){
-            decltype(auto) input_tensor_vect = operation.get_input_tensor_vect();
-            for(auto tensor_ptr: input_tensor_vect){
-                Adj_management<T>::add_edge(tensor_ptr->get_from(), tensor_ptr->get_to(), tensor_ptr);
+        for (Operation<T> operation : operation_list)
+        {
+            decltype(auto) input_tensor_vect =
+                operation.get_input_tensor_vect();
+            for (auto tensor_ptr : input_tensor_vect)
+            {
+                Adj_management<T>::add_edge(tensor_ptr->get_from(),
+                                            tensor_ptr->get_to(), tensor_ptr);
             }
         }
     }
