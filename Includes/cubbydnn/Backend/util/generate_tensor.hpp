@@ -321,9 +321,9 @@ Tensor<T> Operate<T>::oneHot(Tensor<T> &tensor1, unsigned long size,
 
     Tensor<T> rtn_tensor(Tensor_type ::normal, new_shape, this_id, true,
                          "tensor_from_op: " + name);
-    Reshape_op<T> reshape_op(this_id, name);
-    reshape_op.add_input(tensor_object_ptr1);
-    Operation_management<T>::add_op(reshape_op);
+    Reshape_op<T> onehot_op(this_id, name);
+    onehot_op.add_input(tensor_object_ptr1);
+    Operation_management<T>::add_op(onehot_op);
     return rtn_tensor;
 }
 

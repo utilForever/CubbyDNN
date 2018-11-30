@@ -6,8 +6,11 @@
 
 int Add(int a, int b);
 
-std::vector<std::tuple<long, unsigned long, unsigned long>> Example1();
+std::vector<std::tuple<long, unsigned long, unsigned long, std::string>> Example1();
 
-std::vector<std::tuple<long, unsigned long, unsigned long>> Example2();
+std::vector<std::tuple<long, unsigned long, unsigned long, std::string>> Example2();
+
+std::vector<std::tuple<long, unsigned long, unsigned long, std::string>> Example3();
+
 
 #endif

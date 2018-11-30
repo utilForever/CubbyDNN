@@ -72,10 +72,10 @@ class Operation
         return info;
     }
 
-    std::tuple<long, unsigned long, unsigned long> get_info() const
+    std::tuple<long, unsigned long, unsigned long, std::string> get_info() const
     {
         return std::tuple{ operation_id, input_tensor_vect.size(),
-                           output_tensor_vect.size() };
+                           output_tensor_vect.size() , name};
     }
 
     decltype(auto) get_input_tensor_vect() const
@@ -275,9 +275,9 @@ class Operation_management
         }
     }
 
-    static decltype(auto) get_operation_info()
+    static const auto get_operation_info()
     {
-        std::vector<std::tuple<long, unsigned long, unsigned long>> op_vect;
+        std::vector<std::tuple<long, unsigned long, unsigned long, std::string>> op_vect;
         for (decltype(auto) operation : operation_list)
         {
             op_vect.emplace_back(operation.get_info());
