@@ -15,28 +15,58 @@ enum class operation_type
     empty
 };
 
+struct operation_info
+{
+ public:
+    operation_info(unsigned long operation_id, size_t input_size,
+                   size_t output_size, const std::string &name)
+        : operation_id(operation_id),
+          input_size(input_size),
+          output_size(output_size),
+          name(name)
+    {
+    }
+
+    bool operator==(const operation_info &rhs) const
+    {
+        return operation_id == rhs.operation_id &&
+               input_size == rhs.input_size && output_size == rhs.output_size &&
+               name == rhs.name;
+    }
+
+    bool operator!=(const operation_info &rhs) const
+    {
+        return !(rhs == *this);
+    }
+
+    unsigned long operation_id;
+    size_t input_size;
+    size_t output_size;
+    std::string name;
+};
+
 template <typename T>
-class Operation
+class operation
 {
  public:
     void set_input_vect(
-        std::vector<std::shared_ptr<Tensor_object<T>>> tensor_vect)
+        std::vector<std::shared_ptr<tensor_object<T>>> tensor_vect)
     {
         input_tensor_vect = tensor_vect;
     }
 
     void set_output_vect(
-        std::vector<std::shared_ptr<Tensor_object<T>>> tensor_vect)
+        std::vector<std::shared_ptr<tensor_object<T>>> tensor_vect)
     {
         output_tensor_vect = tensor_vect;
     }
 
-    void add_output(std::shared_ptr<Tensor_object<T>> tensor_ptr)
+    void add_output(std::shared_ptr<tensor_object<T>> tensor_ptr)
     {
         output_tensor_vect.emplace_back(tensor_ptr);
     }
 
-    void add_input(std::shared_ptr<Tensor_object<T>> tensor_ptr)
+    void add_input(std::shared_ptr<tensor_object<T>> tensor_ptr)
     {
         input_tensor_vect.emplace_back(tensor_ptr);
     }
@@ -72,10 +102,10 @@ class Operation
         return info;
     }
 
-    std::tuple<unsigned long, unsigned long, unsigned long, std::string> get_info() const
+    operation_info get_info() const
     {
-        return std::tuple{ operation_id, static_cast<unsigned long>(input_tensor_vect.size()),
-                           static_cast<unsigned long>(output_tensor_vect.size()), name};
+        return operation_info(operation_id, input_tensor_vect.size(),
+                              output_tensor_vect.size(), name);
     }
 
     decltype(auto) get_input_tensor_vect() const
@@ -84,21 +114,21 @@ class Operation
     }
 
  protected:
-    explicit Operation();
+    explicit operation();
 
  protected:
     operation_type op_type;
     unsigned long operation_id = 0;
-    std::vector<std::shared_ptr<Tensor_object<T>>> input_tensor_vect;
-    std::vector<std::shared_ptr<Tensor_object<T>>> output_tensor_vect;
+    std::vector<std::shared_ptr<tensor_object<T>>> input_tensor_vect;
+    std::vector<std::shared_ptr<tensor_object<T>>> output_tensor_vect;
     std::string name;
 };
 
 template <typename T>
-class Empty_op : public Operation<T>
+class empty_op : public operation<T>
 {
  public:
-    explicit Empty_op()
+    explicit empty_op()
     {
         this->op_type = operation_type::empty;
         this->name = "Empty operation";
@@ -106,60 +136,60 @@ class Empty_op : public Operation<T>
 };
 
 template <typename T>
-class Mat_mul_op : public Operation<T>
+class mat_mul_op : public operation<T>
 {
  public:
-    explicit Mat_mul_op(std::shared_ptr<Tensor_object<T>> tensor1,
-                        std::shared_ptr<Tensor_object<T>> tensor2,
-                        std::shared_ptr<Tensor_object<T>> output_tensor,
+    explicit mat_mul_op(std::shared_ptr<tensor_object<T>> tensor1,
+                        std::shared_ptr<tensor_object<T>> tensor2,
+                        std::shared_ptr<tensor_object<T>> output_tensor,
                         unsigned long operation_id,
                         const std::string &name = "Matmul");
 
-    explicit Mat_mul_op(unsigned long operation_id, const std::string &name)
+    explicit mat_mul_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
     }  // empty constructor for operation
 
-    explicit Mat_mul_op(
-        std::vector<std::shared_ptr<Tensor_object<T>>> tensor_vect,
-        std::shared_ptr<Tensor_object<T>> output_tensor,
+    explicit mat_mul_op(
+        std::vector<std::shared_ptr<tensor_object<T>>> tensor_vect,
+        std::shared_ptr<tensor_object<T>> output_tensor,
         unsigned long operation_id, const std::string &name = "Matmul");
 };
 
 template <typename T>
-class Mat_add_op : public Operation<T>
+class mat_add_op : public operation<T>
 {
  public:
-    explicit Mat_add_op(std::shared_ptr<Tensor_object<T>> tensor1,
-                        std::shared_ptr<Tensor_object<T>> tensor2,
-                        std::shared_ptr<Tensor_object<T>> output_tensor,
+    explicit mat_add_op(std::shared_ptr<tensor_object<T>> tensor1,
+                        std::shared_ptr<tensor_object<T>> tensor2,
+                        std::shared_ptr<tensor_object<T>> output_tensor,
                         unsigned long operation_id,
                         const std::string &name = "Matadd");
 
-    explicit Mat_add_op(unsigned long operation_id, const std::string &name)
+    explicit mat_add_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
     }  // empty constructor for operation
 
-    explicit Mat_add_op(
-        std::vector<std::shared_ptr<Tensor_object<T>>> tensor_vect,
-        std::shared_ptr<Tensor_object<T>> output_tensor,
+    explicit mat_add_op(
+        std::vector<std::shared_ptr<tensor_object<T>>> tensor_vect,
+        std::shared_ptr<tensor_object<T>> output_tensor,
         unsigned long operation_id, const std::string &name = "Matadd");
 };
 
 template <typename T>
-class Mat_dot_op : public Operation<T>
+class mat_dot_op : public operation<T>
 {
  public:
-    explicit Mat_dot_op(std::shared_ptr<Tensor_object<T>> tensor1,
-                        std::shared_ptr<Tensor_object<T>> identity_tensor,
-                        std::shared_ptr<Tensor_object<T>> output_tensor,
+    explicit mat_dot_op(std::shared_ptr<tensor_object<T>> tensor1,
+                        std::shared_ptr<tensor_object<T>> identity_tensor,
+                        std::shared_ptr<tensor_object<T>> output_tensor,
                         unsigned long operation_id,
                         const std::string &name = "Matdot");
 
-    explicit Mat_dot_op(unsigned long operation_id, const std::string &name)
+    explicit mat_dot_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
@@ -167,51 +197,51 @@ class Mat_dot_op : public Operation<T>
 };
 
 template <typename T>
-class Reshape_op : public Operation<T>
+class reshape_op : public operation<T>
 {
  public:
-    explicit Reshape_op(std::shared_ptr<Tensor_object<T>> tensor1,
-                        std::shared_ptr<Tensor_object<T>> output_tensor,
-                        const Shape &shape, unsigned long operation_id,
+    explicit reshape_op(std::shared_ptr<tensor_object<T>> tensor1,
+                        std::shared_ptr<tensor_object<T>> output_tensor,
+                        const tensor_shape &shape, unsigned long operation_id,
                         const std::string &name = "reshape");
 
-    explicit Reshape_op(unsigned long operation_id, const std::string &name)
+    explicit reshape_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
     }  // empty constructor for operation
 
  private:
-    Shape shape;
+    tensor_shape shape;
 };
 
 template <typename T>
-class PlaceHolder_op : public Operation<T>
+class placeholder_op : public operation<T>
 {
  public:
-    explicit PlaceHolder_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                            const Shape &shape, unsigned long operation_id,
+    explicit placeholder_op(std::shared_ptr<tensor_object<T>> output_tensor,
+                            const tensor_shape &shape, unsigned long operation_id,
                             const std::string &name = "placeHolder");
 
-    explicit PlaceHolder_op(unsigned long operation_id, Stream<T> &stream,
+    explicit placeholder_op(unsigned long operation_id, stream<T> &stream,
                             const std::string &name)
     {
         this->operation_id = operation_id;
-        this->stream = stream;
+        this->data_stream = stream;
         this->name = name;
     }  // empty constructor for operation
 
  private:
-    Shape shape;
-    Stream<T> stream;
+    tensor_shape shape;
+    stream<T> data_stream;
 };
 
 template <typename T>
-class weight_op : public Operation<T>
+class weight_op : public operation<T>
 {
  public:
-    explicit weight_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                       const Shape &shape, unsigned long operation_id,
+    explicit weight_op(std::shared_ptr<tensor_object<T>> output_tensor,
+                       const tensor_shape &shape, unsigned long operation_id,
                        const std::string &name = "weight");
 
     explicit weight_op(unsigned long operation_id, const std::string &name)
@@ -221,35 +251,35 @@ class weight_op : public Operation<T>
     }  // empty constructor for operation
 
  private:
-    Shape shape;
+    tensor_shape shape;
 };
 
 template <typename T>
-class Constant_op : public Operation<T>
+class constant_op : public operation<T>
 {
  public:
-    explicit Constant_op(std::shared_ptr<Tensor_object<T>> output_tensor,
-                         const Shape &shape, unsigned long operation_id,
+    explicit constant_op(std::shared_ptr<tensor_object<T>> output_tensor,
+                         const tensor_shape &shape, unsigned long operation_id,
                          const std::string &name = "constant");
 
-    explicit Constant_op(unsigned long operation_id, const std::string &name)
+    explicit constant_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
     }  // empty constructor for operation
 
  private:
-    Shape shape;
+    tensor_shape shape;
 };
 
 template <typename T>
-class Wrapper_op : public Operation<T>
+class wrapper_op : public operation<T>
 {
  public:
-    explicit Wrapper_op(std::shared_ptr<Tensor_object<T>> input_tensor,
+    explicit wrapper_op(std::shared_ptr<tensor_object<T>> input_tensor,
                         unsigned long operation_id,
                         const std::string &name = "constant");
-    explicit Wrapper_op(unsigned long operation_id, const std::string &name)
+    explicit wrapper_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
@@ -257,15 +287,15 @@ class Wrapper_op : public Operation<T>
 };
 
 template <typename T>
-class Operation_management
+class operation_management
 {
  public:
-    static void add_op(Operation<T> operation);
-    static void set_op(unsigned int id, const Operation<T> &operation);
+    static void add_op(operation<T> operation);
+    static void set_op(unsigned int id, const operation<T> &operation);
     static void add_output_of(long id,
-                              std::shared_ptr<Tensor_object<T>> tensor_ptr);
+                              std::shared_ptr<tensor_object<T>> tensor_ptr);
     static void add_input_of(long id,
-                             std::shared_ptr<Tensor_object<T>> tensor_ptr);
+                             std::shared_ptr<tensor_object<T>> tensor_ptr);
 
     static void print_operation_info()
     {
@@ -277,13 +307,12 @@ class Operation_management
 
     static const auto get_operation_info()
     {
-        std::vector<std::tuple<long, unsigned long, unsigned long, std::string>> op_vect;
-        for (decltype(auto) operation : operation_list)
+        std::vector<operation_info> op_vector;
+        for (operation<T> operation : operation_list)
         {
-            op_vect.emplace_back(operation.get_info());
+            op_vector.emplace_back(operation.get_info());
         }
-
-        return op_vect;
+        return op_vector;
     }
 
     static unsigned long number_of_operations()
@@ -293,21 +322,22 @@ class Operation_management
 
     static void create_adj()
     {
-        Adj_management<T>::reserve_adj(static_cast<long>(operation_list.size()));
-        for (Operation<T> operation : operation_list)
+        adj_management<T>::reserve_adj(
+            static_cast<long>(operation_list.size()));
+        for (operation<T> operation : operation_list)
         {
             decltype(auto) input_tensor_vect =
                 operation.get_input_tensor_vect();
             for (auto tensor_ptr : input_tensor_vect)
             {
-                Adj_management<T>::add_edge(tensor_ptr->get_from(),
+                adj_management<T>::add_edge(tensor_ptr->get_from(),
                                             tensor_ptr->get_to(), tensor_ptr);
             }
         }
     }
 
  private:
-    static Operation<T> &get_op(long operation_id)
+    static operation<T> &get_op(long operation_id)
     {
         for (decltype(auto) operation : operation_list)
         {
@@ -317,16 +347,16 @@ class Operation_management
         // returns empty operation if nothing is found
         return operation_list[0];
     }
-    static std::deque<Operation<T>> operation_list;
+    static std::deque<operation<T>> operation_list;
     static std::mutex operation_list_mutex;
 };
 
 template <typename T>
-std::deque<Operation<T>> Operation_management<T>::operation_list =
-    std::deque<Operation<T>>{ Empty_op<T>() };
+std::deque<operation<T>> operation_management<T>::operation_list =
+    std::deque<operation<T>>();
 
 template <typename T>
-std::mutex Operation_management<T>::operation_list_mutex = std::mutex();
+std::mutex operation_management<T>::operation_list_mutex = std::mutex();
 
 }  // namespace cubby_dnn
 

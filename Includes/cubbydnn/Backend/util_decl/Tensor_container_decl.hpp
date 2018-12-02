@@ -13,7 +13,7 @@
 
 namespace cubby_dnn
 {
-enum class Tensor_type
+enum class tensor_type
 {
     weight,
     bias,
@@ -26,29 +26,29 @@ enum class Tensor_type
 const static long error_id = -1;
 
 template <typename T>
-bool verify(const std::vector<T> &data, const Shape &shape);
+bool verify(const std::vector<T> &data, const tensor_shape &shape);
 
 template <typename T>
-class Tensor_object
+class tensor_object
 {
  public:
-    Tensor_object(const std::vector<T> &data, const Shape &shape,
-                  Tensor_type type, long from,
+    tensor_object(const std::vector<T> &data, const tensor_shape &shape,
+                  tensor_type type, long from,
                   long to);  //(1)
 
-    Tensor_object(std::vector<T> &&data, Shape &&shape, Tensor_type type,
+    tensor_object(std::vector<T> &&data, tensor_shape &&shape, tensor_type type,
                   long from,
                   long to);  //(2)
 
-    Tensor_object(const Tensor_object<T> &rhs);  //(3)
+    tensor_object(const tensor_object<T> &rhs);  //(3)
 
-    Tensor_object(Tensor_object<T> &&rhs) noexcept;  //(4)
+    tensor_object(tensor_object<T> &&rhs) noexcept;  //(4)
 
-    Tensor_object &operator=(const Tensor_object<T> &rhs);  //(5)
+    tensor_object &operator=(const tensor_object<T> &rhs);  //(5)
 
-    Tensor_object &operator=(Tensor_object<T> &&rhs) noexcept;  //(6)
+    tensor_object &operator=(tensor_object<T> &&rhs) noexcept;  //(6)
 
-    ~Tensor_object();
+    ~tensor_object();
 
     /*
       for (4), (6) no exceptions can be thrown
@@ -61,25 +61,25 @@ class Tensor_object
  private:
     bool _mutable = true;
 
-    Tensor_type type;
+    tensor_type type;
 
     long from, to;
 
     struct storage;
 
-    std::unique_ptr<storage> tensor_object;
+    std::unique_ptr<storage> tensor_storage;
 
  public:
     /// getters
     bool has_data() const
     {
-        if (!tensor_object)
+        if (!tensor_storage)
             return false;
         else
             return true;
     }
 
-    Tensor_type get_type() const
+    tensor_type get_type() const
     {
         return type;
     }
@@ -106,7 +106,7 @@ class Tensor_object
         _mutable = true;
     }
 
-    void set_type(Tensor_type type)
+    void set_type(tensor_type type)
     {
         this->type = type;
     }
@@ -133,16 +133,16 @@ class Tensor_object
 };
 
 template <typename T>
-class Tensor
+class tensor
 {
  public:
-    Tensor(Tensor_type type, const Shape &shape, long from,
+    tensor(tensor_type type, const tensor_shape &shape, long from,
            bool _mutable = true,
            const std::string &name = "Tensor");  //(1)
 
-    Tensor(Tensor<T> &rhs);
+    tensor(tensor<T> &rhs);
 
-    Tensor(Tensor<T> &&rhs) noexcept;
+    tensor(tensor<T> &&rhs) noexcept;
 
  public:
     /// getters
@@ -156,7 +156,7 @@ class Tensor
         return !shape.empty();
     }
 
-    Tensor_type get_type() const
+    tensor_type get_type() const
     {
         return type;
     }
@@ -166,7 +166,7 @@ class Tensor
         return this->name;
     }
 
-    const Shape &get_shape() const
+    const tensor_shape &get_shape() const
     {
         return this->shape;
     }
@@ -181,7 +181,7 @@ class Tensor
         return _mutable;
     }
 
-    const std::weak_ptr<Tensor_object<T>> &get_tensor_container_ptr() const
+    const std::weak_ptr<tensor_object<T>> &get_tensor_container_ptr() const
     {
         return tensor_object_ptr;
     }
@@ -193,7 +193,7 @@ class Tensor
 
     /// setters
 
-    void set_type(Tensor_type type)
+    void set_type(tensor_type type)
     {
         this->type = type;
         if (auto temp_ptr = tensor_object_ptr.lock())
@@ -227,7 +227,7 @@ class Tensor
     }
 
     // adds tensor objects this tensor is giving output of
-    void add_tensor_object(const std::shared_ptr<Tensor_object<T>> tensor_ptr)
+    void add_tensor_object(const std::shared_ptr<tensor_object<T>> tensor_ptr)
     {
         this->tensor_object_ptr_vect.emplace_back(tensor_ptr);
     }
@@ -238,40 +238,40 @@ class Tensor
     std::vector<long>
         to_vect;  // vector for storing operations this tensor will head to
 
-    Shape shape;  // shape of this tensor
+    tensor_shape shape;  // shape of this tensor
 
     bool _mutable =
         true;  // determines whether data of this tensor can be modified
     // properties of the tensor
     std::string name;
 
-    Tensor_type type =
-        Tensor_type::None;  // type of the tensor_container it is pointing to
+    tensor_type type =
+        tensor_type::None;  // type of the tensor_container it is pointing to
 
-    std::weak_ptr<Tensor_object<T>>
+    std::weak_ptr<tensor_object<T>>
         tensor_object_ptr;  // weak pointer pointing to tensor object
 
-    std::vector<std::weak_ptr<Tensor_object<T>>> tensor_object_ptr_vect;
+    std::vector<std::weak_ptr<tensor_object<T>>> tensor_object_ptr_vect;
 };
 
 /// Resource management
 
 template <typename T>
-class Adj_management
+class adj_management
 {
  public:
     /// Adds new operation
     static unsigned long add_op_adj();
     /// Adds new edge between two
     static void add_edge(long from, long to,
-                         std::shared_ptr<Tensor_object<T>> &tensor_object_ptr);
+                         std::shared_ptr<tensor_object<T>> &tensor_object_ptr);
 
     static unsigned long get_graph_size()
     {
         return adj_forward.size();
     }
 
-    static std::shared_ptr<Tensor_object<T>> get_tensor_ptr(int from, int to);
+    static std::shared_ptr<tensor_object<T>> get_tensor_ptr(int from, int to);
 
     static void print_adj()
     {
@@ -301,20 +301,20 @@ class Adj_management
  private:
     static constexpr int default_graph_size = 0;
 
-    static std::deque<std::deque<std::shared_ptr<Tensor_object<T>>>>
+    static std::deque<std::deque<std::shared_ptr<tensor_object<T>>>>
         adj_forward;
 
-    Adj_management() = default;  /// disable the constructor
+    adj_management() = default;  /// disable the constructor
 
     static std::mutex adj_mutex;  // mutex for restricting access to adj matrix
 };
 
 template <typename T>
-std::deque<std::deque<std::shared_ptr<Tensor_object<T>>>>
-    Adj_management<T>::adj_forward;
+std::deque<std::deque<std::shared_ptr<tensor_object<T>>>>
+    adj_management<T>::adj_forward;
 
 template <typename T>
-std::mutex Adj_management<T>::adj_mutex;
+std::mutex adj_management<T>::adj_mutex;
 }  // namespace cubby_dnn
 
 #endif  // CUBBYDNN_BACKEND_H

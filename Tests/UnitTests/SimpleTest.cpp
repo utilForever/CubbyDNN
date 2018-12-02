@@ -1,6 +1,91 @@
 #include <Test.h>
 #include <gtest/gtest.h>
 
+using namespace cubby_dnn;
+
+std::vector<operation_info> Example1()
+{
+    file_stream<int> file_stream;
+    auto input_tensor1 =
+        generate<int>::placeholder(tensor_shape(2, 2, 1), file_stream);  // 1
+
+    auto input_tensor2 = generate<int>::weight(tensor_shape(2, 2, 1), true);  // 2
+
+    auto multiplied_tensor1 =
+        operate<int>::mat_mul(input_tensor2, input_tensor1);  // 3
+
+    Final<int>::wrapper(multiplied_tensor1);  // 4
+
+    auto multiplied_tensor2 =
+        operate<int>::mat_mul(input_tensor2, input_tensor1);  // 5
+
+    auto added_tensor1 =
+        operate<int>::mad_add(input_tensor1, input_tensor2);  // 6
+
+    auto dot_operated_tensor1 = operate<int>::mat_dot(added_tensor1, 5);  // 7
+
+    auto reshaped_tensor1 =
+        operate<int>::reshape(dot_operated_tensor1, tensor_shape(1, 2, 2));  // 8
+
+    Final<int>::wrapper(multiplied_tensor1);  // 9
+
+    Final<int>::wrapper(multiplied_tensor2);  // 10
+
+    Final<int>::wrapper(reshaped_tensor1);  // 11
+
+    operation_management<int>::print_operation_info();
+
+    operation_management<int>::create_adj();
+
+    adj_management<int>::print_adj();
+
+    operation_management<float>::print_operation_info();
+    return operation_management<int>::get_operation_info();
+}
+
+std::vector<operation_info> Example2()
+{
+    file_stream<int> file_stream;
+    auto input_tensor1 =
+        generate<int>::placeholder(tensor_shape(2, 4, 3), file_stream);  // 1
+
+    auto input_tensor2 = generate<int>::weight(tensor_shape(4, 2, 3), true);  // 2
+
+    auto multiplied_tensor1 =
+        operate<int>::mat_mul(input_tensor2, input_tensor1);  // 3
+    Final<int>::wrapper(multiplied_tensor1);                  // 4
+
+    operation_management<float>::print_operation_info();
+    return operation_management<int>::get_operation_info();
+}
+
+std::vector<operation_info> Example3()
+{
+    file_stream<float> file_stream;
+    auto input_tensor1 =
+        generate<float>::placeholder(tensor_shape(5, 4, 3), file_stream);
+    auto input_tensor2 = generate<float>::weight(tensor_shape(4, 5, 3), true);
+
+    auto input_tensor3 = generate<float>::weight(tensor_shape(5, 5, 3), true);
+
+    auto multiplied_tensor1 =
+        operate<float>::mat_mul(input_tensor1, input_tensor2);  // shape: 5,5,3
+
+    auto multiplied_tensor2 = operate<float>::mat_mul(
+        multiplied_tensor1, input_tensor3);  // shape: 5,5,3
+
+    auto added_tensor1 = operate<float>::mad_add(
+        multiplied_tensor2, input_tensor3);  // shape: 5,5,3
+
+    auto reshaped_tensor1 =
+        operate<float>::reshape(added_tensor1, tensor_shape(75, 1, 1));
+
+    Final<float>::wrapper(reshaped_tensor1);
+
+    operation_management<float>::print_operation_info();
+    return operation_management<float>::get_operation_info();
+}
+
 TEST(SimpleTest, Add)
 {
     EXPECT_EQ(5, Add(2, 3));
@@ -9,48 +94,47 @@ TEST(SimpleTest, Add)
 
 TEST(Test1, Example1)
 {
-    std::vector<std::tuple<long, unsigned long, unsigned long, std::string>>
-        ans{ { 0, 0, 0,
-               "Empty operation" },  // operation_id, input_size, output_size
-             { 1, 0, 3, "test placeHolder operation1" },
-             { 2, 0, 3, "test weight operation1" },
-             { 3, 2, 2, "test matMul operation1" },
-             { 4, 1, 0, "test wrapper operation1" },
-             { 5, 2, 1, "test matMul operation2" },
-             { 6, 2, 1, "test matAdd operation1" },
-             { 7, 1, 1, "test matDot operation1" },
-             { 8, 1, 1, "test reshape operation1" },
-             { 9, 1, 0, "test wrapper operation2" },
-             { 10, 1, 0, "test wrapper operation3" },
-             { 11, 1, 0, "test wrapper operation4" } };
+    std::vector<cubby_dnn::operation_info> ans{
+        operation_info{ 0, 0, 3, "placeholder" },
+        operation_info{ 1, 0, 3, "weight" },
+        operation_info{ 2, 2, 2, "mat_mul" },
+        operation_info{ 3, 1, 0, "wrapper" },
+        operation_info{ 4, 2, 1, "mat_mul" },
+        operation_info{ 5, 2, 1, "mat_add" },
+        operation_info{ 6, 1, 1, "mat_dot" },
+        operation_info{ 7, 1, 1, "reshape" },
+        operation_info{ 8, 1, 0, "wrapper" },
+        operation_info{ 9, 1, 0, "wrapper" },
+        operation_info{ 10, 1, 0, "wrapper" }
+    };
 
     EXPECT_EQ(ans, Example1());
 }
 
 TEST(Test2, Example2)
 {
-    std::vector<std::tuple<long, unsigned long, unsigned long, std::string>>
-        ans{ { 0, 0, 0, "Empty operation" },
-             { 1, 0, 1, "test placeHolder operation1" },
-             { 2, 0, 1, "test weight operation2" },
-             { 3, 2, 1, "test matMul operation1" },
-             { 4, 1, 0, "test wrapper operation1" } };
+    std::vector<cubby_dnn::operation_info> ans{
+        operation_info{ 0, 0, 1, "placeholder" },
+        operation_info{ 1, 0, 1, "weight" },
+        operation_info{ 2, 2, 1, "mat_mul" },
+        operation_info{ 3, 1, 0, "wrapper" }
+    };
 
     EXPECT_EQ(ans, Example2());
 }
 
-TEST(Test2, Example3)
+TEST(Test3, Example3)
 {
-    std::vector<std::tuple<long, unsigned long, unsigned long, std::string>>
-        ans{ { 0, 0, 0, "Empty operation" },
-             { 1, 0, 1, "test placeHolder operation1" },
-             { 2, 0, 1, "test weight operation1" },
-             { 3, 0, 2, "test weight operation2" },
-             { 4, 2, 1, "test matMul operation1" },
-             { 5, 2, 1, "test matMul operation2" },
-             { 6, 2, 1, "test matMul operation3" },
-             { 7, 1, 1, "test reshape operation1" },
-             { 8, 1, 0, "test wrapper operation1" } };
+    std::vector<cubby_dnn::operation_info> ans{
+        operation_info{ 0, 0, 1, "placeholder" },
+        operation_info{ 1, 0, 1, "weight" },
+        operation_info{ 2, 0, 2, "weight" },
+        operation_info{ 3, 2, 1, "mat_mul" },
+        operation_info{ 4, 2, 1, "mat_mul" },
+        operation_info{ 5, 2, 1, "mat_add" },
+        operation_info{ 6, 1, 1, "reshape" },
+        operation_info{ 7, 1, 0, "wrapper" }
+    };
 
     EXPECT_EQ(ans, Example3());
 }

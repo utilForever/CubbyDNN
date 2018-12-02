@@ -10,9 +10,9 @@
 #include <iostream>
 
 template<typename T>
-class Stream{
+class stream{
 public:
-    Stream() = default;
+    stream() = default;
 
     virtual std::vector<T> next(){
         std::cout<<"Stream next() not implemented"<<std::endl;
@@ -31,9 +31,9 @@ private:
 };
 
 template<typename T>
-class File_stream: public Stream<T>{
+class file_stream: public stream<T>{
 public:
-    File_stream(){
+    file_stream(){
         std::cout<<"File_stream not implemented"<<std::endl;
     }
 
@@ -50,17 +50,17 @@ public:
 };
 
 template<typename T>
-class Data_stream: public Stream<T>{
-    Data_stream(){
-        std::cout<<"Data_stream not implemented"<<std::endl;
+class data_stream: public stream<T>{
+    data_stream(){
+        std::cout<<"data_stream not implemented"<<std::endl;
     }
     std::vector<T> next() override{
-        std::cout<<"Data_stream next() not implemented"<<std::endl;
+        std::cout<<"data_stream next() not implemented"<<std::endl;
         return std::vector<T>();
     }
 
     bool has_next() override{
-        std::cout<<"Data_stream has_next() not implemented"<<std::endl;
+        std::cout<<"data_stream has_next() not implemented"<<std::endl;
         return false;
     }
 

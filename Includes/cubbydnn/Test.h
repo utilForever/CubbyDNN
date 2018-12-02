@@ -3,14 +3,17 @@
 
 #include <iostream>
 #include <vector>
+#include "Backend/util/generate_tensor.hpp"
+
+using namespace cubby_dnn;
 
 int Add(int a, int b);
 
-std::vector<std::tuple<long, unsigned long, unsigned long, std::string>> Example1();
+std::vector<operation_info> Example1();
 
-std::vector<std::tuple<long, unsigned long, unsigned long, std::string>> Example2();
+std::vector<operation_info> Example2();
 
-std::vector<std::tuple<long, unsigned long, unsigned long, std::string>> Example3();
+std::vector<operation_info> Example3();
 
 
 #endif

@@ -11,10 +11,8 @@
 namespace cubby_dnn
 {
 template <typename T>
-class Generate
+class generate
 {
-    friend class Tensor<T>;
-
  public:
     // TODO: think about initialization methods
     enum class initializer
@@ -24,50 +22,50 @@ class Generate
 
     // TODO: think about ways to put data stream through placeholders
 
-    static Tensor<T> placeHolder(const Shape &shape, Stream<T> &stream,
-                                 const std::string &name = "PlaceHolder");
+    static tensor<T> placeholder(const tensor_shape &shape, stream<T> &stream,
+                                 const std::string &name = "placeholder");
 
-    static Tensor<T> weight(const Shape &shape, bool trainable = true,
+    static tensor<T> weight(const tensor_shape &shape, bool trainable = true,
                             const std::string &name = "weight");
 
-    static Tensor<T> filter(const Shape &shape, bool trainable = true,
+    static tensor<T> filter(const tensor_shape &shape, bool trainable = true,
                             const std::string &name = "filter");
 
  private:
-    static Tensor<T> get_default_tensor()
+    static tensor<T> get_default_tensor()
     {
         // default tensor to return when error occurs
-        return Tensor<T>(Tensor_type::None, Shape(), -1,
+        return tensor<T>(tensor_type::None, tensor_shape(), -1,
                          "default Tensor due to error");
     }
 };
 
 template <typename T>
-class Operate : protected Tensor<T>
+class operate : protected tensor<T>
 {
     // friend class Operation_management;
  public:
-    static Tensor<T> matMul(Tensor<T> &tensor1, Tensor<T> &tensor2,
-                            const std::string &name = "matMul_op");
+    static tensor<T> mat_mul(tensor <T> &tensor1, tensor <T> &tensor2,
+                             const std::string &name = "mat_mul");
 
-    static Tensor<T> matAdd(Tensor<T> &tensor1, Tensor<T> &tensor2,
-                            const std::string &name = "matAdd_op");
+    static tensor<T> mad_add(tensor <T> &tensor1, tensor <T> &tensor2,
+                             const std::string &name = "mat_add");
 
-    static Tensor<T> matDot(Tensor<T> &tensor1, T multiplier,
-                            const std::string &name = "matDot_op");
+    static tensor<T> mat_dot(tensor <T> &tensor1, T multiplier,
+                             const std::string &name = "mat_dot");
 
-    static Tensor<T> reshape(Tensor<T> &tensor1, const Shape &shape,
-                             const std::string &name = "reshape_op");
+    static tensor<T> reshape(tensor<T> &tensor1, const tensor_shape &shape,
+                             const std::string &name = "reshape");
 
-    static Tensor<T> oneHot(Tensor<T> &tensor1, unsigned long size,
-             const std::string &name = "oneHot_op");
+    static tensor<T> one_hot(tensor <T> &tensor1, unsigned long size,
+                             const std::string &name = "one_hot");
 
 
  private:
-    static Tensor<T> get_default_tensor()
+    static tensor<T> get_default_tensor()
     {
         // default tensor to return when error occurs
-        return Tensor<T>(Tensor_type::None, Shape(), -1,
+        return tensor<T>(tensor_type::None, tensor_shape(), -1,
                          "default Tensor due to error");
     }
 };
@@ -75,11 +73,11 @@ class Operate : protected Tensor<T>
 template <typename T>
 class Final
 {
-    friend class Tensor<T>;
+    friend class tensor<T>;
 
  public:
-    static void wrapper(Tensor<T> &tensor1,
-                        const std::string &name = "wrapper_op");
+    static void wrapper(tensor<T> &tensor1,
+                        const std::string &name = "wrapper");
 };
 }  // namespace cubby_dnn
 

@@ -1,5 +1,5 @@
 //
-// Created by jwkim on 18. 11. 20.
+// Created by Justin on 18. 11. 20.
 //
 
 #ifndef CUBBYDNN_SHAPE_HPP
@@ -9,16 +9,16 @@
 #include <string>
 #include <vector>
 
-struct Shape{
+struct tensor_shape{
 public:
 
-    Shape() = default;
+    tensor_shape() = default;
 
-    Shape(long rows, long columns, long height);
+    tensor_shape(long rows, long columns, long height);
 
-    bool operator==(const Shape &rhs) const;
+    bool operator==(const tensor_shape &rhs) const;
 
-    bool operator!=(const Shape &rhs) const;
+    bool operator!=(const tensor_shape &rhs) const;
 
     long size() const{
         return total_size;
@@ -54,7 +54,7 @@ struct shape_checker
 {
 public:
 
-    static bool check_shape(const Shape &shape,
+    static bool check_shape(const tensor_shape &shape,
                             const std::string &op_name = "constructor");
 
 

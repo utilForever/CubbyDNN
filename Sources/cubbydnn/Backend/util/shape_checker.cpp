@@ -3,7 +3,7 @@
 //
 #include "Backend/util_decl/shape_checker.hpp"
 
-bool shape_checker::check_shape(const Shape &shape,
+bool shape_checker::check_shape(const tensor_shape &shape,
                                 const std::string &op_name)
 {
     // TODO: find way to check if argument was verifiable
@@ -27,7 +27,7 @@ bool shape_checker::check_shape(const Shape &shape,
 }
 
 
-Shape::Shape(long rows, long columns, long height){
+tensor_shape::tensor_shape(long rows, long columns, long height){
     this->shape_vect = {rows, columns, height};
     total_size = 1;
     for(auto mul: shape_vect){
@@ -35,10 +35,10 @@ Shape::Shape(long rows, long columns, long height){
     }
 }
 
-bool Shape::operator==(const Shape &rhs) const {
+bool tensor_shape::operator==(const tensor_shape &rhs) const {
     return shape_vect == rhs.shape_vect;
 }
 
-bool Shape::operator!=(const Shape &rhs) const {
+bool tensor_shape::operator!=(const tensor_shape &rhs) const {
     return !(rhs == *this);
 }
