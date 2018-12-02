@@ -72,10 +72,10 @@ class Operation
         return info;
     }
 
-    std::tuple<long, unsigned long, unsigned long, std::string> get_info() const
+    std::tuple<unsigned long, unsigned long, unsigned long, std::string> get_info() const
     {
-        return std::tuple{ operation_id, input_tensor_vect.size(),
-                           output_tensor_vect.size() , name};
+        return std::tuple{ operation_id, static_cast<unsigned long>(input_tensor_vect.size()),
+                           static_cast<unsigned long>(output_tensor_vect.size()), name};
     }
 
     decltype(auto) get_input_tensor_vect() const
@@ -288,12 +288,12 @@ class Operation_management
 
     static unsigned long number_of_operations()
     {
-        return operation_list.size();
+        return static_cast<unsigned long>(operation_list.size());
     }
 
     static void create_adj()
     {
-        Adj_management<T>::reserve_adj(operation_list.size());
+        Adj_management<T>::reserve_adj(static_cast<long>(operation_list.size()));
         for (Operation<T> operation : operation_list)
         {
             decltype(auto) input_tensor_vect =

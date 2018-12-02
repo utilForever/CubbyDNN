@@ -199,7 +199,7 @@ unsigned long Adj_management<T>::add_op_adj()
 
     adj_forward.emplace_back(temp);  // graph_size += 1
 
-    return adj_forward.size();
+    return static_cast<unsigned long>(adj_forward.size());
 }
 
 template <typename T>
@@ -213,7 +213,7 @@ void Adj_management<T>::add_edge(
         std::cout << error_msg << std::endl;
     }
 
-    if (graph_size + 1 < from or graph_size + 1 < to)
+    if (graph_size + 1 < from || graph_size + 1 < to)
     {
         std::string error_msg = "pointing to operation that doesn't exist";
         error_msg += "graph size: " + std::to_string(adj_forward.size()) +

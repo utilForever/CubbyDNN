@@ -35,6 +35,8 @@ template <typename T>
 Tensor<T> Generate<T>::weight(const Shape &shape, bool trainable,
                               const std::string &name)
 {
+    (void)trainable;
+
     if (!shape_checker::check_shape(shape, name))
     {
         return get_default_tensor();  // check if shape is valid
@@ -56,6 +58,8 @@ template <typename T>
 Tensor<T> Generate<T>::filter(const Shape &shape, bool trainable,
                               const std::string &name)
 {
+    (void)trainable;
+
     if (!shape_checker::check_shape(shape, name))
     {
         return get_default_tensor();  // check if shape is valid
@@ -192,6 +196,8 @@ template <typename T>
 Tensor<T> Operate<T>::matDot(Tensor<T> &tensor1, T multiplier,
                              const std::string &name)
 {
+    (void)multiplier;
+
     if (!tensor1.is_valid())
     {
         return get_default_tensor();
