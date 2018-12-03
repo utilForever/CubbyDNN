@@ -133,7 +133,7 @@ class operate : protected tensor<T>
     static tensor<T> reshape(tensor<T> &tensor1, const tensor_shape &shape,
                              const std::string &name = "reshape");
 
-    static tensor<T> one_hot(tensor<T> &tensor1, unsigned long size,
+    static tensor<T> one_hot(tensor<T> &tensor1, size_t size,
                              const std::string &name = "one_hot");
 
  private:

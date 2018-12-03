@@ -112,7 +112,7 @@ bool verify(const std::vector<T> &data, const tensor_shape &shape)
         return false;
     }
 
-    if (data.size() != static_cast<unsigned long>(shape.size()))
+    if (data.size() != shape.size())
     {
         std::string err_message = "data shape doesn't match";
         err_message += "Expected Size = " + std::to_string(shape.size());
@@ -126,25 +126,25 @@ bool verify(const std::vector<T> &data, const tensor_shape &shape)
 // getters
 
 template <typename T>
-long tensor_object<T>::get_data_size() const
+size_t tensor_object<T>::get_data_size() const
 {
     if (!tensor_storage)
     {
         std::cout << "tensor_object is empty" << std::endl;
         return error_id;
     }
-    return static_cast<int>(tensor_storage->data.size());
+    return tensor_storage->data.size();
 }
 
 template <typename T>
-long tensor_object<T>::get_data_byte_size() const
+size_t tensor_object<T>::get_data_byte_size() const
 {
     if (!tensor_storage)
     {
         std::cout << "tensor_object is empty" << std::endl;
         return error_id;
     }
-    return static_cast<long>(tensor_storage->data.size() * sizeof(T));
+    return tensor_storage->data.size() * sizeof(T);
 }
 
 template <typename T>
@@ -161,7 +161,7 @@ const std::vector<T> &tensor_object<T>::get_data() const
 /// management
 
 template <typename T>
-unsigned long adj_management<T>::add_op_adj()
+long adj_management<T>::add_op_adj()
 {
     auto graph_size = adj_forward.size();
 
@@ -192,7 +192,7 @@ unsigned long adj_management<T>::add_op_adj()
 
     adj_forward.emplace_back(temp);  // graph_size += 1
 
-    return static_cast<unsigned long>(adj_forward.size());
+    return static_cast<long>(adj_forward.size());
 }
 
 template <typename T>

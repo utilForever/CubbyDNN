@@ -28,15 +28,15 @@ bool shape::check_shape(const tensor_shape &shape,
 
 
 tensor_shape::tensor_shape(long rows, long columns, long height){
-    this->shape_vect = {rows, columns, height};
+    this->shape_vector = {rows, columns, height};
     total_size = 1;
-    for(auto mul: shape_vect){
+    for(auto mul: shape_vector){
         total_size*= mul;
     }
 }
 
 bool tensor_shape::operator==(const tensor_shape &rhs) const {
-    return shape_vect == rhs.shape_vect;
+    return shape_vector == rhs.shape_vector;
 }
 
 bool tensor_shape::operator!=(const tensor_shape &rhs) const {

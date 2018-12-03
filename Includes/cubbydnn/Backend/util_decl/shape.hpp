@@ -20,39 +20,39 @@ struct tensor_shape
 
     bool operator!=(const tensor_shape &rhs) const;
 
-    long size() const
+    size_t size() const
     {
         return total_size;
     }
 
     bool empty() const
     {
-        return shape_vect.empty();
+        return shape_vector.empty();
     }
 
     long rows() const
     {
-        return shape_vect.at(0);
+        return shape_vector.at(0);
     }
 
     long cols() const
     {
-        return shape_vect.at(1);
+        return shape_vector.at(1);
     }
 
     long height() const
     {
-        return shape_vect.at(2);
+        return shape_vector.at(2);
     }
 
     const std::vector<long> &get_shape_vect()
     {
-        return shape_vect;
+        return shape_vector;
     }
 
  private:
-    std::vector<long> shape_vect;
-    long total_size = 0;
+    std::vector<long> shape_vector;
+    size_t total_size = 0;
 };
 
 struct shape

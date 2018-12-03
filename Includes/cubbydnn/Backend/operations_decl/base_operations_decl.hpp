@@ -49,36 +49,25 @@ template <typename T>
 class operation
 {
  public:
-    void set_input_vect(
-        std::vector<std::shared_ptr<tensor_object<T>>> tensor_vect)
-    {
-        input_tensor_vect = tensor_vect;
-    }
-
-    void set_output_vect(
-        std::vector<std::shared_ptr<tensor_object<T>>> tensor_vect)
-    {
-        output_tensor_vect = tensor_vect;
-    }
 
     void add_output(std::shared_ptr<tensor_object<T>> tensor_ptr)
     {
-        output_tensor_vect.emplace_back(tensor_ptr);
+        output_tensor_vector.emplace_back(tensor_ptr);
     }
 
     void add_input(std::shared_ptr<tensor_object<T>> tensor_ptr)
     {
-        input_tensor_vect.emplace_back(tensor_ptr);
+        input_tensor_vector.emplace_back(tensor_ptr);
     }
 
-    bool has_input_vector()
+    size_t input_vector_size()
     {
-        return !input_tensor_vect.empty();
+        return input_tensor_vector.size();
     }
 
-    bool has_output_vector()
+    size_t output_vector_size()
     {
-        return !output_tensor_vect.empty();
+        return output_tensor_vector.size();
     }
 
     const std::string &get_name()
@@ -96,21 +85,26 @@ class operation
         std::string info = name;
         info += "\noperation id: " + std::to_string(operation_id);
         info +=
-            "\ninput tensor num: " + std::to_string(input_tensor_vect.size());
+            "\ninput tensor num: " + std::to_string(input_tensor_vector.size());
         info +=
-            "\noutput tensor num: " + std::to_string(output_tensor_vect.size());
+            "\noutput tensor num: " + std::to_string(output_tensor_vector.size());
         return info;
     }
 
     operation_info get_info() const
     {
-        return operation_info(operation_id, input_tensor_vect.size(),
-                              output_tensor_vect.size(), name);
+        return operation_info(operation_id, input_tensor_vector.size(),
+                              output_tensor_vector.size(), name);
     }
 
-    decltype(auto) get_input_tensor_vect() const
+    decltype(auto) get_input_tensor_vector() const
     {
-        return input_tensor_vect;
+        return input_tensor_vector;
+    }
+
+    decltype(auto) get_output_tensor_vector() const
+    {
+        return output_tensor_vector;
     }
 
  protected:
@@ -119,8 +113,8 @@ class operation
  protected:
     operation_type op_type;
     long operation_id = 0;
-    std::vector<std::shared_ptr<tensor_object<T>>> input_tensor_vect;
-    std::vector<std::shared_ptr<tensor_object<T>>> output_tensor_vect;
+    std::vector<std::shared_ptr<tensor_object<T>>> input_tensor_vector;
+    std::vector<std::shared_ptr<tensor_object<T>>> output_tensor_vector;
     std::string name;
 };
 
@@ -179,10 +173,11 @@ template <typename T>
 class reshape_op : public operation<T>
 {
  public:
-    explicit reshape_op(long operation_id, const std::string &name)
+    explicit reshape_op(long operation_id, const std::string &name, const tensor_shape &shape)
     {
         this->operation_id = operation_id;
         this->name = name;
+        this->shape = shape;
     }
 
  private:
@@ -193,12 +188,12 @@ template <typename T>
 class placeholder_op : public operation<T>
 {
  public:
-    explicit placeholder_op(long operation_id, stream<T> &stream,
-                            const std::string &name)
+    explicit placeholder_op(long operation_id, const tensor_shape &shape, stream<T> &stream, const std::string &name)
     {
         this->operation_id = operation_id;
         this->data_stream = stream;
         this->name = name;
+        this->shape = shape;
     }
 
  private:
@@ -210,10 +205,11 @@ template <typename T>
 class weight_op : public operation<T>
 {
  public:
-    explicit weight_op(long operation_id, const std::string &name)
+    explicit weight_op(long operation_id, const tensor_shape &shape, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
+        this->shape = shape;
     }
 
  private:
@@ -224,10 +220,11 @@ template <typename T>
 class constant_op : public operation<T>
 {
  public:
-    explicit constant_op(long operation_id, const std::string &name)
+    explicit constant_op(long operation_id, const tensor_shape &shape, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
+        this->shape = shape;
     }
 
  private:
@@ -286,7 +283,7 @@ class operation_management
         for (operation<T> operation : operation_list)
         {
             decltype(auto) input_tensor_vect =
-                operation.get_input_tensor_vect();
+                    operation.get_input_tensor_vector();
             for (auto tensor_ptr : input_tensor_vect)
             {
                 adj_management<T>::add_edge(tensor_ptr->get_from(),

@@ -21,7 +21,7 @@ enum class tensor_type
     None
 };
 
-const static long error_id = -1;
+const static size_t error_id = 0;
 
 template <typename T>
 bool verify(const std::vector<T> &data, const tensor_shape &shape);
@@ -48,25 +48,6 @@ class tensor_object
 
     ~tensor_object();
 
-    /*
-      for (4), (6) no exceptions can be thrown
-      for (3), (5) std::bad_alloc may be thrown
-      for (1), (2) if given _data_ or _shape_ is empty,
-      _cubby_dnn::ArgumentException_ is thrown if given _shape_ does not match
-      size of the data, _cubby_dnn::ArgumentException_ is thrown
-     */
-
- private:
-    bool _mutable = true;
-
-    tensor_type type;
-
-    long from, to;
-
-    struct storage;
-
-    std::unique_ptr<storage> tensor_storage;
-
  public:
     /// getters
     bool has_data() const
@@ -82,26 +63,15 @@ class tensor_object
         return type;
     }
 
-    long get_data_size() const;
+    size_t get_data_size() const;
 
-    long get_data_byte_size() const;
+    size_t get_data_byte_size() const;
 
     const std::vector<T> &get_data() const;
 
     bool is_mutable() const
     {
         return _mutable;
-    }
-
-    /// setters
-    void disable_training()
-    {
-        _mutable = false;
-    }
-
-    void enable_training()
-    {
-        _mutable = true;
     }
 
     void set_type(tensor_type type)
@@ -122,12 +92,23 @@ class tensor_object
     long get_from() const
     {
         return from;
-    };
+    }
 
     long get_to() const
     {
         return to;
-    };
+    }
+
+ private:
+    bool _mutable = true;
+
+    tensor_type type;
+
+    long from, to;
+
+    struct storage;
+
+    std::unique_ptr<storage> tensor_storage;
 };
 
 template <typename T>
@@ -138,7 +119,7 @@ class tensor
            bool _mutable = true);
 
  public:
-    ///getters
+    /// getters
 
     bool is_valid() const
     {
@@ -150,13 +131,12 @@ class tensor
         return type;
     }
 
-
     const tensor_shape &get_shape() const
     {
         return this->shape;
     }
 
-    long get_data_size() const
+    size_t get_data_size() const
     {
         return shape.size();
     }
@@ -166,7 +146,6 @@ class tensor
         return _mutable;
     }
 
-
     long get_from() const
     {
         return from;
@@ -174,7 +153,8 @@ class tensor
 
     /// setters
 
-    void set_name(const std::string &name){
+    void set_name(const std::string &name)
+    {
     }
 
     void set_type(tensor_type type)
@@ -195,15 +175,14 @@ class tensor
     // adds operation ids that this tensor heads to
     void add_to(long to)
     {
-        this->to_vect.emplace_back(to);
+        this->to_vector.emplace_back(to);
     }
-
 
  private:
     long from;  ///>ID of operation that this tensor is generated
 
     std::vector<long>
-        to_vect;  // vector for storing operations this tensor will head to
+        to_vector;  // vector for storing operations this tensor will head to
 
     bool _mutable =
         true;  // determines whether data of this tensor can be modified
@@ -212,7 +191,6 @@ class tensor
         tensor_type::None;  // type of the tensor_container it is pointing to
 
     tensor_shape shape;  // shape of this tensor
-
 
     // weak pointer pointing to tensor object
 };
@@ -224,7 +202,7 @@ class adj_management
 {
  public:
     /// Adds new operation
-    static unsigned long add_op_adj();
+    static long add_op_adj();
     /// Adds new edge between two
     static void add_edge(long from, long to,
                          std::shared_ptr<tensor_object<T>> &tensor_object_ptr);
