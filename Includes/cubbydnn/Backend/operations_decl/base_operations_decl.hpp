@@ -139,17 +139,18 @@ template <typename T>
 class mat_mul_op : public operation<T>
 {
  public:
-    explicit mat_mul_op(std::shared_ptr<tensor_object<T>> tensor1,
-                        std::shared_ptr<tensor_object<T>> tensor2,
-                        std::shared_ptr<tensor_object<T>> output_tensor,
-                        unsigned long operation_id,
-                        const std::string &name = "Matmul");
 
     explicit mat_mul_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
     }  // empty constructor for operation
+
+    explicit mat_mul_op(std::shared_ptr<tensor_object<T>> tensor1,
+                        std::shared_ptr<tensor_object<T>> tensor2,
+                        std::shared_ptr<tensor_object<T>> output_tensor,
+                        unsigned long operation_id,
+                        const std::string &name = "Matmul");
 
     explicit mat_mul_op(
         std::vector<std::shared_ptr<tensor_object<T>>> tensor_vect,
@@ -161,17 +162,18 @@ template <typename T>
 class mat_add_op : public operation<T>
 {
  public:
-    explicit mat_add_op(std::shared_ptr<tensor_object<T>> tensor1,
-                        std::shared_ptr<tensor_object<T>> tensor2,
-                        std::shared_ptr<tensor_object<T>> output_tensor,
-                        unsigned long operation_id,
-                        const std::string &name = "Matadd");
 
     explicit mat_add_op(unsigned long operation_id, const std::string &name)
     {
         this->operation_id = operation_id;
         this->name = name;
     }  // empty constructor for operation
+
+    explicit mat_add_op(std::shared_ptr<tensor_object<T>> tensor1,
+                        std::shared_ptr<tensor_object<T>> tensor2,
+                        std::shared_ptr<tensor_object<T>> output_tensor,
+                        unsigned long operation_id,
+                        const std::string &name = "Matadd");
 
     explicit mat_add_op(
         std::vector<std::shared_ptr<tensor_object<T>>> tensor_vect,
@@ -189,11 +191,14 @@ class mat_dot_op : public operation<T>
                         unsigned long operation_id,
                         const std::string &name = "Matdot");
 
-    explicit mat_dot_op(unsigned long operation_id, const std::string &name)
+    explicit mat_dot_op(unsigned long operation_id, const std::string &name, T multiplier)
     {
         this->operation_id = operation_id;
         this->name = name;
+        this->multiplier = multiplier;
     }  // empty constructor for operation
+private:
+    T multiplier;
 };
 
 template <typename T>

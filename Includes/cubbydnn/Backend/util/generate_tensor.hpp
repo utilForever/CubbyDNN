@@ -1,6 +1,8 @@
-//
-// Created by Justin on 18. 11. 13.
-//
+
+/**
+ * This file contains definitions of methods that adds operations to the graph
+ * Written by Justin on 18. 11. 13.
+ */
 
 #ifndef CUBBYDNN_GENERATOR_TENSOR_HPP
 #define CUBBYDNN_GENERATOR_TENSOR_HPP
@@ -32,11 +34,9 @@ tensor<T> generate<T>::placeholder(const tensor_shape &shape, stream<T> &stream,
 }
 
 template <typename T>
-tensor<T> generate<T>::weight(const tensor_shape &shape, bool trainable,
-                              const std::string &name)
+tensor<T> generate<T>::variable(const tensor_shape &shape, bool trainable,
+                                const std::string &name)
 {
-    (void)trainable;
-
     if (!shape_checker::check_shape(shape, name))
     {
         return get_default_tensor();  // check if shape is valid
@@ -44,32 +44,13 @@ tensor<T> generate<T>::weight(const tensor_shape &shape, bool trainable,
 
     auto operation_id = operation_management<T>::number_of_operations();
 
-    tensor<T> rtn_tensor(tensor_type ::weight, shape,
+    tensor<T> rtn_tensor(tensor_type ::variable, shape,
                          static_cast<int>(operation_id), true,
                          "tensor_from_op: " + name);
-    // declare empty operation
-    auto new_op = weight_op<T>(operation_id, name);
-    // add the operation to the global operation list
-    operation_management<T>::add_op(new_op);
-    return rtn_tensor;
-}
 
-template <typename T>
-tensor<T> generate<T>::filter(const tensor_shape &shape, bool trainable,
-                              const std::string &name)
-{
-    (void)trainable;
+    if (!trainable)
+        rtn_tensor.make_constant();
 
-    if (!shape_checker::check_shape(shape, name))
-    {
-        return get_default_tensor();  // check if shape is valid
-    }
-
-    // adj_management<T>::add_op_adj();
-    auto operation_id = operation_management<T>::number_of_operations();
-
-    tensor<T> rtn_tensor(tensor_type ::filter, shape, operation_id, true,
-                         "tensor_from_op: " + name);
     // declare empty operation
     auto new_op = weight_op<T>(operation_id, name);
     // add the operation to the global operation list
@@ -115,6 +96,11 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
         std::vector<T>(static_cast<unsigned long>(tensor2.get_data_size())),
         tensor2.get_shape(), tensor2.get_type(), tensor2.get_from(), this_id);
 
+    if (!tensor1.is_mutable())
+        tensor_object_ptr1->make_constant();
+    if (!tensor2.is_mutable())
+        tensor_object_ptr1->make_constant();
+
     tensor1.add_tensor_object(tensor_object_ptr1);
     tensor2.add_tensor_object(tensor_object_ptr2);
 
@@ -126,8 +112,9 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
     // setting the return tensor
     // numCols of first tensor, numRows of second tensor and dimension of third
     // tensor
-    tensor_shape new_shape(tensor1.get_shape().rows(), tensor2.get_shape().cols(),
-                    tensor1.get_shape().height());
+    tensor_shape new_shape(tensor1.get_shape().rows(),
+                           tensor2.get_shape().cols(),
+                           tensor1.get_shape().height());
     // row size of the first tensor * col size of the second tensor
 
     tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id, true,
@@ -170,6 +157,11 @@ tensor<T> operate<T>::mad_add(tensor<T> &tensor1, tensor<T> &tensor2,
         std::vector<T>(static_cast<unsigned long>(tensor2.get_data_size())),
         tensor2.get_shape(), tensor2.get_type(), tensor2.get_from(), this_id);
 
+    if (!tensor1.is_mutable())
+        tensor_object_ptr1->make_constant();
+    if (!tensor2.is_mutable())
+        tensor_object_ptr1->make_constant();
+
     tensor1.add_tensor_object(tensor_object_ptr1);
     tensor2.add_tensor_object(tensor_object_ptr2);
 
@@ -196,8 +188,6 @@ template <typename T>
 tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
                               const std::string &name)
 {
-    (void)multiplier;
-
     if (!tensor1.is_valid())
     {
         return get_default_tensor();
@@ -213,6 +203,9 @@ tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
         std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())),
         tensor1.get_shape(), tensor1.get_type(), tensor1.get_from(), this_id);
 
+    if (!tensor1.is_mutable())
+        tensor_object_ptr1->make_constant();
+
     tensor1.add_tensor_object(tensor_object_ptr1);
 
     operation_management<T>::add_output_of(tensor1.get_from(),
@@ -224,7 +217,7 @@ tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
 
     tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id, true,
                          "tensor_from_op: " + name);
-    mat_dot_op<T> mat_dot_op(this_id, name);
+    mat_dot_op<T> mat_dot_op(this_id, name, multiplier);
     mat_dot_op.add_input(tensor_object_ptr1);
     operation_management<T>::add_op(mat_dot_op);
     return rtn_tensor;
@@ -266,6 +259,9 @@ tensor<T> operate<T>::reshape(tensor<T> &tensor1, const tensor_shape &shape,
     auto tensor_object_ptr1 = std::make_shared<tensor_object<T>>(
         std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())),
         tensor1.get_shape(), tensor1.get_type(), tensor1.get_from(), this_id);
+
+    if (!tensor1.is_mutable())
+        tensor_object_ptr1->make_constant();
 
     tensor1.add_tensor_object(tensor_object_ptr1);
 
@@ -316,6 +312,9 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, unsigned long size,
         std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())),
         tensor1.get_shape(), tensor1.get_type(), tensor1.get_from(), this_id);
 
+    if (!tensor1.is_mutable())
+        tensor_object_ptr1->make_constant();
+
     tensor1.add_tensor_object(tensor_object_ptr1);
 
     operation_management<T>::add_output_of(tensor1.get_from(),
@@ -334,7 +333,7 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, unsigned long size,
 }
 
 template <typename T>
-void Final<T>::wrapper(tensor<T> &tensor1, const std::string &name)
+void final<T>::wrapper(tensor<T> &tensor1, const std::string &name)
 {
     if (!tensor1.is_valid())
     {
@@ -350,6 +349,9 @@ void Final<T>::wrapper(tensor<T> &tensor1, const std::string &name)
     auto tensor_object_ptr1 = std::make_shared<tensor_object<T>>(
         std::vector<T>(static_cast<unsigned long>(tensor1.get_data_size())),
         tensor1.get_shape(), tensor1.get_type(), tensor1.get_from(), this_id);
+
+    if (!tensor1.is_mutable())
+        tensor_object_ptr1->make_constant();
 
     tensor1.add_tensor_object(tensor_object_ptr1);
 

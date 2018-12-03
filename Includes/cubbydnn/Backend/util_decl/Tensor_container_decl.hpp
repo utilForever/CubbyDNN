@@ -15,9 +15,7 @@ namespace cubby_dnn
 {
 enum class tensor_type
 {
-    weight,
-    bias,
-    filter,
+    variable,
     placeHolder,
     normal,
     None
