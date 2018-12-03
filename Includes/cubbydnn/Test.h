@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include "Backend/util/generate_tensor.hpp"
+#include "Backend/util/graph.hpp"
 
 using namespace cubby_dnn;
 

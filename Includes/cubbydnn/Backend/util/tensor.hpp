@@ -7,7 +7,7 @@
 
 #include <algorithm>
 #include <functional>
-#include "Backend/util_decl/tensor_container_decl.hpp"
+#include "Backend/util_decl/tensor_decl.hpp"
 
 namespace cubby_dnn
 {
@@ -15,18 +15,11 @@ namespace cubby_dnn
 
 template <typename T>
 tensor<T>::tensor(tensor_type type, const tensor_shape &shape, long from,
-                  bool _mutable, const std::string &name)
-    : from(from), _mutable(_mutable), type(type)
+                  bool _mutable)
+    : from(from), _mutable(_mutable), type(type), shape(shape)
 {
-    this->shape = shape;
-    this->name = name;
 }
 
-template <typename T>
-tensor<T>::tensor(tensor<T> &rhs) = default;
-
-template <typename T>
-tensor<T>::tensor(tensor<T> &&rhs) noexcept = default;
 
 template <typename T>
 struct tensor_object<T>::storage

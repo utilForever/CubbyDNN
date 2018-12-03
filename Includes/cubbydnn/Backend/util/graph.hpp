@@ -7,25 +7,20 @@
 #ifndef CUBBYDNN_GENERATOR_TENSOR_HPP
 #define CUBBYDNN_GENERATOR_TENSOR_HPP
 
-#include "Backend/operations/base_operations.hpp"
-#include "Backend/util_decl/generate_tensor_decl.hpp"
-#include "Backend/util_decl/shape_checker.hpp"
-
+#include "Backend/util_decl/graph_decl.hpp"
 namespace cubby_dnn
 {
 template <typename T>
 tensor<T> generate<T>::placeholder(const tensor_shape &shape, stream<T> &stream,
                                    const std::string &name)
 {
-    if (!shape_checker::check_shape(shape, name))
+    if (!shape::check_shape(shape, name))
     {
         return get_default_tensor();  // check if shape is valid
     }
 
-    auto operation_id = operation_management<T>::number_of_operations();
-    tensor<T> rtn_tensor(tensor_type::placeHolder, shape,
-                         static_cast<int>(operation_id), true,
-                         "tensor_from_op: " + name);
+    long operation_id = operation_management<T>::number_of_operations();
+    tensor<T> rtn_tensor(tensor_type::placeHolder, shape, operation_id);
     // declare empty operation
     auto new_op = placeholder_op<T>(operation_id, stream, name);
     // add the operation to the global operation list
@@ -37,16 +32,14 @@ template <typename T>
 tensor<T> generate<T>::variable(const tensor_shape &shape, bool trainable,
                                 const std::string &name)
 {
-    if (!shape_checker::check_shape(shape, name))
+    if (!shape::check_shape(shape, name))
     {
         return get_default_tensor();  // check if shape is valid
     }
 
-    auto operation_id = operation_management<T>::number_of_operations();
+    long operation_id = operation_management<T>::number_of_operations();
 
-    tensor<T> rtn_tensor(tensor_type ::variable, shape,
-                         static_cast<int>(operation_id), true,
-                         "tensor_from_op: " + name);
+    tensor<T> rtn_tensor(tensor_type ::variable, shape, operation_id);
 
     if (!trainable)
         rtn_tensor.make_constant();
@@ -114,8 +107,7 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
                            tensor1.get_shape().height());
     // row size of the first tensor * col size of the second tensor
 
-    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id, true,
-                         "tensor_from_op: " + name);
+    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id);
     mat_mul_op<T> mat_mul_op(this_id, name);
     mat_mul_op.add_input(tensor_object_ptr1);
     mat_mul_op.add_input(tensor_object_ptr2);
@@ -168,8 +160,7 @@ tensor<T> operate<T>::mad_add(tensor<T> &tensor1, tensor<T> &tensor2,
     tensor_shape new_shape = tensor1.get_shape();
     // row size of the first tensor * col size of the second tensor
 
-    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id, true,
-                         "tensor_from_op: " + name);
+    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id);
 
     mat_add_op<T> mat_add_op(this_id, name);
     mat_add_op.add_input(tensor_object_ptr1);
@@ -207,8 +198,7 @@ tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
     tensor_shape new_shape = tensor1.get_shape();
     // row size of the first tensor * col size of the second tensor
 
-    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id, true,
-                         "tensor_from_op: " + name);
+    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id);
     mat_dot_op<T> mat_dot_op(this_id, name, multiplier);
     mat_dot_op.add_input(tensor_object_ptr1);
     operation_management<T>::add_op(mat_dot_op);
@@ -224,7 +214,7 @@ tensor<T> operate<T>::reshape(tensor<T> &tensor1, const tensor_shape &shape,
         return get_default_tensor();
     }
 
-    if (!shape_checker::check_shape(tensor1.get_shape(), name))
+    if (!shape::check_shape(tensor1.get_shape(), name))
     {
         std::cout << "tensor shapes doesn't match for reshaping" << std::endl;
         std::cout << "This Error occurs from operation: " << name << std::endl;
@@ -262,8 +252,7 @@ tensor<T> operate<T>::reshape(tensor<T> &tensor1, const tensor_shape &shape,
     tensor_shape new_shape = shape;
     // row size of the first tensor * col size of the second tensor
 
-    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id, true,
-                         "tensor_from_op: " + name);
+    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id);
     reshape_op<T> reshape_op(this_id, name);
     reshape_op.add_input(tensor_object_ptr1);
     operation_management<T>::add_op(reshape_op);
@@ -279,7 +268,7 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, unsigned long size,
         return get_default_tensor();
     }
 
-    if (!shape_checker::check_shape(tensor1.get_shape(), name))
+    if (!shape::check_shape(tensor1.get_shape(), name))
     {
         std::cout << "tensor shapes doesn't match for reshaping" << std::endl;
         std::cout << "This Error occurs from operation: " << name << std::endl;
@@ -312,11 +301,10 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, unsigned long size,
     tensor_shape new_shape(size, 1, 1);
     // row size of the first tensor * col size of the second tensor
 
-    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id, true,
-                         "tensor_from_op: " + name);
-    reshape_op<T> onehot_op(this_id, name);
-    onehot_op.add_input(tensor_object_ptr1);
-    operation_management<T>::add_op(onehot_op);
+    tensor<T> rtn_tensor(tensor_type ::normal, new_shape, this_id);
+    reshape_op<T> one_hot_op(this_id, name);
+    one_hot_op.add_input(tensor_object_ptr1);
+    operation_management<T>::add_op(one_hot_op);
     return rtn_tensor;
 }
 

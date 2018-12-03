@@ -4,6 +4,5 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Libraries/googlebenchmark" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Libraries/googletest" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/doxygen" vcs="Git" />
   </component>
 </project>

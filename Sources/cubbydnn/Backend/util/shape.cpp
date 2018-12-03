@@ -1,9 +1,9 @@
 //
 // Created by jwkim on 18. 11. 20.
 //
-#include "Backend/util_decl/shape_checker.hpp"
+#include "Backend/util_decl/shape.hpp"
 
-bool shape_checker::check_shape(const tensor_shape &shape,
+bool shape::check_shape(const tensor_shape &shape,
                                 const std::string &op_name)
 {
     // TODO: find way to check if argument was verifiable

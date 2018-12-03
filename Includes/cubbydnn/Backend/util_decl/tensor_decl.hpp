@@ -9,7 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
-#include "shape_checker.hpp"
+#include "shape.hpp"
 
 namespace cubby_dnn
 {
@@ -135,12 +135,7 @@ class tensor
 {
  public:
     tensor(tensor_type type, const tensor_shape &shape, long from,
-           bool _mutable = true,
-           const std::string &name = "Tensor");  //(1)
-
-    tensor(tensor<T> &rhs);
-
-    tensor(tensor<T> &&rhs) noexcept;
+           bool _mutable = true);
 
  public:
     ///getters
@@ -155,10 +150,6 @@ class tensor
         return type;
     }
 
-    const std::string &get_name() const
-    {
-        return this->name;
-    }
 
     const tensor_shape &get_shape() const
     {
@@ -184,7 +175,6 @@ class tensor
     /// setters
 
     void set_name(const std::string &name){
-        this->name = name;
     }
 
     void set_type(tensor_type type)
@@ -210,20 +200,19 @@ class tensor
 
 
  private:
-    long from;  // ID of operation that this tensor is generated
+    long from;  ///>ID of operation that this tensor is generated
 
     std::vector<long>
         to_vect;  // vector for storing operations this tensor will head to
 
-    tensor_shape shape;  // shape of this tensor
-
     bool _mutable =
         true;  // determines whether data of this tensor can be modified
-    // properties of the tensor
-    std::string name;
 
     tensor_type type =
         tensor_type::None;  // type of the tensor_container it is pointing to
+
+    tensor_shape shape;  // shape of this tensor
+
 
     // weak pointer pointing to tensor object
 };

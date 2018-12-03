@@ -9,9 +9,9 @@
 #include <string>
 #include <vector>
 
-struct tensor_shape{
-public:
-
+struct tensor_shape
+{
+ public:
     tensor_shape() = default;
 
     tensor_shape(long rows, long columns, long height);
@@ -20,44 +20,46 @@ public:
 
     bool operator!=(const tensor_shape &rhs) const;
 
-    long size() const{
+    long size() const
+    {
         return total_size;
     }
 
-    bool empty() const {
+    bool empty() const
+    {
         return shape_vect.empty();
     }
 
-    long rows() const {
+    long rows() const
+    {
         return shape_vect.at(0);
     }
 
-    long cols() const {
+    long cols() const
+    {
         return shape_vect.at(1);
     }
 
-    long height() const {
+    long height() const
+    {
         return shape_vect.at(2);
     }
 
-    const std::vector<long>& get_shape_vect(){
+    const std::vector<long> &get_shape_vect()
+    {
         return shape_vect;
     }
 
-private:
+ private:
     std::vector<long> shape_vect;
     long total_size = 0;
 };
 
-
-struct shape_checker
+struct shape
 {
-public:
-
+ public:
     static bool check_shape(const tensor_shape &shape,
                             const std::string &op_name = "constructor");
-
-
 };
 
 #endif  // CUBBYDNN_SHAPE_HPP
