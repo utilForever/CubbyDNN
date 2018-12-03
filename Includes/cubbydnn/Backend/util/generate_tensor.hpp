@@ -101,9 +101,6 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
     if (!tensor2.is_mutable())
         tensor_object_ptr1->make_constant();
 
-    tensor1.add_tensor_object(tensor_object_ptr1);
-    tensor2.add_tensor_object(tensor_object_ptr2);
-
     operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
     operation_management<T>::add_output_of(tensor2.get_from(),
@@ -162,9 +159,6 @@ tensor<T> operate<T>::mad_add(tensor<T> &tensor1, tensor<T> &tensor2,
     if (!tensor2.is_mutable())
         tensor_object_ptr1->make_constant();
 
-    tensor1.add_tensor_object(tensor_object_ptr1);
-    tensor2.add_tensor_object(tensor_object_ptr2);
-
     operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
     operation_management<T>::add_output_of(tensor2.get_from(),
@@ -205,8 +199,6 @@ tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
 
     if (!tensor1.is_mutable())
         tensor_object_ptr1->make_constant();
-
-    tensor1.add_tensor_object(tensor_object_ptr1);
 
     operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
@@ -263,8 +255,6 @@ tensor<T> operate<T>::reshape(tensor<T> &tensor1, const tensor_shape &shape,
     if (!tensor1.is_mutable())
         tensor_object_ptr1->make_constant();
 
-    tensor1.add_tensor_object(tensor_object_ptr1);
-
     operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
 
@@ -315,8 +305,6 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, unsigned long size,
     if (!tensor1.is_mutable())
         tensor_object_ptr1->make_constant();
 
-    tensor1.add_tensor_object(tensor_object_ptr1);
-
     operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);
 
@@ -352,8 +340,6 @@ void final<T>::wrapper(tensor<T> &tensor1, const std::string &name)
 
     if (!tensor1.is_mutable())
         tensor_object_ptr1->make_constant();
-
-    tensor1.add_tensor_object(tensor_object_ptr1);
 
     operation_management<T>::add_output_of(tensor1.get_from(),
                                            tensor_object_ptr1);

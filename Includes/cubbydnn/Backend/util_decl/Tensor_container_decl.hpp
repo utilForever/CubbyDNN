@@ -143,11 +143,7 @@ class tensor
     tensor(tensor<T> &&rhs) noexcept;
 
  public:
-    /// getters
-    bool has_tensor_object()
-    {
-        return tensor_object_ptr.lock();
-    }
+    ///getters
 
     bool is_valid() const
     {
@@ -179,10 +175,6 @@ class tensor
         return _mutable;
     }
 
-    const std::weak_ptr<tensor_object<T>> &get_tensor_container_ptr() const
-    {
-        return tensor_object_ptr;
-    }
 
     long get_from() const
     {
@@ -191,31 +183,23 @@ class tensor
 
     /// setters
 
+    void set_name(const std::string &name){
+        this->name = name;
+    }
+
     void set_type(tensor_type type)
     {
         this->type = type;
-        if (auto temp_ptr = tensor_object_ptr.lock())
-            temp_ptr->set_type(type);
-    }
-
-    void set_name(const std::string &name)
-    {
-        if (auto temp_ptr = tensor_object_ptr.lock())
-            temp_ptr->set_name(name);
     }
 
     void make_mutable()
     {
         this->_mutable = true;
-        if (auto temp_ptr = tensor_object_ptr.lock())
-            temp_ptr->make_mutable();
     }
 
     void make_constant()
     {
         this->_mutable = false;
-        if (auto temp_ptr = tensor_object_ptr.lock())
-            temp_ptr->make_constant();
     }
 
     // adds operation ids that this tensor heads to
@@ -224,11 +208,6 @@ class tensor
         this->to_vect.emplace_back(to);
     }
 
-    // adds tensor objects this tensor is giving output of
-    void add_tensor_object(const std::shared_ptr<tensor_object<T>> tensor_ptr)
-    {
-        this->tensor_object_ptr_vect.emplace_back(tensor_ptr);
-    }
 
  private:
     long from;  // ID of operation that this tensor is generated
@@ -246,10 +225,7 @@ class tensor
     tensor_type type =
         tensor_type::None;  // type of the tensor_container it is pointing to
 
-    std::weak_ptr<tensor_object<T>>
-        tensor_object_ptr;  // weak pointer pointing to tensor object
-
-    std::vector<std::weak_ptr<tensor_object<T>>> tensor_object_ptr_vect;
+    // weak pointer pointing to tensor object
 };
 
 /// Resource management
