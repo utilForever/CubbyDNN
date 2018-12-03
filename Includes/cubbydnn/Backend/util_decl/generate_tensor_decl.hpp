@@ -26,7 +26,7 @@
 #ifndef CUBBYDNN_GENERATE_TENSOR_HPP
 #define CUBBYDNN_GENERATE_TENSOR_HPP
 
-#include "Tensor_container_decl.hpp"
+#include "tensor_container_decl.hpp"
 #include "stream_decl.hpp"
 
 namespace cubby_dnn

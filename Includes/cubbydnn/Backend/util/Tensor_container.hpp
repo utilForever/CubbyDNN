@@ -7,7 +7,7 @@
 
 #include <algorithm>
 #include <functional>
-#include "Backend/util_decl/Tensor_container_decl.hpp"
+#include "Backend/util_decl/tensor_container_decl.hpp"
 
 namespace cubby_dnn
 {
