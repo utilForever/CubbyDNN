@@ -9,7 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
-#include "Backend/util_decl/shape.hpp"
+#include "backend/util_decl/shape.hpp"
 
 namespace cubby_dnn
 {

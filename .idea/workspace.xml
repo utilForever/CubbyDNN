@@ -2,12 +2,12 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
-      <config projectName="CubbyDNN" targetName="gtest_main" />
-      <config projectName="CubbyDNN" targetName="benchmark" />
-      <config projectName="CubbyDNN" targetName="gtest" />
-      <config projectName="CubbyDNN" targetName="UnitTests" />
       <config projectName="CubbyDNN" targetName="benchmark_main" />
+      <config projectName="CubbyDNN" targetName="UnitTests" />
+      <config projectName="CubbyDNN" targetName="gtest" />
+      <config projectName="CubbyDNN" targetName="gtest_main" />
       <config projectName="CubbyDNN" targetName="CubbyDNN" />
+      <config projectName="CubbyDNN" targetName="benchmark" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -17,13 +17,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e54383d0-5379-4a7a-90a5-5e0d53b776be" name="Default Changelist" comment="refactor: operations_">
+      <change afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/management/graph_management.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations/base_operations.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/base_operations.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/base_operations_decl.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/graph.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/graph.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/tensor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/tensor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/graph_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/graph_decl.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/tensor_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/tensor_decl.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/base_operations.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/graph/operations.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/graph.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/graph/graph.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/tensor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/graph/tensor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/base_operations_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/operations_decl.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/graph_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/graph_decl.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/tensor_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/tensor_decl.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/stream.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/util/stream.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/shape.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/util_decl/shape.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/stream_decl.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/backend/util_decl/stream_decl.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Includes/cubbydnn/Test.h" beforeDir="false" afterPath="$PROJECT_DIR$/Includes/cubbydnn/Test.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googlebenchmark" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googlebenchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googlebenchmark/docs/tools.md" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googlebenchmark/docs/tools.md" afterDir="false" />
@@ -47,6 +51,8 @@
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googletest/include/gtest/internal/gtest-type-util.h" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googletest/include/gtest/internal/gtest-type-util.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googletest/src/gtest-death-test.cc" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googletest/src/gtest-death-test.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libraries/googletest/googletest/test/googletest-output-test_.cc" beforeDir="false" afterPath="$PROJECT_DIR$/Libraries/googletest/googletest/test/googletest-output-test_.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/shape.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/cubbydnn/backend/util/shape.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -75,23 +81,23 @@
       <content type="file-editors">
         <state>
           <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-            <file pinned="false" current-in-tab="true">
+            <file pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Test.h">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="162">
-                    <caret line="9" selection-start-line="9" selection-end-line="9" />
-                    <folding>
-                      <element signature="e#49#68#0" expanded="true" />
-                    </folding>
+                  <state relative-caret-position="108">
+                    <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
                   </state>
                 </provider>
               </entry>
             </file>
-            <file pinned="false" current-in-tab="false">
+            <file pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state>
-                    <caret column="14" selection-start-column="14" selection-end-column="14" />
+                  <state relative-caret-position="36">
+                    <caret line="2" selection-start-line="2" selection-end-line="2" />
+                    <folding>
+                      <element signature="e#0#17#0" expanded="true" />
+                    </folding>
                   </state>
                 </provider>
               </entry>
@@ -105,10 +111,10 @@
         <state>
           <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
             <file pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/graph_decl.hpp">
+              <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/graph_decl.hpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="558">
-                    <caret line="31" selection-start-line="31" selection-end-line="31" />
+                  <state relative-caret-position="236">
+                    <caret line="25" column="32" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
                     <folding>
                       <element signature="e#801#827#0" expanded="true" />
                     </folding>
@@ -117,23 +123,19 @@
               </entry>
             </file>
             <file pinned="false" current-in-tab="false">
-              <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/tensor_decl.hpp">
+              <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/tensor_decl.hpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="-176">
-                    <caret line="11" column="35" selection-start-line="11" selection-start-column="35" selection-end-line="11" selection-end-column="35" />
-                    <folding>
-                      <element signature="e#1063#1205#0" />
-                      <element signature="e#1949#1961#0" expanded="true" />
-                    </folding>
+                  <state relative-caret-position="198">
+                    <caret line="11" column="18" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="18" />
                   </state>
                 </provider>
               </entry>
             </file>
             <file pinned="false" current-in-tab="false">
-              <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/base_operations_decl.hpp">
+              <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/operations_decl.hpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="1796">
-                    <caret line="101" column="35" selection-start-line="101" selection-start-column="35" selection-end-line="101" selection-end-column="35" />
+                  <state relative-caret-position="90">
+                    <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
                   </state>
                 </provider>
               </entry>
@@ -141,11 +143,8 @@
             <file pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Test.cpp">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="198">
-                    <caret line="11" selection-start-line="11" selection-end-line="11" />
-                    <folding>
-                      <element signature="e#0#17#0" expanded="true" />
-                    </folding>
+                  <state>
+                    <caret column="14" selection-start-column="14" selection-end-column="14" />
                   </state>
                 </provider>
               </entry>
@@ -167,10 +166,10 @@
           <entry key="project.open.time.2" value="4" />
           <entry key="project.open.time.3" value="1" />
           <entry key="project.open.time.5" value="27" />
-          <entry key="project.open.time.6" value="25" />
+          <entry key="project.open.time.6" value="26" />
           <entry key="project.open.time.7" value="1" />
           <entry key="project.open.time.8" value="1" />
-          <entry key="project.opened" value="65" />
+          <entry key="project.opened" value="66" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -182,51 +181,51 @@
           <entry key="cpp" value="58" />
           <entry key="doxygen" value="2" />
           <entry key="h" value="82" />
-          <entry key="hpp" value="65" />
+          <entry key="hpp" value="67" />
           <entry key="json" value="1" />
           <entry key="md" value="10" />
           <entry key="png" value="1" />
           <entry key="tcc" value="2" />
-          <entry key="txt" value="14" />
+          <entry key="txt" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CMakeCache.txt" value="1" />
-          <entry key="CMakeLists.txt" value="23" />
+          <entry key="CMakeLists.txt" value="24" />
           <entry key="Doxygen file" value="2" />
           <entry key="Image" value="1" />
           <entry key="JSON" value="1" />
           <entry key="Markdown" value="10" />
-          <entry key="ObjectiveC" value="208" />
+          <entry key="ObjectiveC" value="210" />
           <entry key="PLAIN_TEXT" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="GDB" value="94" />
-          <entry key="cpp" value="20702" />
-          <entry key="h" value="11528" />
-          <entry key="hpp" value="45890" />
+          <entry key="cpp" value="20711" />
+          <entry key="h" value="11532" />
+          <entry key="hpp" value="46015" />
           <entry key="md" value="2228" />
           <entry key="mm" value="765" />
-          <entry key="txt" value="2470" />
+          <entry key="txt" value="2473" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="CMakeLists.txt" value="200" />
-          <entry key="Doxygen file" value="61" />
+          <entry key="CMakeLists.txt" value="203" />
+          <entry key="Doxygen file" value="62" />
           <entry key="GDBCommands" value="94" />
           <entry key="Markdown" value="2228" />
-          <entry key="ObjectiveC" value="78824" />
+          <entry key="ObjectiveC" value="78961" />
           <entry key="PLAIN_TEXT" value="2270" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
       <usages-collector id="statistics.cidr.testingFrameworks.usages">
         <counts>
-          <entry key="Google Test" value="185" />
+          <entry key="Google Test" value="188" />
         </counts>
       </usages-collector>
     </session>
@@ -234,49 +233,37 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/tensor.hpp">
+        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph/tensor.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1134">
-              <caret line="65" column="66" selection-start-line="65" selection-start-column="66" selection-end-line="65" selection-end-column="66" />
+            <state relative-caret-position="159">
+              <caret line="9" column="18" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/code_structure.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="306">
-                <caret line="17" column="10" selection-start-line="17" selection-start-column="10" selection-end-line="17" selection-end-column="10" />
-              </first_editor>
-              <second_editor />
+        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph/operations.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="468">
+              <caret line="26" column="1" selection-start-line="26" selection-start-column="1" selection-end-line="26" selection-end-column="1" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/base_operations.hpp">
+        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph/graph.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="9" column="1" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/graph.hpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="18" column="41" selection-start-line="18" selection-start-column="41" selection-end-line="18" selection-end-column="41" />
+            <state relative-caret-position="159">
+              <caret line="9" column="18" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/stream_decl.hpp">
+        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/util_decl/stream_decl.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="7" selection-start-line="7" selection-end-line="7" />
+            <state relative-caret-position="175">
+              <caret line="36" column="8" selection-start-line="36" selection-start-column="8" selection-end-line="36" selection-end-column="8" />
               <folding>
                 <element signature="e#110#127#0" expanded="true" />
               </folding>
@@ -285,19 +272,33 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/stream.hpp">
+        <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="10" selection-start-line="10" selection-end-line="10" />
+            <state relative-caret-position="346">
+              <caret line="29" column="119" selection-start-line="29" selection-start-column="119" selection-end-line="29" selection-end-column="119" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/management/graph_management.hpp">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/util/stream.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="126">
+              <caret line="7" column="11" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/util/shape.cpp">
+        <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/backend/util/shape.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
+            <state relative-caret-position="54">
+              <caret line="3" column="18" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -312,7 +313,7 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/shape.hpp">
+        <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/util_decl/shape.hpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="972">
               <caret line="54" column="17" selection-start-line="54" selection-start-column="17" selection-end-line="54" selection-end-column="17" />
@@ -377,16 +378,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/Tensor_object.cpp" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/storage/Tensor_object.h" />
-        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/storage/baseOp.cpp" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/baseOp.h" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/storage.hpp" />
-        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/storage.cpp" />
-        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/Tensor_object.cpp" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/Tensor_object.hpp" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/exceptions.hpp" />
-        <option value="$PROJECT_DIR$/Tests/UnitTests/UnitTests.cpp" />
         <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/management.cpp" />
         <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/Tensor_container.cpp" />
         <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/baseOp.cpp" />
@@ -405,8 +396,6 @@
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/base_operations_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/basic_operations.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations.hpp" />
-        <option value="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/shape.cpp" />
         <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/shape_checker.cpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/stream_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/shape_checker.hpp" />
@@ -423,11 +412,23 @@
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/tensor.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/operations_decl/base_operations_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/tensor_decl.hpp" />
-        <option value="$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp" />
-        <option value="$PROJECT_DIR$/Includes/cubbydnn/Test.h" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/graph_decl.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/base_operations.hpp" />
         <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/util/graph.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/graph.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/graph_decl.hpp" />
+        <option value="$PROJECT_DIR$/Sources/cubbydnn/Backend/util/shape.cpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/Test.h" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/backend/graph/tensor.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/tensor_decl.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/operations_decl.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/backend/util/stream.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/backend/graph/graph.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/graph_decl.hpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/backend/graph/operations.hpp" />
+        <option value="$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp" />
+        <option value="$PROJECT_DIR$/Includes/cubbydnn/backend/util_decl/stream_decl.hpp" />
+        <option value="$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt" />
       </list>
     </option>
   </component>
@@ -438,7 +439,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
-  <component name="ProjectFrameBounds" extendedState="4">
+  <component name="ProjectFrameBounds" extendedState="5">
     <option name="y" value="25" />
     <option name="width" value="960" />
     <option name="height" value="1055" />
@@ -474,6 +475,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -497,14 +499,14 @@
               <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
               <item name="Includes" type="462c0819:PsiDirectoryNode" />
               <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
+              <item name="backend" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
               <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
               <item name="Includes" type="462c0819:PsiDirectoryNode" />
               <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
+              <item name="backend" type="462c0819:PsiDirectoryNode" />
               <item name="graph" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -512,7 +514,7 @@
               <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
               <item name="Includes" type="462c0819:PsiDirectoryNode" />
               <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
+              <item name="backend" type="462c0819:PsiDirectoryNode" />
               <item name="graph_decl" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -520,16 +522,8 @@
               <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
               <item name="Includes" type="462c0819:PsiDirectoryNode" />
               <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
-              <item name="util" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CubbyDNN" type="462c0819:PsiDirectoryNode" />
-              <item name="Includes" type="462c0819:PsiDirectoryNode" />
-              <item name="cubbydnn" type="462c0819:PsiDirectoryNode" />
-              <item name="Backend" type="462c0819:PsiDirectoryNode" />
-              <item name="util_decl" type="462c0819:PsiDirectoryNode" />
+              <item name="backend" type="462c0819:PsiDirectoryNode" />
+              <item name="management" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="CubbyDNN" type="b2602c69:ProjectViewProjectNode" />
@@ -567,7 +561,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -764,6 +757,7 @@
       <workItem from="1543856050340" duration="60000" />
       <workItem from="1543857304384" duration="6156000" />
       <workItem from="1543901493498" duration="971000" />
+      <workItem from="1543902595281" duration="1986000" />
     </task>
     <task id="LOCAL-00001" summary="data storage moved inside tensor_container class (TODO: copy constructor, copy operator implementation required)">
       <created>1542010515021</created>
@@ -944,15 +938,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Test3_Example3 - 2018.12.04 at 02h 36m 18s.xml">
-      <configuration name="Test3.Example3" configurationId="CMakeGoogleTestRunConfigurationType" />
-    </history-entry>
-    <history-entry file="Test3_Example3 - 2018.12.04 at 02h 38m 28s.xml">
-      <configuration name="Test3.Example3" configurationId="CMakeGoogleTestRunConfigurationType" />
-    </history-entry>
-    <history-entry file="Test3_Example3 - 2018.12.04 at 02h 39m 19s.xml">
-      <configuration name="Test3.Example3" configurationId="CMakeGoogleTestRunConfigurationType" />
-    </history-entry>
     <history-entry file="Test3_Example3 - 2018.12.04 at 02h 41m 32s.xml">
       <configuration name="Test3.Example3" configurationId="CMakeGoogleTestRunConfigurationType" />
     </history-entry>
@@ -974,9 +959,18 @@
     <history-entry file="Test3_Example3 - 2018.12.04 at 14h 43m 29s.xml">
       <configuration name="Test3.Example3" configurationId="CMakeGoogleTestRunConfigurationType" />
     </history-entry>
+    <history-entry file="Test3_Example3 - 2018.12.04 at 14h 51m 40s.xml">
+      <configuration name="Test3.Example3" configurationId="CMakeGoogleTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="Test3_Example3 - 2018.12.04 at 15h 16m 53s.xml">
+      <configuration name="Test3.Example3" configurationId="CMakeGoogleTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="Test3_Example3 - 2018.12.04 at 15h 22m 51s.xml">
+      <configuration name="Test3.Example3" configurationId="CMakeGoogleTestRunConfigurationType" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="341300000" />
+    <option name="totallyTimeSpent" value="343286000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -988,11 +982,12 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="25" width="960" height="1055" extended-state="4" />
+    <frame x="0" y="25" width="960" height="1055" extended-state="5" />
+    <editor active="true" />
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="2" visible="true" weight="0.32822758" />
+      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.22319475" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.37971953" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.3764833" />
@@ -1002,10 +997,10 @@
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32937366" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32686085" />
-      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" weight="0.32829374" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5010941" side_tool="true" weight="0.3257821" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.43042073" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.7518878" />
-      <window_info anchor="bottom" id="CMake" order="12" weight="0.32664436" />
+      <window_info anchor="bottom" id="CMake" order="12" sideWeight="0.4989059" weight="0.3257821" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -1086,7 +1081,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Shape expression replaced to custom struct" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/storage.hpp" />
     <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/util/storage.cpp" />
     <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/util/management.cpp" />
     <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/util/baseOp.cpp" />
@@ -1140,13 +1134,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/base_operations_decl.hpp" />
     <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/basic_operations.hpp" />
-    <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="23" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/include/c++/7/bits/stl_construct.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="110">
@@ -1287,30 +1274,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/stream_decl.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-          <folding>
-            <element signature="e#110#127#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util/stream.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Backend/util/shape.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Tests/UnitTests/UnitTests.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -1318,7 +1281,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/util_decl/shape.hpp">
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/util_decl/shape.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="972">
           <caret line="54" column="17" selection-start-line="54" selection-start-column="17" selection-end-line="54" selection-end-column="17" />
@@ -1328,81 +1291,108 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/backend/util/shape.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="18" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/Test.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="11" selection-start-line="11" selection-end-line="11" />
-          <folding>
-            <element signature="e#0#17#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/tensor_decl.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-176">
-          <caret line="11" column="35" selection-start-line="11" selection-start-column="35" selection-end-line="11" selection-end-column="35" />
-          <folding>
-            <element signature="e#1063#1205#0" />
-            <element signature="e#1949#1961#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/tensor.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1134">
-          <caret line="65" column="66" selection-start-line="65" selection-start-column="66" selection-end-line="65" selection-end-column="66" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/base_operations_decl.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1796">
-          <caret line="101" column="35" selection-start-line="101" selection-start-column="35" selection-end-line="101" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret column="14" selection-start-column="14" selection-end-column="14" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph_decl/graph_decl.hpp">
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Test.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="31" selection-start-line="31" selection-end-line="31" />
+        <state relative-caret-position="108">
+          <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/tensor_decl.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="11" column="18" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/operations_decl.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph/tensor.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="159">
+          <caret line="9" column="18" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/util/stream.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" column="11" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph/graph.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="159">
+          <caret line="9" column="18" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph_decl/graph_decl.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="236">
+          <caret line="25" column="32" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
           <folding>
             <element signature="e#801#827#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/base_operations.hpp">
+    <entry file="file://$PROJECT_DIR$/Tests/UnitTests/SimpleTest.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="9" column="1" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Backend/graph/graph.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="18" column="41" selection-start-line="18" selection-start-column="41" selection-end-line="18" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/Test.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        <state relative-caret-position="36">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
           <folding>
-            <element signature="e#49#68#0" expanded="true" />
+            <element signature="e#0#17#0" expanded="true" />
           </folding>
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/graph/operations.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="468">
+          <caret line="26" column="1" selection-start-line="26" selection-start-column="1" selection-end-line="26" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/util_decl/stream_decl.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="36" column="8" selection-start-line="36" selection-start-column="8" selection-end-line="36" selection-end-column="8" />
+          <folding>
+            <element signature="e#110#127#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Sources/cubbydnn/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="346">
+          <caret line="29" column="119" selection-start-line="29" selection-start-column="119" selection-end-line="29" selection-end-column="119" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Includes/cubbydnn/backend/management/graph_management.hpp">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>

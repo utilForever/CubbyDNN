@@ -7,7 +7,7 @@
 
 #include <algorithm>
 #include <functional>
-#include "Backend/graph_decl/tensor_decl.hpp"
+#include "backend/graph_decl/tensor_decl.hpp"
 
 namespace cubby_dnn
 {

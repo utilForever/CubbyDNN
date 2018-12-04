@@ -5,6 +5,6 @@
 #ifndef CUBBYDNN_STREAM_HPP
 #define CUBBYDNN_STREAM_HPP
 
-#include "Backend/util_decl/stream_decl.hpp"
+#include "backend/util_decl/stream_decl.hpp"
 
 #endif //CUBBYDNN_STREAM_HPP

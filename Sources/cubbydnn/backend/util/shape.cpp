@@ -1,7 +1,7 @@
 //
 // Created by jwkim on 18. 11. 20.
 //
-#include "Backend/util_decl/shape.hpp"
+#include "backend/util_decl/shape.hpp"
 
 bool shape::check_shape(const tensor_shape &shape,
                                 const std::string &op_name)

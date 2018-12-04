@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <vector>
-#include <Backend/graph_decl/base_operations_decl.hpp>
-#include "Backend/graph/graph.hpp"
+#include "backend/graph_decl/operations_decl.hpp"
+#include "backend/graph/graph.hpp"
 
 using namespace cubby_dnn;
 

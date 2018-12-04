@@ -2,8 +2,8 @@
 #ifndef CUBBYDNN_BASE_OPERATIONS_DECL_HPP
 #define CUBBYDNN_BASE_OPERATIONS_DECL_HPP
 
-#include "Backend/graph/tensor.hpp"
-#include "Backend/util/stream.hpp"
+#include "backend/graph/tensor.hpp"
+#include "backend/util/stream.hpp"
 
 namespace cubby_dnn
 {

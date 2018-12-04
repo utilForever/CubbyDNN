@@ -34,17 +34,17 @@ template<typename T>
 class file_stream: public stream<T>{
 public:
     file_stream(){
-        std::cout<<"File_stream not implemented"<<std::endl;
+        std::cout<<"file_stream not implemented"<<std::endl;
     }
 
     std::vector<T> next() override{
-        std::cout<<"File_stream next() not implemented"<<std::endl;
+        std::cout<<"file_stream next() not implemented"<<std::endl;
         return std::vector<T>();
 
     }
 
     bool has_next() override{
-        std::cout<<"File_stream has_next() not implemented"<<std::endl;
+        std::cout<<"file_stream has_next() not implemented"<<std::endl;
         return false;
     }
 };

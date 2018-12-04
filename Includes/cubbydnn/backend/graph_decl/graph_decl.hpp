@@ -27,8 +27,8 @@
 #define CUBBYDNN_GENERATE_TENSOR_HPP
 
 #include "tensor_decl.hpp"
-#include "Backend/util_decl/stream_decl.hpp"
-#include "Backend/graph/base_operations.hpp"
+#include "backend/util_decl/stream_decl.hpp"
+#include "backend/graph/operations.hpp"
 
 namespace cubby_dnn
 {
@@ -89,7 +89,7 @@ class operate : protected tensor<T>
 {
  public:
     /**
-     * inserts operation that multiplies given tensors to the graph
+     * @brief inserts operation that multiplies given tensors to the graph
      * column size of first tensor and row size of second tensor should match
      * dimension of first tensor and second tensor should match
      * @param tensor1 first tensor to contain data for operation
@@ -101,7 +101,7 @@ class operate : protected tensor<T>
                              const std::string &name = "mat_mul");
 
     /**
-     * inserts operation that adds given tensors to the graph
+     * @brief inserts operation that adds given tensors to the graph
      * input tensors should have same shape
      * @param tensor1 first tensor to contain data for operation
      * @param tensor2 second tensor to contain data for operation
@@ -112,7 +112,7 @@ class operate : protected tensor<T>
                              const std::string &name = "mat_add");
 
     /**
-     * inserts operation that adds given tensors to the graph
+     * @brief inserts operation that adds given tensors to the graph
      * applies dot-product
      * @param tensor1 tensor to contain data for operation
      * @param multiplier
@@ -123,7 +123,7 @@ class operate : protected tensor<T>
                              const std::string &name = "mat_dot");
 
     /**
-     * inserts operation that reshapes given tensor to the graph
+     * @brief inserts operation that reshapes given tensor to the graph
      *
      * @param tensor1 tensor to reshape
      * @param shape shape of output tensor
@@ -163,6 +163,6 @@ class final
     static void wrapper(tensor<T> &tensor1,
                         const std::string &name = "wrapper");
 };
-}  // namespace cubby_dnn
+}
 
 #endif  // CUBBYDNN_GENERATE_TENSOR_HPP

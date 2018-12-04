@@ -1,0 +1,8 @@
+//
+// Created by jwkim on 18. 12. 4.
+//
+
+#ifndef CUBBYDNN_GRAPH_MANAGEMENT_HPP
+#define CUBBYDNN_GRAPH_MANAGEMENT_HPP
+
+#endif //CUBBYDNN_GRAPH_MANAGEMENT_HPP

@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_GENERATOR_TENSOR_HPP
 #define CUBBYDNN_GENERATOR_TENSOR_HPP
 
-#include "Backend/graph_decl/graph_decl.hpp"
+#include "backend/graph_decl/graph_decl.hpp"
 namespace cubby_dnn
 {
 template <typename T>
@@ -16,14 +16,13 @@ tensor<T> generate<T>::placeholder(const tensor_shape &shape, stream<T> &stream,
 {
     if (!shape::check_shape(shape, name))
     {
-        return get_default_tensor();  // check if shape is valid
+        return get_default_tensor();
     }
 
     long operation_id = operation_management<T>::number_of_operations();
     tensor<T> output_tensor(tensor_type::placeHolder, shape, operation_id);
-    // declare empty operation
+    /// declare empty operation for later use
     auto new_op = placeholder_op<T>(operation_id, shape, stream, name);
-    // add the operation to the global operation list
     operation_management<T>::add_op(new_op);
     return output_tensor;
 }
@@ -44,9 +43,8 @@ tensor<T> generate<T>::variable(const tensor_shape &shape, bool trainable,
     if (!trainable)
         output_tensor.make_constant();
 
-    // declare empty operation
+    /// declare empty operation for later use
     auto new_op = weight_op<T>(operation_id, shape, name);
-    // add the operation to the global operation list
     operation_management<T>::add_op(new_op);
     return output_tensor;
 }
@@ -55,7 +53,6 @@ template <typename T>
 tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
                               const std::string &name)
 {
-    // validity checking
     std::vector<tensor<T>> tensor_vect;
 
     if (!tensor1.is_valid() || !tensor2.is_valid())
@@ -99,13 +96,9 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
     operation_management<T>::add_output_of(tensor2.get_from(),
                                            tensor_object_ptr2);
 
-    // setting the return tensor
-    // numCols of first tensor, numRows of second tensor and dimension of third
-    // tensor
     tensor_shape new_shape(tensor1.get_shape().rows(),
                            tensor2.get_shape().cols(),
                            tensor1.get_shape().height());
-    // row size of the first tensor * col size of the second tensor
 
     tensor<T> output_tensor(tensor_type ::normal, new_shape, this_id);
     mat_mul_op<T> mat_mul_op(this_id, name);
