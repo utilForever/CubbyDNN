@@ -1,7 +1,8 @@
 
 /**
- * This file contains definitions of methods that adds operations to the graph
- * Written by Justin on 18. 11. 13.
+ * Created by Justin on 18. 11. 13.
+ *
+ * @brief This file contains definitions of methods that adds operations to the graph
  */
 
 #ifndef CUBBYDNN_GENERATOR_TENSOR_HPP
@@ -28,8 +29,7 @@ tensor<T> generate<T>::placeholder(const tensor_shape &shape, stream<T> &stream,
 }
 
 template <typename T>
-tensor<T> generate<T>::variable(const tensor_shape &shape, bool trainable,
-                                const std::string &name)
+tensor <T> generate<T>::variable(const tensor_shape &shape, bool trainable, const std::string &name)
 {
     if (!shape::check_shape(shape, name))
     {
@@ -63,8 +63,8 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
     if (tensor1.get_shape().cols() != tensor2.get_shape().rows() ||
         tensor1.get_shape().height() != tensor2.get_shape().height())
     {
-        // number of rows of first tensor should be identical to number of
-        // columns of second tensor
+        /// number of rows of first tensor should be identical to number of
+        /// columns of second tensor
         std::cout << "tensor shapes doesn't match for multiplication"
                   << std::endl;
         std::cout << "This Error occurs from operation: " << name << std::endl;
@@ -76,25 +76,24 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
     tensor1.add_to(this_id);
     tensor2.add_to(this_id);
     // TODO: find way to initialize the default data
-    // initialize(initialization_method)
 
-    auto tensor_object_ptr1 = std::make_shared<tensor_object<T>>(
+    auto tensor_object1 = std::make_shared<tensor_object<T>>(
         std::vector<T>(tensor1.get_data_size()),
         tensor1.get_shape(), tensor1.get_type(), tensor1.get_from(), this_id);
 
-    auto tensor_object_ptr2 = std::make_shared<tensor_object<T>>(
+    auto tensor_object2 = std::make_shared<tensor_object<T>>(
         std::vector<T>(tensor2.get_data_size()),
         tensor2.get_shape(), tensor2.get_type(), tensor2.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_object_ptr1->make_constant();
+        tensor_object1->make_constant();
     if (!tensor2.is_mutable())
-        tensor_object_ptr1->make_constant();
+        tensor_object1->make_constant();
 
     operation_management<T>::add_output_of(tensor1.get_from(),
-                                           tensor_object_ptr1);
+                                           tensor_object1);
     operation_management<T>::add_output_of(tensor2.get_from(),
-                                           tensor_object_ptr2);
+                                           tensor_object2);
 
     tensor_shape new_shape(tensor1.get_shape().rows(),
                            tensor2.get_shape().cols(),
@@ -102,8 +101,8 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
 
     tensor<T> output_tensor(tensor_type ::normal, new_shape, this_id);
     mat_mul_op<T> mat_mul_op(this_id, name);
-    mat_mul_op.add_input(tensor_object_ptr1);
-    mat_mul_op.add_input(tensor_object_ptr2);
+    mat_mul_op.add_input(tensor_object1);
+    mat_mul_op.add_input(tensor_object2);
     operation_management<T>::add_op(mat_mul_op);
     return output_tensor;
 }

@@ -1,8 +1,7 @@
-//
-// Created by Justin on 18. 11. 13.
-//
 
 /**
+ * Created by Justin on 18. 11. 13.
+ *
  * @brief This file declares template classes that adds operations to the graph
  *
  * There are 3 types of class templates
@@ -67,8 +66,7 @@ class generate
      * @param name name of this operation (default: "weight")
      * @return tensor<T> with desired preferences
      */
-    static tensor<T> variable(const tensor_shape &shape, bool trainable = true,
-                              const std::string &name = "weight");
+    static tensor <T> variable(const tensor_shape &shape, bool trainable = true, const std::string &name = "weight");
 
  private:
     /// method for returning empty tensor

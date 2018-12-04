@@ -1,7 +1,6 @@
 #include <Test.h>
 #include <gtest/gtest.h>
 
-
 using namespace cubby_dnn;
 
 std::vector<operation_info> Example1()
@@ -16,8 +15,7 @@ std::vector<operation_info> Example1()
 
     /// operation that returns tensor variable in shape (2, 2, 1), and mark it
     /// trainable(non- constant)
-    auto input_tensor2 =
-        generate<int>::variable(tensor_shape(2, 2, 1), true);
+    auto input_tensor2 = generate<int>::variable(tensor_shape(2, 2, 1));
 
     /// operation that multiplies two tensors and returns tensor to contain the
     /// result
@@ -31,8 +29,7 @@ std::vector<operation_info> Example1()
     auto multiplied_tensor2 =
         operate<int>::mat_mul(input_tensor2, input_tensor1);
 
-    auto added_tensor1 =
-        operate<int>::mad_add(input_tensor1, input_tensor2);
+    auto added_tensor1 = operate<int>::mad_add(input_tensor1, input_tensor2);
 
     /// operation that calculates dot-product of given tensor and multiplier and
     /// returns tensor to contain the result
@@ -40,8 +37,8 @@ std::vector<operation_info> Example1()
 
     /// operation that reshapes given tensor to another shape (total size of
     /// given tensor, and return shape must match)
-    auto reshaped_tensor1 = operate<int>::reshape(dot_operated_tensor1,
-                                                  tensor_shape(1, 2, 2));
+    auto reshaped_tensor1 =
+        operate<int>::reshape(dot_operated_tensor1, tensor_shape(1, 2, 2));
 
     final<int>::wrapper(multiplied_tensor1);
 
@@ -64,8 +61,7 @@ std::vector<operation_info> Example2()
     auto input_tensor1 =
         generate<int>::placeholder(tensor_shape(2, 4, 3), file_stream);  // 1
 
-    auto input_tensor2 =
-        generate<int>::variable(tensor_shape(4, 2, 3), true);  // 2
+    auto input_tensor2 = generate<int>::variable(tensor_shape(4, 2, 3));  // 2
 
     auto multiplied_tensor1 =
         operate<int>::mat_mul(input_tensor2, input_tensor1);  // 3
@@ -80,9 +76,9 @@ std::vector<operation_info> Example3()
     file_stream<float> file_stream;
     auto input_tensor1 =
         generate<float>::placeholder(tensor_shape(5, 4, 3), file_stream);
-    auto input_tensor2 = generate<float>::variable(tensor_shape(4, 5, 3), true);
+    auto input_tensor2 = generate<float>::variable(tensor_shape(4, 5, 3));
 
-    auto input_tensor3 = generate<float>::variable(tensor_shape(5, 5, 3), true);
+    auto input_tensor3 = generate<float>::variable(tensor_shape(5, 5, 3));
 
     auto multiplied_tensor1 =
         operate<float>::mat_mul(input_tensor1, input_tensor2);  // shape: 5,5,3

@@ -32,19 +32,19 @@ class tensor_object
  public:
     tensor_object(const std::vector<T> &data, const tensor_shape &shape,
                   tensor_type type, long from,
-                  long to);  //(1)
+                  long to);
 
     tensor_object(std::vector<T> &&data, tensor_shape &&shape, tensor_type type,
                   long from,
-                  long to);  //(2)
+                  long to);
 
-    tensor_object(const tensor_object<T> &rhs);  //(3)
+    tensor_object(const tensor_object<T> &rhs);
 
-    tensor_object(tensor_object<T> &&rhs) noexcept;  //(4)
+    tensor_object(tensor_object<T> &&rhs) noexcept;
 
-    tensor_object &operator=(const tensor_object<T> &rhs);  //(5)
+    tensor_object &operator=(const tensor_object<T> &rhs);
 
-    tensor_object &operator=(tensor_object<T> &&rhs) noexcept;  //(6)
+    tensor_object &operator=(tensor_object<T> &&rhs) noexcept;
 
     ~tensor_object();
 
@@ -179,10 +179,10 @@ class tensor
     }
 
  private:
-    long from;  ///>ID of operation that this tensor is generated
+    long from;  /// ID of operation that this tensor is generated
 
     std::vector<long>
-        to_vector;  // vector for storing operations this tensor will head to
+        to_vector;  /// vector for storing operations this tensor will head to
 
     bool _mutable =
         true;  // determines whether data of this tensor can be modified
