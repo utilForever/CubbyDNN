@@ -17,6 +17,13 @@ long tensor_object_management<T>::add_tensor_object(
     return tensor_object_id;
 }
 
+template<typename T>
+long tensor_object_management<T>::add_tensor_object(tensor_object<T>&& object){
+    tensor_object_vector.emplace_back(std::forward<tensor_object<T>>(object));
+    auto tensor_object_id = static_cast<long>(tensor_object_vector.size());
+    return tensor_object_id;
+}
+
 template <typename T>
 tensor_object<T>& tensor_object_management<T>::get_tensor_object(long id)
 {

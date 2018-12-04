@@ -18,6 +18,8 @@ class tensor_object_management
  public:
     static long add_tensor_object(const tensor_object<T>& object);
 
+    static long add_tensor_object(tensor_object<T>&& object);
+
     static tensor_object<T>& get_tensor_object(long id);
 
  private:
