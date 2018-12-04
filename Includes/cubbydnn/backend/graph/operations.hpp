@@ -12,34 +12,145 @@ template <typename T>
 operation<T>::operation() = default;
 
 template <typename T>
-void operation_management<T>::add_op(operation<T> operation)
+void operation<T>::add_output(long tensor_id)
 {
-    std::lock_guard<std::mutex> guard(operation_list_mutex);
-    operation_list.emplace_back(operation);
+    output_tensor_id_vector.emplace_back(tensor_id);
 }
 
 template <typename T>
-void operation_management<T>::set_op(unsigned int id,
-                                     const operation<T> &operation)
+void operation<T>::add_input(long tensor_id)
 {
-    std::lock_guard<std::mutex> guard(operation_list_mutex);
-    operation_list[id] = operation;
+    input_tensor_id_vector.emplace_back(tensor_id);
 }
 
 template <typename T>
-void operation_management<T>::add_output_of(
-    long id, std::shared_ptr<tensor_object<T>> tensor_ptr)
+size_t operation<T>::input_vector_size()
 {
-    decltype(auto) operation = get_op(id);
-    operation.add_output(tensor_ptr);
+    return input_tensor_id_vector.size();
 }
 
 template <typename T>
-void operation_management<T>::add_input_of(
-    long id, std::shared_ptr<tensor_object<T>> tensor_ptr)
+size_t operation<T>::output_vector_size()
 {
-    decltype(auto) operation = get_op(id);
-    operation.add_input(tensor_ptr);
+    return output_tensor_id_vector.size();
 }
+
+template <typename T>
+
+const std::string &operation<T>::get_name()
+{
+    return name;
+}
+
+template <typename T>
+long operation<T>::get_id()
+{
+    return operation_id;
+}
+
+template <typename T>
+const std::string operation<T>::print_info()
+{
+    std::string info = name;
+    info += "\noperation id: " + std::to_string(operation_id);
+    info += "\ninput tensor num: " + std::to_string(input_tensor_id_vector.size());
+    info +=
+        "\noutput tensor num: " + std::to_string(output_tensor_id_vector.size());
+    return info;
+}
+
+template <typename T>
+operation_info operation<T>::get_info() const
+{
+    return operation_info(operation_id, input_tensor_id_vector.size(),
+                          output_tensor_id_vector.size(), name);
+}
+
+template <typename T>
+decltype(auto) operation<T>::get_input_tensor_vector() const
+{
+    return input_tensor_id_vector;
+}
+
+template <typename T>
+decltype(auto) operation<T>::get_output_tensor_vector() const
+{
+    return output_tensor_id_vector;
+}
+
+template <typename T>
+empty_op<T>::empty_op()
+{
+    this->op_type = operation_type::empty;
+    this->name = "Empty operation";
+}
+
+template <typename T>
+mat_mul_op<T>::mat_mul_op(long operation_id, const std::string &name)
+{
+    this->operation_id = operation_id;
+    this->name = name;
+}
+
+template <typename T>
+mat_add_op<T>::mat_add_op(long operation_id, const std::string &name)
+{
+    this->operation_id = operation_id;
+    this->name = name;
+}
+
+template <typename T>
+mat_dot_op<T>::mat_dot_op(long operation_id, const std::string &name,
+                          T multiplier)
+{
+    this->operation_id = operation_id;
+    this->name = name;
+    this->multiplier = multiplier;
+}
+
+template <typename T>
+reshape_op<T>::reshape_op(long operation_id, const std::string &name,
+                          const tensor_shape &shape)
+{
+    this->operation_id = operation_id;
+    this->name = name;
+    this->shape = shape;
+}
+
+template <typename T>
+placeholder_op<T>::placeholder_op(long operation_id, const tensor_shape &shape,
+                                  stream<T> &stream, const std::string &name)
+{
+    this->operation_id = operation_id;
+    this->data_stream = stream;
+    this->name = name;
+    this->shape = shape;
+}
+
+template <typename T>
+weight_op<T>::weight_op(long operation_id, const tensor_shape &shape,
+                        const std::string &name)
+{
+    this->operation_id = operation_id;
+    this->name = name;
+    this->shape = shape;
+}
+
+template <typename T>
+constant_op<T>::constant_op(long operation_id, const tensor_shape &shape,
+                            const std::string &name)
+{
+    this->operation_id = operation_id;
+    this->name = name;
+    this->shape = shape;
+}
+
+template <typename T>
+wrapper_op<T>::wrapper_op(long operation_id, const std::string &name)
+{
+    this->operation_id = operation_id;
+    this->name = name;
+}
+
 }  // namespace cubby_dnn
 #endif  // CUBBYDNN_BASE_OPERATIONS_HPP

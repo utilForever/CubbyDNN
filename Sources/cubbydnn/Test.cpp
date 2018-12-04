@@ -1,9 +1,6 @@
 #include <Test.h>
 #include <iostream>
 
-using namespace cubby_dnn;
-
-
 
 int Add(int a, int b)
 {

@@ -1,4 +1,4 @@
-#include <Test.h>
+#include <SimpleTest.hpp>
 #include <gtest/gtest.h>
 
 using namespace cubby_dnn;
@@ -48,9 +48,7 @@ std::vector<operation_info> Example1()
 
     operation_management<int>::print_operation_info();
 
-    operation_management<int>::create_adj();
-
-    adj_management<int>::print_adj();
+    adjacency_management<int>::print_adjacency_matrix();
 
     return operation_management<int>::get_operation_info();
 }

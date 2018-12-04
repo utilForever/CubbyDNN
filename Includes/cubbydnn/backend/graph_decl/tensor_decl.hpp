@@ -30,11 +30,11 @@ template <typename T>
 class tensor_object
 {
  public:
-    tensor_object(const std::vector<T> &data, const tensor_shape &shape,
+    tensor_object(size_t data_size, const tensor_shape &shape,
                   tensor_type type, long from,
                   long to);
 
-    tensor_object(std::vector<T> &&data, tensor_shape &&shape, tensor_type type,
+    tensor_object(size_t data_size, tensor_shape &&shape, tensor_type type,
                   long from,
                   long to);
 
@@ -195,67 +195,6 @@ class tensor
     // weak pointer pointing to tensor object
 };
 
-/// Resource management
-
-template <typename T>
-class adj_management
-{
- public:
-    /// Adds new operation
-    static long add_op_adj();
-    /// Adds new edge between two
-    static void add_edge(long from, long to,
-                         std::shared_ptr<tensor_object<T>> &tensor_object_ptr);
-
-    static unsigned long get_graph_size()
-    {
-        return adj_forward.size();
-    }
-
-    static std::shared_ptr<tensor_object<T>> get_tensor_ptr(int from, int to);
-
-    static void print_adj()
-    {
-        std::cout << "--Adjacency Matrix--" << std::endl;
-        for (auto row : adj_forward)
-        {
-            for (auto col : row)
-            {
-                if (col)
-                    std::cout << col->get_from() << " ";
-                else
-                    std::cout << "*"
-                              << " ";
-            }
-            std::cout << std::endl;
-        }
-    }
-
-    static void reserve_adj(long size)
-    {
-        for (long i = 0; i < size; i++)
-        {
-            add_op_adj();  // increment size of adj matrix
-        }
-    }
-
- private:
-    static constexpr int default_graph_size = 0;
-
-    static std::deque<std::deque<std::shared_ptr<tensor_object<T>>>>
-        adj_forward;
-
-    adj_management() = default;  /// disable the constructor
-
-    static std::mutex adj_mutex;  // mutex for restricting access to adj matrix
-};
-
-template <typename T>
-std::deque<std::deque<std::shared_ptr<tensor_object<T>>>>
-    adj_management<T>::adj_forward;
-
-template <typename T>
-std::mutex adj_management<T>::adj_mutex;
 }  // namespace cubby_dnn
 
 #endif  // CUBBYDNN_BACKEND_H

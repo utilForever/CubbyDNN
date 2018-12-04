@@ -10,7 +10,7 @@ file(GLOB sources
 
 # Build executable
 add_executable(${target}
-    ${sources})
+    ${sources} SimpleTest.hpp)
 
 # Project options{
 set_target_properties(${target}

@@ -13,7 +13,6 @@ struct tensor_shape
 {
  public:
     tensor_shape() = default;
-
     tensor_shape(long rows, long columns, long height);
 
     bool operator==(const tensor_shape &rhs) const;

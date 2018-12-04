@@ -25,9 +25,9 @@
 #ifndef CUBBYDNN_GENERATE_TENSOR_HPP
 #define CUBBYDNN_GENERATE_TENSOR_HPP
 
-#include "tensor_decl.hpp"
-#include "backend/util_decl/stream_decl.hpp"
+#include "backend/graph/tensor.hpp"
 #include "backend/graph/operations.hpp"
+#include "backend/management/graph_management.hpp"
 
 namespace cubby_dnn
 {
