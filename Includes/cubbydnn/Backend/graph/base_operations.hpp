@@ -4,7 +4,7 @@
 
 #ifndef CUBBYDNN_BASE_OPERATIONS_HPP
 #define CUBBYDNN_BASE_OPERATIONS_HPP
-#include "Backend/operations_decl/base_operations_decl.hpp"
+#include "Backend/graph_decl/base_operations_decl.hpp"
 
 namespace cubby_dnn
 {

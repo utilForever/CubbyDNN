@@ -1,5 +1,6 @@
 #include <Test.h>
 #include <gtest/gtest.h>
+#include <Backend/graph_decl/base_operations_decl.hpp>
 
 
 using namespace cubby_dnn;

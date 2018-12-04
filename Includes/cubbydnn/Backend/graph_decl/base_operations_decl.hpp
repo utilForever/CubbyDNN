@@ -2,7 +2,7 @@
 #ifndef CUBBYDNN_BASE_OPERATIONS_DECL_HPP
 #define CUBBYDNN_BASE_OPERATIONS_DECL_HPP
 
-#include "Backend/util/tensor.hpp"
+#include "Backend/graph/tensor.hpp"
 #include "Backend/util/stream.hpp"
 
 namespace cubby_dnn

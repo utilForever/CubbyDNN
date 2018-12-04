@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_GENERATOR_TENSOR_HPP
 #define CUBBYDNN_GENERATOR_TENSOR_HPP
 
-#include "Backend/util_decl/graph_decl.hpp"
+#include "Backend/graph_decl/graph_decl.hpp"
 namespace cubby_dnn
 {
 template <typename T>
