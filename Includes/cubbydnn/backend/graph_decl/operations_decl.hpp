@@ -9,12 +9,21 @@ namespace cubby_dnn
 {
 enum class operation_type
 {
-    start,
-    middle,
-    final,
-    empty
+    empty,
+    placeholder,
+    weight,
+    mat_mul,
+    mat_add,
+    mat_dot,
+    reshape,
+    constant,
+    wrapper
 };
 
+/**
+ * @brief struct representing information of operation objects.
+ * used for examining graph structure.
+ */
 struct operation_info
 {
  public:
@@ -45,23 +54,32 @@ struct operation_info
     std::string name;
 };
 
+/**
+ * @brief class for representing operation
+ *
+ * This class is contained in graph structure.
+ * contains information about which operation to execute, tensors that data comes from,
+ * and tensor to output processed data.
+ *
+ * @tparam T
+ */
 template <typename T>
 class operation
 {
  public:
 
-    void add_output(long tensor_id);
-    void add_input(long tensor_id);
+    void add_output_tensor(long tensor_id);
+    void add_input_tensor(long tensor_id);
 
-    size_t input_vector_size();
+    size_t number_of_input_tensors();
 
-    size_t output_vector_size();
+    size_t number_of_output_tensors();
 
     const std::string &get_name();
 
     long get_id();
 
-    const std::string print_info();
+    const std::string print_information();
 
     operation_info get_info() const;
 

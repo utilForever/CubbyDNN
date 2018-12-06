@@ -36,7 +36,7 @@ class operation_management
  public:
     static long add_operation(const operation<T>& operation_to_add);
 
-    static operation<T>& get_operation(long id);
+    static operation<T>& get_operation_by_id(long id);
 
     static void print_operation_info();
 
@@ -57,7 +57,7 @@ template <typename T>
 class adjacency_management
 {
  public:
-    static long add_operation_to_adjacency();
+    static long add_operation_to_adjacency(long operation_id);
 
     static void print_adjacency_matrix();
 

@@ -51,6 +51,12 @@ tensor<T> generate<T>::variable(const tensor_shape &shape, bool trainable,
     return output_tensor;
 }
 
+template<typename T>
+tensor<T> operate<T>::get_default_tensor()
+{
+    return tensor<T>(tensor_shape(), -1, "default Tensor due to error");
+}
+
 template <typename T>
 tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
                               const std::string &name)
@@ -95,10 +101,10 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
     long tensor_data2_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data2));
 
-    operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_data1_id);
-    operation_management<T>::get_operation(tensor2.get_from())
-        .add_output(tensor_data2_id);
+    operation_management<T>::get_operation_by_id(tensor1.get_from())
+            .add_output_tensor(tensor_data1_id);
+    operation_management<T>::get_operation_by_id(tensor2.get_from())
+            .add_output_tensor(tensor_data2_id);
 
     tensor_shape new_shape(tensor1.get_shape().rows(),
                            tensor2.get_shape().cols(),
@@ -106,8 +112,8 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
 
     tensor<T> output_tensor(new_shape, this_id, false);
     mat_mul_op<T> mat_mul_op(this_id, name);
-    mat_mul_op.add_input(tensor_data1_id);
-    mat_mul_op.add_input(tensor_data2_id);
+    mat_mul_op.add_input_tensor(tensor_data1_id);
+    mat_mul_op.add_input_tensor(tensor_data2_id);
     operation_management<T>::add_operation(mat_mul_op);
     return output_tensor;
 }
@@ -151,19 +157,20 @@ tensor<T> operate<T>::mad_add(tensor<T> &tensor1, tensor<T> &tensor2,
     long tensor_data2_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data2));
 
-    operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_data1_id);
-    operation_management<T>::get_operation(tensor2.get_from())
-        .add_output(tensor_data2_id);
+    operation_management<T>::get_operation_by_id(tensor1.get_from())
+            .add_output_tensor(tensor_data1_id);
+    operation_management<T>::get_operation_by_id(tensor2.get_from())
+            .add_output_tensor(tensor_data2_id);
 
     tensor_shape new_shape = tensor1.get_shape();
 
     tensor<T> output_tensor(new_shape, this_id, false);
 
     mat_add_op<T> mat_add_op(this_id, name);
-    mat_add_op.add_input(tensor_data1_id);
-    mat_add_op.add_input(tensor_data2_id);
+    mat_add_op.add_input_tensor(tensor_data1_id);
+    mat_add_op.add_input_tensor(tensor_data2_id);
     operation_management<T>::add_operation(mat_add_op);
+    adjacency_management<T>::add_operation_to_adjacency(0);
     return output_tensor;
 }
 
@@ -189,15 +196,17 @@ tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
-    operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_data1_id);
+    operation_management<T>::get_operation_by_id(tensor1.get_from())
+            .add_output_tensor(tensor_data1_id);
 
     tensor_shape new_shape = tensor1.get_shape();
 
     tensor<T> output_tensor(new_shape, this_id, false);
     mat_dot_op<T> mat_dot_op(this_id, name, multiplier);
-    mat_dot_op.add_input(tensor_data1_id);
+    mat_dot_op.add_input_tensor(tensor_data1_id);
     operation_management<T>::add_operation(mat_dot_op);
+    adjacency_management<T>::add_operation_to_adjacency(0);
+
     return output_tensor;
 }
 
@@ -240,14 +249,14 @@ tensor<T> operate<T>::reshape(tensor<T> &tensor1, const tensor_shape &shape,
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
-    operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_data1_id);
+    operation_management<T>::get_operation_by_id(tensor1.get_from())
+            .add_output_tensor(tensor_data1_id);
 
     tensor_shape new_shape = shape;
 
     tensor<T> output_tensor(new_shape, this_id, false);
     reshape_op<T> reshape_op(this_id, name, shape);
-    reshape_op.add_input(tensor_data1_id);
+    reshape_op.add_input_tensor(tensor_data1_id);
     operation_management<T>::add_operation(reshape_op);
     return output_tensor;
 }
@@ -287,14 +296,14 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, size_t size,
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
-    operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_data1_id);
+    operation_management<T>::get_operation_by_id(tensor1.get_from())
+            .add_output_tensor(tensor_data1_id);
 
     tensor_shape new_shape(size, 1, 1);
 
     tensor<T> output_tensor(new_shape, this_id, false);
     reshape_op<T> one_hot_op(this_id, name, new_shape);
-    one_hot_op.add_input(tensor_data1_id);
+    one_hot_op.add_input_tensor(tensor_data1_id);
     operation_management<T>::add_operation(one_hot_op);
     return output_tensor;
 }
@@ -320,11 +329,11 @@ void final<T>::wrapper(tensor<T> &tensor1, const std::string &name)
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
-    operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_data1_id);
+    operation_management<T>::get_operation_by_id(tensor1.get_from())
+            .add_output_tensor(tensor_data1_id);
 
     wrapper_op<T> wrapper_op(this_id, name);
-    wrapper_op.add_input(tensor_data1_id);
+    wrapper_op.add_input_tensor(tensor_data1_id);
     operation_management<T>::add_operation(wrapper_op);
 }
 }  // namespace cubby_dnn

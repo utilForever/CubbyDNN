@@ -137,12 +137,8 @@ class operate : protected tensor<T>
                              const std::string &name = "one_hot");
 
  private:
-    /// returns default operate tensor
-    static tensor<T> get_default_tensor()
-    {
-        // default tensor to return when error occurs
-        return tensor<T>(tensor_shape(), -1, "default Tensor due to error");
-    }
+    /// default tensor to return for handling errors
+    static tensor<T> get_default_tensor();
 };
 
 /**

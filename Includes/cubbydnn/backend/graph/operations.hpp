@@ -12,25 +12,25 @@ template <typename T>
 operation<T>::operation() = default;
 
 template <typename T>
-void operation<T>::add_output(long tensor_id)
+void operation<T>::add_output_tensor(long tensor_id)
 {
     output_tensor_id_vector.emplace_back(tensor_id);
 }
 
 template <typename T>
-void operation<T>::add_input(long tensor_id)
+void operation<T>::add_input_tensor(long tensor_id)
 {
     input_tensor_id_vector.emplace_back(tensor_id);
 }
 
 template <typename T>
-size_t operation<T>::input_vector_size()
+size_t operation<T>::number_of_input_tensors()
 {
     return input_tensor_id_vector.size();
 }
 
 template <typename T>
-size_t operation<T>::output_vector_size()
+size_t operation<T>::number_of_output_tensors()
 {
     return output_tensor_id_vector.size();
 }
@@ -49,7 +49,7 @@ long operation<T>::get_id()
 }
 
 template <typename T>
-const std::string operation<T>::print_info()
+const std::string operation<T>::print_information()
 {
     std::string info = name;
     info += "\noperation id: " + std::to_string(operation_id);
@@ -90,6 +90,7 @@ mat_mul_op<T>::mat_mul_op(long operation_id, const std::string &name)
 {
     this->operation_id = operation_id;
     this->name = name;
+    this->op_type = operation_type::mat_mul;
 }
 
 template <typename T>
@@ -97,6 +98,7 @@ mat_add_op<T>::mat_add_op(long operation_id, const std::string &name)
 {
     this->operation_id = operation_id;
     this->name = name;
+    this->op_type = operation_type::mat_add;
 }
 
 template <typename T>
@@ -105,6 +107,7 @@ mat_dot_op<T>::mat_dot_op(long operation_id, const std::string &name,
 {
     this->operation_id = operation_id;
     this->name = name;
+    this->op_type = operation_type::mat_dot;
     this->multiplier = multiplier;
 }
 
@@ -114,6 +117,7 @@ reshape_op<T>::reshape_op(long operation_id, const std::string &name,
 {
     this->operation_id = operation_id;
     this->name = name;
+    this->op_type = operation_type::reshape;
     this->shape = shape;
 }
 
@@ -124,6 +128,7 @@ placeholder_op<T>::placeholder_op(long operation_id, const tensor_shape &shape,
     this->operation_id = operation_id;
     this->data_stream = stream;
     this->name = name;
+    this->op_type = operation_type::placeholder;
     this->shape = shape;
 }
 
@@ -133,6 +138,7 @@ weight_op<T>::weight_op(long operation_id, const tensor_shape &shape,
 {
     this->operation_id = operation_id;
     this->name = name;
+    this->op_type = operation_type::weight;
     this->shape = shape;
 }
 
@@ -142,6 +148,7 @@ constant_op<T>::constant_op(long operation_id, const tensor_shape &shape,
 {
     this->operation_id = operation_id;
     this->name = name;
+    this->op_type = operation_type::constant;
     this->shape = shape;
 }
 
@@ -150,6 +157,7 @@ wrapper_op<T>::wrapper_op(long operation_id, const std::string &name)
 {
     this->operation_id = operation_id;
     this->name = name;
+    this->op_type = operation_type::wrapper;
 }
 
 }  // namespace cubby_dnn

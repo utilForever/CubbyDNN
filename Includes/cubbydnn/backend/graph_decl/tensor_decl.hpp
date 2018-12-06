@@ -2,6 +2,10 @@
 // Created by Justin on 18. 11. 5.
 //
 
+/**
+ * @brief This class contains declaration of tensor and tensor_object class
+ */
+
 #ifndef CUBBYDNN_BACKEND_H
 #define CUBBYDNN_BACKEND_H
 
@@ -84,7 +88,10 @@ class tensor_data
 
 /**
  * @brief Helper class shown to user for constructing graph.
+ *
  * This graph contains information of graph being built
+ * methods of operation class builds tensor_data class based on information of this class
+ *
  * @tparam T
  */
 template <typename T>

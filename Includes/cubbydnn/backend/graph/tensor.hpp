@@ -21,8 +21,7 @@ struct tensor_data<T>::data
 
     std::vector<T> data_vector;
     tensor_shape shape;
-    typedef std::size_t size_type;
-    size_type byte_size;
+    size_t byte_size;
 };
 
 template <typename T>
@@ -59,7 +58,7 @@ tensor_data<T>::tensor_data(size_t data_size, tensor_shape &&shape,
     : from(from), to(to)
 {
     std::vector<T> data(data_size);
-    verify<T>(data, shape);  // checks exception if arguments are invalid
+    verify<T>(data, shape);
 
     this->tensor_storage = std::make_unique<data>(
         std::forward<std::vector<T>>(data), std::forward<tensor_shape>(shape));
@@ -87,7 +86,7 @@ template <typename T>
 tensor_data<T> &tensor_data<T>::operator=(
     const cubby_dnn::tensor_data<T> &rhs)
 {
-    // may throw std::bad_alloc() (this function will provide strong guarantee)
+    /// may throw std::bad_alloc() (this function will provide strong guarantee)
     if (rhs.object)
         this->tensor_storage =
             std::make_unique<tensor_data<T>::tensor_storage>(

@@ -9,16 +9,16 @@
 namespace cubby_dnn
 {
 template <typename T>
-long tensor_data_management<T>::add_tensor_data(
-    const tensor_data<T>& object)
+long tensor_data_management<T>::add_tensor_data(const tensor_data<T>& object)
 {
     tensor_data_vector.emplace_back(object);
     auto tensor_data_id = static_cast<long>(tensor_data_vector.size());
     return tensor_data_id;
 }
 
-template<typename T>
-long tensor_data_management<T>::add_tensor_data(tensor_data<T>&& object){
+template <typename T>
+long tensor_data_management<T>::add_tensor_data(tensor_data<T>&& object)
+{
     tensor_data_vector.emplace_back(std::forward<tensor_data<T>>(object));
     auto tensor_data_id = static_cast<long>(tensor_data_vector.size());
     return tensor_data_id;
@@ -40,7 +40,7 @@ long operation_management<T>::add_operation(
 }
 
 template <typename T>
-operation<T>& operation_management<T>::get_operation(long id)
+operation<T>& operation_management<T>::get_operation_by_id(long id)
 {
     return operation_vector.at(id);
 }
@@ -50,7 +50,7 @@ void operation_management<T>::print_operation_info()
 {
     for (auto op : operation_vector)
     {
-        std::cout << op.print_info() << std::endl;
+        std::cout << op.print_information() << std::endl;
     }
 }
 
@@ -71,13 +71,14 @@ size_t operation_management<T>::operation_vector_size()
     return operation_vector.size();
 }
 
-template<typename T>
-long operation_management<T>::get_next_operation_id() {
+template <typename T>
+long operation_management<T>::get_next_operation_id()
+{
     return static_cast<long>(operation_vector.size());
 }
 
-template<typename T>
-long adjacency_management<T>::add_operation_to_adjacency()
+template <typename T>
+long adjacency_management<T>::add_operation_to_adjacency(long operation_id)
 {
     auto graph_size = adjacency_matrix.size();
 
@@ -106,10 +107,18 @@ long adjacency_management<T>::add_operation_to_adjacency()
     adjacency_matrix.emplace_back(
         std::deque<long>(expected_row_size, unallocated_state));
 
+    auto input_vect = operation_management<T>::get_operation_by_id(operation_id)
+                          .get_input_tensor_vector();
+
+    for (long id : input_vect)
+    {
+        // TODO: put ID of corresponding tensor instead of 'id'
+        adjacency_matrix[static_cast<size_t>(operation_id)][id] = 1;
+    }
     return static_cast<long>(adjacency_matrix.size());
 }
 
-template<typename T>
+template <typename T>
 void adjacency_management<T>::print_adjacency_matrix()
 {
     std::cout << "--Adjacency Matrix--" << std::endl;
