@@ -25,8 +25,8 @@
 #ifndef CUBBYDNN_GENERATE_TENSOR_HPP
 #define CUBBYDNN_GENERATE_TENSOR_HPP
 
-#include "backend/graph/tensor.hpp"
 #include "backend/graph/operations.hpp"
+#include "backend/graph/tensor.hpp"
 #include "backend/management/graph_management.hpp"
 
 namespace cubby_dnn
@@ -66,15 +66,15 @@ class generate
      * @param name name of this operation (default: "weight")
      * @return tensor<T> with desired preferences
      */
-    static tensor <T> variable(const tensor_shape &shape, bool trainable = true, const std::string &name = "weight");
+    static tensor<T> variable(const tensor_shape &shape, bool trainable = true,
+                              const std::string &name = "weight");
 
  private:
     /// method for returning empty tensor
     /// @return empty tensor
     static tensor<T> get_default_tensor()
     {
-        return tensor<T>(tensor_type::None, tensor_shape(), -1,
-                         "default Tensor due to error");
+        return tensor<T>(tensor_shape(), -1, "default Tensor due to error");
     }
 };
 
@@ -86,6 +86,8 @@ template <typename T>
 class operate : protected tensor<T>
 {
  public:
+    operate() = default;
+
     /**
      * @brief inserts operation that multiplies given tensors to the graph
      * column size of first tensor and row size of second tensor should match
@@ -139,8 +141,7 @@ class operate : protected tensor<T>
     static tensor<T> get_default_tensor()
     {
         // default tensor to return when error occurs
-        return tensor<T>(tensor_type::None, tensor_shape(), -1,
-                         "default Tensor due to error");
+        return tensor<T>(tensor_shape(), -1, "default Tensor due to error");
     }
 };
 
@@ -161,6 +162,6 @@ class final
     static void wrapper(tensor<T> &tensor1,
                         const std::string &name = "wrapper");
 };
-}
+}  // namespace cubby_dnn
 
 #endif  // CUBBYDNN_GENERATE_TENSOR_HPP

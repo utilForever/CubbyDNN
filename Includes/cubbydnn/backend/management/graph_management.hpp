@@ -9,25 +9,25 @@
 namespace cubby_dnn
 {
 template <typename T>
-long tensor_object_management<T>::add_tensor_object(
-    const tensor_object<T>& object)
+long tensor_data_management<T>::add_tensor_data(
+    const tensor_data<T>& object)
 {
-    tensor_object_vector.emplace_back(object);
-    auto tensor_object_id = static_cast<long>(tensor_object_vector.size());
-    return tensor_object_id;
+    tensor_data_vector.emplace_back(object);
+    auto tensor_data_id = static_cast<long>(tensor_data_vector.size());
+    return tensor_data_id;
 }
 
 template<typename T>
-long tensor_object_management<T>::add_tensor_object(tensor_object<T>&& object){
-    tensor_object_vector.emplace_back(std::forward<tensor_object<T>>(object));
-    auto tensor_object_id = static_cast<long>(tensor_object_vector.size());
-    return tensor_object_id;
+long tensor_data_management<T>::add_tensor_data(tensor_data<T>&& object){
+    tensor_data_vector.emplace_back(std::forward<tensor_data<T>>(object));
+    auto tensor_data_id = static_cast<long>(tensor_data_vector.size());
+    return tensor_data_id;
 }
 
 template <typename T>
-tensor_object<T>& tensor_object_management<T>::get_tensor_object(long id)
+tensor_data<T>& tensor_data_management<T>::get_tensor_data(long id)
 {
-    return tensor_object_vector.at(static_cast<size_t>(id));
+    return tensor_data_vector.at(static_cast<size_t>(id));
 }
 
 template <typename T>
@@ -35,8 +35,8 @@ long operation_management<T>::add_operation(
     const operation<T>& operation_to_add)
 {
     operation_vector.emplace_back(operation_to_add);
-    auto tensor_object_id = static_cast<long>(operation_vector.size());
-    return tensor_object_id;
+    auto tensor_data_id = static_cast<long>(operation_vector.size());
+    return tensor_data_id;
 }
 
 template <typename T>

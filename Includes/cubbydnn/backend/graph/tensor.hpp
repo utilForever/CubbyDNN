@@ -11,104 +11,96 @@
 
 namespace cubby_dnn
 {
-/// definitions
-
 template <typename T>
-tensor<T>::tensor(tensor_type type, const tensor_shape &shape, long from,
-                  bool _mutable)
-    : from(from), _mutable(_mutable), type(type), shape(shape)
-{
-}
-
-template <typename T>
-struct tensor_object<T>::storage
+struct tensor_data<T>::data
 {
  public:
-    storage(const std::vector<T> &data, const tensor_shape &shape);
+    data(const std::vector<T> &data, const tensor_shape &shape);
 
-    storage(std::vector<T> &&data, tensor_shape &&shape);
+    data(std::vector<T> &&data, tensor_shape &&shape);
 
-    std::vector<T> data;  // stores actual data with data type 'T'
-    tensor_shape shape;   // shape of the data
+    std::vector<T> data_vector;
+    tensor_shape shape;
     typedef std::size_t size_type;
     size_type byte_size;
 };
 
 template <typename T>
-tensor_object<T>::storage::storage(const std::vector<T> &data,
+tensor_data<T>::data::data(const std::vector<T> &data,
                                    const tensor_shape &shape)
 {
-    this->data = data;
+    this->data_vector = data;
     this->shape = shape;
-    byte_size = this->data.size();
+    byte_size = this->data_vector.size();
 }
 
 template <typename T>
-tensor_object<T>::storage::storage(std::vector<T> &&data, tensor_shape &&shape)
+tensor_data<T>::data::data(std::vector<T> &&data, tensor_shape &&shape)
 {
-    this->data = std::forward<std::vector<T>>(data);
+    this->data_vector = std::forward<std::vector<T>>(data);
     this->shape = std::forward<tensor_shape>(data);
-    byte_size = this->data.size();
+    byte_size = this->data_vector.size();
 }
 
 template <typename T>
-tensor_object<T>::tensor_object(size_t data_size, const tensor_shape &shape,
-                                tensor_type type, long from, long to)
-    : type(type), from(from), to(to)
+tensor_data<T>::tensor_data(size_t data_size, const tensor_shape &shape,
+                                long from, long to)
+    : from(from), to(to)
 {
-    std::vector<T> data(data_size);
-    verify<T>(data, shape);
+    std::vector<T> data_vector(data_size);
+    verify<T>(data_vector, shape);
 
-    this->tensor_storage = std::make_unique<storage>(data, shape);
+    this->tensor_storage = std::make_unique<data>(data_vector, shape);
 }
 
 template <typename T>
-tensor_object<T>::tensor_object(size_t data_size, tensor_shape &&shape,
-                                tensor_type type, long from, long to)
-    : type(type), from(from), to(to)
+tensor_data<T>::tensor_data(size_t data_size, tensor_shape &&shape,
+                                long from, long to)
+    : from(from), to(to)
 {
     std::vector<T> data(data_size);
     verify<T>(data, shape);  // checks exception if arguments are invalid
 
-    this->tensor_storage = std::make_unique<storage>(
+    this->tensor_storage = std::make_unique<data>(
         std::forward<std::vector<T>>(data), std::forward<tensor_shape>(shape));
 }
 
 template <typename T>
-tensor_object<T>::tensor_object(const tensor_object<T> &rhs) {
-    if(!rhs.tensor_storage)
-        this->tensor_storage = std::make_unique<tensor_object<T>::storage>(*rhs.tensor_storage);
+tensor_data<T>::tensor_data(const tensor_data<T> &rhs)
+{
+    if (!rhs.tensor_storage)
+        this->tensor_storage =
+            std::make_unique<tensor_data<T>::data>(*rhs.tensor_storage);
     _mutable = rhs._mutable;
-    type = rhs.type;
     from = rhs.from;
     to = rhs.to;
 }
 
 template <typename T>
-tensor_object<T>::tensor_object(tensor_object<T> &&rhs) noexcept
+tensor_data<T>::tensor_data(tensor_data<T> &&rhs) noexcept
 {
     if (!rhs.tensor_storage)
         this->tensor_storage = std::move(rhs.tensor_storage);
 }
 
 template <typename T>
-tensor_object<T> &tensor_object<T>::operator=(
-    const cubby_dnn::tensor_object<T> &rhs)
+tensor_data<T> &tensor_data<T>::operator=(
+    const cubby_dnn::tensor_data<T> &rhs)
 {
     // may throw std::bad_alloc() (this function will provide strong guarantee)
     if (rhs.object)
         this->tensor_storage =
-            std::make_unique<tensor_object<T>::tensor_storage>(
+            std::make_unique<tensor_data<T>::tensor_storage>(
                 *rhs.tensor_storage);
     return *this;
 }
 
 template <typename T>
-tensor_object<T> &tensor_object<T>::operator=(
-    cubby_dnn::tensor_object<T> &&rhs) noexcept = default;
+tensor_data<T> &tensor_data<T>::operator=(
+    cubby_dnn::tensor_data<T> &&rhs) noexcept = default;
 
 template <typename T>
-tensor_object<T>::~tensor_object() = default;
+tensor_data<T>::~tensor_data() = default;
 
 template <typename T>
 bool verify(const std::vector<T> &data, const tensor_shape &shape)
@@ -133,36 +125,130 @@ bool verify(const std::vector<T> &data, const tensor_shape &shape)
 // getters
 
 template <typename T>
-size_t tensor_object<T>::get_data_size() const
+bool tensor_data<T>::has_data() const
+{
+    if (!tensor_storage)
+        return false;
+    else
+        return true;
+}
+
+template <typename T>
+size_t tensor_data<T>::get_data_size() const
 {
     if (!tensor_storage)
     {
-        std::cout << "tensor_object is empty" << std::endl;
+        std::cout << "tensor_data is empty" << std::endl;
         return error_id;
     }
     return tensor_storage->data.size();
 }
 
 template <typename T>
-size_t tensor_object<T>::get_data_byte_size() const
+size_t tensor_data<T>::get_data_byte_size() const
 {
     if (!tensor_storage)
     {
-        std::cout << "tensor_object is empty" << std::endl;
+        std::cout << "tensor_data is empty" << std::endl;
         return error_id;
     }
     return tensor_storage->data.size() * sizeof(T);
 }
 
 template <typename T>
-const std::vector<T> &tensor_object<T>::get_data() const
+const std::vector<T> &tensor_data<T>::get_data() const
 {
     if (!tensor_storage)
     {
-        std::cout << "tensor_object is empty" << std::endl;
+        std::cout << "tensor_data is empty" << std::endl;
         return std::vector<T>();
     }
     return tensor_storage->data;
 }
+
+template <typename T>
+bool tensor_data<T>::is_mutable() const
+{
+    return _mutable;
+}
+
+template <typename T>
+void tensor_data<T>::make_mutable()
+{
+    this->_mutable = true;
+}
+
+template <typename T>
+void tensor_data<T>::make_constant()
+{
+    this->_mutable = false;
+}
+
+template <typename T>
+long tensor_data<T>::comes_from() const
+{
+    return from;
+}
+
+template <typename T>
+long tensor_data<T>::heads_to() const
+{
+    return to;
+}
+
+template <typename T>
+tensor<T>::tensor(const tensor_shape &shape, long from, bool _mutable)
+    : from(from), _mutable(_mutable), shape(shape)
+{
+}
+
+template <typename T>
+bool tensor<T>::is_valid() const
+{
+    return !shape.empty();
+};
+
+template <typename T>
+const tensor_shape &tensor<T>::get_shape() const
+{
+    return this->shape;
+}
+
+template <typename T>
+size_t tensor<T>::get_data_size() const
+{
+    return shape.size();
+}
+
+template <typename T>
+bool tensor<T>::is_mutable() const
+{
+    return _mutable;
+}
+
+template <typename T>
+long tensor<T>::get_from() const
+{
+    return from;
+}
+
+template <typename T>
+void tensor<T>::make_mutable()
+{
+    this->_mutable = true;
+}
+
+template <typename T>
+void tensor<T>::make_constant()
+{
+    this->_mutable = false;
+}
+
+template <typename T>
+void tensor<T>::add_to(long to)
+{
+    this->to_vector.emplace_back(to);
+}
+
 }  // namespace cubby_dnn
 #endif  // CUBBYDNN_TENSOR_CONTAINER_DEF_HPP

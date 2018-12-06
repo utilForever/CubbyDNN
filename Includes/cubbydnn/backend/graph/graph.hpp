@@ -22,7 +22,7 @@ tensor<T> generate<T>::placeholder(const tensor_shape &shape, stream<T> &stream,
     }
 
     long operation_id = operation_management<T>::get_next_operation_id();
-    tensor<T> output_tensor(tensor_type::placeHolder, shape, operation_id);
+    tensor<T> output_tensor(shape, operation_id, false);
     /// declare empty operation for later use
     auto new_op = placeholder_op<T>(operation_id, shape, stream, name);
     operation_management<T>::add_operation(new_op);
@@ -40,7 +40,7 @@ tensor<T> generate<T>::variable(const tensor_shape &shape, bool trainable,
 
     long operation_id = operation_management<T>::get_next_operation_id();
 
-    tensor<T> output_tensor(tensor_type ::variable, shape, operation_id);
+    tensor<T> output_tensor(shape, operation_id, false);
 
     if (!trainable)
         output_tensor.make_constant();
@@ -79,37 +79,35 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
     tensor2.add_to(this_id);
     // TODO: find way to initialize the default data
 
-    auto tensor_object1 =
-        tensor_object<T>(tensor1.get_data_size(), tensor1.get_shape(),
-                         tensor1.get_type(), tensor1.get_from(), this_id);
+    auto tensor_data1 =
+            tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
-    auto tensor_object2 =
-        tensor_object<T>(tensor2.get_data_size(), tensor2.get_shape(),
-                         tensor2.get_type(), tensor2.get_from(), this_id);
+    auto tensor_data2 =
+            tensor_data<T>(tensor2.get_data_size(), tensor2.get_shape(), tensor2.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_object1.make_constant();
+        tensor_data1.make_constant();
     if (!tensor2.is_mutable())
-        tensor_object1.make_constant();
+        tensor_data1.make_constant();
 
-    long tensor_object1_id = tensor_object_management<T>::add_tensor_object(
-        std::move(tensor_object1));
-    long tensor_object2_id = tensor_object_management<T>::add_tensor_object(
-        std::move(tensor_object2));
+    long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
+        std::move(tensor_data1));
+    long tensor_data2_id = tensor_data_management<T>::add_tensor_data(
+        std::move(tensor_data2));
 
     operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_object1_id);
+        .add_output(tensor_data1_id);
     operation_management<T>::get_operation(tensor2.get_from())
-        .add_output(tensor_object2_id);
+        .add_output(tensor_data2_id);
 
     tensor_shape new_shape(tensor1.get_shape().rows(),
                            tensor2.get_shape().cols(),
                            tensor1.get_shape().height());
 
-    tensor<T> output_tensor(tensor_type ::normal, new_shape, this_id);
+    tensor<T> output_tensor(new_shape, this_id, false);
     mat_mul_op<T> mat_mul_op(this_id, name);
-    mat_mul_op.add_input(tensor_object1_id);
-    mat_mul_op.add_input(tensor_object2_id);
+    mat_mul_op.add_input(tensor_data1_id);
+    mat_mul_op.add_input(tensor_data2_id);
     operation_management<T>::add_operation(mat_mul_op);
     return output_tensor;
 }
@@ -137,36 +135,34 @@ tensor<T> operate<T>::mad_add(tensor<T> &tensor1, tensor<T> &tensor2,
     tensor2.add_to(this_id);
     // TODO: find way to initialize the default data
 
-    auto tensor_object1 =
-        tensor_object<T>(tensor1.get_data_size(), tensor1.get_shape(),
-                         tensor1.get_type(), tensor1.get_from(), this_id);
+    auto tensor_data1 =
+            tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
-    auto tensor_object2 =
-        tensor_object<T>(tensor2.get_data_size(), tensor2.get_shape(),
-                         tensor2.get_type(), tensor2.get_from(), this_id);
+    auto tensor_data2 =
+            tensor_data<T>(tensor2.get_data_size(), tensor2.get_shape(), tensor2.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_object1.make_constant();
+        tensor_data1.make_constant();
     if (!tensor2.is_mutable())
-        tensor_object1.make_constant();
+        tensor_data1.make_constant();
 
-    long tensor_object1_id = tensor_object_management<T>::add_tensor_object(
-        std::move(tensor_object1));
-    long tensor_object2_id = tensor_object_management<T>::add_tensor_object(
-        std::move(tensor_object2));
+    long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
+        std::move(tensor_data1));
+    long tensor_data2_id = tensor_data_management<T>::add_tensor_data(
+        std::move(tensor_data2));
 
     operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_object1_id);
+        .add_output(tensor_data1_id);
     operation_management<T>::get_operation(tensor2.get_from())
-        .add_output(tensor_object2_id);
+        .add_output(tensor_data2_id);
 
     tensor_shape new_shape = tensor1.get_shape();
 
-    tensor<T> output_tensor(tensor_type ::normal, new_shape, this_id);
+    tensor<T> output_tensor(new_shape, this_id, false);
 
     mat_add_op<T> mat_add_op(this_id, name);
-    mat_add_op.add_input(tensor_object1_id);
-    mat_add_op.add_input(tensor_object2_id);
+    mat_add_op.add_input(tensor_data1_id);
+    mat_add_op.add_input(tensor_data2_id);
     operation_management<T>::add_operation(mat_add_op);
     return output_tensor;
 }
@@ -185,23 +181,22 @@ tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
     tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
 
-    auto tensor_object1 =
-        tensor_object<T>(tensor1.get_data_size(), tensor1.get_shape(),
-                         tensor1.get_type(), tensor1.get_from(), this_id);
+    auto tensor_data1 =
+            tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_object1.make_constant();
+        tensor_data1.make_constant();
 
-    long tensor_object1_id = tensor_object_management<T>::add_tensor_object(
-        std::move(tensor_object1));
+    long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
+        std::move(tensor_data1));
     operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_object1_id);
+        .add_output(tensor_data1_id);
 
     tensor_shape new_shape = tensor1.get_shape();
 
-    tensor<T> output_tensor(tensor_type ::normal, new_shape, this_id);
+    tensor<T> output_tensor(new_shape, this_id, false);
     mat_dot_op<T> mat_dot_op(this_id, name, multiplier);
-    mat_dot_op.add_input(tensor_object1_id);
+    mat_dot_op.add_input(tensor_data1_id);
     operation_management<T>::add_operation(mat_dot_op);
     return output_tensor;
 }
@@ -237,23 +232,22 @@ tensor<T> operate<T>::reshape(tensor<T> &tensor1, const tensor_shape &shape,
     tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
 
-    auto tensor_object1 =
-        tensor_object<T>(tensor1.get_data_size(), tensor1.get_shape(),
-                         tensor1.get_type(), tensor1.get_from(), this_id);
+    auto tensor_data1 =
+            tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_object1.make_constant();
+        tensor_data1.make_constant();
 
-    long tensor_object1_id = tensor_object_management<T>::add_tensor_object(
-        std::move(tensor_object1));
+    long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
+        std::move(tensor_data1));
     operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_object1_id);
+        .add_output(tensor_data1_id);
 
     tensor_shape new_shape = shape;
 
-    tensor<T> output_tensor(tensor_type ::normal, new_shape, this_id);
+    tensor<T> output_tensor(new_shape, this_id, false);
     reshape_op<T> reshape_op(this_id, name, shape);
-    reshape_op.add_input(tensor_object1_id);
+    reshape_op.add_input(tensor_data1_id);
     operation_management<T>::add_operation(reshape_op);
     return output_tensor;
 }
@@ -285,23 +279,22 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, size_t size,
 
     auto this_id = operation_management<T>::get_next_operation_id();
 
-    auto tensor_object1 =
-        tensor_object<T>(tensor1.get_data_size(), tensor1.get_shape(),
-                         tensor1.get_type(), tensor1.get_from(), this_id);
+    auto tensor_data1 =
+            tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_object1.make_constant();
+        tensor_data1.make_constant();
 
-    long tensor_object1_id = tensor_object_management<T>::add_tensor_object(
-        std::move(tensor_object1));
+    long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
+        std::move(tensor_data1));
     operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_object1_id);
+        .add_output(tensor_data1_id);
 
     tensor_shape new_shape(size, 1, 1);
 
-    tensor<T> output_tensor(tensor_type ::normal, new_shape, this_id);
+    tensor<T> output_tensor(new_shape, this_id, false);
     reshape_op<T> one_hot_op(this_id, name, new_shape);
-    one_hot_op.add_input(tensor_object1_id);
+    one_hot_op.add_input(tensor_data1_id);
     operation_management<T>::add_operation(one_hot_op);
     return output_tensor;
 }
@@ -319,20 +312,19 @@ void final<T>::wrapper(tensor<T> &tensor1, const std::string &name)
     tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
 
-    auto tensor_object1 =
-        tensor_object<T>(tensor1.get_data_size(), tensor1.get_shape(),
-                         tensor1.get_type(), tensor1.get_from(), this_id);
+    auto tensor_data1 =
+            tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_object1.make_constant();
+        tensor_data1.make_constant();
 
-    long tensor_object1_id =
-        tensor_object_management<T>::add_tensor_object(std::move(tensor_object1));
+    long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
+        std::move(tensor_data1));
     operation_management<T>::get_operation(tensor1.get_from())
-        .add_output(tensor_object1_id);
+        .add_output(tensor_data1_id);
 
     wrapper_op<T> wrapper_op(this_id, name);
-    wrapper_op.add_input(tensor_object1_id);
+    wrapper_op.add_input(tensor_data1_id);
     operation_management<T>::add_operation(wrapper_op);
 }
 }  // namespace cubby_dnn

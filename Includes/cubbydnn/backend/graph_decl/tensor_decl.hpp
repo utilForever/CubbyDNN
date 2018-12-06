@@ -16,7 +16,6 @@ namespace cubby_dnn
 enum class tensor_type
 {
     variable,
-    placeHolder,
     normal,
     None
 };
@@ -26,42 +25,36 @@ const static size_t error_id = 0;
 template <typename T>
 bool verify(const std::vector<T> &data, const tensor_shape &shape);
 
+/**
+ * @brief class for representing information and data of of the tensor
+ *
+ * This class will represent graph at runtime, and stores actual data used in
+ * graph execution
+ *
+ * @tparam T : basic data type for operation
+ */
 template <typename T>
-class tensor_object
+class tensor_data
 {
  public:
-    tensor_object(size_t data_size, const tensor_shape &shape,
-                  tensor_type type, long from,
+    tensor_data(size_t data_size, const tensor_shape &shape, long from,
                   long to);
 
-    tensor_object(size_t data_size, tensor_shape &&shape, tensor_type type,
-                  long from,
-                  long to);
+    tensor_data(size_t data_size, tensor_shape &&shape, long from, long to);
 
-    tensor_object(const tensor_object<T> &rhs);
+    tensor_data(const tensor_data<T> &rhs);
 
-    tensor_object(tensor_object<T> &&rhs) noexcept;
+    tensor_data(tensor_data<T> &&rhs) noexcept;
 
-    tensor_object &operator=(const tensor_object<T> &rhs);
+    tensor_data &operator=(const tensor_data<T> &rhs);
 
-    tensor_object &operator=(tensor_object<T> &&rhs) noexcept;
+    tensor_data &operator=(tensor_data<T> &&rhs) noexcept;
 
-    ~tensor_object();
+    ~tensor_data();
 
  public:
     /// getters
-    bool has_data() const
-    {
-        if (!tensor_storage)
-            return false;
-        else
-            return true;
-    }
-
-    tensor_type get_type() const
-    {
-        return type;
-    }
+    bool has_data() const;
 
     size_t get_data_size() const;
 
@@ -69,114 +62,55 @@ class tensor_object
 
     const std::vector<T> &get_data() const;
 
-    bool is_mutable() const
-    {
-        return _mutable;
-    }
+    bool is_mutable() const;
 
-    void set_type(tensor_type type)
-    {
-        this->type = type;
-    }
+    void make_mutable();
 
-    void make_mutable()
-    {
-        this->_mutable = true;
-    }
+    void make_constant();
 
-    void make_constant()
-    {
-        this->_mutable = false;
-    }
+    long comes_from() const;
 
-    long get_from() const
-    {
-        return from;
-    }
-
-    long get_to() const
-    {
-        return to;
-    }
+    long heads_to() const;
 
  private:
     bool _mutable = true;
 
-    tensor_type type;
-
     long from, to;
 
-    struct storage;
+    struct data;
 
-    std::unique_ptr<storage> tensor_storage;
+    std::unique_ptr<data> tensor_storage;
 };
 
+/**
+ * @brief Helper class shown to user for constructing graph.
+ * This graph contains information of graph being built
+ * @tparam T
+ */
 template <typename T>
 class tensor
 {
  public:
-    tensor(tensor_type type, const tensor_shape &shape, long from,
-           bool _mutable = true);
+    tensor(const tensor_shape &shape, long from, bool _mutable = true);
 
  public:
     /// getters
 
-    bool is_valid() const
-    {
-        return !shape.empty();
-    }
+    bool is_valid() const;
 
-    tensor_type get_type() const
-    {
-        return type;
-    }
+    const tensor_shape &get_shape() const;
 
-    const tensor_shape &get_shape() const
-    {
-        return this->shape;
-    }
+    size_t get_data_size() const;
 
-    size_t get_data_size() const
-    {
-        return shape.size();
-    }
+    bool is_mutable() const;
 
-    bool is_mutable() const
-    {
-        return _mutable;
-    }
+    long get_from() const;
 
-    long get_from() const
-    {
-        return from;
-    }
+    void make_mutable();
 
-    /// setters
+    void make_constant();
 
-    void set_name(const std::string &name)
-    {
-    }
-
-    void set_type(tensor_type type)
-    {
-        this->type = type;
-    }
-
-    void make_mutable()
-    {
-        this->_mutable = true;
-    }
-
-    void make_constant()
-    {
-        this->_mutable = false;
-    }
-
-    // adds operation ids that this tensor heads to
-    void add_to(long to)
-    {
-        this->to_vector.emplace_back(to);
-    }
+    void add_to(long to);
 
  private:
     long from;  /// ID of operation that this tensor is generated
@@ -185,14 +119,9 @@ class tensor
         to_vector;  /// vector for storing operations this tensor will head to
 
     bool _mutable =
-        true;  // determines whether data of this tensor can be modified
+        true;  /// determines whether data of this tensor can be modified
 
-    tensor_type type =
-        tensor_type::None;  // type of the tensor_container it is pointing to
-
-    tensor_shape shape;  // shape of this tensor
-
-    // weak pointer pointing to tensor object
+    tensor_shape shape;  /// shape of this tensor represents
 };
 
 }  // namespace cubby_dnn

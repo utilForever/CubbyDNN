@@ -13,22 +13,22 @@
 namespace cubby_dnn
 {
 template <typename T>
-class tensor_object_management
+class tensor_data_management
 {
  public:
-    static long add_tensor_object(const tensor_object<T>& object);
+    static long add_tensor_data(const tensor_data<T>& object);
 
-    static long add_tensor_object(tensor_object<T>&& object);
+    static long add_tensor_data(tensor_data<T>&& object);
 
-    static tensor_object<T>& get_tensor_object(long id);
+    static tensor_data<T>& get_tensor_data(long id);
 
  private:
-    static std::deque<tensor_object<T>> tensor_object_vector;
-    static std::mutex tensor_object_vector_mutex;
+    static std::deque<tensor_data<T>> tensor_data_vector;
+    static std::mutex tensor_data_vector_mutex;
 };
 
 template <typename T>
-std::deque<tensor_object<T>> tensor_object_management<T>::tensor_object_vector;
+std::deque<tensor_data<T>> tensor_data_management<T>::tensor_data_vector;
 
 template <typename T>
 class operation_management
