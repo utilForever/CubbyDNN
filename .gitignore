@@ -20,6 +20,8 @@ build/
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+
+# User-specific jetbrains files
 .idea/workspace.xml
 .idea/vcs.xml
 .idea/misc.xml
@@ -27,6 +29,7 @@ build/
 .idea/inspectionProfiles
 .idea/dictionaries
 .idea/codeStyles/codeStyleConfig.xml
+.idea/CubbyDNN.iml
 
 # Generated files
 .idea/**/contentModel.xml
