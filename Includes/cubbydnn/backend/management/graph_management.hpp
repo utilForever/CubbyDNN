@@ -12,7 +12,7 @@ template <typename T>
 long tensor_data_management<T>::add_tensor_data(const tensor_data<T>& object)
 {
     tensor_data_vector.emplace_back(object);
-    auto tensor_data_id = static_cast<long>(tensor_data_vector.size());
+    auto tensor_data_id = static_cast<long>(tensor_data_vector.size()) - 1;
     return tensor_data_id;
 }
 
@@ -20,7 +20,7 @@ template <typename T>
 long tensor_data_management<T>::add_tensor_data(tensor_data<T>&& object)
 {
     tensor_data_vector.emplace_back(std::forward<tensor_data<T>>(object));
-    auto tensor_data_id = static_cast<long>(tensor_data_vector.size());
+    auto tensor_data_id = static_cast<long>(tensor_data_vector.size()) - 1;
     return tensor_data_id;
 }
 
@@ -107,28 +107,60 @@ long adjacency_management<T>::add_operation_to_adjacency(long operation_id)
     adjacency_matrix.emplace_back(
         std::deque<long>(expected_row_size, unallocated_state));
 
-    auto input_vect = operation_management<T>::get_operation_by_id(operation_id)
-                          .get_input_tensor_vector();
+    const std::vector<long>& input_tensor_id_vect =
+        operation_management<T>::get_operation_by_id(operation_id)
+            .get_input_tensor_vector();
 
-    for (long id : input_vect)
+    for (long tensor_id : input_tensor_id_vect)
     {
-        // TODO: put ID of corresponding tensor instead of 'id'
-        adjacency_matrix[static_cast<size_t>(operation_id)][id] = 1;
+        tensor_data<T> tensor =
+            tensor_data_management<T>::get_tensor_data(tensor_id);
+        adjacency_matrix.at(static_cast<size_t>(tensor.comes_from()))
+            .at(static_cast<size_t>(operation_id)) = tensor_id;
     }
     return static_cast<long>(adjacency_matrix.size());
+}
+
+template<typename T>
+void adjacency_management<T>::print_number(long output_number)
+{
+    std::string output_string;
+    if (output_number == -1)
+        output_string = '*';
+    else
+        output_string = std::to_string(output_number);
+    while (output_string.size() < default_gap)
+        output_string += " ";
+    std::cout << output_string;
 }
 
 template <typename T>
 void adjacency_management<T>::print_adjacency_matrix()
 {
     std::cout << "--Adjacency Matrix--" << std::endl;
-    for (auto row : adjacency_matrix)
+    std::cout << "row: from  col: to" << std::endl;
+
+    long index;
+
+    for (index = -1; index < static_cast<long>(adjacency_matrix.size()); index++)
     {
+        print_number(index);
+    }
+
+    for (int i = 0; i < default_gap; i++)
+        std::cout << std::endl;
+
+    index = 0;
+    for (const auto row : adjacency_matrix)
+    {
+        print_number(index++);
+
         for (auto col : row)
         {
-            std::cout << col;
+            print_number(col);
         }
-        std::cout << std::endl;
+        for (int i = 0; i < default_gap; i++)
+            std::cout << std::endl;
     }
 }
 }  // namespace cubby_dnn

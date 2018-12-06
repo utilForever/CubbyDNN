@@ -1,5 +1,5 @@
-#include <SimpleTest.hpp>
 #include <gtest/gtest.h>
+#include <SimpleTest.hpp>
 
 using namespace cubby_dnn;
 
@@ -20,14 +20,14 @@ std::vector<operation_info> Example1()
     /// operation that multiplies two tensors and returns tensor to contain the
     /// result
     auto multiplied_tensor1 =
-        operate<int>::mat_mul(input_tensor2, input_tensor1);
+        operate<int>::mat_mul(input_tensor1, input_tensor2);
 
     /// operation that receives tensor and marks given tensor has no more
     /// further operation (end of the graph)
     final<int>::wrapper(multiplied_tensor1);
 
     auto multiplied_tensor2 =
-        operate<int>::mat_mul(input_tensor2, input_tensor1);
+        operate<int>::mat_mul(input_tensor1, input_tensor2);
 
     auto added_tensor1 = operate<int>::mad_add(input_tensor1, input_tensor2);
 
@@ -63,9 +63,13 @@ std::vector<operation_info> Example2()
 
     auto multiplied_tensor1 =
         operate<int>::mat_mul(input_tensor2, input_tensor1);  // 3
+
     final<int>::wrapper(multiplied_tensor1);                  // 4
 
-    operation_management<float>::print_operation_info();
+    operation_management<int>::print_operation_info();
+
+    adjacency_management<int>::print_adjacency_matrix();
+
     return operation_management<int>::get_operation_info();
 }
 
@@ -93,6 +97,9 @@ std::vector<operation_info> Example3()
     final<float>::wrapper(reshaped_tensor1);
 
     operation_management<float>::print_operation_info();
+
+    adjacency_management<float>::print_adjacency_matrix();
+
     return operation_management<float>::get_operation_info();
 }
 

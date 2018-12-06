@@ -62,13 +62,15 @@ class adjacency_management
     static void print_adjacency_matrix();
 
  private:
-    static std::deque<std::deque<long>> adjacency_matrix;
+    static const int default_gap = 2;
+    static void print_number(long output_number);
+    static std::deque<std::deque<long>> adjacency_matrix; ///row: from, col: to
     static const size_t default_graph_size;
     static const long unallocated_state;
 };
 
 template <typename T>
-const size_t adjacency_management<T>::default_graph_size = 30;
+const size_t adjacency_management<T>::default_graph_size = 0;
 
 template <typename T>
 const long adjacency_management<T>::unallocated_state = -1;

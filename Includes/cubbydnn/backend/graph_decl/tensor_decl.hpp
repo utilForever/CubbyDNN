@@ -64,7 +64,9 @@ class tensor_data
 
     size_t get_data_byte_size() const;
 
-    const std::vector<T> &get_data() const;
+    const std::vector<T> get_data() const;
+
+    tensor_shape get_data_shape() const;
 
     bool is_mutable() const;
 

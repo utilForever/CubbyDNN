@@ -53,9 +53,10 @@ const std::string operation<T>::print_information()
 {
     std::string info = name;
     info += "\noperation id: " + std::to_string(operation_id);
-    info += "\ninput tensor num: " + std::to_string(input_tensor_id_vector.size());
     info +=
-        "\noutput tensor num: " + std::to_string(output_tensor_id_vector.size());
+        "\ninput tensor num: " + std::to_string(input_tensor_id_vector.size());
+    info += "\noutput tensor num: " +
+            std::to_string(output_tensor_id_vector.size());
     return info;
 }
 
@@ -67,13 +68,13 @@ operation_info operation<T>::get_info() const
 }
 
 template <typename T>
-decltype(auto) operation<T>::get_input_tensor_vector() const
+const std::vector<long> &operation<T>::get_input_tensor_vector() const
 {
     return input_tensor_id_vector;
 }
 
 template <typename T>
-decltype(auto) operation<T>::get_output_tensor_vector() const
+const std::vector<long> &operation<T>::get_output_tensor_vector() const
 {
     return output_tensor_id_vector;
 }

@@ -19,9 +19,11 @@ struct tensor_data<T>::data
 
     data(std::vector<T> &&data, tensor_shape &&shape);
 
+    data(const tensor_data<T>::data& rhs);
+
     std::vector<T> data_vector;
     tensor_shape shape;
-    size_t byte_size;
+    size_t byte_size{};
 };
 
 template <typename T>
@@ -39,6 +41,13 @@ tensor_data<T>::data::data(std::vector<T> &&data, tensor_shape &&shape)
     this->data_vector = std::forward<std::vector<T>>(data);
     this->shape = std::forward<tensor_shape>(data);
     byte_size = this->data_vector.size();
+}
+
+template<typename T>
+tensor_data<T>::data::data(const tensor_data<T>::data& rhs){
+    this->data_vector = rhs.data_vector;
+    this->shape = rhs.shape;
+    this->byte_size = rhs.byte_size;
 }
 
 template <typename T>
@@ -69,7 +78,7 @@ tensor_data<T>::tensor_data(const tensor_data<T> &rhs)
 {
     if (!rhs.tensor_storage)
         this->tensor_storage =
-            std::make_unique<tensor_data<T>::data>(*rhs.tensor_storage);
+            std::make_unique<tensor_data<T>::data>(rhs.get_data(), rhs.get_data_shape());
     _mutable = rhs._mutable;
     from = rhs.from;
     to = rhs.to;
@@ -78,8 +87,11 @@ tensor_data<T>::tensor_data(const tensor_data<T> &rhs)
 template <typename T>
 tensor_data<T>::tensor_data(tensor_data<T> &&rhs) noexcept
 {
-    if (!rhs.tensor_storage)
+    if (rhs.tensor_storage)
         this->tensor_storage = std::move(rhs.tensor_storage);
+    this->_mutable = rhs._mutable;
+    this->from = rhs.from;
+    this->to = rhs.to;
 }
 
 template <typename T>
@@ -140,7 +152,7 @@ size_t tensor_data<T>::get_data_size() const
         std::cout << "tensor_data is empty" << std::endl;
         return error_id;
     }
-    return tensor_storage->data.size();
+    return tensor_storage->data_vector.size();
 }
 
 template <typename T>
@@ -151,18 +163,28 @@ size_t tensor_data<T>::get_data_byte_size() const
         std::cout << "tensor_data is empty" << std::endl;
         return error_id;
     }
-    return tensor_storage->data.size() * sizeof(T);
+    return tensor_storage->data_vector.size() * sizeof(T);
 }
 
 template <typename T>
-const std::vector<T> &tensor_data<T>::get_data() const
+const std::vector<T> tensor_data<T>::get_data() const
 {
     if (!tensor_storage)
     {
         std::cout << "tensor_data is empty" << std::endl;
         return std::vector<T>();
     }
-    return tensor_storage->data;
+    return tensor_storage->data_vector;
+}
+
+template<typename T>
+tensor_shape tensor_data<T>::get_data_shape() const{
+    if (!tensor_storage)
+    {
+        std::cout << "tensor_data is empty" << std::endl;
+        return tensor_shape();
+    }
+    return tensor_storage->shape;
 }
 
 template <typename T>

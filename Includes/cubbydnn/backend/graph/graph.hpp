@@ -26,6 +26,8 @@ tensor<T> generate<T>::placeholder(const tensor_shape &shape, stream<T> &stream,
     /// declare empty operation for later use
     auto new_op = placeholder_op<T>(operation_id, shape, stream, name);
     operation_management<T>::add_operation(new_op);
+    adjacency_management<T>::add_operation_to_adjacency(new_op.get_id());
+
     return output_tensor;
 }
 
@@ -48,6 +50,8 @@ tensor<T> generate<T>::variable(const tensor_shape &shape, bool trainable,
     /// declare empty operation for later use
     auto new_op = weight_op<T>(operation_id, shape, name);
     operation_management<T>::add_operation(new_op);
+    adjacency_management<T>::add_operation_to_adjacency(new_op.get_id());
+
     return output_tensor;
 }
 
@@ -115,6 +119,8 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
     mat_mul_op.add_input_tensor(tensor_data1_id);
     mat_mul_op.add_input_tensor(tensor_data2_id);
     operation_management<T>::add_operation(mat_mul_op);
+    adjacency_management<T>::add_operation_to_adjacency(mat_mul_op.get_id());
+
     return output_tensor;
 }
 
@@ -170,7 +176,7 @@ tensor<T> operate<T>::mad_add(tensor<T> &tensor1, tensor<T> &tensor2,
     mat_add_op.add_input_tensor(tensor_data1_id);
     mat_add_op.add_input_tensor(tensor_data2_id);
     operation_management<T>::add_operation(mat_add_op);
-    adjacency_management<T>::add_operation_to_adjacency(0);
+    adjacency_management<T>::add_operation_to_adjacency(mat_add_op.get_id());
     return output_tensor;
 }
 
@@ -205,7 +211,7 @@ tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
     mat_dot_op<T> mat_dot_op(this_id, name, multiplier);
     mat_dot_op.add_input_tensor(tensor_data1_id);
     operation_management<T>::add_operation(mat_dot_op);
-    adjacency_management<T>::add_operation_to_adjacency(0);
+    adjacency_management<T>::add_operation_to_adjacency(mat_dot_op.get_id());
 
     return output_tensor;
 }
@@ -258,6 +264,8 @@ tensor<T> operate<T>::reshape(tensor<T> &tensor1, const tensor_shape &shape,
     reshape_op<T> reshape_op(this_id, name, shape);
     reshape_op.add_input_tensor(tensor_data1_id);
     operation_management<T>::add_operation(reshape_op);
+    adjacency_management<T>::add_operation_to_adjacency(reshape_op.get_id());
+
     return output_tensor;
 }
 
@@ -305,6 +313,8 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, size_t size,
     reshape_op<T> one_hot_op(this_id, name, new_shape);
     one_hot_op.add_input_tensor(tensor_data1_id);
     operation_management<T>::add_operation(one_hot_op);
+    adjacency_management<T>::add_operation_to_adjacency(one_hot_op.get_id());
+
     return output_tensor;
 }
 
@@ -335,6 +345,8 @@ void final<T>::wrapper(tensor<T> &tensor1, const std::string &name)
     wrapper_op<T> wrapper_op(this_id, name);
     wrapper_op.add_input_tensor(tensor_data1_id);
     operation_management<T>::add_operation(wrapper_op);
+    adjacency_management<T>::add_operation_to_adjacency(wrapper_op.get_id());
+
 }
 }  // namespace cubby_dnn
 

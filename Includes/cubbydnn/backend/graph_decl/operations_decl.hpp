@@ -27,8 +27,8 @@ enum class operation_type
 struct operation_info
 {
  public:
-    operation_info(long operation_id, size_t input_size,
-                   size_t output_size, const std::string &name)
+    operation_info(long operation_id, size_t input_size, size_t output_size,
+                   const std::string &name)
         : operation_id(operation_id),
           input_size(input_size),
           output_size(output_size),
@@ -58,8 +58,8 @@ struct operation_info
  * @brief class for representing operation
  *
  * This class is contained in graph structure.
- * contains information about which operation to execute, tensors that data comes from,
- * and tensor to output processed data.
+ * contains information about which operation to execute, tensors that data
+ * comes from, and tensor to output processed data.
  *
  * @tparam T
  */
@@ -67,7 +67,6 @@ template <typename T>
 class operation
 {
  public:
-
     void add_output_tensor(long tensor_id);
     void add_input_tensor(long tensor_id);
 
@@ -83,8 +82,9 @@ class operation
 
     operation_info get_info() const;
 
-    decltype(auto) get_input_tensor_vector() const;
-    decltype(auto) get_output_tensor_vector() const;
+    const std::vector<long> &get_input_tensor_vector() const;
+
+    const std::vector<long> &get_output_tensor_vector() const;
 
  protected:
     explicit operation();
@@ -106,26 +106,24 @@ template <typename T>
 class mat_mul_op : public operation<T>
 {
  public:
-
     explicit mat_mul_op(long operation_id, const std::string &name);
-
 };
 
 template <typename T>
 class mat_add_op : public operation<T>
 {
  public:
-
     explicit mat_add_op(long operation_id, const std::string &name);
-
 };
 
 template <typename T>
 class mat_dot_op : public operation<T>
 {
  public:
-    explicit mat_dot_op(long operation_id, const std::string &name, T multiplier);
-private:
+    explicit mat_dot_op(long operation_id, const std::string &name,
+                        T multiplier);
+
+ private:
     T multiplier;
 };
 
@@ -133,7 +131,8 @@ template <typename T>
 class reshape_op : public operation<T>
 {
  public:
-    explicit reshape_op(long operation_id, const std::string &name, const tensor_shape &shape);
+    explicit reshape_op(long operation_id, const std::string &name,
+                        const tensor_shape &shape);
 
  private:
     tensor_shape shape;
@@ -143,7 +142,8 @@ template <typename T>
 class placeholder_op : public operation<T>
 {
  public:
-    explicit placeholder_op(long operation_id, const tensor_shape &shape, stream<T> &stream, const std::string &name);
+    explicit placeholder_op(long operation_id, const tensor_shape &shape,
+                            stream<T> &stream, const std::string &name);
 
  private:
     tensor_shape shape;
@@ -154,7 +154,8 @@ template <typename T>
 class weight_op : public operation<T>
 {
  public:
-    explicit weight_op(long operation_id, const tensor_shape &shape, const std::string &name);
+    explicit weight_op(long operation_id, const tensor_shape &shape,
+                       const std::string &name);
 
  private:
     tensor_shape shape;
@@ -164,7 +165,8 @@ template <typename T>
 class constant_op : public operation<T>
 {
  public:
-    explicit constant_op(long operation_id, const tensor_shape &shape, const std::string &name);
+    explicit constant_op(long operation_id, const tensor_shape &shape,
+                         const std::string &name);
 
  private:
     tensor_shape shape;
