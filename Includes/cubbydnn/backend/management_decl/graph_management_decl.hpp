@@ -22,6 +22,8 @@ class tensor_data_management
 
     static tensor_data<T>& get_tensor_data(long id);
 
+    static void clear();
+
  private:
     static std::deque<tensor_data<T>> tensor_data_vector;
     static std::mutex tensor_data_vector_mutex;
@@ -46,6 +48,8 @@ class operation_management
 
     static long get_next_operation_id();
 
+    static void clear();
+
  private:
     static std::deque<operation<T>> operation_vector;
 };
@@ -60,6 +64,8 @@ class adjacency_management
     static long add_operation_to_adjacency(long operation_id);
 
     static void print_adjacency_matrix();
+
+    static void clear();
 
  private:
     static const int default_gap = 2;

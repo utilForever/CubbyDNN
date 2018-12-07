@@ -30,6 +30,11 @@ tensor_data<T>& tensor_data_management<T>::get_tensor_data(long id)
     return tensor_data_vector.at(static_cast<size_t>(id));
 }
 
+template<typename T>
+void tensor_data_management<T>::clear() {
+    tensor_data_vector.clear();
+}
+
 template <typename T>
 long operation_management<T>::add_operation(
     const operation<T>& operation_to_add)
@@ -78,6 +83,12 @@ long operation_management<T>::get_next_operation_id()
 }
 
 template <typename T>
+void operation_management<T>::clear()
+{
+    operation_vector.clear();
+}
+
+template <typename T>
 long adjacency_management<T>::add_operation_to_adjacency(long operation_id)
 {
     auto graph_size = adjacency_matrix.size();
@@ -121,7 +132,7 @@ long adjacency_management<T>::add_operation_to_adjacency(long operation_id)
     return static_cast<long>(adjacency_matrix.size());
 }
 
-template<typename T>
+template <typename T>
 void adjacency_management<T>::print_number(long output_number)
 {
     std::string output_string;
@@ -142,7 +153,8 @@ void adjacency_management<T>::print_adjacency_matrix()
 
     long index;
 
-    for (index = -1; index < static_cast<long>(adjacency_matrix.size()); index++)
+    for (index = -1; index < static_cast<long>(adjacency_matrix.size());
+         index++)
     {
         print_number(index);
     }
@@ -162,6 +174,11 @@ void adjacency_management<T>::print_adjacency_matrix()
         for (int i = 0; i < default_gap; i++)
             std::cout << std::endl;
     }
+}
+
+template<typename T>
+void adjacency_management<T>::clear() {
+    adjacency_matrix.clear();
 }
 }  // namespace cubby_dnn
 

@@ -30,6 +30,8 @@ build/
 .idea/dictionaries
 .idea/codeStyles/codeStyleConfig.xml
 .idea/CubbyDNN.iml
+.idea/modules.xml
+.idea/serialmonitor_settings.xml
 
 # Generated files
 .idea/**/contentModel.xml

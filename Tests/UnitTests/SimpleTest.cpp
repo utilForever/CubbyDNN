@@ -5,6 +5,13 @@ using namespace cubby_dnn;
 
 std::vector<operation_info> Example1()
 {
+
+    ///Initialize every graph management classes before use (not required in real use)
+    ///prevents graph conflicts between tests
+    operation_management<int>::clear();
+    adjacency_management<int>::clear();
+    tensor_data_management<int>::clear();
+
     /// file stream class template is used for streaming data inside external
     /// files
     file_stream<int> file_stream;
@@ -55,6 +62,10 @@ std::vector<operation_info> Example1()
 
 std::vector<operation_info> Example2()
 {
+    operation_management<int>::clear();
+    adjacency_management<int>::clear();
+    tensor_data_management<int>::clear();
+
     file_stream<int> file_stream;
     auto input_tensor1 =
         generate<int>::placeholder(tensor_shape(2, 4, 3), file_stream);  // 1
@@ -75,6 +86,10 @@ std::vector<operation_info> Example2()
 
 std::vector<operation_info> Example3()
 {
+    operation_management<int>::clear();
+    adjacency_management<int>::clear();
+    tensor_data_management<int>::clear();
+
     file_stream<float> file_stream;
     auto input_tensor1 =
         generate<float>::placeholder(tensor_shape(5, 4, 3), file_stream);
