@@ -19,8 +19,6 @@ struct tensor_data<T>::data
 
     data(std::vector<T> &&data, tensor_shape &&shape);
 
-    data(const tensor_data<T>::data& rhs);
-
     std::vector<T> data_vector;
     tensor_shape shape;
     size_t byte_size{};
@@ -43,12 +41,6 @@ tensor_data<T>::data::data(std::vector<T> &&data, tensor_shape &&shape)
     byte_size = this->data_vector.size();
 }
 
-template<typename T>
-tensor_data<T>::data::data(const tensor_data<T>::data& rhs){
-    this->data_vector = rhs.data_vector;
-    this->shape = rhs.shape;
-    this->byte_size = rhs.byte_size;
-}
 
 template <typename T>
 tensor_data<T>::tensor_data(size_t data_size, const tensor_shape &shape,
