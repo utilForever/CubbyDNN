@@ -96,9 +96,9 @@ tensor<T> operate<T>::mat_mul(tensor<T> &tensor1, tensor<T> &tensor2,
             tensor_data<T>(tensor2.get_data_size(), tensor2.get_shape(), tensor2.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_data1.make_constant();
+        tensor_data1.set_constant();
     if (!tensor2.is_mutable())
-        tensor_data1.make_constant();
+        tensor_data1.set_constant();
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
@@ -154,9 +154,9 @@ tensor<T> operate<T>::mad_add(tensor<T> &tensor1, tensor<T> &tensor2,
             tensor_data<T>(tensor2.get_data_size(), tensor2.get_shape(), tensor2.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_data1.make_constant();
+        tensor_data1.set_constant();
     if (!tensor2.is_mutable())
-        tensor_data1.make_constant();
+        tensor_data1.set_constant();
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
@@ -198,7 +198,7 @@ tensor<T> operate<T>::mat_dot(tensor<T> &tensor1, T multiplier,
             tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_data1.make_constant();
+        tensor_data1.set_constant();
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
@@ -251,7 +251,7 @@ tensor<T> operate<T>::reshape(tensor<T> &tensor1, const tensor_shape &shape,
             tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_data1.make_constant();
+        tensor_data1.set_constant();
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
@@ -300,7 +300,7 @@ tensor<T> operate<T>::one_hot(tensor<T> &tensor1, size_t size,
             tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_data1.make_constant();
+        tensor_data1.set_constant();
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));
@@ -335,7 +335,7 @@ void final<T>::wrapper(tensor<T> &tensor1, const std::string &name)
             tensor_data<T>(tensor1.get_data_size(), tensor1.get_shape(), tensor1.get_from(), this_id);
 
     if (!tensor1.is_mutable())
-        tensor_data1.make_constant();
+        tensor_data1.set_constant();
 
     long tensor_data1_id = tensor_data_management<T>::add_tensor_data(
         std::move(tensor_data1));

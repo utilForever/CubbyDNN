@@ -42,7 +42,7 @@ class tensor_data
 {
  public:
     tensor_data(size_t data_size, const tensor_shape &shape, long from,
-                  long to);
+                long to);
 
     tensor_data(size_t data_size, tensor_shape &&shape, long from, long to);
 
@@ -56,6 +56,9 @@ class tensor_data
 
     ~tensor_data();
 
+ private:
+    struct data;
+
  public:
     /// getters
     bool has_data() const;
@@ -64,15 +67,19 @@ class tensor_data
 
     size_t get_data_byte_size() const;
 
-    const std::vector<T> get_data() const;
+    const std::vector<T> get_data_vector() const;
+
+    std::unique_ptr<data> import_tensor_storage();
+
+    void return_tensor_storage(std::unique_ptr<typename tensor_data<T>::data> rhs);
 
     tensor_shape get_data_shape() const;
 
     bool is_mutable() const;
 
-    void make_mutable();
+    void set_mutable();
 
-    void make_constant();
+    void set_constant();
 
     long comes_from() const;
 
@@ -81,18 +88,21 @@ class tensor_data
  private:
     bool _mutable = true;
 
+    bool busy = false;
+
     long from, to;
-
-    struct data;
-
+    /// tensor_storage points to actual data stored.
     std::unique_ptr<data> tensor_storage;
+
+    std::mutex lock_tensor_storage;
 };
 
 /**
  * @brief Helper class shown to user for constructing graph.
  *
  * This graph contains information of graph being built
- * methods of operation class builds tensor_data class based on information of this class
+ * methods of operation class builds tensor_data class based on information of
+ * this class
  *
  * @tparam T
  */

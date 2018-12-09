@@ -26,7 +26,7 @@ struct tensor_data<T>::data
 
 template <typename T>
 tensor_data<T>::data::data(const std::vector<T> &data,
-                                   const tensor_shape &shape)
+                           const tensor_shape &shape)
 {
     this->data_vector = data;
     this->shape = shape;
@@ -41,10 +41,9 @@ tensor_data<T>::data::data(std::vector<T> &&data, tensor_shape &&shape)
     byte_size = this->data_vector.size();
 }
 
-
 template <typename T>
 tensor_data<T>::tensor_data(size_t data_size, const tensor_shape &shape,
-                                long from, long to)
+                            long from, long to)
     : from(from), to(to)
 {
     std::vector<T> data_vector(data_size);
@@ -54,8 +53,8 @@ tensor_data<T>::tensor_data(size_t data_size, const tensor_shape &shape,
 }
 
 template <typename T>
-tensor_data<T>::tensor_data(size_t data_size, tensor_shape &&shape,
-                                long from, long to)
+tensor_data<T>::tensor_data(size_t data_size, tensor_shape &&shape, long from,
+                            long to)
     : from(from), to(to)
 {
     std::vector<T> data(data_size);
@@ -69,8 +68,8 @@ template <typename T>
 tensor_data<T>::tensor_data(const tensor_data<T> &rhs)
 {
     if (!rhs.tensor_storage)
-        this->tensor_storage =
-            std::make_unique<tensor_data<T>::data>(rhs.get_data(), rhs.get_data_shape());
+        this->tensor_storage = std::make_unique<tensor_data<T>::data>(
+            rhs.get_data_vector(), rhs.get_data_shape());
     _mutable = rhs._mutable;
     from = rhs.from;
     to = rhs.to;
@@ -87,14 +86,12 @@ tensor_data<T>::tensor_data(tensor_data<T> &&rhs) noexcept
 }
 
 template <typename T>
-tensor_data<T> &tensor_data<T>::operator=(
-    const cubby_dnn::tensor_data<T> &rhs)
+tensor_data<T> &tensor_data<T>::operator=(const cubby_dnn::tensor_data<T> &rhs)
 {
     /// may throw std::bad_alloc() (this function will provide strong guarantee)
     if (rhs.object)
-        this->tensor_storage =
-            std::make_unique<tensor_data<T>::tensor_storage>(
-                *rhs.tensor_storage);
+        this->tensor_storage = std::make_unique<tensor_data<T>::tensor_storage>(
+            *rhs.tensor_storage);
     return *this;
 }
 
@@ -159,7 +156,7 @@ size_t tensor_data<T>::get_data_byte_size() const
 }
 
 template <typename T>
-const std::vector<T> tensor_data<T>::get_data() const
+const std::vector<T> tensor_data<T>::get_data_vector() const
 {
     if (!tensor_storage)
     {
@@ -169,8 +166,25 @@ const std::vector<T> tensor_data<T>::get_data() const
     return tensor_storage->data_vector;
 }
 
+template <typename T>
+std::unique_ptr<typename tensor_data<T>::data>
+tensor_data<T>::import_tensor_storage()
+{
+    std::lock_guard<std::mutex> lock(lock_tensor_storage);
+    busy = true;
+    return std::move(tensor_storage);
+}
+
 template<typename T>
-tensor_shape tensor_data<T>::get_data_shape() const{
+void tensor_data<T>::return_tensor_storage(std::unique_ptr<typename tensor_data<T>::data> rhs){
+    std::lock_guard<std::mutex> lock(lock_tensor_storage);
+    busy = false;
+    tensor_storage = std::move(rhs);
+}
+
+template <typename T>
+tensor_shape tensor_data<T>::get_data_shape() const
+{
     if (!tensor_storage)
     {
         std::cout << "tensor_data is empty" << std::endl;
@@ -186,13 +200,13 @@ bool tensor_data<T>::is_mutable() const
 }
 
 template <typename T>
-void tensor_data<T>::make_mutable()
+void tensor_data<T>::set_mutable()
 {
     this->_mutable = true;
 }
 
 template <typename T>
-void tensor_data<T>::make_constant()
+void tensor_data<T>::set_constant()
 {
     this->_mutable = false;
 }
