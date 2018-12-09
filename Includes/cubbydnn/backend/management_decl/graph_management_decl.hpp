@@ -16,21 +16,28 @@ template <typename T>
 class tensor_data_management
 {
  public:
-    static long add_tensor_data(const tensor_data<T>& object);
+    static long add_tensor_object(const tensor_object<T>& object);
 
-    static long add_tensor_data(tensor_data<T>&& object);
+    static long add_tensor_object(tensor_object<T>&& object);
 
-    static tensor_data<T>& get_tensor_data(long id);
+    /// returns tensor_object without pointer to data storage
+    static tensor_object<T>& get_tensor_object_without_data(long id);
+
+    /// returns tensor_object with data
+    static std::unique_ptr<typename tensor_object<T>::data> get_tensor_data_ptr(
+        long tensor_id);
+
+    static void return_tensor_data_ptr(long id,
+        std::unique_ptr<typename tensor_object<T>::data> rhs);
 
     static void clear();
 
  private:
-    static std::deque<tensor_data<T>> tensor_data_vector;
-    static std::mutex tensor_data_vector_mutex;
+    static std::deque<tensor_object<T>> tensor_data_vector;
 };
 
 template <typename T>
-std::deque<tensor_data<T>> tensor_data_management<T>::tensor_data_vector;
+std::deque<tensor_object<T>> tensor_data_management<T>::tensor_data_vector;
 
 template <typename T>
 class operation_management
@@ -70,7 +77,8 @@ class adjacency_management
  private:
     static const int default_gap = 2;
     static void print_number(long output_number);
-    static std::deque<std::deque<long>> adjacency_matrix; ///row: from, col: to
+    static std::deque<std::deque<long>> adjacency_matrix;  /// row: from, col:
+                                                           /// to
     static const size_t default_graph_size;
     static const long unallocated_state;
 };

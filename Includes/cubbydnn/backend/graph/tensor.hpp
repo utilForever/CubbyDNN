@@ -12,7 +12,7 @@
 namespace cubby_dnn
 {
 template <typename T>
-struct tensor_data<T>::data
+struct tensor_object<T>::data
 {
  public:
     data(const std::vector<T> &data, const tensor_shape &shape);
@@ -25,7 +25,7 @@ struct tensor_data<T>::data
 };
 
 template <typename T>
-tensor_data<T>::data::data(const std::vector<T> &data,
+tensor_object<T>::data::data(const std::vector<T> &data,
                            const tensor_shape &shape)
 {
     this->data_vector = data;
@@ -34,7 +34,7 @@ tensor_data<T>::data::data(const std::vector<T> &data,
 }
 
 template <typename T>
-tensor_data<T>::data::data(std::vector<T> &&data, tensor_shape &&shape)
+tensor_object<T>::data::data(std::vector<T> &&data, tensor_shape &&shape)
 {
     this->data_vector = std::forward<std::vector<T>>(data);
     this->shape = std::forward<tensor_shape>(data);
@@ -42,7 +42,7 @@ tensor_data<T>::data::data(std::vector<T> &&data, tensor_shape &&shape)
 }
 
 template <typename T>
-tensor_data<T>::tensor_data(size_t data_size, const tensor_shape &shape,
+tensor_object<T>::tensor_object(size_t data_size, const tensor_shape &shape,
                             long from, long to)
     : from(from), to(to)
 {
@@ -53,7 +53,7 @@ tensor_data<T>::tensor_data(size_t data_size, const tensor_shape &shape,
 }
 
 template <typename T>
-tensor_data<T>::tensor_data(size_t data_size, tensor_shape &&shape, long from,
+tensor_object<T>::tensor_object(size_t data_size, tensor_shape &&shape, long from,
                             long to)
     : from(from), to(to)
 {
@@ -65,18 +65,18 @@ tensor_data<T>::tensor_data(size_t data_size, tensor_shape &&shape, long from,
 }
 
 template <typename T>
-tensor_data<T>::tensor_data(const tensor_data<T> &rhs)
+tensor_object<T>::tensor_object(const tensor_object<T> &rhs)
 {
-    if (!rhs.tensor_storage)
-        this->tensor_storage = std::make_unique<tensor_data<T>::data>(
-            rhs.get_data_vector(), rhs.get_data_shape());
+//    if (!rhs.tensor_storage)
+//        this->tensor_storage = std::make_unique<tensor_data<T>::data>(
+//            rhs.get_data_vector(), rhs.get_data_shape());
     _mutable = rhs._mutable;
     from = rhs.from;
     to = rhs.to;
 }
 
 template <typename T>
-tensor_data<T>::tensor_data(tensor_data<T> &&rhs) noexcept
+tensor_object<T>::tensor_object(tensor_object<T> &&rhs) noexcept
 {
     if (rhs.tensor_storage)
         this->tensor_storage = std::move(rhs.tensor_storage);
@@ -86,21 +86,21 @@ tensor_data<T>::tensor_data(tensor_data<T> &&rhs) noexcept
 }
 
 template <typename T>
-tensor_data<T> &tensor_data<T>::operator=(const cubby_dnn::tensor_data<T> &rhs)
+tensor_object<T> &tensor_object<T>::operator=(const cubby_dnn::tensor_object<T> &rhs)
 {
     /// may throw std::bad_alloc() (this function will provide strong guarantee)
     if (rhs.object)
-        this->tensor_storage = std::make_unique<tensor_data<T>::tensor_storage>(
+        this->tensor_storage = std::make_unique<tensor_object<T>::tensor_storage>(
             *rhs.tensor_storage);
     return *this;
 }
 
 template <typename T>
-tensor_data<T> &tensor_data<T>::operator=(
-    cubby_dnn::tensor_data<T> &&rhs) noexcept = default;
+tensor_object<T> &tensor_object<T>::operator=(
+    cubby_dnn::tensor_object<T> &&rhs) noexcept = default;
 
 template <typename T>
-tensor_data<T>::~tensor_data() = default;
+tensor_object<T>::~tensor_object() = default;
 
 template <typename T>
 bool verify(const std::vector<T> &data, const tensor_shape &shape)
@@ -125,7 +125,7 @@ bool verify(const std::vector<T> &data, const tensor_shape &shape)
 // getters
 
 template <typename T>
-bool tensor_data<T>::has_data() const
+bool tensor_object<T>::has_data() const
 {
     if (!tensor_storage)
         return false;
@@ -134,7 +134,7 @@ bool tensor_data<T>::has_data() const
 }
 
 template <typename T>
-size_t tensor_data<T>::get_data_size() const
+size_t tensor_object<T>::get_data_size() const
 {
     if (!tensor_storage)
     {
@@ -145,7 +145,7 @@ size_t tensor_data<T>::get_data_size() const
 }
 
 template <typename T>
-size_t tensor_data<T>::get_data_byte_size() const
+size_t tensor_object<T>::get_data_byte_size() const
 {
     if (!tensor_storage)
     {
@@ -156,8 +156,9 @@ size_t tensor_data<T>::get_data_byte_size() const
 }
 
 template <typename T>
-const std::vector<T> tensor_data<T>::get_data_vector() const
+const std::vector<T> tensor_object<T>::get_data_vector() const
 {
+
     if (!tensor_storage)
     {
         std::cout << "tensor_data is empty" << std::endl;
@@ -167,23 +168,25 @@ const std::vector<T> tensor_data<T>::get_data_vector() const
 }
 
 template <typename T>
-std::unique_ptr<typename tensor_data<T>::data>
-tensor_data<T>::import_tensor_storage()
+std::unique_ptr<typename tensor_object<T>::data>
+tensor_object<T>::get_data_ptr()
 {
     std::lock_guard<std::mutex> lock(lock_tensor_storage);
     busy = true;
     return std::move(tensor_storage);
 }
 
-template<typename T>
-void tensor_data<T>::return_tensor_storage(std::unique_ptr<typename tensor_data<T>::data> rhs){
+template <typename T>
+void tensor_object<T>::return_data_ptr(
+    std::unique_ptr<typename tensor_object<T>::data> rhs)
+{
     std::lock_guard<std::mutex> lock(lock_tensor_storage);
     busy = false;
     tensor_storage = std::move(rhs);
 }
 
 template <typename T>
-tensor_shape tensor_data<T>::get_data_shape() const
+tensor_shape tensor_object<T>::get_data_shape() const
 {
     if (!tensor_storage)
     {
@@ -194,31 +197,31 @@ tensor_shape tensor_data<T>::get_data_shape() const
 }
 
 template <typename T>
-bool tensor_data<T>::is_mutable() const
+bool tensor_object<T>::is_mutable() const
 {
     return _mutable;
 }
 
 template <typename T>
-void tensor_data<T>::set_mutable()
+void tensor_object<T>::set_mutable()
 {
     this->_mutable = true;
 }
 
 template <typename T>
-void tensor_data<T>::set_constant()
+void tensor_object<T>::set_constant()
 {
     this->_mutable = false;
 }
 
 template <typename T>
-long tensor_data<T>::comes_from() const
+long tensor_object<T>::comes_from() const
 {
     return from;
 }
 
 template <typename T>
-long tensor_data<T>::heads_to() const
+long tensor_object<T>::heads_to() const
 {
     return to;
 }

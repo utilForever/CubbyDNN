@@ -38,25 +38,24 @@ bool verify(const std::vector<T> &data, const tensor_shape &shape);
  * @tparam T : basic data type for operation
  */
 template <typename T>
-class tensor_data
+class tensor_object
 {
  public:
-    tensor_data(size_t data_size, const tensor_shape &shape, long from,
+    tensor_object(size_t data_size, const tensor_shape &shape, long from,
                 long to);
 
-    tensor_data(size_t data_size, tensor_shape &&shape, long from, long to);
+    tensor_object(size_t data_size, tensor_shape &&shape, long from, long to);
 
-    tensor_data(const tensor_data<T> &rhs);
+    tensor_object(const tensor_object<T> &rhs);
 
-    tensor_data(tensor_data<T> &&rhs) noexcept;
+    tensor_object(tensor_object<T> &&rhs) noexcept;
 
-    tensor_data &operator=(const tensor_data<T> &rhs);
+    tensor_object &operator=(const tensor_object<T> &rhs);
 
-    tensor_data &operator=(tensor_data<T> &&rhs) noexcept;
+    tensor_object &operator=(tensor_object<T> &&rhs) noexcept;
 
-    ~tensor_data();
+    ~tensor_object();
 
- private:
     struct data;
 
  public:
@@ -69,9 +68,9 @@ class tensor_data
 
     const std::vector<T> get_data_vector() const;
 
-    std::unique_ptr<data> import_tensor_storage();
+    std::unique_ptr<data> get_data_ptr();
 
-    void return_tensor_storage(std::unique_ptr<typename tensor_data<T>::data> rhs);
+    void return_data_ptr(std::unique_ptr<typename tensor_object<T>::data> rhs);
 
     tensor_shape get_data_shape() const;
 
