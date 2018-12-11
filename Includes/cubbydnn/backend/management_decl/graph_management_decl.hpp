@@ -20,8 +20,7 @@ class tensor_data_management
 
     static long add_tensor_object(tensor_object<T>&& object);
 
-    /// returns tensor_object without pointer to data storage
-    static tensor_object<T>& get_tensor_object_without_data(long id);
+    static typename tensor_object<T>::info get_tensor_information(long tensor_id);
 
     /// returns tensor_object with data
     static std::unique_ptr<typename tensor_object<T>::data> get_tensor_data_ptr(
@@ -33,11 +32,11 @@ class tensor_data_management
     static void clear();
 
  private:
-    static std::deque<tensor_object<T>> tensor_data_vector;
+    static std::deque<tensor_object<T>> tensor_object_vector;
 };
 
 template <typename T>
-std::deque<tensor_object<T>> tensor_data_management<T>::tensor_data_vector;
+std::deque<tensor_object<T>> tensor_data_management<T>::tensor_object_vector;
 
 template <typename T>
 class operation_management

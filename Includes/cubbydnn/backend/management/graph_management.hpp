@@ -4,6 +4,9 @@
 
 #ifndef CUBBYDNN_MANAGEMENT_DECL_HPP
 #define CUBBYDNN_MANAGEMENT_DECL_HPP
+
+#include <backend/management_decl/graph_management_decl.hpp>
+
 #include "backend/management_decl/graph_management_decl.hpp"
 
 namespace cubby_dnn
@@ -12,42 +15,46 @@ template <typename T>
 long tensor_data_management<T>::add_tensor_object(
     const tensor_object<T>& object)
 {
-    tensor_data_vector.emplace_back(object);
-    auto tensor_data_id = static_cast<long>(tensor_data_vector.size()) - 1;
+    tensor_object_vector.emplace_back(object);
+    auto tensor_data_id = static_cast<long>(tensor_object_vector.size()) - 1;
     return tensor_data_id;
 }
 
 template <typename T>
 long tensor_data_management<T>::add_tensor_object(tensor_object<T>&& object)
 {
-    tensor_data_vector.emplace_back(std::forward<tensor_object<T>>(object));
-    auto tensor_data_id = static_cast<long>(tensor_data_vector.size()) - 1;
+    tensor_object_vector.emplace_back(std::forward<tensor_object<T>>(object));
+    auto tensor_data_id = static_cast<long>(tensor_object_vector.size()) - 1;
     return tensor_data_id;
 }
 
 template <typename T>
-tensor_object<T>& tensor_data_management<T>::get_tensor_object_without_data(
-    long id)
+typename tensor_object<T>::info
+tensor_data_management<T>::get_tensor_information(long tensor_id)
 {
-    return tensor_data_vector.at(static_cast<size_t>(id));
+    return tensor_object_vector.at(static_cast<size_t>(tensor_id)).get_information();
 }
 
-template<typename T>
-void tensor_data_management<T>::return_tensor_data_ptr(long id, std::unique_ptr<typename tensor_object<T>::data> rhs){
-    tensor_data_vector.at(id) = std::move(rhs);
+
+template <typename T>
+void tensor_data_management<T>::return_tensor_data_ptr(
+    long id, std::unique_ptr<typename tensor_object<T>::data> rhs)
+{
+    tensor_object_vector.at(id).return_data_ptr(std::move(rhs));
 }
 
 template <typename T>
 std::unique_ptr<typename tensor_object<T>::data>
 tensor_data_management<T>::get_tensor_data_ptr(long tensor_id)
 {
-    return std::move(tensor_data_vector.at(static_cast<size_t>(tensor_id)).get_data_ptr());
+    return std::move(
+        tensor_object_vector.at(static_cast<size_t>(tensor_id)).get_data_ptr());
 }
 
 template <typename T>
 void tensor_data_management<T>::clear()
 {
-    tensor_data_vector.clear();
+    tensor_object_vector.clear();
 }
 
 template <typename T>
@@ -139,10 +146,9 @@ long adjacency_management<T>::add_operation_to_adjacency(long operation_id)
 
     for (long tensor_id : input_tensor_id_vect)
     {
-        tensor_object<T> tensor =
-            tensor_data_management<T>::get_tensor_object_without_data(
-                tensor_id);
-        adjacency_matrix.at(static_cast<size_t>(tensor.comes_from()))
+        decltype(auto) tensor_information =
+            tensor_data_management<T>::get_tensor_information(tensor_id);
+        adjacency_matrix.at(static_cast<size_t>(tensor_information.from))
             .at(static_cast<size_t>(operation_id)) = tensor_id;
     }
     return static_cast<long>(adjacency_matrix.size());

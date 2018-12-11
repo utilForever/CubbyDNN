@@ -58,13 +58,11 @@ class tensor_object
 
     struct data;
 
+    struct info;
+
  public:
     /// getters
-    bool has_data() const;
-
-    size_t get_data_size() const;
-
-    size_t get_data_byte_size() const;
+    typename tensor_object<T>::info get_information() const;
 
     const std::vector<T> get_data_vector() const;
 
@@ -73,8 +71,6 @@ class tensor_object
     void return_data_ptr(std::unique_ptr<typename tensor_object<T>::data> rhs);
 
     tensor_shape get_data_shape() const;
-
-    bool is_mutable() const;
 
     void set_mutable();
 
@@ -85,11 +81,8 @@ class tensor_object
     long heads_to() const;
 
  private:
-    bool _mutable = true;
 
-    bool busy = false;
-
-    long from, to;
+    info information;
     /// tensor_storage points to actual data stored.
     std::unique_ptr<data> tensor_storage;
 
