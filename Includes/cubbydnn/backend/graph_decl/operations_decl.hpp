@@ -21,7 +21,7 @@ enum class operation_type
 };
 
 /**
- * @brief struct representing information of operation objects.
+ * @brief represents information of operation objects.
  * used for examining graph structure.
  */
 struct operation_info
@@ -68,11 +68,16 @@ class operation
 {
  public:
     void add_output_tensor(long tensor_id);
+
     void add_input_tensor(long tensor_id);
+
+    void increment_process_count();
 
     size_t number_of_input_tensors();
 
     size_t number_of_output_tensors();
+
+    unsigned get_process_count();
 
     const std::string &get_name();
 
@@ -93,6 +98,10 @@ class operation
     std::vector<long> input_tensor_id_vector;
     std::vector<long> output_tensor_id_vector;
     std::string name;
+    /// specifies state of this operation
+    /// operation is only allowed to execute tensor_objects with
+    /// identical process_count variable.
+    unsigned process_count = 0;
 };
 
 template <typename T>

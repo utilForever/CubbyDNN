@@ -4,6 +4,9 @@
 
 #ifndef CUBBYDNN_BASE_OPERATIONS_HPP
 #define CUBBYDNN_BASE_OPERATIONS_HPP
+
+#include <backend/graph_decl/operations_decl.hpp>
+
 #include "backend/graph_decl/operations_decl.hpp"
 
 namespace cubby_dnn
@@ -37,7 +40,7 @@ size_t operation<T>::number_of_output_tensors()
 
 template <typename T>
 
-const std::string &operation<T>::get_name()
+const std::string& operation<T>::get_name()
 {
     return name;
 }
@@ -68,15 +71,27 @@ operation_info operation<T>::get_info() const
 }
 
 template <typename T>
-const std::vector<long> &operation<T>::get_input_tensor_vector() const
+const std::vector<long>& operation<T>::get_input_tensor_vector() const
 {
     return input_tensor_id_vector;
 }
 
 template <typename T>
-const std::vector<long> &operation<T>::get_output_tensor_vector() const
+const std::vector<long>& operation<T>::get_output_tensor_vector() const
 {
     return output_tensor_id_vector;
+}
+
+template <typename T>
+void operation<T>::increment_process_count()
+{
+    process_count += 1;
+}
+
+template <typename T>
+unsigned operation<T>::get_process_count()
+{
+    return process_count;
 }
 
 template <typename T>
@@ -87,7 +102,7 @@ empty_op<T>::empty_op()
 }
 
 template <typename T>
-mat_mul_op<T>::mat_mul_op(long operation_id, const std::string &name)
+mat_mul_op<T>::mat_mul_op(long operation_id, const std::string& name)
 {
     this->operation_id = operation_id;
     this->name = name;
@@ -95,7 +110,7 @@ mat_mul_op<T>::mat_mul_op(long operation_id, const std::string &name)
 }
 
 template <typename T>
-mat_add_op<T>::mat_add_op(long operation_id, const std::string &name)
+mat_add_op<T>::mat_add_op(long operation_id, const std::string& name)
 {
     this->operation_id = operation_id;
     this->name = name;
@@ -103,7 +118,7 @@ mat_add_op<T>::mat_add_op(long operation_id, const std::string &name)
 }
 
 template <typename T>
-mat_dot_op<T>::mat_dot_op(long operation_id, const std::string &name,
+mat_dot_op<T>::mat_dot_op(long operation_id, const std::string& name,
                           T multiplier)
 {
     this->operation_id = operation_id;
@@ -113,8 +128,8 @@ mat_dot_op<T>::mat_dot_op(long operation_id, const std::string &name,
 }
 
 template <typename T>
-reshape_op<T>::reshape_op(long operation_id, const std::string &name,
-                          const tensor_shape &shape)
+reshape_op<T>::reshape_op(long operation_id, const std::string& name,
+                          const tensor_shape& shape)
 {
     this->operation_id = operation_id;
     this->name = name;
@@ -123,8 +138,8 @@ reshape_op<T>::reshape_op(long operation_id, const std::string &name,
 }
 
 template <typename T>
-placeholder_op<T>::placeholder_op(long operation_id, const tensor_shape &shape,
-                                  stream<T> &stream, const std::string &name)
+placeholder_op<T>::placeholder_op(long operation_id, const tensor_shape& shape,
+                                  stream<T>& stream, const std::string& name)
 {
     this->operation_id = operation_id;
     this->data_stream = stream;
@@ -134,8 +149,8 @@ placeholder_op<T>::placeholder_op(long operation_id, const tensor_shape &shape,
 }
 
 template <typename T>
-weight_op<T>::weight_op(long operation_id, const tensor_shape &shape,
-                        const std::string &name)
+weight_op<T>::weight_op(long operation_id, const tensor_shape& shape,
+                        const std::string& name)
 {
     this->operation_id = operation_id;
     this->name = name;
@@ -144,8 +159,8 @@ weight_op<T>::weight_op(long operation_id, const tensor_shape &shape,
 }
 
 template <typename T>
-constant_op<T>::constant_op(long operation_id, const tensor_shape &shape,
-                            const std::string &name)
+constant_op<T>::constant_op(long operation_id, const tensor_shape& shape,
+                            const std::string& name)
 {
     this->operation_id = operation_id;
     this->name = name;
@@ -154,7 +169,7 @@ constant_op<T>::constant_op(long operation_id, const tensor_shape &shape,
 }
 
 template <typename T>
-wrapper_op<T>::wrapper_op(long operation_id, const std::string &name)
+wrapper_op<T>::wrapper_op(long operation_id, const std::string& name)
 {
     this->operation_id = operation_id;
     this->name = name;

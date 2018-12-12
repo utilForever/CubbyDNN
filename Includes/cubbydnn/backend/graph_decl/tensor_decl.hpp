@@ -42,7 +42,7 @@ class tensor_object
 {
  public:
     tensor_object(size_t data_size, const tensor_shape &shape, long from,
-                long to);
+                  long to);
 
     tensor_object(size_t data_size, tensor_shape &&shape, long from, long to);
 
@@ -62,12 +62,17 @@ class tensor_object
 
  public:
     /// getters
-    typename tensor_object<T>::info get_information() const;
+    const typename tensor_object<T>::info& get_information() const;
 
     const std::vector<T> get_data_vector() const;
 
+    /// moves tensor_data unique ptr to caller
+    /// this method will disable access to tensor_data, and set it null
+    /// after this method is called, the unique_ptr must be returned to original
+    /// place by calling tensor_object<T>::return_data_ptr
     std::unique_ptr<data> get_data_ptr();
 
+    /// returns unique_ptr to tensor_object
     void return_data_ptr(std::unique_ptr<typename tensor_object<T>::data> rhs);
 
     tensor_shape get_data_shape() const;
@@ -76,15 +81,14 @@ class tensor_object
 
     void set_constant();
 
-    long comes_from() const;
+    void increment_process_count();
 
-    long heads_to() const;
+    unsigned get_process_count();
 
  private:
-
     info information;
     /// tensor_storage points to actual data stored.
-    std::unique_ptr<data> tensor_storage;
+    std::unique_ptr<data> tensor_data;
 
     std::mutex lock_tensor_storage;
 };
@@ -106,7 +110,6 @@ class tensor
 
  public:
     /// getters
-
     bool is_valid() const;
 
     const tensor_shape &get_shape() const;

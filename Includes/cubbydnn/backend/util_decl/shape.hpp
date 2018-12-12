@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 
+/**
+ * @brief contains information about the shape of tensor
+ *
+ */
 struct tensor_shape
 {
  public:
@@ -39,7 +43,7 @@ struct tensor_shape
         return shape_vector.at(1);
     }
 
-    long height() const
+    long dimension() const
     {
         return shape_vector.at(2);
     }

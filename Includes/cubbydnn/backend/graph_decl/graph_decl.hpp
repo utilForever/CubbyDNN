@@ -108,8 +108,8 @@ class operate : protected tensor<T>
      * @param name name of the operation
      * @return tensor<T> to contain the result of the operation
      */
-    static tensor<T> mad_add(tensor<T> &tensor1, tensor<T> &tensor2,
-                             const std::string &name = "mat_add");
+    static tensor<T> mat_add(tensor<T>& tensor1, tensor<T>& tensor2,
+            const std::string& name = "mat_add");
 
     /**
      * @brief inserts operation that adds given tensors to the graph
