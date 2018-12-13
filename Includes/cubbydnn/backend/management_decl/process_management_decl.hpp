@@ -6,8 +6,8 @@
 #include <mutex>
 #include "backend/management/graph_management.hpp"
 
-#ifndef CUBBYDNN_PROCESS_MANAGEMENT_HPP
-#define CUBBYDNN_PROCESS_MANAGEMENT_HPP
+#ifndef CUBBYDNN_PROCESS_MANAGEMENT_DECL_HPP
+#define CUBBYDNN_PROCESS_MANAGEMENT_DECL_HPP
 
 namespace cubby_dnn
 {
@@ -20,33 +20,11 @@ class process_management
  public:
     /// pop next process to execute
     /// @return operation_id that is available
-    long get_process()
-    {
-        if (operation_management<T>::operation_vector_size() <
-                process_management<T>::minimum_queue_size)
-            update_available_process();
-        std::lock_guard<std::mutex> lock(lock_queue);
-        long operation_id = process_queue.front();
-        process_queue.pop_front();
-        return operation_id;
-    }
+    long get_process();
 
     /// this method must be called to allow the operation to execute next
     /// tensor_object
-    void increment_process_count_of(long operation_id)
-    {
-        operation<T>& operation =
-            operation_management<T>::get_operation(operation_id);
-        operation.increment_process_count();
-        std::vector<long> output_tensor_vector =
-            operation.get_output_tensor_vector();
-
-        for (auto tensor_id : output_tensor_vector)
-        {
-            tensor_object_management<T>::tensor_object_vector.at(tensor_id)
-                .increment_process_count();
-        }
-    }
+    void increment_process_count_of(long operation_id);
 
     /// searches for available operation
     /// @return operation_id which is ready to be executed
@@ -54,23 +32,9 @@ class process_management
  private:
     // TODO: think about way to check operations which are ready to be executed
     /// push the process which is ready to be executed
-    void push_process(long operation_id)
-    {
-        std::lock_guard<std::mutex> lock(lock_queue);
-        process_queue.push_back(operation_id);
-    }
+    void push_process(long operation_id);
 
-    void update_available_process()
-    {
-        for (auto count = 0;
-             count < operation_management<T>::operation_vector_size(); count++)
-        {
-            if (operation_management<T>::check_available(count))
-            {
-                push_process(count);
-            }
-        }
-    }
+    void update_available_process();
 
     static std::deque<long> process_queue;
     static std::mutex lock_queue;
