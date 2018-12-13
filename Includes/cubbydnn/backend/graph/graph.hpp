@@ -22,7 +22,7 @@ tensor<T> generate<T>::placeholder(const tensor_shape& shape, stream<T>& stream,
         return get_default_tensor();
     }
 
-    long operation_id = operation_management<T>::get_next_operation_id();
+    long operation_id = operation_management<T>::operation_vector_size();
     tensor<T> output_tensor(shape, operation_id, false);
     /// declare empty operation for later use
     auto new_op = placeholder_op<T>(operation_id, shape, stream, name);
@@ -41,7 +41,7 @@ tensor<T> generate<T>::variable(const tensor_shape& shape, bool trainable,
         return get_default_tensor();  // check if shape is valid
     }
 
-    long operation_id = operation_management<T>::get_next_operation_id();
+    long operation_id = operation_management<T>::operation_vector_size();
 
     tensor<T> output_tensor(shape, operation_id, false);
 
@@ -84,7 +84,7 @@ tensor<T> operate<T>::mat_mul(tensor<T>& tensor1, tensor<T>& tensor2,
         return get_default_tensor();
     }
 
-    auto this_id = operation_management<T>::get_next_operation_id();
+    auto this_id = operation_management<T>::operation_vector_size();
 
     tensor1.add_to(this_id);
     tensor2.add_to(this_id);
@@ -144,7 +144,7 @@ tensor<T> operate<T>::mat_add(tensor<T>& tensor1, tensor<T>& tensor2,
         return get_default_tensor();
     }
 
-    auto this_id = operation_management<T>::get_next_operation_id();
+    auto this_id = operation_management<T>::operation_vector_size();
 
     tensor1.add_to(this_id);
     tensor2.add_to(this_id);
@@ -194,7 +194,7 @@ tensor<T> operate<T>::mat_dot(tensor<T>& tensor1, T multiplier,
         return get_default_tensor();
     }
 
-    auto this_id = operation_management<T>::get_next_operation_id();
+    auto this_id = operation_management<T>::operation_vector_size();
 
     tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
@@ -248,7 +248,7 @@ tensor<T> operate<T>::reshape(tensor<T>& tensor1, const tensor_shape& shape,
         std::cout << "This Error occurs from operation: " << name << std::endl;
     }
 
-    auto this_id = operation_management<T>::get_next_operation_id();
+    auto this_id = operation_management<T>::operation_vector_size();
 
     tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
@@ -301,7 +301,7 @@ tensor<T> operate<T>::one_hot(tensor<T>& tensor1, size_t size,
         std::cout << "This Error occurs from operation: " << name << std::endl;
     }
 
-    auto this_id = operation_management<T>::get_next_operation_id();
+    auto this_id = operation_management<T>::operation_vector_size();
 
     auto tensor_data1 =
         tensor_object<T>(tensor1.get_data_size(), tensor1.get_shape(),
@@ -334,7 +334,7 @@ void final<T>::wrapper(tensor<T>& tensor1, const std::string& name)
         return;
     }
 
-    auto this_id = operation_management<T>::get_next_operation_id();
+    auto this_id = operation_management<T>::operation_vector_size();
 
     tensor1.add_to(this_id);
     // TODO: find way to initialize the default data
