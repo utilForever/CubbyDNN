@@ -28,6 +28,7 @@
 #include "backend/graph/operations.hpp"
 #include "backend/graph/tensor.hpp"
 #include "backend/management/graph_management.hpp"
+#include "backend/util/terminal.hpp"
 
 namespace cubby_dnn
 {

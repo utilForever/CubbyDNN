@@ -78,9 +78,9 @@ tensor<T> operate<T>::mat_mul(tensor<T>& tensor1, tensor<T>& tensor2,
     if (tensor1.get_shape().cols() != tensor2.get_shape().rows() ||
         tensor1.get_shape().dimension() != tensor2.get_shape().dimension())
     {
-        std::cout << "tensor shapes doesn't match for multiplication"
-                  << std::endl;
-        std::cout << "This Error occurs from operation: " << name << std::endl;
+        std::string msg = "tensor shapes doesn't match for multiplication";
+        terminal::print_error(err_type::shape_matching,
+                              "operate<T>::mat_mul, " + name, msg);
         return get_default_tensor();
     }
 
@@ -139,8 +139,9 @@ tensor<T> operate<T>::mat_add(tensor<T>& tensor1, tensor<T>& tensor2,
     /// check: both tensors should have identical shape
     if (tensor1.get_shape() != tensor2.get_shape())
     {
-        std::cout << "tensor shapes doesn't match for Addition" << std::endl;
-        std::cout << "This Error occurs from operation: " << name << std::endl;
+        std::string msg = "tensor shapes doesn't match for Addition";
+        terminal::print_error(err_type::shape_matching,
+                              "operate<T>::mat_add, " + name, msg);
         return get_default_tensor();
     }
 
@@ -233,19 +234,20 @@ tensor<T> operate<T>::reshape(tensor<T>& tensor1, const tensor_shape& shape,
 
     if (!shape::check_shape(tensor1.get_shape(), name))
     {
-        std::cout << "tensor shapes doesn't match for reshaping" << std::endl;
-        std::cout << "This Error occurs from operation: " << name << std::endl;
+        std::string msg = "tensor shapes doesn't match for reshaping";
+        terminal::print_error(err_type::shape_matching,
+                              "operate<T>::reshape, " + name, msg);
         return get_default_tensor();
     }
 
     if (tensor1.get_data_size() != shape.size())
     {
-        std::cout << "size of new shape doesn't match for reshaping"
-                  << std::endl;
-        std::cout << "new size: " << std::to_string(shape.size())
-                  << "original size: "
-                  << std::to_string(tensor1.get_data_size()) << std::endl;
-        std::cout << "This Error occurs from operation: " << name << std::endl;
+        std::string msg =
+            std::string("size of new shape doesn't match for reshaping") +
+            "new size: " + std::to_string(shape.size()) +
+            "original size: " + std::to_string(tensor1.get_data_size());
+        terminal::print_error(err_type::shape_matching,
+                              "operate<T>::reshape, " + name, msg);
     }
 
     auto this_id = operation_management<T>::operation_vector_size();
@@ -287,18 +289,20 @@ tensor<T> operate<T>::one_hot(tensor<T>& tensor1, size_t size,
 
     if (!shape::check_shape(tensor1.get_shape(), name))
     {
-        std::cout << "tensor shapes doesn't match for reshaping" << std::endl;
-        std::cout << "This Error occurs from operation: " << name << std::endl;
+        std::string msg = "tensor shapes doesn't match for reshaping";
+        terminal::print_error(err_type::shape_matching,
+                              "operate<T>::reshape, " + name, msg);
         return get_default_tensor();
     }
 
     if (tensor1.get_data_size() != size)
     {
-        std::cout << "size of new shape doesn't match for reshaping"
-                  << std::endl;
-        std::cout << "new size: " << std::to_string(size) << "original size: "
-                  << std::to_string(tensor1.get_data_size()) << std::endl;
-        std::cout << "This Error occurs from operation: " << name << std::endl;
+        std::string msg =
+            std::string("size of new shape doesn't match for reshaping") +
+            "new size: " + std::to_string(size) +
+            "original size: " + std::to_string(tensor1.get_data_size());
+        terminal::print_error(err_type::shape_matching,
+                              "operate<T>::one_hot, " + name, msg);
     }
 
     auto this_id = operation_management<T>::operation_vector_size();
@@ -324,7 +328,7 @@ tensor<T> operate<T>::one_hot(tensor<T>& tensor1, size_t size,
     adjacency_management<T>::add_operation_to_adjacency(one_hot_op.get_id());
 
     return output_tensor;
-}
+}  // namespace cubby_dnn
 
 template <typename T>
 void final<T>::wrapper(tensor<T>& tensor1, const std::string& name)
