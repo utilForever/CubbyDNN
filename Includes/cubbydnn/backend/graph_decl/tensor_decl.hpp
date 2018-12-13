@@ -71,13 +71,10 @@ class tensor_object
     /// after this method is called, the unique_ptr must be returned to original
     /// place by calling tensor_object<T>::return_data_ptr
     std::unique_ptr<data> get_data_ptr();
-
     /// returns unique_ptr to tensor_object
     void return_data_ptr(std::unique_ptr<typename tensor_object<T>::data> rhs);
 
     tensor_shape get_data_shape() const;
-
-    void set_mutable();
 
     void set_constant();
 
@@ -119,8 +116,6 @@ class tensor
     bool is_mutable() const;
 
     long get_from() const;
-
-    void make_mutable();
 
     void make_constant();
 
