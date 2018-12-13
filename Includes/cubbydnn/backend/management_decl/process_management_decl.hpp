@@ -1,5 +1,5 @@
 //
-// Created by jwkim98 on 18. 12. 12.
+// Created by Justin on 18. 12. 12.
 //
 
 #include <deque>
@@ -26,14 +26,19 @@ class process_management
     /// tensor_object
     void increment_process_count_of(long operation_id);
 
-    /// searches for available operation
-    /// @return operation_id which is ready to be executed
+    static std::unique_ptr<typename tensor_object<T>::data> get_tensor_data_ptr(
+        long tensor_id);
+
+    static void return_tensor_data_ptr(
+            long tensor_id, std::unique_ptr<typename tensor_object<T>::data> rhs);
 
  private:
     // TODO: think about way to check operations which are ready to be executed
     /// push the process which is ready to be executed
     void push_process(long operation_id);
 
+    /// checks for all operations in the graph, and pushes available operations
+    /// to the queue
     void update_available_process();
 
     static std::deque<long> process_queue;

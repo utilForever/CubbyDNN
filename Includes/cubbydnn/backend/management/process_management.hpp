@@ -2,6 +2,8 @@
 // Created by jwkim98 on 18. 12. 13.
 //
 
+#include <backend/management_decl/process_management_decl.hpp>
+
 #include "backend/management_decl/process_management_decl.hpp"
 
 #ifndef CUBBYDNN_PROCESS_MANAGEMENT_HPP
@@ -13,7 +15,7 @@ template <typename T>
 long process_management<T>::get_process()
 {
     if (operation_management<T>::operation_vector_size() <
-            process_management<T>::minimum_queue_size)
+        process_management<T>::minimum_queue_size)
         update_available_process();
     std::lock_guard<std::mutex> lock(lock_queue);
     long operation_id = process_queue.front();
@@ -25,16 +27,31 @@ template <typename T>
 void process_management<T>::increment_process_count_of(long operation_id)
 {
     operation<T>& operation =
-            operation_management<T>::get_operation(operation_id);
+        operation_management<T>::get_operation(operation_id);
     operation.increment_process_count();
     std::vector<long> output_tensor_vector =
-            operation.get_output_tensor_vector();
+        operation.get_output_tensor_vector();
 
     for (auto tensor_id : output_tensor_vector)
     {
         tensor_object_management<T>::tensor_object_vector.at(tensor_id)
-                .increment_process_count();
+            .increment_process_count();
     }
+}
+
+template <typename T>
+std::unique_ptr<typename tensor_object<T>::data>
+process_management<T>::get_tensor_data_ptr(long tensor_id)
+{
+    return std::move(
+        tensor_object_management<T>::get_tensor_data_ptr(tensor_id));
+}
+
+template <typename T>
+void process_management<T>::return_tensor_data_ptr(
+    long tensor_id, std::unique_ptr<typename tensor_object<T>::data> rhs)
+{
+    tensor_object_management<T>::return_tensor_data_ptr(std::move(rhs));
 }
 
 template <typename T>
@@ -56,7 +73,6 @@ void process_management<T>::update_available_process()
         }
     }
 }
-
 
 }  // namespace cubby_dnn
 
