@@ -130,7 +130,7 @@ bool verify(const std::vector<T>& data, const tensor_shape& shape)
         std::string err_message = "data shape doesn't match";
         err_message += "Expected Size = " + std::to_string(shape.size());
         err_message += "given data size = " + std::to_string(data.size());
-        terminal::print_error(err_type::shape_matching, "verify", err_message);
+        terminal::print_error(err_type::shape_mismatch, "verify", err_message);
         std::cout << err_message << std::endl;
         return false;
     }

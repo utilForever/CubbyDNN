@@ -20,6 +20,7 @@ build/
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/markdown-navigator*
 
 # User-specific jetbrains files
 .idea/workspace.xml

@@ -12,8 +12,8 @@ namespace cubby_dnn
 enum class err_type
 {
     memory_error,
-    invalid_shape,
-    shape_matching,
+    shape_error,
+    shape_mismatch,
     not_implemented,
 };
 

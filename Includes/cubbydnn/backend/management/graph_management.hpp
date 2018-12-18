@@ -5,7 +5,6 @@
 #ifndef CUBBYDNN_MANAGEMENT_DECL_HPP
 #define CUBBYDNN_MANAGEMENT_DECL_HPP
 
-
 #include "backend/management_decl/graph_management_decl.hpp"
 
 namespace cubby_dnn
@@ -90,7 +89,6 @@ const std::vector<operation_info> operation_management<T>::get_operation_info()
     }
     return op_vector;
 }
-
 
 template <typename T>
 long operation_management<T>::operation_vector_size()

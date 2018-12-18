@@ -79,7 +79,7 @@ tensor<T> operate<T>::mat_mul(tensor<T>& tensor1, tensor<T>& tensor2,
         tensor1.get_shape().dimension() != tensor2.get_shape().dimension())
     {
         std::string msg = "tensor shapes doesn't match for multiplication";
-        terminal::print_error(err_type::shape_matching,
+        terminal::print_error(err_type::shape_mismatch,
                               "operate<T>::mat_mul, " + name, msg);
         return get_default_tensor();
     }
@@ -140,7 +140,7 @@ tensor<T> operate<T>::mat_add(tensor<T>& tensor1, tensor<T>& tensor2,
     if (tensor1.get_shape() != tensor2.get_shape())
     {
         std::string msg = "tensor shapes doesn't match for Addition";
-        terminal::print_error(err_type::shape_matching,
+        terminal::print_error(err_type::shape_mismatch,
                               "operate<T>::mat_add, " + name, msg);
         return get_default_tensor();
     }
@@ -235,7 +235,7 @@ tensor<T> operate<T>::reshape(tensor<T>& tensor1, const tensor_shape& shape,
     if (!shape::check_shape(tensor1.get_shape(), name))
     {
         std::string msg = "tensor shapes doesn't match for reshaping";
-        terminal::print_error(err_type::shape_matching,
+        terminal::print_error(err_type::shape_mismatch,
                               "operate<T>::reshape, " + name, msg);
         return get_default_tensor();
     }
@@ -246,7 +246,7 @@ tensor<T> operate<T>::reshape(tensor<T>& tensor1, const tensor_shape& shape,
             std::string("size of new shape doesn't match for reshaping") +
             "new size: " + std::to_string(shape.size()) +
             "original size: " + std::to_string(tensor1.get_data_size());
-        terminal::print_error(err_type::shape_matching,
+        terminal::print_error(err_type::shape_mismatch,
                               "operate<T>::reshape, " + name, msg);
     }
 
@@ -290,7 +290,7 @@ tensor<T> operate<T>::one_hot(tensor<T>& tensor1, size_t size,
     if (!shape::check_shape(tensor1.get_shape(), name))
     {
         std::string msg = "tensor shapes doesn't match for reshaping";
-        terminal::print_error(err_type::shape_matching,
+        terminal::print_error(err_type::shape_mismatch,
                               "operate<T>::reshape, " + name, msg);
         return get_default_tensor();
     }
@@ -301,7 +301,7 @@ tensor<T> operate<T>::one_hot(tensor<T>& tensor1, size_t size,
             std::string("size of new shape doesn't match for reshaping") +
             "new size: " + std::to_string(size) +
             "original size: " + std::to_string(tensor1.get_data_size());
-        terminal::print_error(err_type::shape_matching,
+        terminal::print_error(err_type::shape_mismatch,
                               "operate<T>::one_hot, " + name, msg);
     }
 

@@ -16,10 +16,10 @@ std::ostream& operator<<(std::ostream& out, const err_type value)
         case err_type::memory_error:
             msg += "memory_error";
             break;
-        case err_type::invalid_shape:
-            msg += "invalid_shape";
+        case err_type::shape_error:
+            msg += "shape_error";
             break;
-        case err_type::shape_matching:
+        case err_type::shape_mismatch:
             msg += "shape_matching";
             break;
         case err_type::not_implemented:
