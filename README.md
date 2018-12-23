@@ -1,6 +1,6 @@
 # CubbyDNN
 
-<img src="https://github.com/utilForever/CubbyDNN/blob/master/Medias/Logo.png" width=256 height=256 />
+<img src="https://github.com/utilForever/CubbyDNN/blob/master/Medias/Logo.png" width=256 dimension=256 />
 
 [![License](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/utilForever/CubbyDNN/blob/master/LICENSE)
 

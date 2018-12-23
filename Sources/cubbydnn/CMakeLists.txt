@@ -6,49 +6,54 @@ set(root_dir ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 # Includes
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries
+)
+
+#Added by Justin
+include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../Includes
 )
 
 # Sources
 file(GLOB header_dir
-    ${root_dir}/Includes)
+        ${root_dir}/Includes)
 
 file(GLOB_RECURSE headers
-    ${header_dir}/*.h)
+        ${header_dir}/*.h)
 
 file(GLOB_RECURSE sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 # Build library
 add_library(${target}
-    ${sources})
+        ${sources} ../../Includes/cubbydnn/backend/util_decl/shape.hpp backend/util/shape.cpp ../../Includes/cubbydnn/backend/util/stream.hpp ../../Includes/cubbydnn/backend/management/graph_management.hpp ../../Includes/cubbydnn/backend/management/graph_management.hpp ../../Includes/cubbydnn/backend/management_decl/process_management_decl.hpp ../../Includes/cubbydnn/backend/management/process_management.hpp ../../Includes/cubbydnn/backend/util/terminal.hpp backend/util/terminal.cpp)
 
 # Project options
 set_target_properties(${target}
-    PROPERTIES
-    ${DEFAULT_PROJECT_OPTIONS}
-)
+        PROPERTIES
+        ${DEFAULT_PROJECT_OPTIONS}
+        )
 
 # Compile options
 target_compile_options(${target}
-    PRIVATE
+        PRIVATE
 
-    PUBLIC
-    ${DEFAULT_COMPILE_OPTIONS}
+        PUBLIC
+        ${DEFAULT_COMPILE_OPTIONS}
 
-    INTERFACE
-)
+        INTERFACE
+        )
 
 target_link_libraries(${target}
-    PRIVATE
+        PRIVATE
 
-    PUBLIC
-    ${DEFAULT_LINKER_OPTIONS}
-	${DEFAULT_LIBRARIES}
+        PUBLIC
+        ${DEFAULT_LINKER_OPTIONS}
+        ${DEFAULT_LIBRARIES}
 
-    INTERFACE
-)
+        INTERFACE
+        )
 
 # Install
 install(TARGETS ${target} DESTINATION lib)
