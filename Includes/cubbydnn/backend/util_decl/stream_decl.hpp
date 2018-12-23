@@ -1,5 +1,5 @@
 //
-// Created by jwkim on 18. 11. 15.
+// Created by Justin on 18. 11. 15.
 //
 
 #ifndef CUBBYDNN_STREAM_DECL_HPP

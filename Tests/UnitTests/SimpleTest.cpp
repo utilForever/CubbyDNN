@@ -68,14 +68,14 @@ std::vector<operation_info> Example2()
 
     file_stream<int> file_stream;
     auto input_tensor1 =
-            generate<int>::placeholder(tensor_shape(2, 4, 3), file_stream);  // 1
+            generate<int>::placeholder(tensor_shape(2, 4, 3), file_stream);
 
-    auto input_tensor2 = generate<int>::variable(tensor_shape(4, 2, 3));  // 2
+    auto input_tensor2 = generate<int>::variable(tensor_shape(4, 2, 3));
 
     auto multiplied_tensor1 =
-            operate<int>::mat_mul(input_tensor2, input_tensor1);  // 3
+            operate<int>::mat_mul(input_tensor2, input_tensor1);
 
-    final<int>::wrapper(multiplied_tensor1);                  // 4
+    final<int>::wrapper(multiplied_tensor1);
 
     operation_management<int>::print_operation_info();
 
