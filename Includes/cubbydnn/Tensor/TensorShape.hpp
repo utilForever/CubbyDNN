@@ -11,6 +11,11 @@
 
 namespace CubbyDNN
 {
+//!
+//! \brief TensorShape class.
+//!
+//! This class contains information about the shape of tensor.
+//!
 class TensorShape
 {
  public:
