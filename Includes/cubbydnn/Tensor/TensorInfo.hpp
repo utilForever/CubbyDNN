@@ -16,7 +16,7 @@ class TensorInfo
 {
  public:
     TensorInfo() = default;
-    TensorInfo(long from, long to, bool mutable = true);
+    TensorInfo(long from, long to, bool isMutable = true);
 
  private:
     long m_from;
