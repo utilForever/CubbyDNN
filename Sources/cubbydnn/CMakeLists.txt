@@ -17,17 +17,17 @@ include_directories(
 
 # Sources
 file(GLOB header_dir
-        ${root_dir}/Includes)
+        ${root_dir}/Includes/cubbydnn)
 
 file(GLOB_RECURSE headers
-        ${header_dir}/*.h)
+        ${header_dir}/*.hpp)
 
 file(GLOB_RECURSE sources
         ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 # Build library
 add_library(${target}
-        ${sources} ../../Includes/cubbydnn/backend/util_decl/shape.hpp backend/util/shape.cpp ../../Includes/cubbydnn/backend/util/stream.hpp ../../Includes/cubbydnn/backend/management/graph_management.hpp ../../Includes/cubbydnn/backend/management/graph_management.hpp ../../Includes/cubbydnn/backend/management_decl/process_management_decl.hpp ../../Includes/cubbydnn/backend/management/process_management.hpp ../../Includes/cubbydnn/backend/util/terminal.hpp backend/util/terminal.cpp)
+    ${sources})
 
 # Project options
 set_target_properties(${target}
