@@ -18,6 +18,10 @@ class TensorInfo
     TensorInfo() = default;
     TensorInfo(long from, long to, bool isMutable = true);
 
+    unsigned ProcessCount() const;
+
+    void IncrementProcessCount();
+
  private:
     long m_from;
     long m_to;

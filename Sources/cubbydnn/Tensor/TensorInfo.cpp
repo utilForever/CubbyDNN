@@ -14,4 +14,14 @@ TensorInfo::TensorInfo(long from, long to, bool) : m_from(from), m_to(to)
 {
     // Do nothing
 }
+
+unsigned TensorInfo::ProcessCount() const
+{
+    return m_processCount;
+}
+
+void TensorInfo::IncrementProcessCount()
+{
+    m_processCount += 1;
+}
 }  // namespace CubbyDNN
