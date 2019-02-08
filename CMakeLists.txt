@@ -17,7 +17,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Includes
-include_directories(Includes/cubbydnn)
+include_directories(Includes)
 include_directories(Libraries)
 include_directories(Libraries/googletest/googletest/include)
 
