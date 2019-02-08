@@ -19,12 +19,11 @@ namespace CubbyDNN
 class TensorData
 {
  public:
-    TensorData(std::vector<float> data, TensorShape shape);
+    TensorData(std::vector<float> data, TensorShape shape_);
 
- private:
-    std::vector<float> m_data;
-    TensorShape m_shape;
-    bool m_mutable = true;
+    std::vector<float> dataVec;
+    TensorShape shape;
+    bool isMutable = true;
 };
 }  // namespace CubbyDNN
 

@@ -70,10 +70,9 @@ TensorObject& TensorObject::operator=(TensorObject&& obj) noexcept
     return *this;
 }
 
-bool TensorObject::operator==(const TensorObject& obj1,
-                              const TensorObject& obj2) const
+bool TensorObject::operator==(const TensorObject& obj) const
 {
-    return obj1.Info() == obj2.Info();
+    return Info() == obj.Info();
 }
 
 const TensorInfo& TensorObject::Info() const

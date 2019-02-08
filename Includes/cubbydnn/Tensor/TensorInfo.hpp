@@ -18,15 +18,18 @@ class TensorInfo
     TensorInfo() = default;
     TensorInfo(long from, long to, bool isMutable = true);
 
+    bool operator==(const TensorInfo& info) const;
+
     unsigned ProcessCount() const;
 
     void IncrementProcessCount();
+
+    bool busy = false;
 
  private:
     long m_from;
     long m_to;
 
-    bool m_busy = false;
     unsigned m_processCount = 0;
 };
 }  // namespace CubbyDNN

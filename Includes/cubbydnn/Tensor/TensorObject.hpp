@@ -25,21 +25,24 @@ namespace CubbyDNN
 class TensorObject
 {
  public:
-    TensorObject(std::size_t size, const TensorShape shape, long from, long to);
-    ~TensorObject();
+    TensorObject(std::size_t size, TensorShape shape, long from, long to);
+    ~TensorObject() = default;
     TensorObject(const TensorObject& obj);
     TensorObject(TensorObject&& obj) noexcept;
     TensorObject& operator=(const TensorObject& obj);
     TensorObject& operator=(TensorObject&& obj) noexcept;
 
+    bool operator==(const TensorObject& obj) const;
+
     const TensorInfo& Info() const;
-    const std::vector<float> Data() const;
-    const std::unique_ptr<TensorData> DataPtr();
+    std::vector<float> Data() const;
+    std::unique_ptr<TensorData> DataPtr();
     TensorShape DataShape() const;
 
-    void MakeImmutable();
+    void MakeImmutable() const;
 
-    private : TensorInfo m_info;
+ private:
+    TensorInfo m_info;
     std::unique_ptr<TensorData> m_data;
     std::mutex m_dataMtx;
 };

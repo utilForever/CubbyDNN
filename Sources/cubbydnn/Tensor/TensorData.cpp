@@ -10,8 +10,8 @@
 
 namespace CubbyDNN
 {
-TensorData::TensorData(std::vector<float> data, TensorShape shape)
-    : m_data(std::move(data)), m_shape(std::move(shape))
+TensorData::TensorData(std::vector<float> data, TensorShape shape_)
+    : dataVec(std::move(data)), shape(std::move(shape_))
 {
     // Do nothing
 }
