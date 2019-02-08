@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_TENSOR_DATA_HPP
 #define CUBBYDNN_TENSOR_DATA_HPP
 
-#include <cubbydnn/Tensor/TensorShape.hpp>
+#include <cubbydnn/Tensors/TensorShape.hpp>
 
 #include <vector>
 

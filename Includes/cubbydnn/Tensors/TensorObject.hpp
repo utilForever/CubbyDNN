@@ -7,9 +7,9 @@
 #ifndef CUBBYDNN_TENSOR_OBJECT_HPP
 #define CUBBYDNN_TENSOR_OBJECT_HPP
 
-#include <cubbydnn/Tensor/TensorData.hpp>
-#include <cubbydnn/Tensor/TensorInfo.hpp>
-#include <cubbydnn/Tensor/TensorShape.hpp>
+#include <cubbydnn/Tensors/TensorData.hpp>
+#include <cubbydnn/Tensors/TensorInfo.hpp>
+#include <cubbydnn/Tensors/TensorShape.hpp>
 
 #include <memory>
 #include <mutex>

@@ -4,7 +4,7 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Tensor/Tensor.hpp>
+#include <cubbydnn/Tensors/Tensor.hpp>
 
 #include <utility>
 
