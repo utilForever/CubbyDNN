@@ -8,6 +8,7 @@
 #define CUBBYDNN_OPERATION_INFO_HPP
 
 #include <string>
+#include <utility>
 
 namespace CubbyDNN
 {
@@ -20,9 +21,12 @@ namespace CubbyDNN
 struct OperationInfo
 {
  public:
-    OperationInfo(long id_, size_t inputSize_, size_t outputSize_,
-                  const std::string& name_)
-        : id(id_), inputSize(inputSize_), outputSize(outputSize_), name(name_)
+    OperationInfo(long id_, std::string name_, size_t inputSize_,
+                  size_t outputSize_)
+        : id(id_),
+          name(std::move(name_)),
+          inputSize(inputSize_),
+          outputSize(outputSize_)
     {
         // Do nothing
     }

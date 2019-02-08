@@ -60,7 +60,7 @@ void Operation::IncrementProcessCount()
 
 OperationInfo Operation::GetInfo() const
 {
-    return OperationInfo(m_id, m_vecInputTensorID.size(),
-                          m_vecOutputTensorID.size(), m_name);
+    return OperationInfo(m_id, m_name, m_vecInputTensorID.size(),
+                         m_vecOutputTensorID.size());
 }
 }  // namespace CubbyDNN
