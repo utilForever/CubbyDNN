@@ -1,22 +1,9 @@
-//
-// Created by jwkim on 18. 12. 4.
-//
+#ifndef CUBBYDNN_SIMPLE_TEST_HPP
+#define CUBBYDNN_SIMPLE_TEST_HPP
 
-#ifndef CUBBYDNN_SIMPLETEST_HPP
-#define CUBBYDNN_SIMPLETEST_HPP
-#include <iostream>
-#include <vector>
-#include "backend/graph/graph.hpp"
+int Add(int a, int b)
+{
+    return a + b;
+}
 
-using namespace cubby_dnn;
-
-int Add(int a, int b);
-
-std::vector<operation_info> Example1();
-
-std::vector<operation_info> Example2();
-
-std::vector<operation_info> Example3();
-
-
-#endif //CUBBYDNN_SIMPLETEST_HPP
+#endif  // CUBBYDNN_SIMPLE_TEST_HPP
