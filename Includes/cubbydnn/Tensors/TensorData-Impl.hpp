@@ -4,15 +4,17 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Tensors/TensorData.hpp>
-
-#include <utility>
+#ifndef CUBBYDNN_TENSOR_DATA_IMPL_HPP
+#define CUBBYDNN_TENSOR_DATA_IMPL_HPP
 
 namespace CubbyDNN
 {
-TensorData::TensorData(std::vector<float> data, TensorShape shape_)
+template <typename T>
+TensorData<T>::TensorData<T>(std::vector<T> data, TensorShape shape_)
     : dataVec(std::move(data)), shape(std::move(shape_))
 {
     // Do nothing
 }
 }  // namespace CubbyDNN
+
+#endif  // CUBBYDNN_TENSOR_DATA_IMPL_HPP
