@@ -20,18 +20,18 @@ namespace CubbyDNN
 class Tensor
 {
  public:
-    Tensor(TensorShape shape, long prevOpID, bool isMutable = true);
+    Tensor(TensorShape shape, long prevOpID, bool isMutable = true) noexcept;
 
-    const TensorShape& Shape() const;
-    std::size_t DataSize() const;
-    long PrevOpID() const;
+    const TensorShape& Shape() const noexcept;
+    std::size_t DataSize() const noexcept;
+    long PrevOpID() const noexcept;
 
     void AddOp(long nextOpID);
 
-    bool IsValid() const;
-    bool IsMutable() const;
+    bool IsValid() const noexcept;
+    bool IsMutable() const noexcept;
 
-    void MakeImmutable();
+    void MakeImmutable() noexcept;
 
  private:
     //! Shape of this tensor represents.

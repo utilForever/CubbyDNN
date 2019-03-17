@@ -22,30 +22,32 @@ namespace CubbyDNN
 //! This class will represent graph at runtime, and stores actual data used in
 //! graph execution.
 //!
+template <typename T>
 class TensorObject
 {
  public:
-    TensorObject(std::size_t size, TensorShape shape, long from, long to);
-    ~TensorObject() = default;
-    TensorObject(const TensorObject& obj);
-    TensorObject(TensorObject&& obj) noexcept;
-    TensorObject& operator=(const TensorObject& obj);
-    TensorObject& operator=(TensorObject&& obj) noexcept;
+    TensorObject<T>(std::size_t size, TensorShape shape, long from, long to);
+    ~TensorObject<T>() = default;
+    TensorObject<T>(const TensorObject& obj);
+    TensorObject<T>(TensorObject&& obj) noexcept;
+    TensorObject<T>& operator=(const TensorObject<T>& obj);
+    TensorObject<T>& operator=(TensorObject<T>&& obj) noexcept;
 
-    bool operator==(const TensorObject& obj) const;
+    bool operator==(const TensorObject<T>& obj) const;
 
     const TensorInfo& Info() const;
-    std::vector<float> Data() const;
-    std::unique_ptr<TensorData> DataPtr();
+    std::vector<T> Data() const;
+    std::unique_ptr<TensorData<T>> DataPtr();
     TensorShape DataShape() const;
 
     void MakeImmutable() const;
 
  private:
     TensorInfo m_info;
-    std::unique_ptr<TensorData> m_data;
+    std::unique_ptr<TensorData<T>> m_data;
     std::mutex m_dataMtx;
 };
 }  // namespace CubbyDNN
+
 
 #endif  // CUBBYDNN_TENSOR_OBJECT_HPP

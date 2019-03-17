@@ -4,23 +4,27 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Tensors/TensorObject.hpp>
+#ifndef CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
+#define CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 
 #include <cassert>
+#include <cubbydnn/Tensors/TensorObject.hpp>
 
 namespace CubbyDNN
 {
-TensorObject::TensorObject(std::size_t size, TensorShape shape, long from,
-                           long to)
+template <typename T>
+TensorObject<T>::TensorObject(std::size_t size, TensorShape shape, long from,
+                                 long to)
 {
-    std::vector<float> dataVector(size);
+    std::vector<T> dataVector(size);
     assert(dataVector.size() == shape.Size());
 
     m_info = TensorInfo(from, to);
-    m_data = std::make_unique<TensorData>(dataVector, std::move(shape));
+    m_data = std::make_unique<TensorData<T>>(dataVector, std::move(shape));
 }
 
-TensorObject::TensorObject(const TensorObject& obj)
+template <typename T>
+TensorObject<T>::TensorObject(const TensorObject<T>& obj)
 {
     if (obj.m_data)
     {
@@ -29,7 +33,8 @@ TensorObject::TensorObject(const TensorObject& obj)
     }
 }
 
-TensorObject::TensorObject(TensorObject&& obj) noexcept
+template <typename T>
+TensorObject<T>::TensorObject(TensorObject<T>&& obj) noexcept
 {
     if (obj.m_data)
     {
@@ -38,7 +43,8 @@ TensorObject::TensorObject(TensorObject&& obj) noexcept
     }
 }
 
-TensorObject& TensorObject::operator=(const TensorObject& obj)
+template <typename T>
+TensorObject<T>& TensorObject<T>::operator=(const TensorObject<T>& obj)
 {
     if (*this == obj)
     {
@@ -47,14 +53,15 @@ TensorObject& TensorObject::operator=(const TensorObject& obj)
 
     if (obj.m_data)
     {
-        m_data = std::make_unique<TensorData>(obj.Data(), obj.DataShape());
+        m_data = std::make_unique<TensorData<T>>(obj.Data(), obj.DataShape());
         m_info = obj.m_info;
     }
 
     return *this;
 }
 
-TensorObject& TensorObject::operator=(TensorObject&& obj) noexcept
+template <typename T>
+TensorObject<T>& TensorObject<T>::operator=(TensorObject<T>&& obj) noexcept
 {
     if (*this == obj)
     {
@@ -70,28 +77,32 @@ TensorObject& TensorObject::operator=(TensorObject&& obj) noexcept
     return *this;
 }
 
-bool TensorObject::operator==(const TensorObject& obj) const
+template <typename T>
+bool TensorObject<T>::operator==(const TensorObject<T>& obj) const
 {
     return Info() == obj.Info();
 }
 
-const TensorInfo& TensorObject::Info() const
+template <typename T>
+const TensorInfo& TensorObject<T>::Info() const
 {
     return m_info;
 }
 
-std::vector<float> TensorObject::Data() const
+template <typename T>
+std::vector<T> TensorObject<T>::Data() const
 {
     if (!m_data)
     {
         // TODO: Print error log
-        return std::vector<float>();
+        return std::vector<T>();
     }
 
     return m_data->dataVec;
 }
 
-std::unique_ptr<TensorData> TensorObject::DataPtr()
+template <typename T>
+std::unique_ptr<TensorData<T>> TensorObject<T>::DataPtr()
 {
     if (!m_data || m_info.busy)
     {
@@ -104,7 +115,8 @@ std::unique_ptr<TensorData> TensorObject::DataPtr()
     return std::move(m_data);
 }
 
-TensorShape TensorObject::DataShape() const
+template <typename T>
+TensorShape TensorObject<T>::DataShape() const
 {
     if (!m_data)
     {
@@ -115,7 +127,8 @@ TensorShape TensorObject::DataShape() const
     return m_data->shape;
 }
 
-void TensorObject::MakeImmutable() const
+template <typename T>
+void TensorObject<T>::MakeImmutable() const
 {
     if (m_data && !m_info.busy)
     {
@@ -127,3 +140,5 @@ void TensorObject::MakeImmutable() const
     }
 }
 }  // namespace CubbyDNN
+
+#endif  // CUBBYDNN_TENSOR_OBJECT_IMPL_HPP

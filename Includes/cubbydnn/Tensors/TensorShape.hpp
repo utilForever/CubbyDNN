@@ -25,8 +25,8 @@ class TensorShape
     bool operator==(const TensorShape& shape) const;
     bool operator!=(const TensorShape& shape) const;
 
-    std::size_t Size() const;
-    bool IsEmpty() const;
+    std::size_t Size() const noexcept;
+    bool IsEmpty() const noexcept;
     long Row() const;
     long Col() const;
     long Depth() const;

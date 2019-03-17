@@ -16,19 +16,19 @@ class TensorInfo
 {
  public:
     TensorInfo() = default;
-    TensorInfo(long from, long to, bool isMutable = true);
+    TensorInfo(long from, long to, bool isMutable = true) noexcept;
 
-    bool operator==(const TensorInfo& info) const;
+    bool operator==(const TensorInfo& info) const noexcept;
 
-    unsigned ProcessCount() const;
+    unsigned ProcessCount() const noexcept;
 
-    void IncrementProcessCount();
+    void IncrementProcessCount() noexcept;
 
     bool busy = false;
 
  private:
-    long m_from;
-    long m_to;
+    long m_from = -1;
+    long m_to = -1;
 
     unsigned m_processCount = 0;
 };

@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Tensors/TensorShape.hpp>
+#include <cstdio>
 
 namespace CubbyDNN
 {
@@ -27,12 +28,12 @@ bool TensorShape::operator!=(const TensorShape& shape) const
     return !(*this == shape);
 }
 
-size_t TensorShape::Size() const
+size_t TensorShape::Size() const noexcept
 {
     return m_totalSize;
 }
 
-bool TensorShape::IsEmpty() const
+bool TensorShape::IsEmpty() const noexcept
 {
     return m_shapeVector.empty();
 }

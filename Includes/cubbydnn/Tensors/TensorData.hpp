@@ -16,15 +16,17 @@ namespace CubbyDNN
 //!
 //! \brief TensorData class.
 //!
+template <typename T>
 class TensorData
 {
  public:
-    TensorData(std::vector<float> data, TensorShape shape_);
+    TensorData<T>(std::vector<T> data, TensorShape shape_);
 
-    std::vector<float> dataVec;
+    std::vector<T> dataVec;
     TensorShape shape;
     bool isMutable = true;
 };
 }  // namespace CubbyDNN
+
 
 #endif  // CUBBYDNN_TENSOR_DATA_HPP
