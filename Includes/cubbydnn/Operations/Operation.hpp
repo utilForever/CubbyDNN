@@ -25,9 +25,9 @@ namespace CubbyDNN
 class Operation
 {
  public:
-    const std::string& GetName();
+    const std::string& GetName() const;
 
-    long GetID();
+    long GetID() const;
 
     const std::vector<long>& GetInputTensors() const;
 

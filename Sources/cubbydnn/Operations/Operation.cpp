@@ -8,12 +8,12 @@
 
 namespace CubbyDNN
 {
-const std::string& Operation::GetName()
+const std::string& Operation::GetName() const
 {
     return m_name;
 }
 
-long Operation::GetID()
+long Operation::GetID() const
 {
     return m_id;
 }
