@@ -27,8 +27,8 @@ class TensorInfo
     bool busy = false;
 
  private:
-    long m_from;
-    long m_to;
+    long m_from = -1;
+    long m_to = -1;
 
     unsigned m_processCount = 0;
 };
