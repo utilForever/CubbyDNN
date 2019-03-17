@@ -7,10 +7,13 @@
 #ifndef CUBBYDNN_TENSOR_DATA_IMPL_HPP
 #define CUBBYDNN_TENSOR_DATA_IMPL_HPP
 
+
+#include "TensorData.hpp"
+
 namespace CubbyDNN
 {
 template <typename T>
-TensorData<T>::TensorData<T>(std::vector<T> data, TensorShape shape_)
+TensorData<T>::TensorData(std::vector<T> data, TensorShape shape_)
     : dataVec(std::move(data)), shape(std::move(shape_))
 {
     // Do nothing

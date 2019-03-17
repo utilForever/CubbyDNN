@@ -8,11 +8,12 @@
 #define CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 
 #include <cassert>
+#include <cubbydnn/Tensors/TensorObject.hpp>
 
 namespace CubbyDNN
 {
 template <typename T>
-TensorObject<T>::TensorObject<T>(std::size_t size, TensorShape shape, long from,
+TensorObject<T>::TensorObject(std::size_t size, TensorShape shape, long from,
                                  long to)
 {
     std::vector<T> dataVector(size);
@@ -23,7 +24,7 @@ TensorObject<T>::TensorObject<T>(std::size_t size, TensorShape shape, long from,
 }
 
 template <typename T>
-TensorObject<T>::TensorObject<T>(const TensorObject<T>& obj)
+TensorObject<T>::TensorObject(const TensorObject<T>& obj)
 {
     if (obj.m_data)
     {
@@ -33,7 +34,7 @@ TensorObject<T>::TensorObject<T>(const TensorObject<T>& obj)
 }
 
 template <typename T>
-TensorObject<T>::TensorObject<T>(TensorObject<T>&& obj) noexcept
+TensorObject<T>::TensorObject(TensorObject<T>&& obj) noexcept
 {
     if (obj.m_data)
     {
