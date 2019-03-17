@@ -16,13 +16,13 @@ class TensorInfo
 {
  public:
     TensorInfo() = default;
-    TensorInfo(long from, long to, bool isMutable = true);
+    TensorInfo(long from, long to, bool isMutable = true) noexcept;
 
-    bool operator==(const TensorInfo& info) const;
+    bool operator==(const TensorInfo& info) const noexcept;
 
-    unsigned ProcessCount() const;
+    unsigned ProcessCount() const noexcept;
 
-    void IncrementProcessCount();
+    void IncrementProcessCount() noexcept;
 
     bool busy = false;
 

@@ -25,25 +25,25 @@ namespace CubbyDNN
 class Operation
 {
  public:
-    const std::string& GetName() const;
+    const std::string& GetName() const noexcept;
 
-    long GetID() const;
+    long GetID() const noexcept;
 
-    const std::vector<long>& GetInputTensors() const;
+    const std::vector<long>& GetInputTensors() const noexcept;
 
-    const std::vector<long>& GetOutputTensors() const;
+    const std::vector<long>& GetOutputTensors() const noexcept;
 
     void AddInputTensor(long tensorID);
 
     void AddOutputTensor(long tensorID);
 
-    std::size_t GetNumOfInputTensors();
+    std::size_t GetNumOfInputTensors() const noexcept;
 
-    std::size_t GetNumOfOutputTensors();
+    std::size_t GetNumOfOutputTensors() const noexcept;
 
-    unsigned GetProcessCount();
+    unsigned GetProcessCount() const noexcept;
 
-    void IncrementProcessCount();
+    void IncrementProcessCount() noexcept;
 
     OperationInfo GetInfo() const;
 

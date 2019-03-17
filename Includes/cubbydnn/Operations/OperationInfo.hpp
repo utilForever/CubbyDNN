@@ -22,7 +22,7 @@ struct OperationInfo
 {
  public:
     OperationInfo(long id_, std::string name_, size_t inputSize_,
-                  size_t outputSize_)
+                  size_t outputSize_) noexcept
         : id(id_),
           name(std::move(name_)),
           inputSize(inputSize_),
@@ -31,13 +31,13 @@ struct OperationInfo
         // Do nothing
     }
 
-    bool operator==(const OperationInfo& info) const
+    bool operator==(const OperationInfo& info) const noexcept
     {
         return id == info.id && inputSize == info.inputSize &&
                outputSize == info.outputSize && name == info.name;
     }
 
-    bool operator!=(const OperationInfo& info) const
+    bool operator!=(const OperationInfo& info) const noexcept
     {
         return !(*this == info);
     }

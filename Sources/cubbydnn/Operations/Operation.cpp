@@ -8,22 +8,22 @@
 
 namespace CubbyDNN
 {
-const std::string& Operation::GetName() const
+const std::string& Operation::GetName() const noexcept
 {
     return m_name;
 }
 
-long Operation::GetID() const
+long Operation::GetID() const noexcept
 {
     return m_id;
 }
 
-const std::vector<long>& Operation::GetInputTensors() const
+const std::vector<long>& Operation::GetInputTensors() const noexcept
 {
     return m_vecInputTensorID;
 }
 
-const std::vector<long>& Operation::GetOutputTensors() const
+const std::vector<long>& Operation::GetOutputTensors() const noexcept
 {
     return m_vecOutputTensorID;
 }
@@ -38,22 +38,22 @@ void Operation::AddOutputTensor(long tensorID)
     m_vecOutputTensorID.emplace_back(tensorID);
 }
 
-std::size_t Operation::GetNumOfInputTensors()
+std::size_t Operation::GetNumOfInputTensors() const noexcept
 {
     return m_vecInputTensorID.size();
 }
 
-std::size_t Operation::GetNumOfOutputTensors()
+std::size_t Operation::GetNumOfOutputTensors() const noexcept
 {
     return m_vecOutputTensorID.size();
 }
 
-unsigned Operation::GetProcessCount()
+unsigned Operation::GetProcessCount() const noexcept
 {
     return m_processCount;
 }
 
-void Operation::IncrementProcessCount()
+void Operation::IncrementProcessCount() noexcept
 {
     m_processCount += 1;
 }

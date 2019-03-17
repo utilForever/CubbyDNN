@@ -10,22 +10,23 @@
 
 namespace CubbyDNN
 {
-TensorInfo::TensorInfo(long from, long to, bool) : m_from(from), m_to(to)
+TensorInfo::TensorInfo(long from, long to, bool) noexcept
+    : m_from(from), m_to(to)
 {
     // Do nothing
 }
 
-bool TensorInfo::operator==(const TensorInfo& info) const
+bool TensorInfo::operator==(const TensorInfo& info) const noexcept
 {
     return (m_from == info.m_from && m_to == info.m_to);
 }
 
-unsigned TensorInfo::ProcessCount() const
+unsigned TensorInfo::ProcessCount() const noexcept
 {
     return m_processCount;
 }
 
-void TensorInfo::IncrementProcessCount()
+void TensorInfo::IncrementProcessCount() noexcept
 {
     m_processCount += 1;
 }
