@@ -28,6 +28,5 @@ class TensorData
 };
 }  // namespace CubbyDNN
 
-#include <cubbydnn/Tensors/TensorData-Impl.hpp>
 
 #endif  // CUBBYDNN_TENSOR_DATA_HPP

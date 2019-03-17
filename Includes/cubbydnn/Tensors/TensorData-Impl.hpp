@@ -8,7 +8,7 @@
 #define CUBBYDNN_TENSOR_DATA_IMPL_HPP
 
 
-#include "TensorData.hpp"
+#include <cubbydnn/Tensors/TensorData.hpp>
 
 namespace CubbyDNN
 {

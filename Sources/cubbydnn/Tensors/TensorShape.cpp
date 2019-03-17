@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Tensors/TensorShape.hpp>
+#include <cstdio>
 
 namespace CubbyDNN
 {

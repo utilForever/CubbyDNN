@@ -49,6 +49,5 @@ class TensorObject
 };
 }  // namespace CubbyDNN
 
-#include <cubbydnn/Tensors/TensorObject-Impl.hpp>
 
 #endif  // CUBBYDNN_TENSOR_OBJECT_HPP
