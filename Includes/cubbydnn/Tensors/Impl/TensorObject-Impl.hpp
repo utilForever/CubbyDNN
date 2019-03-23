@@ -7,14 +7,16 @@
 #ifndef CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 #define CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 
+#include <cubbydnn/GraphControl/Decl/Linker.hpp>
+#include <cubbydnn/Tensors/Decl/TensorObject.hpp>
+
 #include <cassert>
-#include <cubbydnn/Tensors/TensorObject.hpp>
 
 namespace CubbyDNN
 {
 template <typename T>
 TensorObject<T>::TensorObject(std::size_t size, TensorShape shape, long from,
-                                 long to)
+                              long to)
 {
     std::vector<T> dataVector(size);
     assert(dataVector.size() == shape.Size());

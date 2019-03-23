@@ -28,5 +28,4 @@ class TensorData
 };
 }  // namespace CubbyDNN
 
-
 #endif  // CUBBYDNN_TENSOR_DATA_HPP
