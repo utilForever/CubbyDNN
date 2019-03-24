@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_LINKER_HPP
 #define CUBBYDNN_LINKER_HPP
 
-#include <cubbydnn/Operations/Operation.hpp>
+#include <cubbydnn/Operations/Decl/Operation.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
 #include <cubbydnn/Tensors/Decl/TensorObject.hpp>
 

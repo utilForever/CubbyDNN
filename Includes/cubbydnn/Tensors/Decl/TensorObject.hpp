@@ -44,7 +44,6 @@ class TensorObject
 
  private:
     /// list of pointers pointing to next Operations
-    std::vector<std::unique_ptr<TensorData<T>>> m_outputTensorDataContainer;
     TensorInfo m_info;
     std::unique_ptr<TensorData<T>> m_data;
     std::mutex m_dataMtx;

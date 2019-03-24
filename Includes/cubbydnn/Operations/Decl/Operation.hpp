@@ -1,17 +1,21 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
-
-// We are making my contributions/submissions to this project solely in our
-// personal capacity and are not conveying any rights to any intellectual
-// property of any third parties.
+/**
+ *  Copyright (c) 2019 Chris Ohk, Justin Kim
+ *  We are making my contributions/submissions to this project solely in our
+ *  personal capacity and are not conveying any rights to any intellectual
+ *  property of any third parties.
+ */
 
 #ifndef CUBBYDNN_OPERATION_HPP
 #define CUBBYDNN_OPERATION_HPP
 
 #include <cubbydnn/Operations/OpEnums.hpp>
 #include <cubbydnn/Operations/OperationInfo.hpp>
+#include <cubbydnn/Tensors/Decl/TensorData.hpp>
+
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace CubbyDNN
 {
@@ -22,6 +26,8 @@ namespace CubbyDNN
 //! which operation to execute, tensors that data comes from and tensor to
 //! output processed data.
 //!
+
+template <typename T>
 class Operation
 {
  public:
@@ -48,16 +54,16 @@ class Operation
     OperationInfo GetInfo() const;
 
  protected:
+    /// Disable the default operation
     explicit Operation() = default;
-
+    /// Name of this Operation
     std::string m_name;
+    /// Type of this operation
     OpType m_type = OpType::EMPTY;
+    /// unique id of this operation
     long m_id = 0;
-
-    std::vector<long> m_vecInputTensorID;
-    std::vector<long> m_vecOutputTensorID;
-
-    unsigned m_processCount = 0;
+    /// contains Data to be used in operation
+    std::vector<std::unique_ptr<TensorData<T>>> m_LoadedDataContainer;
 };
 }  // namespace CubbyDNN
 

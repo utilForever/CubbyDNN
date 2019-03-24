@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_MATRIX_OPERATIONS_HPP
 #define CUBBYDNN_MATRIX_OPERATIONS_HPP
 
-#include <cubbydnn/Operations/Operation.hpp>
+#include <cubbydnn/Operations/Decl/Operation.hpp>
 
 #include <string>
 
