@@ -10,7 +10,7 @@
 
 
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
-#include <cubbydnn/GraphControl/Decl/Linker.hpp>
+#include <cubbydnn/GraphUtil/Decl/Linker.hpp>
 
 namespace CubbyDNN
 {

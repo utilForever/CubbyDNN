@@ -30,7 +30,7 @@ TensorObject<T>::TensorObject(const TensorObject<T>& obj)
 {
     if (obj.m_data)
     {
-        m_data = std::make_unique<TensorData>(obj.Data(), obj.DataShape());
+        m_data = std::make_unique<TensorData<T>>(obj.Data(), obj.DataShape());
         m_info = obj.m_info;
     }
 }

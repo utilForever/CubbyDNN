@@ -10,6 +10,7 @@
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Tensors/TensorShape.hpp>
+#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
 
 #include <memory>
 #include <mutex>
@@ -38,15 +39,20 @@ class TensorObject
     const TensorInfo& Info() const;
     std::vector<T> Data() const;
     std::unique_ptr<TensorData<T>> DataPtr();
+
     TensorShape DataShape() const;
 
     void MakeImmutable() const;
 
  private:
-    /// list of pointers pointing to next Operations
+    /// Includes information about this TensorObject
     TensorInfo m_info;
+    /// ptr to Data this TensorObject holds
     std::unique_ptr<TensorData<T>> m_data;
+    /// mtx for accessing the data
     std::mutex m_dataMtx;
+    /// ptr to next operation
+    std::unique_ptr<TensorSocket<T>> m_nextOperation;
 };
 }  // namespace CubbyDNN
 

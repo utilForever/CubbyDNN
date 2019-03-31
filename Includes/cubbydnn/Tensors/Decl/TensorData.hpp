@@ -10,6 +10,7 @@
 #include <cubbydnn/Tensors/TensorShape.hpp>
 
 #include <vector>
+#include <memory>
 
 namespace CubbyDNN
 {
@@ -26,6 +27,10 @@ class TensorData
     TensorShape shape;
     bool isMutable = true;
 };
+
+template <typename T>
+using TensorDataPtr = typename std::unique_ptr<TensorData<T>>;
+
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_DATA_HPP
