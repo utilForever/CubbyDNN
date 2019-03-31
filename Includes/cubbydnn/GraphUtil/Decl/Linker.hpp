@@ -7,13 +7,15 @@
 #ifndef CUBBYDNN_LINKER_HPP
 #define CUBBYDNN_LINKER_HPP
 
-#include <cubbydnn/Operations/Decl/Operation.hpp>
+#include <cubbydnn/Operations/Decl/TensorSocket.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
 #include <cubbydnn/Tensors/Decl/TensorObject.hpp>
+#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
 
 #include <memory>
 
-namespace CubbyDNN {
+namespace CubbyDNN
+{
 /**
  * @brief : Passes
  * @tparam T : Template type for TensorData
@@ -21,10 +23,10 @@ namespace CubbyDNN {
  * @param TensorToReceive : ptr to ObjectToReceive
  * @return : ptr to TensorObject after passing
  */
-    template<typename T>
-    static std::unique_ptr<TensorObject<T>> PassToTensorObject(
-            std::unique_ptr<TensorData<T>> DataToSend,
-            std::unique_ptr<TensorObject<T>> TensorToReceive);
+template <typename T>
+static std::unique_ptr<TensorObject<T>> PassToTensorObject(
+    std::unique_ptr<TensorData<T>> DataToSend,
+    std::unique_ptr<TensorObject<T>> TensorToReceive);
 
 /**
  * @tparam T : Template type for TensorData
@@ -32,13 +34,10 @@ namespace CubbyDNN {
  * @param ObjectToReceive : ptr to ObjectToReceive
  * @return : ptr to Operation after passing
  */
-    template<typename T>
-    static std::unique_ptr<Operation<T>> PassToOperation(
-            std::unique_ptr<TensorData<T>> DataToSend,
-            std::unique_ptr<Operation<T>> OperationToReceive, size_t Position);
-
-    template<typename T>
-
+template <typename T>
+static std::unique_ptr<TensorSocket<T>> PassToOperation(
+    std::unique_ptr<TensorData<T>> DataToSend,
+    std::unique_ptr<TensorSocket<T>> SocketToReceive, size_t Position);
 
 }  // namespace CubbyDNN
 
