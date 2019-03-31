@@ -5,13 +5,14 @@
  *  property of any third parties.
  */
 
-#ifndef CUBBYDNN_TENSORSOCKET_HPP
-#define CUBBYDNN_TENSORSOCKET_HPP
+#ifndef CUBBYDNN_OPERATION_HPP
+#define CUBBYDNN_OPERATION_HPP
 
 #include <cubbydnn/Operations/OpEnums.hpp>
 #include <cubbydnn/Operations/OperationInfo.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
 #include <cubbydnn/Tensors/Decl/TensorObject.hpp>
+#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
 
 
 #include <string>
@@ -29,7 +30,7 @@ namespace CubbyDNN
 //!
 
 template <typename T>
-class TensorSocket
+class Operation
 {
  public:
     const std::string& GetName() const noexcept;
@@ -56,7 +57,7 @@ class TensorSocket
 
  protected:
     /// Disable the default operation
-    explicit TensorSocket() = default;
+    explicit Operation() = default;
     /// Name of this Operation
     std::string m_name;
     /// Type of this operation
@@ -64,10 +65,10 @@ class TensorSocket
     /// unique id of this operation
     long m_id = 0;
     /// contains Data to be used in operation
-    std::vector<std::unique_ptr<TensorData<T>>> m_LoadedDataContainer;
+    std::vector<TensorSocket<T>> m_tensorSocketDeck;
     /// contains tensorObjects going out of this operation
     std::vector<std::unique_ptr<TensorObject<T>>> m_OutputTensorContainer;
 };
 }  // namespace CubbyDNN
 
-#endif  //CUBBYDNN_TENSORSOCKET_HPP
+#endif  //CUBBYDNN_OPERATION_HPP
