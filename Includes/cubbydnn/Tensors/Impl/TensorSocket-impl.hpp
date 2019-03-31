@@ -1,6 +1,7 @@
-//
-// Created by jwkim98 on 3/31/19.
-//
+/**
+ * @file : TensorSocket-impl.hpp
+ * @author : Justin Kim
+ */
 
 #ifndef CUBBYDNN_TENSORSOCKET_IMPL_HPP
 #define CUBBYDNN_TENSORSOCKET_IMPL_HPP
@@ -10,15 +11,14 @@
 namespace CubbyDNN
 {
 template <typename T>
-void TensorSocket<T>::ReceiveData(TensorDataPtr<T> tensorDataPtr)
+void TensorSocket<T>::SetData(TensorDataPtr<T> tensorDataPtr)
 {
     m_promiseSend.set_value(tensorDataPtr);
 }
 
 template <typename T>
-TensorSocket<T>::TensorSocket()
+TensorSocket<T>::TensorSocket() : m_futureReceive(m_promiseSend.get_future())
 {
-    m_futureReceive = m_promiseSend.get_future();
 }
 
 template <typename T>
@@ -30,7 +30,7 @@ TensorDataPtr<T> TensorSocket<T>::Request()
 template <typename T>
 TensorDataPtr<T> TensorSocket<T>::TryRequest()
 {
-    if(m_futureReceive.valid())
+    if (m_futureReceive.valid())
     {
         return m_futureReceive.get();
     }
