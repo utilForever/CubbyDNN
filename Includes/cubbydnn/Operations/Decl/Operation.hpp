@@ -33,41 +33,30 @@ template <typename T>
 class Operation
 {
  public:
-    const std::string& GetName() const noexcept;
+    Operation() = default;
 
-    long GetID() const noexcept;
+    std::string GetName() const noexcept;
 
-    const std::vector<long>& GetInputTensors() const noexcept;
+    OperationInfo GetInfo() const noexcept;
 
-    const std::vector<long>& GetOutputTensors() const noexcept;
+    TensorDataPtr<T> RequestDataFrom(int index);
 
-    void AddInputTensor(long tensorID);
+    void SendDataTo(int index, TensorDataPtr<T> tensorDataPtr);
 
-    void AddOutputTensor(long tensorID);
+    void AddOutput(TensorObjectPtr<T> tensorObjectPtr);
 
-    std::size_t GetNumOfInputTensors() const noexcept;
-
-    std::size_t GetNumOfOutputTensors() const noexcept;
-
-    unsigned GetProcessCount() const noexcept;
-
-    void IncrementProcessCount() noexcept;
-
-    OperationInfo GetInfo() const;
+    void AddInput(TensorSocketPtr<T> tensorSocketPtr);
 
  protected:
     /// Disable the default operation
-    explicit Operation() = default;
-    /// Name of this Operation
-    std::string m_name;
     /// Type of this operation
     OpType m_type = OpType::EMPTY;
-    /// unique id of this operation
-    long m_id = 0;
+    /// OperationInfo class that holds information about this Operation
+    OperationInfo m_operationInfo;
     /// contains Data to be used in operation
     std::vector<TensorSocket<T>> m_tensorSocketDeck;
     /// contains tensorObjects going out of this operation
-    std::vector<std::unique_ptr<TensorObject<T>>> m_OutputTensorContainer;
+    std::vector<TensorObjectPtr<T>> m_tensorObjectDeck;
 };
 }  // namespace CubbyDNN
 
