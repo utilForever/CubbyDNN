@@ -15,7 +15,8 @@
 /**
  *  This class performs role of socket that receives TensorObjects.
  *  This Class will be stored by Operations, and TensorObjects heading to that
- *  TensorSocket will point to corresponding TensorSocket by unique_ptr to TensorSocket
+ *  TensorSocket will point to corresponding TensorSocket by unique_ptr to
+ * TensorSocket
  *
  */
 namespace CubbyDNN
@@ -40,11 +41,18 @@ class TensorSocket
     TensorSocket& operator=(TensorSocket& tensorSocket) = delete;
 
     /**
-     * Sets TensorData in order to pass it to TensorSocket
-     * This Method should be called by TensorObject
-     * @param tensorDataPtr :
+     * Sets m_promiseSend to tensorDataPtr so it can be requested from
+     * Operations This Method should be called by TensorObject
+     * @param tensorDataPtr : ptr to be set
      */
-    void SetData(TensorDataPtr<T> tensorDataPtr);
+    void SendData(TensorDataPtr<T> tensorDataPtr);
+
+    /**
+     * Attempts to set m_promiseSend
+     * @param tensorDataPtr
+     * @return : true if Send succeeded false otherwise
+     */
+    bool TrySendData(TensorDataPtr<T> tensorDataPtr);
 
     /**
      * Waits until data is available and
@@ -62,11 +70,15 @@ class TensorSocket
     TensorDataPtr<T> TryRequest();
 
  private:
-
-
-    TensorDataPtr<T> SocketTensorData;
     std::future<TensorDataPtr<T>> m_futureReceive;
     std::promise<TensorDataPtr<T>> m_promiseSend;
+
+    std::mutex m_mtx;
+    std::unique_lock<std::mutex> m_lock;
+    std::condition_variable m_cond;
+
+    /// Indicates whether m_promiseSend is ready to be set
+    std::atomic_bool m_updateReady = false;
 };
 
 template <typename T>
@@ -74,4 +86,4 @@ using TensorSocketPtr = typename std::unique_ptr<TensorSocket<T>>;
 
 }  // namespace CubbyDNN
 
-#endif  //CUBBYDNN_TensorSocket_HPP
+#endif  // CUBBYDNN_TensorSocket_HPP

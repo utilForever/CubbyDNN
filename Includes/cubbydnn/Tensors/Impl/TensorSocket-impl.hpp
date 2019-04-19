@@ -11,20 +11,46 @@
 namespace CubbyDNN
 {
 template <typename T>
-void TensorSocket<T>::SetData(TensorDataPtr<T> tensorDataPtr)
+TensorSocket<T>::TensorSocket()
+    : m_futureReceive(m_promiseSend.get_future()),
+      m_mtx(),
+      m_lock(m_mtx),
+      m_cond()
 {
-    m_promiseSend.set_value(tensorDataPtr);
 }
 
 template <typename T>
-TensorSocket<T>::TensorSocket() : m_futureReceive(m_promiseSend.get_future())
+void TensorSocket<T>::SendData(TensorDataPtr<T> tensorDataPtr)
 {
+    m_cond.wait(m_lock, [this](){return m_updateReady;});
+    m_promiseSend.set_value(tensorDataPtr);
+    m_updateReady = false;
+}
+
+template<typename T>
+bool TensorSocket<T>::TrySendData(TensorDataPtr<T> tensorDataPtr)
+{
+    if(m_updateReady)
+    {
+        m_promiseSend.set_value(tensorDataPtr);
+        m_updateReady = false;
+        return true;
+    }
+    return false;
+
 }
 
 template <typename T>
 TensorDataPtr<T> TensorSocket<T>::Request()
 {
-    return m_futureReceive.get();
+    if(m_futureReceive.valid())
+    {
+        m_futureReceive.wait();
+        auto ptr = m_futureReceive.get();
+        m_updateReady = true;
+        m_cond.notify_all();
+        return ptr;
+    }
 }
 
 template <typename T>
@@ -32,7 +58,10 @@ TensorDataPtr<T> TensorSocket<T>::TryRequest()
 {
     if (m_futureReceive.valid())
     {
-        return m_futureReceive.get();
+        auto ptr = m_futureReceive.get();
+        m_updateReady = true;
+        m_cond.notify_all();
+        return ptr;
     }
 
     return nullptr;
