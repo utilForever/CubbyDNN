@@ -66,56 +66,24 @@ const TensorInfo& TensorObject<T>::Info() const
     return m_info;
 }
 
-template <typename T>
-std::vector<T> TensorObject<T>::Data() const
+
+
+template<typename T>
+bool TensorObject<T>::SetData(TensorDataPtr<T> tensorDataPtr)
 {
-    if (!m_data)
+    if(!m_data)
     {
-        // TODO: Print error log
-        return std::vector<T>();
+        if(!m_socket->TrySendData(tensorDataPtr))
+            m_data = tensorDataPtr;
+        return true;
     }
 
-    return m_data->dataVec;
+    if(!m_socket->SetData(m_data))
+        return false;
+    m_data = tensorDataPtr;
+    return true;
 }
 
-template <typename T>
-std::unique_ptr<TensorData<T>> TensorObject<T>::DataPtr()
-{
-    if (!m_data || m_info.busy)
-    {
-        // TODO: Print error log
-        return nullptr;
-    }
-
-    std::lock_guard<std::mutex> lock(m_dataMtx);
-    m_info.busy = true;
-    return std::move(m_data);
-}
-
-template <typename T>
-TensorShape TensorObject<T>::DataShape() const
-{
-    if (!m_data)
-    {
-        // TODO: Print error log
-        return TensorShape();
-    }
-
-    return m_data->shape;
-}
-
-template <typename T>
-void TensorObject<T>::MakeImmutable() const
-{
-    if (m_data && !m_info.busy)
-    {
-        m_data->isMutable = false;
-    }
-    else
-    {
-        // TODO: Print error log
-    }
-}
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
