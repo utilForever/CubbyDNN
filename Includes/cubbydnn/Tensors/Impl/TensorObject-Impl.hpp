@@ -7,7 +7,6 @@
 #ifndef CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 #define CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 
-#include <cubbydnn/GraphControl/Decl/Linker.hpp>
 #include <cubbydnn/Tensors/Decl/TensorObject.hpp>
 
 #include <cassert>
@@ -25,15 +24,7 @@ TensorObject<T>::TensorObject(std::size_t size, TensorShape shape, long from,
     m_data = std::make_unique<TensorData<T>>(dataVector, std::move(shape));
 }
 
-template <typename T>
-TensorObject<T>::TensorObject(const TensorObject<T>& obj)
-{
-    if (obj.m_data)
-    {
-        m_data = std::make_unique<TensorData<T>>(obj.Data(), obj.DataShape());
-        m_info = obj.m_info;
-    }
-}
+
 
 template <typename T>
 TensorObject<T>::TensorObject(TensorObject<T>&& obj) noexcept
@@ -45,22 +36,6 @@ TensorObject<T>::TensorObject(TensorObject<T>&& obj) noexcept
     }
 }
 
-template <typename T>
-TensorObject<T>& TensorObject<T>::operator=(const TensorObject<T>& obj)
-{
-    if (*this == obj)
-    {
-        return *this;
-    }
-
-    if (obj.m_data)
-    {
-        m_data = std::make_unique<TensorData<T>>(obj.Data(), obj.DataShape());
-        m_info = obj.m_info;
-    }
-
-    return *this;
-}
 
 template <typename T>
 TensorObject<T>& TensorObject<T>::operator=(TensorObject<T>&& obj) noexcept

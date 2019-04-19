@@ -29,9 +29,7 @@ class TensorObject
  public:
     TensorObject<T>(std::size_t size, TensorShape shape, long from, long to);
     ~TensorObject<T>() = default;
-    TensorObject<T>(const TensorObject& obj);
     TensorObject<T>(TensorObject&& obj) noexcept;
-    TensorObject<T>& operator=(const TensorObject<T>& obj);
     TensorObject<T>& operator=(TensorObject<T>&& obj) noexcept;
 
     bool operator==(const TensorObject<T>& obj) const;
