@@ -19,7 +19,9 @@ namespace CubbyDNN
 class TensorShape
 {
  public:
+    /// Constructs Empty TensorShape
     TensorShape() = default;
+    /// Constructs TensorShape with given parameters
     TensorShape(long rows, long columns, long depth);
 
     bool operator==(const TensorShape& shape) const;

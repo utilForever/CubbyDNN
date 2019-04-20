@@ -10,13 +10,12 @@
 
 
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
-#include <cubbydnn/GraphUtil/Decl/Linker.hpp>
 
 namespace CubbyDNN
 {
 template <typename T>
-TensorData<T>::TensorData(std::vector<T> data, TensorShape shape_)
-    : dataVec(std::move(data)), shape(std::move(shape_))
+TensorData<T>::TensorData(std::vector<T> data, TensorShape shape)
+    : dataVec(std::move(data)), shape(std::move(shape))
 {
     // Do nothing
 }

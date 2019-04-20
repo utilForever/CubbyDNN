@@ -14,16 +14,16 @@
 namespace CubbyDNN
 {
 template <typename T>
-TensorObject<T>::TensorObject(std::size_t size, TensorShape shape, long from,
-                              long to)
+TensorObject<T>::TensorObject(const TensorShape& shape):
+m_info(TensorInfo(shape))
 {
-    std::vector<T> dataVector(size);
-    assert(dataVector.size() == shape.Size());
-
-    m_info = TensorInfo(from, to);
-    m_data = std::make_unique<TensorData<T>>(dataVector, std::move(shape));
 }
 
+template<typename T>
+TensorObject<T>::TensorObject(const TensorInfo& tensorInfo)
+{
+    m_info = tensorInfo;
+}
 
 
 template <typename T>
@@ -55,13 +55,7 @@ TensorObject<T>& TensorObject<T>::operator=(TensorObject<T>&& obj) noexcept
 }
 
 template <typename T>
-bool TensorObject<T>::operator==(const TensorObject<T>& obj) const
-{
-    return Info() == obj.Info();
-}
-
-template <typename T>
-const TensorInfo& TensorObject<T>::Info() const
+const TensorInfo& TensorObject<T>::Info() const noexcept
 {
     return m_info;
 }

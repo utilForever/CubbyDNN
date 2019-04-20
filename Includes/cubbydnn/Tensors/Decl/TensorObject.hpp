@@ -27,18 +27,20 @@ template <typename T>
 class TensorObject
 {
  public:
-    TensorObject<T>(std::size_t size, TensorShape shape, long from, long to);
-    ~TensorObject<T>() = default;
-    TensorObject<T>(TensorObject&& obj) noexcept;
-    TensorObject<T>& operator=(TensorObject<T>&& obj) noexcept;
+    explicit TensorObject<T>(const TensorShape& shape);
+    explicit TensorObject<T>(const TensorInfo& tensorInfo);
 
-    bool operator==(const TensorObject<T>& obj) const;
+    /// Only move constructor is allowed
+    TensorObject<T>(TensorObject&& obj) noexcept;
+
+    /// Only move assign operator is allowed
+    TensorObject<T>& operator=(TensorObject<T>&& obj) noexcept;
 
     /**
      * Gets information object that describes this TensorObject
      * @return : TensorInfo object describing this TensorObject
      */
-    const TensorInfo& Info() const;
+    const TensorInfo& Info() const noexcept;
 
     /**
      * Attempts to send data to connected socket
@@ -63,6 +65,9 @@ class TensorObject
     /// TensorSocket that this TensorObject is connected
     std::unique_ptr<TensorSocket<T>> m_socket;
 };
+
+template<typename T>
+using TensorObjectPtr = TensorObject<T>;
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_OBJECT_HPP

@@ -21,7 +21,7 @@ template <typename T>
 class TensorData
 {
  public:
-    TensorData<T>(std::vector<T> data, TensorShape shape_);
+    TensorData<T>(std::vector<T> data, TensorShape shape);
 
     std::vector<T> dataVec;
     TensorShape shape;
