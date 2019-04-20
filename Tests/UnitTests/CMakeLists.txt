@@ -10,7 +10,10 @@ file(GLOB sources
 
 # Build executable
 add_executable(${target}
-    ${sources} SimpleTest.hpp)
+    ${sources}
+        SimpleTest.hpp
+        GraphTest/GraphSynchronizationTest.cpp
+        GraphTest/GraphSynchronizationTest.hpp)
 
 # Project options{
 set_target_properties(${target}
