@@ -35,6 +35,11 @@ class Operation
  public:
     Operation() = default;
 
+    ///Only move constructor is allowed
+    Operation(Operation&& operation) noexcept;
+
+    Operation<T>& operator=(Operation&& operation) noexcept;
+
     std::string GetName() const noexcept;
 
     OperationInfo GetInfo() const noexcept;
