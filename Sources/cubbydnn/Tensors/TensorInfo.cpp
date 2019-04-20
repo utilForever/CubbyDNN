@@ -6,28 +6,29 @@
 
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
+
 #include <utility>
 
 namespace CubbyDNN
 {
-TensorInfo::TensorInfo(long from, long to, bool) noexcept
-    : m_from(from), m_to(to)
+
+
+
+TensorInfo::TensorInfo(const TensorShape& tensorShape, bool isMutable):
+m_isMutable(isMutable), m_shape(tensorShape)
 {
-    // Do nothing
+
 }
 
-bool TensorInfo::operator==(const TensorInfo& info) const noexcept
+bool TensorInfo::operator==(const TensorInfo& info)const noexcept
 {
-    return (m_from == info.m_from && m_to == info.m_to);
+    return (m_shape == info.m_shape && m_isMutable == info.m_isMutable);
 }
 
-unsigned TensorInfo::ProcessCount() const noexcept
+size_t TensorInfo::Size()
 {
-    return m_processCount;
+    return m_shape.Size();
 }
 
-void TensorInfo::IncrementProcessCount() noexcept
-{
-    m_processCount += 1;
-}
+
 }  // namespace CubbyDNN

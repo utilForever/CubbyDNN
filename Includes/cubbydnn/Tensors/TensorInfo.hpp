@@ -6,7 +6,7 @@
 
 #ifndef CUBBYDNN_TENSOR_INFO_HPP
 #define CUBBYDNN_TENSOR_INFO_HPP
-
+#include <cubbydnn/Tensors/TensorShape.hpp>
 namespace CubbyDNN
 {
 //!
@@ -15,22 +15,15 @@ namespace CubbyDNN
 class TensorInfo
 {
  public:
-    TensorInfo() = default;
-    TensorInfo(long from, long to, bool isMutable = true) noexcept;
+    explicit TensorInfo(const TensorShape& tensorShape, bool isMutable = false);
 
     bool operator==(const TensorInfo& info) const noexcept;
 
-    unsigned ProcessCount() const noexcept;
-
-    void IncrementProcessCount() noexcept;
-
-    bool busy = false;
+    size_t Size();
 
  private:
-    long m_from = -1;
-    long m_to = -1;
-
-    unsigned m_processCount = 0;
+    bool m_isMutable;
+    const TensorShape& m_shape;
 };
 }  // namespace CubbyDNN
 
