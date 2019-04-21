@@ -14,15 +14,15 @@
 namespace CubbyDNN
 {
 template <typename T>
-TensorObject<T>::TensorObject(const TensorShape& shape):
-m_info(TensorInfo(shape))
+TensorObject<T>::TensorObject(const TensorShape& shape, TensorSocketPtr<T> tensorSocketPtr):
+m_info(TensorInfo(shape)) , m_socket(tensorSocketPtr)
 {
 }
 
 template<typename T>
-TensorObject<T>::TensorObject(const TensorInfo& tensorInfo)
+TensorObject<T>::TensorObject(const TensorInfo& tensorInfo, TensorSocketPtr<T> tensorSocketPtr) :
+m_info(tensorInfo), m_socket(tensorSocketPtr)
 {
-    m_info = tensorInfo;
 }
 
 
@@ -59,8 +59,6 @@ const TensorInfo& TensorObject<T>::Info() const noexcept
 {
     return m_info;
 }
-
-
 
 template<typename T>
 bool TensorObject<T>::SetData(TensorDataPtr<T> tensorDataPtr)

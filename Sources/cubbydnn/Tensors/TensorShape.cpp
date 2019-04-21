@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Tensors/TensorShape.hpp>
 #include <cstdio>
+#include <cubbydnn/Tensors/TensorShape.hpp>
 
 namespace CubbyDNN
 {

@@ -27,8 +27,8 @@ template <typename T>
 class TensorObject
 {
  public:
-    explicit TensorObject<T>(const TensorShape& shape);
-    explicit TensorObject<T>(const TensorInfo& tensorInfo);
+    explicit TensorObject<T>(const TensorShape& shape, TensorSocketPtr<T> tensorSocketPtr);
+    explicit TensorObject<T>(const TensorInfo& tensorInfo, TensorSocketPtr<T> tensorSocketPtr);
 
     /// Only move constructor is allowed
     TensorObject<T>(TensorObject&& obj) noexcept;
@@ -67,7 +67,7 @@ class TensorObject
 };
 
 template<typename T>
-using TensorObjectPtr = TensorObject<T>;
+using TensorObjectPtr = typename std::unique_ptr<TensorObject<T>>;
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_OBJECT_HPP

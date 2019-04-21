@@ -21,6 +21,7 @@ namespace CubbyDNN
 struct OperationInfo
 {
  public:
+    OperationInfo() = default;
     OperationInfo(long id_, std::string name_, size_t inputSize_,
                   size_t outputSize_) noexcept
         : id(id_),
@@ -42,10 +43,10 @@ struct OperationInfo
         return !(*this == info);
     }
 
-    long id;
-    std::string name;
-    size_t inputSize;
-    size_t outputSize;
+    long id = 0;
+    std::string name = "";
+    size_t inputSize = 0;
+    size_t outputSize = 0;
 };
 }  // namespace CubbyDNN
 
