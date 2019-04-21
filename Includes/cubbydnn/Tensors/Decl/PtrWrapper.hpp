@@ -13,67 +13,49 @@
 
 namespace CubbyDNN
 {
-
-
 template <typename T, typename = void>
-class PtrWrapper
+class Ptr
 {
 };
 
 template <typename T>
-class PtrWrapper<TensorObject<T>>
+class Ptr<TensorObject<T>>
 {
  public:
-    explicit PtrWrapper(std::unique_ptr<TensorObject<T>> tensorObjectPtr);
+    Ptr() = default;
 
-    PtrWrapper(PtrWrapper<TensorObject<T>>&& tensorObjectPtr) noexcept
-        : m_tensorObjectPtr(std::move(tensorObjectPtr))
-    {
-    }
+    Ptr(Ptr<TensorObject<T>>&& tensorObjectPtr) noexcept;
 
-    PtrWrapper<TensorObject<T>>& operator=(
-        PtrWrapper<TensorObject<T>>&& ptrWrapper) noexcept
-    {
-        m_tensorObjectPtr = std::move(ptrWrapper.m_tensorObjectPtr);
-    }
+    Ptr<TensorObject<T>>& operator=(Ptr<TensorObject<T>>&& ptrWrapper) noexcept;
 
     template <typename... Ts>
-    explicit PtrWrapper(Ts... args)
-        : m_tensorObjectPtr(std::make_unique<TensorObject<T>>(args...))
-    {
-    }
+    Ptr<TensorObject<T>> Make(Ts... args);
 
  private:
-    std::unique_ptr<TensorObject<T>> m_tensorObjectPtr;
+    std::unique_ptr<TensorObject<T>> m_tensorObjectPtr = nullptr;
 };
 
 template <typename T>
-class PtrWrapper<TensorSocket<T>>
+class Ptr<TensorSocket<T>>
 {
  public:
-    PtrWrapper() = default;
+    Ptr() = default;
 
-    PtrWrapper(PtrWrapper<TensorSocket<T>>&& ptrWrapper) noexcept;
+    Ptr(Ptr<TensorSocket<T>>&& ptrWrapper) noexcept;
 
-    PtrWrapper(const PtrWrapper<TensorSocket<T>>& ptrWrapper)
-        : m_tensorSocketPtr(ptrWrapper.m_tensorSocketPtr),
-          m_reference_count(ptrWrapper.m_reference_count + 1)
-    {
-    }
+    Ptr(const Ptr<TensorSocket<T>>& ptrWrapper);
 
     template <typename... Ts>
-    static PtrWrapper<TensorSocket<T>> make(Ts... args);
+    static Ptr<TensorSocket<T>> Make(Ts... args);
 
-    PtrWrapper<TensorSocket<T>>& operator=(
-        PtrWrapper<TensorSocket<T>>&& ptrWrapper) noexcept
+    Ptr<TensorSocket<T>>& operator=(Ptr<TensorSocket<T>>&& ptrWrapper) noexcept
     {
         m_tensorSocketPtr = ptrWrapper.m_tensorSocketPtr;
         m_reference_count = ptrWrapper.m_reference_count;
         ptrWrapper.m_tensorSocketPtr = nullptr;
     }
 
-    PtrWrapper<TensorSocket<T>>& operator=(
-        const PtrWrapper<TensorSocket<T>>& ptrWrapper)
+    Ptr<TensorSocket<T>>& operator=(const Ptr<TensorSocket<T>>& ptrWrapper)
     {
         m_tensorSocketPtr = ptrWrapper.m_tensorSocketPtr;
         m_reference_count = ptrWrapper.m_reference_count + 1;
@@ -88,8 +70,6 @@ class PtrWrapper<TensorSocket<T>>
     TensorSocket<T>* m_tensorSocketPtr = nullptr;
     std::atomic_int m_reference_count = 0;
 };
-
-
 
 }  // namespace CubbyDNN
 
