@@ -1,0 +1,8 @@
+//
+// Created by jwkim98 on 4/21/19.
+//
+
+#ifndef CUBBYDNN_PTRWRAPPER_IMPL_HPP
+#define CUBBYDNN_PTRWRAPPER_IMPL_HPP
+
+#endif //CUBBYDNN_PTRWRAPPER_IMPL_HPP
