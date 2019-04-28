@@ -24,17 +24,17 @@ namespace CubbyDNN
 //! graph execution.
 //!
 template <typename T>
-class TensorObject
+class TensorPlug
 {
  public:
-    explicit TensorObject<T>(const TensorShape& shape, TensorSocketPtr<T> tensorSocketPtr);
-    explicit TensorObject<T>(const TensorInfo& tensorInfo, TensorSocketPtr<T> tensorSocketPtr);
+    explicit TensorPlug<T>(const TensorShape& shape, TensorSocketPtr<T> tensorSocketPtr);
+    explicit TensorPlug<T>(const TensorInfo& tensorInfo, TensorSocketPtr<T> tensorSocketPtr);
 
     /// Only move constructor is allowed
-    TensorObject<T>(TensorObject&& obj) noexcept;
+    TensorPlug<T>(TensorPlug&& obj) noexcept;
 
     /// Only move assign operator is allowed
-    TensorObject<T>& operator=(TensorObject<T>&& obj) noexcept;
+    TensorPlug<T>& operator=(TensorPlug<T>&& obj) noexcept;
 
     /**
      * Gets information object that describes this TensorObject
@@ -67,7 +67,7 @@ class TensorObject
 };
 
 template<typename T>
-using TensorObjectPtr = typename std::unique_ptr<TensorObject<T>>;
+using TensorPlugPtr = typename std::unique_ptr<TensorPlug<T>>;
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_OBJECT_HPP
