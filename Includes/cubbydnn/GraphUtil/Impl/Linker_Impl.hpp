@@ -6,14 +6,14 @@
 #define CUBBYDNN_LINKER_IMPL_HPP
 
 #include <cubbydnn/GraphUtil/Decl/Linker.hpp>
-#include <cubbydnn/Tensors/Decl/TensorObject.hpp>
+#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
 
 namespace CubbyDNN
 {
 template <typename T>
-static std::unique_ptr<TensorObject<T>> PassToTensorObject(
+static std::unique_ptr<TensorPlug<T>> PassToTensorObject(
     std::unique_ptr<TensorData<T>> DataToSend,
-    std::unique_ptr<TensorObject<T>> TensorToReceive)
+    std::unique_ptr<TensorPlug<T>> TensorToReceive)
 {
     TensorToReceive->m_data = std::move(DataToSend);
     return std::move(TensorToReceive);
@@ -24,7 +24,7 @@ static std::unique_ptr<TensorSocket<T>> PassToOperation(
     std::unique_ptr<TensorData<T>> DataToSend,
     std::unique_ptr<TensorSocket<T>> SocketToReceive, size_t Position)
 {
-    SocketToReceive->SocketTensorData = std::move(DataToSend);
+    SocketToReceive->m_socketTensorData = std::move(DataToSend);
     return std::move(SocketToReceive);
 }
 

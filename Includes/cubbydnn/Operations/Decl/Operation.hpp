@@ -11,7 +11,7 @@
 #include <cubbydnn/Operations/OpEnums.hpp>
 #include <cubbydnn/Operations/OperationInfo.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
-#include <cubbydnn/Tensors/Decl/TensorObject.hpp>
+#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
 #include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
 
 
@@ -48,7 +48,7 @@ class Operation
 
     void SendDataTo(int index, TensorDataPtr<T> tensorDataPtr);
 
-    void AddOutput(TensorObjectPtr<T> tensorObjectPtr);
+    void AddOutput(TensorPlugPtr<T> tensorObjectPtr);
 
     void AddInput(TensorSocketPtr<T> tensorSocketPtr);
 
@@ -61,7 +61,7 @@ class Operation
     /// contains Data to be used in operation
     std::vector<TensorSocket<T>> m_tensorSocketDeck;
     /// contains tensorObjects going out of this operation
-    std::vector<TensorObjectPtr<T>> m_tensorObjectDeck;
+    std::vector<TensorPlug<T>> m_tensorObjectDeck;
 };
 }  // namespace CubbyDNN
 

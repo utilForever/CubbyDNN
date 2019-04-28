@@ -27,7 +27,7 @@ file(GLOB_RECURSE sources
 
 # Build library
 add_library(${target}
-    ${sources})
+    ${sources} ../../Includes/cubbydnn/Tensors/Decl/Util.hpp ../../Includes/cubbydnn/Tensors/Impl/Util-Impl.hpp ../../Includes/cubbydnn/Tensors/Decl/PtrWrapper.hpp ../../Includes/cubbydnn/Tensors/Impl/PtrWrapper-Impl.hpp)
 
 # Project options
 set_target_properties(${target}

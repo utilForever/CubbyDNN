@@ -6,29 +6,24 @@
 
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
-
+#include <cstddef>
 #include <utility>
 
 namespace CubbyDNN
 {
-
-
-
-TensorInfo::TensorInfo(const TensorShape& tensorShape, bool isMutable):
-m_isMutable(isMutable), m_shape(tensorShape)
+TensorInfo::TensorInfo(const TensorShape& tensorShape, bool isMutable)
+    : m_isMutable(isMutable), m_shape(tensorShape)
 {
-
 }
 
-bool TensorInfo::operator==(const TensorInfo& info)const noexcept
+bool TensorInfo::operator==(const TensorInfo& info) const noexcept
 {
     return (m_shape == info.m_shape && m_isMutable == info.m_isMutable);
 }
 
-size_t TensorInfo::Size()
+std::size_t TensorInfo::Size()
 {
     return m_shape.Size();
 }
-
 
 }  // namespace CubbyDNN

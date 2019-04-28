@@ -52,7 +52,7 @@ void Operation<T>::SendDataTo(int index, TensorDataPtr<T> tensorDataPtr)
 }
 
 template <typename T>
-void Operation<T>::AddOutput(TensorObjectPtr<T> tensorObjectPtr)
+void Operation<T>::AddOutput(TensorPlugPtr<T> tensorObjectPtr)
 {
     m_tensorObjectDeck.emplace_back(tensorObjectPtr);
 }

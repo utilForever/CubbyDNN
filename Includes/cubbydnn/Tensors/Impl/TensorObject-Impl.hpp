@@ -7,27 +7,27 @@
 #ifndef CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 #define CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 
-#include <cubbydnn/Tensors/Decl/TensorObject.hpp>
+#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
 
 #include <cassert>
 
 namespace CubbyDNN
 {
 template <typename T>
-TensorObject<T>::TensorObject(const TensorShape& shape, TensorSocketPtr<T> tensorSocketPtr):
+TensorPlug<T>::TensorPlug(const TensorShape& shape, TensorSocketPtr<T> tensorSocketPtr):
 m_info(TensorInfo(shape)) , m_socket(tensorSocketPtr)
 {
 }
 
 template<typename T>
-TensorObject<T>::TensorObject(const TensorInfo& tensorInfo, TensorSocketPtr<T> tensorSocketPtr) :
+TensorPlug<T>::TensorPlug(const TensorInfo& tensorInfo, TensorSocketPtr<T> tensorSocketPtr) :
 m_info(tensorInfo), m_socket(tensorSocketPtr)
 {
 }
 
 
 template <typename T>
-TensorObject<T>::TensorObject(TensorObject<T>&& obj) noexcept
+TensorPlug<T>::TensorPlug(TensorPlug<T>&& obj) noexcept
 {
     if (obj.m_data)
     {
@@ -38,7 +38,7 @@ TensorObject<T>::TensorObject(TensorObject<T>&& obj) noexcept
 
 
 template <typename T>
-TensorObject<T>& TensorObject<T>::operator=(TensorObject<T>&& obj) noexcept
+TensorPlug<T>& TensorPlug<T>::operator=(TensorPlug<T>&& obj) noexcept
 {
     if (*this == obj)
     {
@@ -55,13 +55,13 @@ TensorObject<T>& TensorObject<T>::operator=(TensorObject<T>&& obj) noexcept
 }
 
 template <typename T>
-const TensorInfo& TensorObject<T>::Info() const noexcept
+const TensorInfo& TensorPlug<T>::Info() const noexcept
 {
     return m_info;
 }
 
 template<typename T>
-bool TensorObject<T>::SetData(TensorDataPtr<T> tensorDataPtr)
+bool TensorPlug<T>::SetData(TensorDataPtr<T> tensorDataPtr)
 {
     if(!m_data)
     {

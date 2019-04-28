@@ -13,7 +13,7 @@ void SyncTest()
     auto data = std::vector<int>(100);
     auto tensorData = TensorData<int>(data , shape);
 
-    dataPool = std::vector(
+    dataPool = std::vector<TensorData<int>>(
             10, tensorData);
 
     auto Sender = Operation<int>();

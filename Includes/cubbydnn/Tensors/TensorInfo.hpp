@@ -19,7 +19,7 @@ class TensorInfo
 
     bool operator==(const TensorInfo& info) const noexcept;
 
-    size_t Size();
+    std::size_t Size();
 
  private:
     bool m_isMutable;

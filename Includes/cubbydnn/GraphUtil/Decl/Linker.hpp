@@ -9,7 +9,7 @@
 
 #include <cubbydnn/Operations/Decl/TensorSocket.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
-#include <cubbydnn/Tensors/Decl/TensorObject.hpp>
+#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
 #include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
 
 #include <memory>
@@ -24,9 +24,9 @@ namespace CubbyDNN
  * @return : ptr to TensorObject after passing
  */
 template <typename T>
-static std::unique_ptr<TensorObject<T>> PassToTensorObject(
+static std::unique_ptr<TensorPlug<T>> PassToTensorObject(
     std::unique_ptr<TensorData<T>> DataToSend,
-    std::unique_ptr<TensorObject<T>> TensorToReceive);
+    std::unique_ptr<TensorPlug<T>> TensorToReceive);
 
 /**
  * @tparam T : Template type for TensorData
