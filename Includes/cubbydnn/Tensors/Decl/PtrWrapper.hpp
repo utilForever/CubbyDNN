@@ -5,7 +5,7 @@
 #ifndef CUBBYDNN_PTRWRAPPER_HPP
 #define CUBBYDNN_PTRWRAPPER_HPP
 
-#include <cubbydnn/Tensors/Decl/TensorObject.hpp>
+#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
 #include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
 
 #include <atomic>
@@ -19,20 +19,29 @@ class Ptr
 };
 
 template <typename T>
-class Ptr<TensorObject<T>>
+class Ptr<TensorPlug<T>>
 {
  public:
     Ptr() = default;
 
-    Ptr(Ptr<TensorObject<T>>&& tensorObjectPtr) noexcept;
+    Ptr(Ptr<TensorPlug<T>>&& tensorObjectPtr) noexcept
+    {
+    }
 
-    Ptr<TensorObject<T>>& operator=(Ptr<TensorObject<T>>&& ptrWrapper) noexcept;
+    Ptr<TensorPlug<T>>& operator=(Ptr<TensorPlug<T>>&& ptrWrapper) noexcept
+    {
+    }
 
     template <typename... Ts>
-    Ptr<TensorObject<T>> Make(Ts... args);
+    Ptr<TensorPlug<T>> Make(Ts... args)
+    {
+        auto ptr = Ptr<TensorPlug<T>>();
+        ptr.m_tensorObjectPtr = std::make_unique<TensorPlug<T>>(args...);
+        return std::move(ptr);
+    }
 
  private:
-    std::unique_ptr<TensorObject<T>> m_tensorObjectPtr = nullptr;
+    std::unique_ptr<TensorPlug<T>> m_tensorObjectPtr = nullptr;
 };
 
 template <typename T>
@@ -41,12 +50,25 @@ class Ptr<TensorSocket<T>>
  public:
     Ptr() = default;
 
-    Ptr(Ptr<TensorSocket<T>>&& ptrWrapper) noexcept;
+    Ptr(Ptr<TensorSocket<T>>&& ptrWrapper) noexcept
+    {
+        ptrWrapper.m_tensorSocketPtr = nullptr;
+    }
 
-    Ptr(const Ptr<TensorSocket<T>>& ptrWrapper);
+    Ptr(const Ptr<TensorSocket<T>>& ptrWrapper)
+        : m_tensorSocketPtr(ptrWrapper.m_tensorSocketPtr),
+          m_reference_count(ptrWrapper.m_reference_count + 1)
+    {
+    }
 
     template <typename... Ts>
-    static Ptr<TensorSocket<T>> Make(Ts... args);
+    static Ptr<TensorSocket<T>> Make(Ts... args)
+    {
+        auto ptrWrapper = Ptr<TensorSocket<T>>();
+        ptrWrapper.m_tensorSocketPtr = new TensorSocket<T>(args...);
+        ptrWrapper.m_reference_count = 0;
+        return std::move(ptrWrapper);
+    }
 
     Ptr<TensorSocket<T>>& operator=(Ptr<TensorSocket<T>>&& ptrWrapper) noexcept
     {
