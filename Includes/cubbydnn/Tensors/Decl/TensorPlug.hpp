@@ -27,8 +27,10 @@ template <typename T>
 class TensorPlug
 {
  public:
-    explicit TensorPlug<T>(const TensorShape& shape, TensorSocketPtr<T> tensorSocketPtr);
-    explicit TensorPlug<T>(const TensorInfo& tensorInfo, TensorSocketPtr<T> tensorSocketPtr);
+    explicit TensorPlug<T>(const TensorShape& shape,
+                           TensorSocketPtr<T> tensorSocketPtr);
+    explicit TensorPlug<T>(const TensorInfo& tensorInfo,
+                           TensorSocketPtr<T> tensorSocketPtr);
 
     /// Only move constructor is allowed
     TensorPlug<T>(TensorPlug&& obj) noexcept;
@@ -42,31 +44,26 @@ class TensorPlug
      */
     const TensorInfo& Info() const noexcept;
 
-    /**
-     * Attempts to send data to connected socket
-     * There are 3 cases that can happen
-     * 1) m_data is nullptr then attempt to send it directly to connected socket
-     * 2) if 1) fails return after setting m_data to tensorDataPtr
-     * 3) m_data is already occupied then wait until socket is ready and move
-     * m_data to m_socket, set m_data to given tensorDataPtr
-     *
-     * @param tensorDataPtr : ptr to be set
-     * @return : true if succeeded false otherwise
-     */
-    bool SetData(TensorDataPtr<T> tensorDataPtr);
+    bool SendData();
+
+    TensorDataPtr<T> GetDataPtr() const noexcept;
+
+    bool SetDataPtr(TensorDataPtr<T> tensorDataPtr);
+
+    std::future<TensorData<T>> GetFuture();
 
  private:
     /// Includes information about this TensorObject
     TensorInfo m_info;
     /// ptr to Data this TensorObject holds
     TensorDataPtr<T> m_data = nullptr;
-    /// mtx for accessing the data
-    std::mutex m_dataMtx;
     /// TensorSocket that this TensorObject is connected
     std::unique_ptr<TensorSocket<T>> m_socket;
+
+    std::promise<TensorDataPtr<T>> m_promise;
 };
 
-template<typename T>
+template <typename T>
 using TensorPlugPtr = typename std::unique_ptr<TensorPlug<T>>;
 }  // namespace CubbyDNN
 

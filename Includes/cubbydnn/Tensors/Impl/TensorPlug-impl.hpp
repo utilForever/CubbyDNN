@@ -89,6 +89,12 @@ bool TensorPlug<T>::SetDataPtr(TensorDataPtr<T> tensorDataPtr)
     return false;
 }
 
+template<typename T>
+std::future<TensorData<T>> TensorPlug<T>::GetFuture()
+{
+    return m_promise.get_future();
+}
+
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
