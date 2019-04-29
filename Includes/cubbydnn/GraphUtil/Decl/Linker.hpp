@@ -15,28 +15,21 @@
 
 namespace CubbyDNN
 {
-/**
- * @brief : Passes
- * @tparam T : Template type for TensorData
- * @param DataToSend : ptr to TensorData which needs to be passed
- * @param TensorToReceive : ptr to ObjectToReceive
- * @return : ptr to TensorObject after passing
- */
 template <typename T>
-static std::unique_ptr<TensorPlug<T>> PassToTensorObject(
-    std::unique_ptr<TensorData<T>> DataToSend,
-    std::unique_ptr<TensorPlug<T>> TensorToReceive);
+class Linker
+{
+ public:
+    Linker(const TensorSocketPtr<T> socketPtr, const TensorPlugPtr<T> plugPtr);
+    bool Link() const;
 
-/**
- * @tparam T : Template type for TensorData
- * @param DataToSend : ptr to TensorData which needs to be passed
- * @param ObjectToReceive : ptr to ObjectToReceive
- * @return : ptr to Operation after passing
- */
-template <typename T>
-static std::unique_ptr<TensorSocket<T>> PassToOperation(
-    std::unique_ptr<TensorData<T>> DataToSend,
-    std::unique_ptr<TensorSocket<T>> SocketToReceive, size_t Position);
+ private:
+    TensorPlugPtr<T> m_tensorPlugPtr;
+    TensorSocketPtr<T> m_tensorSocketPtr;
+    /// Future from tensorPlug
+    const std::future<TensorDataPtr<T>> m_PlugFuture;
+    /// Future from tensorSocket
+    const std::future<TensorDataPtr<T>> m_SocketFuture;
+};
 
 }  // namespace CubbyDNN
 

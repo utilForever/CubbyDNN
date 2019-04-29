@@ -11,23 +11,29 @@
 namespace CubbyDNN
 {
 template <typename T>
-static std::unique_ptr<TensorPlug<T>> PassToTensorObject(
-    std::unique_ptr<TensorData<T>> DataToSend,
-    std::unique_ptr<TensorPlug<T>> TensorToReceive)
+Linker<T>::Linker(const TensorSocketPtr<T> socketPtr,
+                  const TensorPlugPtr<T> plugPtr):
+                  m_tensorPlugPtr(plugPtr), m_tensorSocketPtr(socketPtr),
+                  m_PlugFuture(m_tensorPlugPtr.GetFuture()),
+                  m_SocketFuture(m_tensorSocketPtr.GetFuture())
 {
-    TensorToReceive->m_data = std::move(DataToSend);
-    return std::move(TensorToReceive);
 }
 
 template <typename T>
-static std::unique_ptr<TensorSocket<T>> PassToOperation(
-    std::unique_ptr<TensorData<T>> DataToSend,
-    std::unique_ptr<TensorSocket<T>> SocketToReceive, size_t Position)
+bool Linker<T>::Link() const
 {
-    SocketToReceive->m_socketTensorData = std::move(DataToSend);
-    return std::move(SocketToReceive);
-}
+    if (m_SocketFuture.valid() && m_PlugFuture.valid())
+    {
+        m_SocketFuture.wait();
+        m_PlugFuture.wait();
 
+        TensorDataPtr<T> oldPlugTensorPtr = m_tensorPlugPtr->GetDataPtr();
+        TensorDataPtr<T> oldSocketTensorPtr = m_tensorSocketPtr->GetDataPtr();
+
+        m_tensorPlugPtr->SetDataPtr(oldSocketTensorPtr);
+        m_tensorSocketPtr->SetDataPtr(oldPlugTensorPtr);
+    }
+}
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_LINKER_IMPL_HPP
