@@ -40,45 +40,18 @@ class TensorSocket
      */
     TensorSocket& operator=(TensorSocket& tensorSocket) = delete;
 
-    /**
-     * Sets m_promiseSend to tensorDataPtr so it can be requested from
-     * Operations This Method should be called by TensorObject
-     * @param tensorDataPtr : ptr to be set
-     */
-    void SendData(TensorDataPtr<T> tensorDataPtr);
+    bool ReceiveData();
 
-    /**
-     * Attempts to set m_promiseSend
-     * @param tensorDataPtr
-     * @return : true if Send succeeded false otherwise
-     */
-    bool TrySendData(TensorDataPtr<T> tensorDataPtr);
+    TensorDataPtr<T> GetDataPtr() const noexcept;
 
-    /**
-     * Waits until data is available and
-     * brings Data from connected TenorObject
-     * @return : requested TensorDataPtr
-     */
-    TensorDataPtr<T> Request();
+    bool SetDataPtr(TensorDataPtr<T> tensorDataPtr);
 
-    /**
-     * Checks if data is available and
-     * brings Data from connected TensorObjects
-     * returns nullptr immediately if data is unavailable
-     * @return : requested TensorDataPtr if available, nullptr otherwise
-     */
-    TensorDataPtr<T> TryRequest();
+    std::future<TensorData<T>> GetFuture();
 
  private:
-    std::future<TensorDataPtr<T>> m_futureReceive;
     std::promise<TensorDataPtr<T>> m_promiseSend;
 
-    std::mutex m_mtx;
-    std::unique_lock<std::mutex> m_lock;
-    std::condition_variable m_cond;
-
-    /// Indicates whether m_promiseSend is ready to be set
-    std::atomic_bool m_updateReady = false;
+    TensorDataPtr<T>* m_tensorDataPtr = nullptr;
 };
 
 template <typename T>
