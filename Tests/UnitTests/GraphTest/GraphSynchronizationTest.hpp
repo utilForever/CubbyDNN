@@ -6,7 +6,7 @@
 #define CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 
 #include <cubbydnn/Tensors/Impl/TensorData-Impl.hpp>
-#include <cubbydnn/Tensors/Impl/TensorObject-Impl.hpp>
+#include <cubbydnn/Tensors/Impl/TensorPlug-impl.hpp>
 #include <cubbydnn/Operations/Impl/Operation_Impl.hpp>
 
 using namespace CubbyDNN;
