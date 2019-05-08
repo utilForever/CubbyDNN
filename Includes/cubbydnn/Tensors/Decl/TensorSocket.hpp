@@ -51,7 +51,7 @@ class TensorSocket
  private:
     std::promise<TensorDataPtr<T>> m_promiseSend;
 
-    TensorDataPtr<T>* m_tensorDataPtr = nullptr;
+    TensorDataPtr<T> m_tensorDataPtr = nullptr;
 };
 
 template <typename T>
