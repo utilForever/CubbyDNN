@@ -24,19 +24,22 @@ namespace CubbyDNN
         std::atomic<int> counter;
         std::mutex mtx;
         std::condition_variable condVar;
+        std::atomic<bool> forceFinish = false;
 
         /**
+         * WaitUntilAllFinish
          * Waits until every operation finishes by checking counter is 0
          */
         void WaitUntilAllFinish(){
             std::unique_lock<std::mutex> lock(mtx);
             auto checkCompleted = [this]() {
-                return counter == 0;
+                return (counter == 0) || forceFinish;
             };
             condVar.wait(lock, checkCompleted);
         }
 
         /**
+         * ResetCounter
          * Resets counter to initial value
          */
         void ResetCounter(){
@@ -44,6 +47,7 @@ namespace CubbyDNN
         }
 
         /**
+         * NotifyFinish
          * Decrements counter by 1 Which means one operation is finished
          */
         void NotifyFinish()
@@ -51,6 +55,17 @@ namespace CubbyDNN
             std::unique_lock<std::mutex> lock(mtx);
             if(counter > 0)
                 counter--;
+            condVar.notify_all();
+        }
+
+        /**
+         * ForceFinish
+         * Forces synchronization process to Finish
+        */
+        void ForceFinish()
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            forceFinish = true;
             condVar.notify_all();
         }
     };
