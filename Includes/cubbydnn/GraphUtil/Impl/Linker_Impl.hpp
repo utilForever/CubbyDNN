@@ -1,6 +1,8 @@
-//
-// Created by jwkim98 on 3/24/19.
-//
+/**
+ * Copyright (c) 2019 Chris Ohk, Justin Kim
+ * @file : Linker.cpp
+ * @brief : helper functions that link TensorObjects and Operations
+ */
 
 #ifndef CUBBYDNN_LINKER_IMPL_HPP
 #define CUBBYDNN_LINKER_IMPL_HPP
@@ -11,29 +13,45 @@
 namespace CubbyDNN
 {
 template <typename T>
-Linker<T>::Linker(const TensorSocketPtr<T> socketPtr,
-                  const TensorPlugPtr<T> plugPtr):
-                  m_tensorPlugPtr(plugPtr), m_tensorSocketPtr(socketPtr),
-                  m_PlugFuture(m_tensorPlugPtr.GetFuture()),
-                  m_SocketFuture(m_tensorSocketPtr.GetFuture())
+Linker<T>::Linker(TensorSocketPtr<T> socketPtr, TensorPlugPtr<T> plugPtr,
+                  SyncPtr syncPtr)
+    : m_tensorPlugPtr(plugPtr), m_tensorSocketPtr(socketPtr), m_syncPtr(syncPtr)
 {
 }
 
 template <typename T>
-bool Linker<T>::Link() const
+void Linker<T>::Swap()
 {
-    if (m_SocketFuture.valid() && m_PlugFuture.valid())
+    while (!m_forceFinish)
     {
-        m_SocketFuture.wait();
-        m_PlugFuture.wait();
+        m_syncPtr->WaitUntilAllFinish();
 
-        TensorDataPtr<T> oldPlugTensorPtr = m_tensorPlugPtr->GetDataPtr();
-        TensorDataPtr<T> oldSocketTensorPtr = m_tensorSocketPtr->GetDataPtr();
+        TensorDataPtr<T> plugDataPtr = m_tensorPlugPtr->MoveDataPtr();
+        TensorDataPtr<T> socketDataPtr = m_tensorSocketPtr->MoveDataPtr();
 
-        m_tensorPlugPtr->SetDataPtr(oldSocketTensorPtr);
-        m_tensorSocketPtr->SetDataPtr(oldPlugTensorPtr);
+        TensorDataPtr<T> temp = std::move(plugDataPtr);
+        plugDataPtr = std::move(socketDataPtr);
+        socketDataPtr = std::move(temp);
+
+        plugDataPtr->moveReady = false;
+        socketDataPtr->moveReady = false;
     }
 }
+
+template <typename T>
+void Linker<T>::Start()
+{
+    m_thread = std::move(std::thread(Swap));
+}
+
+template <typename T>
+void Linker<T>::ForceFinish()
+{
+    m_syncPtr->ForceFinish();
+    if(m_thread.joinable())
+        m_thread.join();
+}
+
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_LINKER_IMPL_HPP

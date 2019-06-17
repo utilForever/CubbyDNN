@@ -7,6 +7,7 @@
 #ifndef CUBBYDNN_LINKER_HPP
 #define CUBBYDNN_LINKER_HPP
 
+#include <cubbydnn/GraphUtil/Decl/Sync.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
 #include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
 #include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
@@ -15,22 +16,52 @@
 
 namespace CubbyDNN
 {
+/**
+ * This class Connects a single TensorPlug and TensorSocket
+ * This class synchronizes operations and swaps data between them
+ * @tparam T
+ */
 template <typename T>
 class Linker
 {
  public:
-    Linker(const TensorSocketPtr<T> socketPtr, const TensorPlugPtr<T> plugPtr);
-    bool Link() const;
+    /**
+     * Constructor
+     * @param socketPtr : pointer of TensorSocket to link
+     * @param plugPtr : pointer of TensorPlug to link
+     * @param syncPtr : pointer of Sync object to use
+     */
+    Linker(TensorSocketPtr<T> socketPtr, TensorPlugPtr<T> plugPtr,
+           SyncPtr syncPtr);
+
+    /**
+     * Swap
+     * Swaps DataPtr of TensorPlugPtr and TensorSocketPtr
+     */
+    void Swap();
+
+    /**
+     * Invoke
+     * Starts synchronization thread that waits for tensorPlugs and tensorSockets to finish
+     */
+    void Start();
+
+    /**
+     * ForceFinish
+     * Finishes synchronization thread that waits for tensorPlugs and tensorSockets to finish
+     */
+    void ForceFinish();
 
  private:
+    /// Ptr to tensorPlug
     TensorPlugPtr<T> m_tensorPlugPtr;
+    /// Ptr to tensorSocket
     TensorSocketPtr<T> m_tensorSocketPtr;
-    /// Future from tensorPlug
-    const std::future<TensorDataPtr<T>> m_PlugFuture;
-    /// Future from tensorSocket
-    const std::future<TensorDataPtr<T>> m_SocketFuture;
+    /// Used to manage atomic-counter based synchronization
+    SyncPtr m_syncPtr;
+    std::thread m_thread;
+    bool m_forceFinish = false;
 };
-
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_LINKER_HPP
