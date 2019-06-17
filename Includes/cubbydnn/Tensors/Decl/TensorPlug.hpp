@@ -7,6 +7,7 @@
 #ifndef CUBBYDNN_TENSOR_OBJECT_HPP
 #define CUBBYDNN_TENSOR_OBJECT_HPP
 
+#include <cubbydnn/GraphUtil/Decl/Sync.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
 #include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
@@ -27,40 +28,41 @@ template <typename T>
 class TensorPlug
 {
  public:
-    explicit TensorPlug<T>(const TensorShape& shape,
-                           TensorSocketPtr<T> tensorSocketPtr);
-    explicit TensorPlug<T>(const TensorInfo& tensorInfo,
-                           TensorSocketPtr<T> tensorSocketPtr);
 
-    /// Only move constructor is allowed
-    TensorPlug<T>(TensorPlug&& obj) noexcept;
-
-    /// Only move assign operator is allowed
-    TensorPlug<T>& operator=(TensorPlug<T>&& obj) noexcept;
+    TensorPlug(SyncPtr operationSyncPtr, SyncPtr linkSyncPtr);
 
     /**
-     * Gets information object that describes this TensorObject
-     * @return : TensorInfo object describing this TensorObject
+     * MoveDataPtr
+     * Returns dataPtr of current TensorSocket and set m_data to nullptr
+     * @return : m_data
      */
-    const TensorInfo& Info() const noexcept;
+    TensorDataPtr<T> MoveDataPtr() const noexcept;
 
-    bool SendData();
+    /**
+     * Assigns TensorDataPtr to this tensorPlug
+     * Only linker should call this since it decrements operation's atomic counter
+     * @param tensorDataPtr : TensorDataPtr to assign
+     * @return : True if tensorDataPtr was assigned False if tensorPlug was
+     * already assigned
+     */
+    bool SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr);
 
-    TensorDataPtr<T> GetDataPtr() const noexcept;
-
-    bool SetDataPtr(TensorDataPtr<T> tensorDataPtr);
-
-    std::future<TensorData<T>> GetFuture();
+    /**
+     * Assigns TensorDataPtr to this tensorPlug
+     * Only operation should call this since it decrements linker's atomic counter
+     * @param tensorDataPtr : TensorDataPtr to assign
+     * @return : True if tensorDataPtr was assigned False if tensorPlug was
+     * already assigned
+     */
+    bool SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr);
 
  private:
-    /// Includes information about this TensorObject
-    TensorInfo m_info;
     /// ptr to Data this TensorObject holds
-    TensorDataPtr<T> m_data = nullptr;
-    /// TensorSocket that this TensorObject is connected
-    std::unique_ptr<TensorSocket<T>> m_socket;
-
-    std::promise<TensorDataPtr<T>> m_promise;
+    TensorDataPtr<T> m_dataPtr = nullptr;
+    /// ptr to operationSync
+    SyncPtr m_operationSyncPtr;
+    /// ptr to linkSync
+    SyncPtr m_linkSyncPtr;
 };
 
 template <typename T>

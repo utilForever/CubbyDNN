@@ -9,23 +9,29 @@
 
 #include <cubbydnn/Tensors/TensorShape.hpp>
 
-#include <vector>
+#include <atomic>
 #include <memory>
+#include <vector>
 
 namespace CubbyDNN
 {
-//!
-//! \brief TensorData class.
-//!
+/**
+ * TensorData class contains data vector for processing
+ * with attributes describing it
+ * @tparam T : type of data this tensorData contains
+ */
 template <typename T>
-class TensorData
+struct TensorData
 {
- public:
     TensorData<T>(std::vector<T> data, TensorShape shape);
-
+    /// Data vector which possesses actual data
     std::vector<T> dataVec;
+    /// Shape of this tensorData
     TensorShape shape;
+    /// True if tensorData was set to be mutable
     bool isMutable = true;
+    /// True if this data is ready to be moved
+    std::atomic_bool moveReady;
 };
 
 template <typename T>

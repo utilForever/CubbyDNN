@@ -1,7 +1,9 @@
-/**
- * @file : TensorSocket-impl.hpp
- * @author : Justin Kim
- */
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
+
 
 #ifndef CUBBYDNN_TENSORSOCKET_IMPL_HPP
 #define CUBBYDNN_TENSORSOCKET_IMPL_HPP
@@ -11,43 +13,36 @@
 namespace CubbyDNN
 {
 template <typename T>
-TensorSocket<T>::TensorSocket()
+TensorSocket<T>::TensorSocket(SyncPtr operationSyncPtr, SyncPtr linkSyncPtr)
+    : m_operationSyncPtr(operationSyncPtr), m_linkSyncPtr(linkSyncPtr)
 {
 }
 
-template<typename T>
-bool TensorSocket<T>::ReceiveData()
+template <typename T>
+TensorDataPtr<T> TensorSocket<T>::MoveDataPtr() const noexcept
 {
-    if(m_tensorDataPtr)
+    auto tensorDataPtr = m_dataPtr;
+    m_dataPtr = nullptr;
+    return tensorDataPtr;
+}
+
+template <typename T>
+bool TensorSocket<T>::SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr)
+{
+    if (!m_dataPtr)
     {
-       m_promiseSend.set_value(m_tensorDataPtr);
-       m_tensorDataPtr = nullptr;
-       return true;
-    }
-    return false;
-}
-
-template<typename T>
-TensorDataPtr<T> TensorSocket<T>::GetDataPtr() const noexcept
-{
-    return m_tensorDataPtr;
-}
-
-template<typename T>
-bool TensorSocket<T>::SetDataPtr(TensorDataPtr<T> tensorDataPtr)
-{
-    if(!m_tensorDataPtr)
-    {
-        m_tensorDataPtr = tensorDataPtr;
+        m_dataPtr = tensorDataPtr;
+        /// Notify operation that data is ready to be executed
+        m_operationSyncPtr->NotifyFinish();
         return true;
     }
     return false;
 }
 
-template<typename T>
-std::future<TensorData<T>> TensorSocket<T>::GetFuture()
+template <typename T>
+void TensorSocket<T>::NotifyFinish()
 {
-    return m_promiseSend.get_future();
+    m_linkSyncPtr->NotifyFinish();
 }
 
 }  // namespace CubbyDNN

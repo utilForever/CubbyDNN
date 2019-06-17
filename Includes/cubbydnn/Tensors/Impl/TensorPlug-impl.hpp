@@ -13,86 +13,43 @@
 
 namespace CubbyDNN
 {
+
 template <typename T>
-TensorPlug<T>::TensorPlug(const TensorShape& shape,
-                          TensorSocketPtr<T> tensorSocketPtr)
-    : m_info(TensorInfo(shape)), m_socket(tensorSocketPtr)
+TensorPlug<T>::TensorPlug(SyncPtr operationSyncPtr, SyncPtr linkSyncPtr)
+    : m_operationSyncPtr(operationSyncPtr), m_linkSyncPtr(linkSyncPtr)
 {
 }
 
 template <typename T>
-TensorPlug<T>::TensorPlug(const TensorInfo& tensorInfo,
-                          TensorSocketPtr<T> tensorSocketPtr)
-    : m_info(tensorInfo), m_socket(tensorSocketPtr)
+TensorDataPtr<T> TensorPlug<T>::MoveDataPtr() const noexcept
 {
+    auto tensorDataPtr = m_dataPtr;
+    m_dataPtr = nullptr;
+    return tensorDataPtr;
 }
 
 template <typename T>
-TensorPlug<T>::TensorPlug(TensorPlug<T>&& obj) noexcept
+bool TensorPlug<T>::SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr)
 {
-    if (obj.m_data)
+    if (!m_dataPtr)
     {
-        m_data = std::move(obj.m_data);
-        m_info = obj.m_info;
-    }
-}
-
-template <typename T>
-TensorPlug<T>& TensorPlug<T>::operator=(TensorPlug<T>&& obj) noexcept
-{
-    if (*this == obj)
-    {
-        return *this;
-    }
-
-    if (obj.m_data)
-    {
-        m_data = std::move(obj.m_data);
-        m_info = obj.m_info;
-    }
-
-    return *this;
-}
-
-template <typename T>
-const TensorInfo& TensorPlug<T>::Info() const noexcept
-{
-    return m_info;
-}
-
-template <typename T>
-bool TensorPlug<T>::SendData()
-{
-    if (m_data)
-    {
-        m_promise.set_value(m_data);
-        m_data = nullptr;
+        m_dataPtr = tensorDataPtr;
+        m_operationSyncPtr->NotifyFinish();
         return true;
     }
     return false;
 }
 
 template <typename T>
-TensorDataPtr<T> TensorPlug<T>::GetDataPtr() const noexcept
+bool TensorPlug<T>::SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr)
 {
-    return m_data;
-}
-
-template <typename T>
-bool TensorPlug<T>::SetDataPtr(TensorDataPtr<T> tensorDataPtr)
-{
-    if (!m_data)
+    if (!m_dataPtr)
     {
-        m_data = tensorDataPtr;
+        m_dataPtr = tensorDataPtr;
+        m_linkSyncPtr->NotifyFinish();
         return true;
     }
     return false;
-}
-
-template<typename T>
-std::future<TensorData<T>> TensorPlug<T>::GetFuture()
-{
-    return m_promise.get_future();
 }
 
 }  // namespace CubbyDNN

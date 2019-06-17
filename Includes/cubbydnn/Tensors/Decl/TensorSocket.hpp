@@ -1,14 +1,17 @@
-/**
- * @file : TensorSocket.hpp
- * @author : Justin Kim
- *
- */
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
+
 
 #ifndef CUBBYDNN_TENSORSOCKET_HPP
 #define CUBBYDNN_TENSORSOCKET_HPP
 
+#include <cubbydnn/GraphUtil/Decl/Sync.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
 
+#include <condition_variable>
 #include <future>
 #include <memory>
 
@@ -25,13 +28,7 @@ template <typename T>
 class TensorSocket
 {
  public:
-    TensorSocket();
-
-    /**
-     * Copying TensorSocket is disabled
-     * @param tensorSocket
-     */
-    TensorSocket(TensorSocket<T>& tensorSocket) = delete;
+    TensorSocket(SyncPtr operationSyncPtr, SyncPtr linkSyncPtr);
 
     /**
      * Reassigning TensorSocket is disabled
@@ -40,18 +37,33 @@ class TensorSocket
      */
     TensorSocket& operator=(TensorSocket& tensorSocket) = delete;
 
-    bool ReceiveData();
+    /**
+     * Returns dataPtr of current TensorSocket and set m_data to nullptr
+     * @return : m_data
+     */
+    TensorDataPtr<T> MoveDataPtr() const noexcept;
 
-    TensorDataPtr<T> GetDataPtr() const noexcept;
+    /**
+     * Assigns TensorDataPtr to this tensorSocket
+     * Only linker should call this since it decrements operation's atomic counter
+     * @param tensorDataPtr : TensorDataPtr to assign
+     * @return : True if tensorDataPtr was assigned False if tensorPlug was
+     * already assigned
+     */
+    bool SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr);
 
-    bool SetDataPtr(TensorDataPtr<T> tensorDataPtr);
-
-    std::future<TensorData<T>> GetFuture();
+    /**
+     * Notifies TensorSocket that operation using this TensorData is finished
+     * and ready to be swapped
+     */
+    void NotifyFinish();
 
  private:
-    std::promise<TensorDataPtr<T>> m_promiseSend;
+    TensorDataPtr<T> m_dataPtr = nullptr;
 
-    TensorDataPtr<T> m_tensorDataPtr = nullptr;
+    SyncPtr m_operationSyncPtr;
+
+    SyncPtr m_linkSyncPtr;
 };
 
 template <typename T>
