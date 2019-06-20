@@ -34,6 +34,7 @@ bool TensorPlug<T>::SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr)
     if (!m_dataPtr)
     {
         m_dataPtr = tensorDataPtr;
+        /// Notify operation that data is ready to be executed
         m_operationSyncPtr->NotifyFinish();
         return true;
     }
@@ -46,6 +47,7 @@ bool TensorPlug<T>::SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr)
     if (!m_dataPtr)
     {
         m_dataPtr = tensorDataPtr;
+        /// Notify linker that data is ready to be swapped
         m_linkSyncPtr->NotifyFinish();
         return true;
     }

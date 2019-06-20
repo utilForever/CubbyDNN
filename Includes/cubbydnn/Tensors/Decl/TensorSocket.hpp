@@ -53,12 +53,18 @@ class TensorSocket
     bool SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr);
 
     /**
-     * Notifies TensorSocket that operation using this TensorData is finished
-     * and ready to be swapped
+     * Assigns TensorDataPtr to this tensorSocket
+     * Only operation should call this
+     * Notifies Sync that operation has been finished
+     * @param tensorDataPtr : TensorDataPtr to assign
+     * @return : True if tensorDataPtr was assigned False if tensorPlug was
+     * already assigned
      */
-    void NotifyFinish();
+    bool SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr);
 
  private:
+
+
     TensorDataPtr<T> m_dataPtr = nullptr;
 
     SyncPtr m_operationSyncPtr;

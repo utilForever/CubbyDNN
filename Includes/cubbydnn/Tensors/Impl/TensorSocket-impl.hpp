@@ -39,10 +39,17 @@ bool TensorSocket<T>::SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr)
     return false;
 }
 
-template <typename T>
-void TensorSocket<T>::NotifyFinish()
+template<typename T>
+bool TensorSocket<T>::SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr)
 {
-    m_linkSyncPtr->NotifyFinish();
+    if (!m_dataPtr)
+    {
+        m_dataPtr = tensorDataPtr;
+        /// Notify linker that data is ready to be swapped
+        m_linkSyncPtr->NotifyFinish();
+        return true;
+    }
+    return false;
 }
 
 }  // namespace CubbyDNN
