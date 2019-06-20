@@ -24,6 +24,7 @@ void Linker<T>::Swap()
 {
     while (!m_forceFinish)
     {
+        /// Trigger swap when every socket& plugs are ready
         m_syncPtr->WaitUntilAllFinish();
 
         TensorDataPtr<T> plugDataPtr = m_tensorPlugPtr->MoveDataPtr();
@@ -45,10 +46,10 @@ void Linker<T>::Start()
 }
 
 template <typename T>
-void Linker<T>::ForceFinish()
+void Linker<T>::Finish()
 {
     m_syncPtr->ForceFinish();
-    if(m_thread.joinable())
+    if (m_thread.joinable())
         m_thread.join();
 }
 

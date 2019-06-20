@@ -22,7 +22,7 @@ namespace CubbyDNN
  * @tparam T
  */
 template <typename T>
-class Linker
+class Linker : virtual IExecutable
 {
  public:
     /**
@@ -44,13 +44,13 @@ class Linker
      * Invoke
      * Starts synchronization thread that waits for tensorPlugs and tensorSockets to finish
      */
-    void Start();
+    void Start() final;
 
     /**
-     * ForceFinish
+     * Finish
      * Finishes synchronization thread that waits for tensorPlugs and tensorSockets to finish
      */
-    void ForceFinish();
+    void Finish() final;
 
  private:
     /// Ptr to tensorPlug
