@@ -1,0 +1,8 @@
+//
+// Created by jwkim98 on 6/19/19.
+//
+
+#ifndef CUBBYDNN_INTERFACES_HPP
+#define CUBBYDNN_INTERFACES_HPP
+
+#endif //CUBBYDNN_INTERFACES_HPP
