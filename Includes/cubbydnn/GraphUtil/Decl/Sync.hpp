@@ -13,29 +13,30 @@
 
 namespace CubbyDNN
 {
+    class IExecutable
+    {
+        virtual void Start() = 0;
+        virtual void Finish() = 0;
+    };
+
     /**
      * Mtx and Cond_var for controlling synchronization from Operation to Linker
      */
     struct Sync
     {
-        explicit Sync(int waitFor) : resetVal(waitFor) , counter(waitFor){}
 
-        int resetVal;
-        std::atomic<int> counter;
-        std::mutex mtx;
-        std::condition_variable condVar;
-        std::atomic<bool> forceFinish = false;
-
+    public:
+        explicit Sync(int waitFor) : m_resetVal(waitFor) , m_counter(waitFor){}
         /**
          * WaitUntilAllFinish
          * Waits until every operation finishes by checking counter is 0
          */
         void WaitUntilAllFinish(){
-            std::unique_lock<std::mutex> lock(mtx);
+            std::unique_lock<std::mutex> lock(m_mtx);
             auto checkCompleted = [this]() {
-                return (counter == 0) || forceFinish;
+                return (m_counter == 0) || m_forceFinish;
             };
-            condVar.wait(lock, checkCompleted);
+            m_condVar.wait(lock, checkCompleted);
         }
 
         /**
@@ -43,7 +44,7 @@ namespace CubbyDNN
          * Resets counter to initial value
          */
         void ResetCounter(){
-            counter = resetVal;
+            m_counter = m_resetVal;
         }
 
         /**
@@ -52,10 +53,10 @@ namespace CubbyDNN
          */
         void NotifyFinish()
         {
-            std::unique_lock<std::mutex> lock(mtx);
-            if(counter > 0)
-                counter--;
-            condVar.notify_all();
+            std::unique_lock<std::mutex> lock(m_mtx);
+            if(m_counter > 0)
+                m_counter--;
+            m_condVar.notify_all();
         }
 
         /**
@@ -64,10 +65,18 @@ namespace CubbyDNN
         */
         void ForceFinish()
         {
-            std::unique_lock<std::mutex> lock(mtx);
-            forceFinish = true;
-            condVar.notify_all();
+            std::unique_lock<std::mutex> lock(m_mtx);
+            m_forceFinish = true;
+            m_condVar.notify_all();
         }
+
+    private:
+
+        int m_resetVal;
+        std::atomic<int> m_counter;
+        std::mutex m_mtx;
+        std::condition_variable m_condVar;
+        std::atomic<bool> m_forceFinish = false;
     };
 
     using SyncPtr = Sync*;
