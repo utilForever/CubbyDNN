@@ -8,16 +8,17 @@
 #ifndef CUBBYDNN_OPERATION_HPP
 #define CUBBYDNN_OPERATION_HPP
 
+#include <cubbydnn/Computations/Decl/Interfaces.hpp>
+#include <cubbydnn/GraphUtil/Decl/Sync.hpp>
 #include <cubbydnn/Operations/OpEnums.hpp>
 #include <cubbydnn/Operations/OperationInfo.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
 #include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
 #include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
 
-
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace CubbyDNN
 {
@@ -30,12 +31,12 @@ namespace CubbyDNN
 //!
 
 template <typename T>
-class Operation
+class Operation : virtual IExecutable
 {
  public:
-    Operation() = default;
+    Operation(SyncPtr operationSyncPtr, ComputationUnit<T>&& computationUnit);
 
-    ///Only move constructor is allowed
+    /// Only move constructor is allowed
     Operation(Operation&& operation) noexcept;
 
     Operation<T>& operator=(Operation&& operation) noexcept;
@@ -46,11 +47,13 @@ class Operation
 
     TensorDataPtr<T> RequestDataFrom(int index);
 
-    void SendDataTo(int index, TensorDataPtr<T> tensorDataPtr);
-
     void AddOutput(TensorPlugPtr<T> tensorObjectPtr);
 
     void AddInput(TensorSocketPtr<T> tensorSocketPtr);
+
+    void Start() final;
+
+    void Finish() final;
 
  protected:
     /// Disable the default operation
@@ -59,10 +62,14 @@ class Operation
     /// OperationInfo class that holds information about this Operation
     OperationInfo m_operationInfo;
     /// contains Data to be used in operation
-    std::vector<TensorSocket<T>> m_tensorSocketDeck;
+    std::vector<TensorSocketPtr<T>> m_tensorSocketDeck;
     /// contains tensorObjects going out of this operation
-    std::vector<TensorPlug<T>> m_tensorObjectDeck;
+    std::vector<TensorPlugPtr<T>> m_tensorPlugDeck;
+    /// ptr to Sync
+    SyncPtr m_operationSyncPtr;
+    /// Computation unit for running computation assigned for this operation
+    ComputationUnit<T> m_computationUnit;
 };
 }  // namespace CubbyDNN
 
-#endif  //CUBBYDNN_OPERATION_HPP
+#endif  // CUBBYDNN_OPERATION_HPP

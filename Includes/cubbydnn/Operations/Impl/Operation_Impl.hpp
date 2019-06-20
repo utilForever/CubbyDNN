@@ -10,9 +10,10 @@
 namespace CubbyDNN
 {
 template <typename T>
-std::string Operation<T>::GetName() const noexcept
+Operation<T>::Operation(SyncPtr operationSyncPtr,
+                        ComputationUnit<T>&& computationUnit)
+    : m_operationSyncPtr(operationSyncPtr), m_computationUnit(computationUnit)
 {
-    return m_operationInfo.name;
 }
 
 template <typename T>
@@ -20,8 +21,15 @@ Operation<T>::Operation(Operation<T>&& operation) noexcept
     : m_type(operation.m_type),
       m_operationInfo(operation.m_operationInfo),
       m_tensorSocketDeck(std::move(operation.m_tensorSocketDeck)),
-      m_tensorObjectDeck(std::move(operation.m_tensorObjectDeck))
+      m_tensorPlugDeck(std::move(operation.m_tensorPlugDeck)),
+      m_operationSyncPtr(std::move(operation.m_operationSyncPtr))
 {
+}
+
+template <typename T>
+std::string Operation<T>::GetName() const noexcept
+{
+    return m_operationInfo.name;
 }
 
 template <typename T>
@@ -30,7 +38,7 @@ Operation<T>& Operation<T>::operator=(Operation&& operation) noexcept
     m_type = operation.m_type;
     m_operationInfo = operation.m_info;
     m_tensorSocketDeck = std::move(operation.m_tensorSocketDeck);
-    m_tensorObjectDeck = std::move(operation.m_tensorObjectDeck);
+    m_tensorPlugDeck = std::move(operation.m_tensorPlugDeck);
 }
 
 template <typename T>
@@ -46,21 +54,52 @@ TensorDataPtr<T> Operation<T>::RequestDataFrom(int index)
 }
 
 template <typename T>
-void Operation<T>::SendDataTo(int index, TensorDataPtr<T> tensorDataPtr)
-{
-    m_tensorObjectDeck.at(index)->SetData(tensorDataPtr);
-}
-
-template <typename T>
 void Operation<T>::AddOutput(TensorPlugPtr<T> tensorObjectPtr)
 {
-    m_tensorObjectDeck.emplace_back(tensorObjectPtr);
+    m_tensorPlugDeck.emplace_back(tensorObjectPtr);
 }
 
 template <typename T>
 void Operation<T>::AddInput(TensorSocketPtr<T> tensorSocketPtr)
 {
     m_tensorSocketDeck.emplace_back(tensorSocketPtr);
+}
+
+template <typename T>
+void Operation<T>::Start()
+{
+    assert(m_tensorSocketDeck.size() == m_computationUnit.GetInputSize());
+    assert(m_tensorPlugDeck.size() == m_computationUnit.GetoutputSize());
+
+    m_operationSyncPtr->WaitUntilAllFinish();
+
+    for (size_t idx = 0; idx < m_tensorSocketDeck.size(); ++idx)
+    {
+        m_computationUnit.SetInput(m_tensorSocketDeck.at(idx)->MoveDataPtr());
+    }
+
+    for (size_t idx = 0; idx < m_tensorPlugDeck.size(); ++idx)
+    {
+        m_computationUnit.SetOutput(m_tensorPlugDeck.at(idx)->MoveDataPtr());
+    }
+
+    m_computationUnit.Compute();
+
+    for (size_t idx = 0; idx < m_tensorSocketDeck.size(); ++idx)
+    {
+        m_tensorSocketDeck.at(idx)->SetDataPtrFromOperation(m_computationUnit.GetInput());
+    }
+
+    for (size_t idx = 0; idx < m_tensorPlugDeck.size(); ++idx)
+    {
+        m_tensorSocketDeck.at(idx)->SetDataPtrFromOperation(m_computationUnit.GetInput());
+    }
+}
+
+template <typename T>
+void Operation<T>::Finish()
+{
+    m_operationSyncPtr->ForceFinish();
 }
 
 }  // namespace CubbyDNN
