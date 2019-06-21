@@ -103,6 +103,9 @@ template <typename T>
 class SharedPtr
 {
  private:
+    /**
+     * Shared object stores the actual object with atomic reference counter
+     */
     struct SharedObject
     {
         SharedObject(T&& object, const int maxRefCount)
@@ -112,6 +115,7 @@ class SharedPtr
 
         T Object;
         std::atomic<int> RefCount;
+        /// Maximum reference count that it can reach
         const int MaxRefCount;
     };
 
@@ -119,68 +123,76 @@ class SharedPtr
 
     SharedPtrState m_ptrState;
 
-    explicit SharedPtr<T>(SharedObject* objectPtr, SharedPtrState state)
-        : m_sharedObjectPtr(objectPtr), m_ptrState(state){};
+    /**
+     * private constructor for constructing the object for the first time
+     * @param objectPtr : objectPtr that has been created
+     * @param state : state of the sharedObject
+     */
+    explicit SharedPtr(SharedObject* objectPtr, SharedPtrState state);
 
-    SharedPtr<T> tryMakeCopy()
-    {
-        const int oldRefCount = m_sharedObjectPtr->RefCount;
-        if (oldRefCount < m_sharedObjectPtr->MaxRefCount)
-        {
-            if (m_sharedObjectPtr->RefCount.compare_exchange_strong(
-                    oldRefCount, oldRefCount + 1))
-                return SharedPtr(m_sharedObjectPtr, SharedPtrState::valid);
-            else
-                return SharedPtr(nullptr, SharedPtrState::dirty);
-        }
-        else
-            return SharedPtr(nullptr, SharedPtrState::invalid);
-    }
+    /**
+     * Makes copy of the sharedPtr
+     * @return
+     */
+    SharedPtr<T> tryMakeCopy();
 
  public:
-    static SharedPtr<T> Make()
-    {
-        T* ptr = new T();
-        return SharedPtr<T>(ptr, SharedPtrState::valid);
-    }
+    /**
+     * Builds new SharedPtr object with no parameters
+     * @return : SharedPtr
+     */
+    static SharedPtr<T> Make();
 
+    /**
+     * Builds new SharedPtr object with parameters
+     * @tparam Ts : template parameter pack
+     * @param maxReferenceCount : maximum reference count of this object
+     * @param args : arguments to build new object
+     * @return : SharedPtr
+     */
     template <typename... Ts>
-    static SharedPtr<T> Make(int maxReferenceCount, Ts&... args)
-    {
-        T* ptr = new T(args...);
-        return std::move(SharedPtr<T>(ptr, SharedPtrState::valid));
-    }
+    static SharedPtr<T> Make(int maxReferenceCount, Ts&... args);
 
-    SharedPtr(const SharedPtr& sharedPtr) = delete;
+    /**
+     * Copy constructor is explicitly deleted
+     * @param sharedPtr
+     */
+    SharedPtr(const SharedPtr<T>& sharedPtr) = delete;
 
-    SharedPtr& operator=(const SharedPtr& sharedPtr) = delete;
+    /**
+     * Copy assign operator is explicitly deleted
+     * @param sharedPtr
+     * @return
+     */
+    SharedPtr<T>& operator=(const SharedPtr<T>& sharedPtr) = delete;
 
-    SharedPtr(SharedPtr&& sharedPtr) noexcept
-        : m_sharedObjectPtr(std::move(sharedPtr.m_sharedObjectPtr)),
-          m_ptrState(m_ptrState)
-    {
-        sharedPtr.m_sharedObjectPtr = nullptr;
-        m_ptrState = SharedPtrState::invalid;
-    }
+    /**
+     * Move constructor
+     * This will make given parameter (sharedPtr) invalid
+     * @param sharedPtr : SharedPtr<T> to move from
+     */
+    SharedPtr(SharedPtr<T>&& sharedPtr) noexcept;
 
-    SharedPtr& operator=(SharedPtr&& sharedPtr) noexcept
-    {
-        m_sharedObjectPtr = sharedPtr.m_sharedObjectPtr;
-        m_ptrState = sharedPtr.m_ptrState;
+    /**
+     * Move assign operator
+     * This will make given parameter (sharedPtr) invalid
+     * @param sharedPtr : SharedPtr<T> to move from
+     * @return : SharedPtr<T>
+     */
+    SharedPtr<T>& operator=(SharedPtr<T>&& sharedPtr) noexcept;
 
-        sharedPtr.m_sharedObjectPtr = nullptr;
-        m_ptrState = SharedPtrState::invalid;
-    }
+    /**
+     * Makes copy of this SharedPtr
+     * Increments reference count of the object
+     * @return
+     */
+    SharedPtr<T> MakeCopy();
 
-    SharedPtr<T> MakeCopy()
-    {
-        auto sharedPtr = tryMakeCopy();
-        while (sharedPtr.GetState() == SharedPtrState::dirty)
-            sharedPtr = tryMakeCopy();
-        return sharedPtr;
-    }
-
-
+    /**
+     * Returns state of this SharedPtr
+     * This is used to determine if SharePtr is in valid state
+     * @return : state of this SharedPtr
+     */
     SharedPtrState GetState()
     {
         return m_ptrState;
