@@ -5,7 +5,7 @@
 #ifndef CUBBYDNN_PTRWRAPPER_IMPL_HPP
 #define CUBBYDNN_PTRWRAPPER_IMPL_HPP
 
-#include <cubbydnn/Tensors/Decl/PtrWrapper.hpp>
+#include <cubbydnn/Utils/PtrWrapper.hpp>
 
 namespace CubbyDNN
 {
