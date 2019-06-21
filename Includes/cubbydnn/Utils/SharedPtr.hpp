@@ -2,8 +2,8 @@
 // Created by jwkim98 on 4/21/19.
 //
 
-#ifndef CUBBYDNN_PTRWRAPPER_HPP
-#define CUBBYDNN_PTRWRAPPER_HPP
+#ifndef CUBBYDNN_SHAREDPTR_HPP
+#define CUBBYDNN_SHAREDPTR_HPP
 
 #include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
 #include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
@@ -13,7 +13,7 @@
 
 namespace CubbyDNN
 {
-enum class SharedPtrState
+enum class PtrState
 {
     valid,
     dirty,
@@ -42,14 +42,14 @@ class SharedPtr
 
     SharedObject* m_sharedObjectPtr;
 
-    SharedPtrState m_ptrState;
+    PtrState m_ptrState;
 
     /**
      * private constructor for constructing the object for the first time
      * @param objectPtr : objectPtr that has been created
      * @param state : state of the sharedObject
      */
-    explicit SharedPtr(SharedObject* objectPtr, SharedPtrState state);
+    explicit SharedPtr(SharedObject* objectPtr, PtrState state);
 
     /**
      * Makes copy of the sharedPtr
@@ -59,10 +59,16 @@ class SharedPtr
 
  public:
     /**
+     * Destructor will automatically decrease the reference counter if this ptr
+     * has valid pointer
+     */
+    ~SharedPtr();
+
+    /**
      * Builds new SharedPtr object with no parameters
      * @return : SharedPtr
      */
-    static SharedPtr<T> Make();
+    static SharedPtr<T> Make(int maxReferenceCount);
 
     /**
      * Builds new SharedPtr object with parameters
@@ -72,7 +78,7 @@ class SharedPtr
      * @return : SharedPtr
      */
     template <typename... Ts>
-    static SharedPtr<T> Make(int maxReferenceCount, Ts&... args);
+    static SharedPtr<T> Make(int maxReferenceCount, Ts&&... args);
 
     /**
      * Copy constructor is explicitly deleted
@@ -103,9 +109,15 @@ class SharedPtr
     SharedPtr<T>& operator=(SharedPtr<T>&& sharedPtr) noexcept;
 
     /**
+     * Access operator to object this possesses
+     * @return : Reference of the object
+     */
+    T& operator->();
+
+    /**
      * Makes copy of this SharedPtr
      * Increments reference count of the object
-     * @return
+     * @return : Copied SharedPtr
      */
     SharedPtr<T> MakeCopy();
 
@@ -114,12 +126,22 @@ class SharedPtr
      * This is used to determine if SharePtr is in valid state
      * @return : state of this SharedPtr
      */
-    SharedPtrState GetState()
+    PtrState GetState() const
     {
         return m_ptrState;
+    }
+
+    int GetCurrentRefCount() const
+    {
+        return m_sharedObjectPtr->RefCount;
+    }
+
+    int GetMaximumRefCount() const
+    {
+        return m_sharedObjectPtr->MaxRefCount;
     }
 };
 
 }  // namespace CubbyDNN
 
-#endif  // CUBBYDNN_PTRWRAPPER_HPP
+#endif  // CUBBYDNN_SHAREDPTR_HPP
