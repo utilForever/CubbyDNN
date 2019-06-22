@@ -11,8 +11,8 @@ namespace CubbyDNN
 {
 template <typename T>
 Operation<T>::Operation(SyncPtr operationSyncPtr,
-                        ComputationUnit<T>&& computationUnit)
-    : m_operationSyncPtr(operationSyncPtr), m_computationUnit(computationUnit)
+        std::unique_ptr<ComputationUnit<T>> computationUnitPtr)
+    : m_operationSyncPtr(operationSyncPtr), m_computationUnitPtr(std::move(computationUnitPtr))
 {
 }
 
@@ -68,31 +68,31 @@ void Operation<T>::AddInput(TensorSocketPtr<T> tensorSocketPtr)
 template <typename T>
 void Operation<T>::Start()
 {
-    assert(m_tensorSocketDeck.size() == m_computationUnit.GetInputSize());
-    assert(m_tensorPlugDeck.size() == m_computationUnit.GetoutputSize());
+    assert(m_tensorSocketDeck.size() == m_computationUnitPtr.GetInputSize());
+    assert(m_tensorPlugDeck.size() == m_computationUnitPtr.GetoutputSize());
 
     m_operationSyncPtr->WaitUntilAllFinish();
 
     for (size_t idx = 0; idx < m_tensorSocketDeck.size(); ++idx)
     {
-        m_computationUnit.SetInput(m_tensorSocketDeck.at(idx)->MoveDataPtr());
+        m_computationUnitPtr->SetInput(m_tensorSocketDeck.at(idx)->MoveDataPtr());
     }
 
     for (size_t idx = 0; idx < m_tensorPlugDeck.size(); ++idx)
     {
-        m_computationUnit.SetOutput(m_tensorPlugDeck.at(idx)->MoveDataPtr());
+        m_computationUnitPtr->SetOutput(m_tensorPlugDeck.at(idx)->MoveDataPtr());
     }
 
-    m_computationUnit.Compute();
+    m_computationUnitPtr->Compute();
 
     for (size_t idx = 0; idx < m_tensorSocketDeck.size(); ++idx)
     {
-        m_tensorSocketDeck.at(idx)->SetDataPtrFromOperation(m_computationUnit.GetInput());
+        m_tensorSocketDeck.at(idx)->SetDataPtrFromOperation(m_computationUnitPtr->GetInput());
     }
 
     for (size_t idx = 0; idx < m_tensorPlugDeck.size(); ++idx)
     {
-        m_tensorSocketDeck.at(idx)->SetDataPtrFromOperation(m_computationUnit.GetInput());
+        m_tensorSocketDeck.at(idx)->SetDataPtrFromOperation(m_computationUnitPtr->GetInput());
     }
 }
 

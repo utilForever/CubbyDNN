@@ -4,7 +4,7 @@
 
 #include <cubbydnn/Utils/SharedPtr-impl.hpp>
 
-#include <googletest/googletest/include/gtest/gtest.h>
+#include "gtest/gtest.h"
 #include <deque>
 #include <thread>
 
@@ -15,6 +15,7 @@ void CopyandDestruct(SharedPtr<int>&& ptr)
     SharedPtr<int> copy = ptr.MakeCopy();
     /// MaximumRefCount should be always be greater or equal than reference
     /// counter
+    EXPECT_EQ(ptr.GetState(), PtrState::valid);
     EXPECT_GE(ptr.GetMaximumRefCount(), ptr.GetCurrentRefCount());
 }
 

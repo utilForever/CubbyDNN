@@ -44,6 +44,7 @@ namespace CubbyDNN
          * Resets counter to initial value
          */
         void ResetCounter(){
+            std::unique_lock<std::mutex> lock(m_mtx);
             m_counter = m_resetVal;
         }
 
@@ -73,10 +74,10 @@ namespace CubbyDNN
     private:
 
         int m_resetVal;
-        std::atomic<int> m_counter;
+        int m_counter;
         std::mutex m_mtx;
         std::condition_variable m_condVar;
-        std::atomic<bool> m_forceFinish = false;
+        bool m_forceFinish = false;
     };
 
     using SyncPtr = Sync*;

@@ -32,11 +32,11 @@ SharedPtr<T>::~SharedPtr()
 template <typename T>
 SharedPtr<T> SharedPtr<T>::tryMakeCopy()
 {
-    const int oldRefCount = m_sharedObjectPtr->RefCount;
+    int oldRefCount = m_sharedObjectPtr->RefCount;
     if (oldRefCount < m_sharedObjectPtr->MaxRefCount)
     {
         if (m_sharedObjectPtr->RefCount.compare_exchange_strong(
-                oldRefCount, oldRefCount + 1))
+                oldRefCount, (oldRefCount + 1), std::memory_order_relaxed))
             return SharedPtr<T>(m_sharedObjectPtr, PtrState::valid);
         else
             return SharedPtr<T>(nullptr, PtrState::dirty);
@@ -57,16 +57,16 @@ template <typename... Ts>
 SharedPtr<T> SharedPtr<T>::Make(int maxReferenceCount, Ts&&... args)
 {
     auto* ptr = new SharedObject(T(args...), maxReferenceCount);
-    return std::move(SharedPtr<T>(ptr, PtrState::valid));
+    return SharedPtr<T>(ptr, PtrState::valid);
 }
 
 template <typename T>
 SharedPtr<T>::SharedPtr(SharedPtr<T>&& sharedPtr) noexcept
     : m_sharedObjectPtr(std::move(sharedPtr.m_sharedObjectPtr)),
-      m_ptrState(m_ptrState)
+      m_ptrState(sharedPtr.m_ptrState)
 {
     sharedPtr.m_sharedObjectPtr = nullptr;
-    m_ptrState = PtrState::invalid;
+    sharedPtr.m_ptrState = PtrState::invalid;
 }
 
 template <typename T>
@@ -76,7 +76,7 @@ SharedPtr<T>& SharedPtr<T>::operator=(SharedPtr<T>&& sharedPtr) noexcept
     m_ptrState = sharedPtr.m_ptrState;
 
     sharedPtr.m_sharedObjectPtr = nullptr;
-    m_ptrState = PtrState::invalid;
+    sharedPtr.m_ptrState = PtrState::invalid;
     return *this;
 }
 

@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace CubbyDNN
 {
@@ -34,7 +35,7 @@ template <typename T>
 class Operation : virtual IExecutable
 {
  public:
-    Operation(SyncPtr operationSyncPtr, ComputationUnit<T>&& computationUnit);
+    Operation(SyncPtr operationSyncPtr, std::unique_ptr<ComputationUnit<T>> computationUnitPtr);
 
     /// Only move constructor is allowed
     Operation(Operation&& operation) noexcept;
@@ -68,7 +69,7 @@ class Operation : virtual IExecutable
     /// ptr to Sync
     SyncPtr m_operationSyncPtr;
     /// Computation unit for running computation assigned for this operation
-    ComputationUnit<T> m_computationUnit;
+    std::unique_ptr<ComputationUnit<T>> m_computationUnitPtr;
 };
 }  // namespace CubbyDNN
 
