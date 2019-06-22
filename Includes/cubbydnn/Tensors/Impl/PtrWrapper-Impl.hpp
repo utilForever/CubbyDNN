@@ -2,10 +2,10 @@
 // Created by jwkim98 on 4/21/19.
 //
 
-#ifndef CUBBYDNN_PTRWRAPPER_IMPL_HPP
+#ifndef CUBBYDNN_SHAREDPTR_IMPL_HPP
 #define CUBBYDNN_PTRWRAPPER_IMPL_HPP
 
-#include <cubbydnn/Utils/PtrWrapper.hpp>
+#include <cubbydnn/Utils/SharedPtr.hpp>
 
 namespace CubbyDNN
 {
@@ -61,4 +61,4 @@ namespace CubbyDNN
 //}
 }  // namespace CubbyDNN
 
-#endif  // CUBBYDNN_PTRWRAPPER_IMPL_HPP
+#endif  //CUBBYDNN_SHAREDPTR_IMPL_HPP
