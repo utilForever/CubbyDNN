@@ -14,7 +14,7 @@ add_executable(${target}
         SimpleTest.hpp
         GraphTest/GraphSynchronizationTest.cpp
         GraphTest/GraphSynchronizationTest.hpp
-        UtilTests/SharedPtrTests.cpp)
+        UtilTests/SharedPtrTests.cpp UtilTests/SharedPtrTests.hpp)
 
 # Project options{
 set_target_properties(${target}
