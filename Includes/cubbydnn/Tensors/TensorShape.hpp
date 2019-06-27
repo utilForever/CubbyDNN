@@ -29,12 +29,21 @@ class TensorShape
 
     std::size_t Size() const noexcept;
     bool IsEmpty() const noexcept;
+
+    /**
+     * Remove row
+     * @return
+     */
+
+    //TODO : remove row col depth
+    //TODO : add Rank
     long Row() const;
     long Col() const;
     long Depth() const;
 
  private:
-    std::vector<long> m_shapeVector;
+
+    std::vector<long> m_dimension;
     std::size_t m_totalSize = 0;
 };
 }  // namespace CubbyDNN

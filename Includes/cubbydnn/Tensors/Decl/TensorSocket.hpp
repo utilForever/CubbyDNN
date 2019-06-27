@@ -4,12 +4,12 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-
 #ifndef CUBBYDNN_TENSORSOCKET_HPP
 #define CUBBYDNN_TENSORSOCKET_HPP
 
 #include <cubbydnn/GraphUtil/Decl/Sync.hpp>
 #include <cubbydnn/Tensors/Decl/TensorData.hpp>
+#include <cubbydnn/Utils/SharedPtr-impl.hpp>
 
 #include <condition_variable>
 #include <future>
@@ -45,7 +45,8 @@ class TensorSocket
 
     /**
      * Assigns TensorDataPtr to this tensorSocket
-     * Only linker should call this since it decrements operation's atomic counter
+     * Only linker should call this since it decrements operation's atomic
+     * counter
      * @param tensorDataPtr : TensorDataPtr to assign
      * @return : True if tensorDataPtr was assigned False if tensorPlug was
      * already assigned
@@ -63,8 +64,6 @@ class TensorSocket
     bool SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr);
 
  private:
-
-
     TensorDataPtr<T> m_dataPtr = nullptr;
 
     SyncPtr m_operationSyncPtr;
@@ -73,7 +72,7 @@ class TensorSocket
 };
 
 template <typename T>
-using TensorSocketPtr = typename std::unique_ptr<TensorSocket<T>>;
+using TensorSocketPtr = SharedPtr<TensorSocket<T>>;
 
 }  // namespace CubbyDNN
 

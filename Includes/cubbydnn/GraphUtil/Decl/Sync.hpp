@@ -27,6 +27,7 @@ namespace CubbyDNN
 
     public:
         explicit Sync(int waitFor) : m_resetVal(waitFor) , m_counter(waitFor){}
+
         /**
          * WaitUntilAllFinish
          * Waits until every operation finishes by checking counter is 0

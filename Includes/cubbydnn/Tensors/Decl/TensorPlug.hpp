@@ -66,7 +66,7 @@ class TensorPlug
 };
 
 template <typename T>
-using TensorPlugPtr = typename std::unique_ptr<TensorPlug<T>>;
+using TensorPlugPtr = SharedPtr<TensorPlug<T>>;
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_OBJECT_HPP

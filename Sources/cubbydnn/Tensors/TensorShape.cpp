@@ -10,9 +10,9 @@
 namespace CubbyDNN
 {
 TensorShape::TensorShape(long row, long column, long depth)
-    : m_shapeVector({ row, column, depth }), m_totalSize(1)
+    : m_dimension({ row, column, depth }), m_totalSize(1)
 {
-    for (auto mul : m_shapeVector)
+    for (auto mul : m_dimension)
     {
         m_totalSize *= mul;
     }
@@ -20,7 +20,7 @@ TensorShape::TensorShape(long row, long column, long depth)
 
 bool TensorShape::operator==(const TensorShape& shape) const
 {
-    return m_shapeVector == shape.m_shapeVector;
+    return m_dimension == shape.m_dimension;
 }
 
 bool TensorShape::operator!=(const TensorShape& shape) const
@@ -35,21 +35,21 @@ size_t TensorShape::Size() const noexcept
 
 bool TensorShape::IsEmpty() const noexcept
 {
-    return m_shapeVector.empty();
+    return m_dimension.empty();
 }
 
 long TensorShape::Row() const
 {
-    return m_shapeVector.at(0);
+    return m_dimension.at(0);
 }
 
 long TensorShape::Col() const
 {
-    return m_shapeVector.at(1);
+    return m_dimension.at(1);
 }
 
 long TensorShape::Depth() const
 {
-    return m_shapeVector.at(2);
+    return m_dimension.at(2);
 }
 }  // namespace CubbyDNN

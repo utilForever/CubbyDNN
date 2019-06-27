@@ -15,7 +15,7 @@ namespace CubbyDNN
 {
 template <typename T>
 TensorData<T>::TensorData(std::vector<T> data, TensorShape shape)
-    : dataVec(std::move(data)), shape(std::move(shape))
+    : DataVector(std::move(data)), Shape(std::move(shape))
 {
     // Do nothing
 }

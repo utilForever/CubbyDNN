@@ -28,7 +28,7 @@ inline bool CheckShape(const TensorShape& shape,
     if (shape.IsEmpty())
     {
         valid = false;
-        std::cout << "Argument shape is empty\n";
+        std::cout << "Argument Shape is empty\n";
     }
 
     if (!valid)

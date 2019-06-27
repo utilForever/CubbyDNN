@@ -117,10 +117,10 @@ class ComputeAdd : public ComputationUnit<T>
         TensorDataPtr<T> result =
             std::move(ComputationUnit<T>::m_outputDataVector.at(0));
 
-        assert(a->shape == b->shape);
-        for (int i = 0; i < a->dataVec.size(); i++)
+        assert(a->Shape == b->Shape);
+        for (int i = 0; i < a->DataVector.size(); i++)
         {
-            result->dataVec[i] = a->dataVec[i] + b->dataVec[i];
+            result->DataVector[i] = a->DataVector[i] + b->DataVector[i];
         }
 
         ComputationUnit<T>::m_inputDataVector.at(0) = std::move(a);

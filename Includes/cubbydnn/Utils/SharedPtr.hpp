@@ -5,9 +5,6 @@
 #ifndef CUBBYDNN_SHAREDPTR_HPP
 #define CUBBYDNN_SHAREDPTR_HPP
 
-#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
-#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
-
 #include <atomic>
 #include <memory>
 
