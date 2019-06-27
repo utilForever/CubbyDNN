@@ -1,7 +1,7 @@
 //
 // Created by jwkim98 on 6/19/19.
 //
-#include <cubbydnn/Tensors/Decl/TensorData.hpp>
+#include <cubbydnn/Tensors/Tensor.hpp>
 
 #ifndef CUBBYDNN_INTERFACES_HPP
 #define CUBBYDNN_INTERFACES_HPP
@@ -43,7 +43,7 @@ class ComputationUnit
      * @param tensorData : Data to set to the input
      * @param index : index of the input vector
      */
-    void SetInput(TensorDataPtr<T>&& tensorData, size_t index)
+    void SetInput(TensorPtr<T>&& tensorData, size_t index)
     {
         // TODO : Error needs to be handled if index is invalid
         assert(index < m_inputDataVector.size());
@@ -58,13 +58,13 @@ class ComputationUnit
      * @param index : index of the input vector
      * @return : TensorDataPtr of the index
      */
-    TensorDataPtr<T>&& GetInput(size_t index)
+    TensorPtr<T>&& GetInput(size_t index)
     {
         // TODO : Error needs to be handled if index is invalid
         assert(index < m_inputDataVector.size());
 
         assert(m_outputDataVector.at(index) != nullptr);
-        TensorDataPtr<T>&& dataPtr = std::move(m_inputDataVector.at(index));
+        TensorPtr<T>&& dataPtr = std::move(m_inputDataVector.at(index));
         m_inputDataVector.at(index) = nullptr;
         return dataPtr;
     }
@@ -74,7 +74,7 @@ class ComputationUnit
      * @param tensorData : tensor data to set on the output vector
      * @param index : index of the output vector
      */
-    void SetOutput(TensorDataPtr<T>&& tensorData, size_t index)
+    void SetOutput(TensorPtr<T>&& tensorData, size_t index)
     {
         // TODO : Error needs to be handled if index is invalid
         assert(index < m_outputDataVector.size());
@@ -89,13 +89,13 @@ class ComputationUnit
      * @param index : index of output vector to receive output
      * @return : tensorDataPtr of the index
      */
-    TensorDataPtr<T>&& GetOutput(size_t index)
+    TensorPtr<T>&& GetOutput(size_t index)
     {
         // TODO : Error needs to be handled if index is invalid
         assert(index < m_outputDataVector.size());
 
         assert(m_outputDataVector.at(index) != nullptr);
-        TensorDataPtr<T>&& dataPtr = std::move(m_outputDataVector.at(index));
+        TensorPtr<T>&& dataPtr = std::move(m_outputDataVector.at(index));
         return dataPtr;
     }
 };
@@ -109,12 +109,12 @@ class ComputeAdd : public ComputationUnit<T>
 
     void Compute() override
     {
-        TensorDataPtr<T> a =
+        TensorPtr<T> a =
             std::move(ComputationUnit<T>::m_inputDataVector.at(0));
-        TensorDataPtr<T> b =
+        TensorPtr<T> b =
             std::move(ComputationUnit<T>::m_inputDataVector.at(0));
         // m_outputDataVector.at(1);
-        TensorDataPtr<T> result =
+        TensorPtr<T> result =
             std::move(ComputationUnit<T>::m_outputDataVector.at(0));
 
         assert(a->Shape == b->Shape);

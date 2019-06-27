@@ -8,7 +8,7 @@
 #ifndef CUBBYDNN_TENSORSOCKET_IMPL_HPP
 #define CUBBYDNN_TENSORSOCKET_IMPL_HPP
 
-#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
+#include <cubbydnn/Tensors/TensorSocket.hpp>
 
 namespace CubbyDNN
 {
@@ -19,7 +19,7 @@ TensorSocket<T>::TensorSocket(SyncPtr operationSyncPtr, SyncPtr linkSyncPtr)
 }
 
 template <typename T>
-TensorDataPtr<T> TensorSocket<T>::MoveDataPtr() const noexcept
+TensorPtr<T> TensorSocket<T>::MoveDataPtr() const noexcept
 {
     auto tensorDataPtr = m_dataPtr;
     m_dataPtr = nullptr;
@@ -27,7 +27,7 @@ TensorDataPtr<T> TensorSocket<T>::MoveDataPtr() const noexcept
 }
 
 template <typename T>
-bool TensorSocket<T>::SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr)
+bool TensorSocket<T>::SetDataPtrFromLinker(TensorPtr<T> tensorDataPtr)
 {
     if (!m_dataPtr)
     {
@@ -40,7 +40,7 @@ bool TensorSocket<T>::SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr)
 }
 
 template<typename T>
-bool TensorSocket<T>::SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr)
+bool TensorSocket<T>::SetDataPtrFromOperation(TensorPtr<T> tensorDataPtr)
 {
     if (!m_dataPtr)
     {

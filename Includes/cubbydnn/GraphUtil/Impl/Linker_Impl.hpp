@@ -8,7 +8,7 @@
 #define CUBBYDNN_LINKER_IMPL_HPP
 
 #include <cubbydnn/GraphUtil/Decl/Linker.hpp>
-#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
+#include <cubbydnn/Tensors/TensorPlug.hpp>
 
 namespace CubbyDNN
 {
@@ -27,10 +27,10 @@ void Linker<T>::Swap()
         /// Trigger swap when every socket& plugs are ready
         m_syncPtr->WaitUntilAllFinish();
 
-        TensorDataPtr<T> plugDataPtr = m_tensorPlugPtr->MoveDataPtr();
-        TensorDataPtr<T> socketDataPtr = m_tensorSocketPtr->MoveDataPtr();
+        TensorPtr<T> plugDataPtr = m_tensorPlugPtr->MoveDataPtr();
+        TensorPtr<T> socketDataPtr = m_tensorSocketPtr->MoveDataPtr();
 
-        TensorDataPtr<T> temp = std::move(plugDataPtr);
+        TensorPtr<T> temp = std::move(plugDataPtr);
         plugDataPtr = std::move(socketDataPtr);
         socketDataPtr = std::move(temp);
 

@@ -7,14 +7,14 @@
 #ifndef CUBBYDNN_TENSOR_UTILS_HPP
 #define CUBBYDNN_TENSOR_UTILS_HPP
 
-#include <cubbydnn/Tensors/TensorShape.hpp>
+#include <cubbydnn/Tensors/TensorInfo.hpp>
 
 #include <iostream>
 #include <string>
 
 namespace CubbyDNN
 {
-inline bool CheckShape(const TensorShape& shape,
+inline bool CheckShape(const TensorInfo& shape,
                        const std::string& opName = "constructor")
 {
     // TODO: find way to check if argument was verifiable
@@ -28,7 +28,7 @@ inline bool CheckShape(const TensorShape& shape,
     if (shape.IsEmpty())
     {
         valid = false;
-        std::cout << "Argument Shape is empty\n";
+        std::cout << "Argument GetShape is empty\n";
     }
 
     if (!valid)

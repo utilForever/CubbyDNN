@@ -9,6 +9,6 @@ namespace GraphTest
 
 
 //void Connect(Operation<int> op1, Operation<int> op2){
-//    TensorDataPtr<int> = std::make_unique()
+//    TensorPtr<int> = std::make_unique()
 //}
 }  // namespace GraphTest

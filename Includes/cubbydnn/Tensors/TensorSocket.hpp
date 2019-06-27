@@ -8,7 +8,7 @@
 #define CUBBYDNN_TENSORSOCKET_HPP
 
 #include <cubbydnn/GraphUtil/Decl/Sync.hpp>
-#include <cubbydnn/Tensors/TensorData.hpp>
+#include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Utils/SharedPtr-impl.hpp>
 
 #include <condition_variable>
@@ -41,7 +41,7 @@ class TensorSocket
      * Returns dataPtr of current TensorSocket and set m_data to nullptr
      * @return : m_data
      */
-    TensorDataPtr<T> MoveDataPtr() const noexcept;
+    TensorPtr<T> MoveDataPtr() const noexcept;
 
     /**
      * Assigns TensorDataPtr to this tensorSocket
@@ -51,7 +51,7 @@ class TensorSocket
      * @return : True if tensorDataPtr was assigned False if tensorPlug was
      * already assigned
      */
-    bool SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr);
+    bool SetDataPtrFromLinker(TensorPtr<T> tensorDataPtr);
 
     /**
      * Assigns TensorDataPtr to this tensorSocket
@@ -61,10 +61,10 @@ class TensorSocket
      * @return : True if tensorDataPtr was assigned False if tensorPlug was
      * already assigned
      */
-    bool SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr);
+    bool SetDataPtrFromOperation(TensorPtr<T> tensorDataPtr);
 
  private:
-    TensorDataPtr<T> m_dataPtr = nullptr;
+    TensorPtr<T> m_dataPtr = nullptr;
 
     SyncPtr m_operationSyncPtr;
 

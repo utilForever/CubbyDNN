@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 #define CUBBYDNN_TENSOR_OBJECT_IMPL_HPP
 
-#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
+#include <cubbydnn/Tensors/TensorPlug.hpp>
 
 #include <cassert>
 
@@ -21,7 +21,7 @@ TensorPlug<T>::TensorPlug(SyncPtr operationSyncPtr, SyncPtr linkSyncPtr)
 }
 
 template <typename T>
-TensorDataPtr<T> TensorPlug<T>::MoveDataPtr() const noexcept
+TensorPtr<T> TensorPlug<T>::MoveDataPtr() const noexcept
 {
     auto tensorDataPtr = m_dataPtr;
     m_dataPtr = nullptr;
@@ -29,7 +29,7 @@ TensorDataPtr<T> TensorPlug<T>::MoveDataPtr() const noexcept
 }
 
 template <typename T>
-bool TensorPlug<T>::SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr)
+bool TensorPlug<T>::SetDataPtrFromLinker(TensorPtr<T> tensorDataPtr)
 {
     if (!m_dataPtr)
     {
@@ -42,7 +42,7 @@ bool TensorPlug<T>::SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr)
 }
 
 template <typename T>
-bool TensorPlug<T>::SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr)
+bool TensorPlug<T>::SetDataPtrFromOperation(TensorPtr<T> tensorDataPtr)
 {
     if (!m_dataPtr)
     {

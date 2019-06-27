@@ -8,10 +8,9 @@
 #define CUBBYDNN_TENSOR_OBJECT_HPP
 
 #include <cubbydnn/GraphUtil/Decl/Sync.hpp>
-#include <cubbydnn/Tensors/TensorData.hpp>
-#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
+#include <cubbydnn/Tensors/Tensor.hpp>
+#include <cubbydnn/Tensors/TensorSocket.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
-#include <cubbydnn/Tensors/TensorShape.hpp>
 
 #include <memory>
 #include <mutex>
@@ -36,7 +35,7 @@ class TensorPlug
      * Returns dataPtr of current TensorSocket and set m_data to nullptr
      * @return : m_data
      */
-    TensorDataPtr<T> MoveDataPtr() const noexcept;
+    TensorPtr<T> MoveDataPtr() const noexcept;
 
     /**
      * Assigns TensorDataPtr to this tensorPlug
@@ -45,7 +44,7 @@ class TensorPlug
      * @return : True if tensorDataPtr was assigned False if tensorPlug was
      * already assigned
      */
-    bool SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr);
+    bool SetDataPtrFromLinker(TensorPtr<T> tensorDataPtr);
 
     /**
      * Assigns TensorDataPtr to this tensorPlug
@@ -54,11 +53,11 @@ class TensorPlug
      * @return : True if tensorDataPtr was assigned False if tensorPlug was
      * already assigned
      */
-    bool SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr);
+    bool SetDataPtrFromOperation(TensorPtr<T> tensorDataPtr);
 
  private:
     /// ptr to Data this TensorObject holds
-    TensorDataPtr<T> m_dataPtr = nullptr;
+    TensorPtr<T> m_dataPtr = nullptr;
     /// ptr to operationSync
     SyncPtr m_operationSyncPtr;
     /// ptr to linkSync

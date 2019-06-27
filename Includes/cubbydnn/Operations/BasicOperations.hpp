@@ -8,7 +8,7 @@
 #define CUBBYDNN_BASIC_OPERATIONS_HPP
 
 #include <cubbydnn/Operations/Decl/Operation.hpp>
-#include <cubbydnn/Tensors/TensorShape.hpp>
+#include <cubbydnn/Tensors/TensorInfo.hpp>
 
 namespace CubbyDNN
 {
@@ -25,7 +25,7 @@ class EmptyOp : public Operation
 class ReshapeOp : public Operation
 {
  public:
-    explicit ReshapeOp(long id, const TensorShape& shape,
+    explicit ReshapeOp(long id, const TensorInfo& shape,
                        const std::string& name)
     {
         m_name = name;
@@ -35,13 +35,13 @@ class ReshapeOp : public Operation
     }
 
  private:
-    TensorShape m_shape;
+    TensorInfo m_shape;
 };
 
 class PlaceholderOp : public Operation
 {
  public:
-    explicit PlaceholderOp(long id, const TensorShape& shape,
+    explicit PlaceholderOp(long id, const TensorInfo& shape,
                            const std::string& name)
     {
         m_name = name;
@@ -51,13 +51,13 @@ class PlaceholderOp : public Operation
     }
 
  private:
-    TensorShape m_shape;
+    TensorInfo m_shape;
 };
 
 class WeightOp : public Operation
 {
  public:
-    explicit WeightOp(long id, const TensorShape& shape,
+    explicit WeightOp(long id, const TensorInfo& shape,
                       const std::string& name)
     {
         m_name = name;
@@ -67,13 +67,13 @@ class WeightOp : public Operation
     }
 
  private:
-    TensorShape m_shape;
+    TensorInfo m_shape;
 };
 
 class ConstantOp : public Operation
 {
  public:
-    explicit ConstantOp(long id, const TensorShape& shape,
+    explicit ConstantOp(long id, const TensorInfo& shape,
                         const std::string& name)
     {
         m_name = name;
@@ -83,7 +83,7 @@ class ConstantOp : public Operation
     }
 
  private:
-    TensorShape m_shape;
+    TensorInfo m_shape;
 };
 
 class WrapperOp : public Operation

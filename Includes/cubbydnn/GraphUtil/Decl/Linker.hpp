@@ -8,9 +8,9 @@
 #define CUBBYDNN_LINKER_HPP
 
 #include <cubbydnn/GraphUtil/Decl/Sync.hpp>
-#include <cubbydnn/Tensors/Decl/TensorData.hpp>
-#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
-#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
+#include <cubbydnn/Tensors/Tensor.hpp>
+#include <cubbydnn/Tensors/TensorPlug.hpp>
+#include <cubbydnn/Tensors/TensorSocket.hpp>
 
 #include <memory>
 

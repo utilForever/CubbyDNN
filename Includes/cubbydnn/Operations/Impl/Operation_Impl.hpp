@@ -48,7 +48,7 @@ OperationInfo Operation<T>::GetInfo() const noexcept
 }
 
 template <typename T>
-TensorDataPtr<T> Operation<T>::RequestDataFrom(int index)
+TensorPtr<T> Operation<T>::RequestDataFrom(int index)
 {
     return m_tensorSocketDeck.at(index).Request();
 }

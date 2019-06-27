@@ -12,9 +12,9 @@
 #include <cubbydnn/GraphUtil/Decl/Sync.hpp>
 #include <cubbydnn/Operations/OpEnums.hpp>
 #include <cubbydnn/Operations/OperationInfo.hpp>
-#include <cubbydnn/Tensors/Decl/TensorData.hpp>
-#include <cubbydnn/Tensors/Decl/TensorPlug.hpp>
-#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
+#include <cubbydnn/Tensors/Tensor.hpp>
+#include <cubbydnn/Tensors/TensorPlug.hpp>
+#include <cubbydnn/Tensors/TensorSocket.hpp>
 
 #include <memory>
 #include <string>
@@ -46,7 +46,7 @@ class Operation : virtual IExecutable
 
     OperationInfo GetInfo() const noexcept;
 
-    TensorDataPtr<T> RequestDataFrom(int index);
+    TensorPtr<T> RequestDataFrom(int index);
 
     void AddOutput(TensorPlugPtr<T> tensorObjectPtr);
 
