@@ -4,49 +4,43 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_TENSORSOCKET_HPP
-#define CUBBYDNN_TENSORSOCKET_HPP
+#ifndef CUBBYDNN_TENSOR_OBJECT_HPP
+#define CUBBYDNN_TENSOR_OBJECT_HPP
 
 #include <cubbydnn/GraphUtil/Decl/Sync.hpp>
-#include <cubbydnn/Tensors/Decl/TensorData.hpp>
-#include <cubbydnn/Utils/SharedPtr-impl.hpp>
+#include <cubbydnn/Tensors/TensorData.hpp>
+#include <cubbydnn/Tensors/Decl/TensorSocket.hpp>
+#include <cubbydnn/Tensors/TensorInfo.hpp>
+#include <cubbydnn/Tensors/TensorShape.hpp>
 
-#include <condition_variable>
-#include <future>
 #include <memory>
+#include <mutex>
 
-/**
- *  This class performs role of socket that receives TensorObjects.
- *  This Class will be stored by Operations, and TensorObjects heading to that
- *  TensorSocket will point to corresponding TensorSocket by unique_ptr to
- * TensorSocket
- *
- */
 namespace CubbyDNN
 {
+//!
+//! \brief TensorObject class.
+//!
+//! This class will represent graph at runtime, and stores actual data used in
+//! graph execution.
+//!
 template <typename T>
-class TensorSocket
+class TensorPlug
 {
  public:
-    TensorSocket(SyncPtr operationSyncPtr, SyncPtr linkSyncPtr);
+
+    TensorPlug(SyncPtr operationSyncPtr, SyncPtr linkSyncPtr);
 
     /**
-     * Reassigning TensorSocket is disabled
-     * @param tensorSocket
-     * @return
-     */
-    TensorSocket& operator=(TensorSocket& tensorSocket) = delete;
-
-    /**
+     * MoveDataPtr
      * Returns dataPtr of current TensorSocket and set m_data to nullptr
      * @return : m_data
      */
     TensorDataPtr<T> MoveDataPtr() const noexcept;
 
     /**
-     * Assigns TensorDataPtr to this tensorSocket
-     * Only linker should call this since it decrements operation's atomic
-     * counter
+     * Assigns TensorDataPtr to this tensorPlug
+     * Only linker should call this since it decrements operation's atomic counter
      * @param tensorDataPtr : TensorDataPtr to assign
      * @return : True if tensorDataPtr was assigned False if tensorPlug was
      * already assigned
@@ -54,9 +48,8 @@ class TensorSocket
     bool SetDataPtrFromLinker(TensorDataPtr<T> tensorDataPtr);
 
     /**
-     * Assigns TensorDataPtr to this tensorSocket
-     * Only operation should call this
-     * Notifies Sync that operation has been finished
+     * Assigns TensorDataPtr to this tensorPlug
+     * Only operation should call this since it decrements linker's atomic counter
      * @param tensorDataPtr : TensorDataPtr to assign
      * @return : True if tensorDataPtr was assigned False if tensorPlug was
      * already assigned
@@ -64,16 +57,16 @@ class TensorSocket
     bool SetDataPtrFromOperation(TensorDataPtr<T> tensorDataPtr);
 
  private:
+    /// ptr to Data this TensorObject holds
     TensorDataPtr<T> m_dataPtr = nullptr;
-
+    /// ptr to operationSync
     SyncPtr m_operationSyncPtr;
-
+    /// ptr to linkSync
     SyncPtr m_linkSyncPtr;
 };
 
 template <typename T>
-using TensorSocketPtr = SharedPtr<TensorSocket<T>>;
-
+using TensorPlugPtr = SharedPtr<TensorPlug<T>>;
 }  // namespace CubbyDNN
 
-#endif  // CUBBYDNN_TensorSocket_HPP
+#endif  // CUBBYDNN_TENSOR_OBJECT_HPP

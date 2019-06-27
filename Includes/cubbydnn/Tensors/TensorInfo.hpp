@@ -4,27 +4,58 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_TENSOR_INFO_HPP
-#define CUBBYDNN_TENSOR_INFO_HPP
-#include <cubbydnn/Tensors/TensorShape.hpp>
+#ifndef CUBBYDNN_TENSOR_SHAPE_HPP
+#define CUBBYDNN_TENSOR_SHAPE_HPP
+
+#include <functional>
+#include <vector>
+
 namespace CubbyDNN
 {
+enum class NumberSystem
+{
+    Float16,
+    Float32,
+    Double,
+    Int8,
+    Int16,
+    Int32,
+    Int64
+};
+
 //!
-//! \brief TensorInfo class.
+//! \brief TensorShape class.
 //!
+//! This class contains information about the shape of tensor.
+//!
+
 class TensorInfo
 {
  public:
-    explicit TensorInfo(const TensorShape& tensorShape, bool isMutable = false);
+    /// Constructs TensorShape with given parameters
+    TensorInfo(std::vector<size_t> shape, size_t unitByteSize,
+                   NumberSystem numberSystem, bool isMutable = true);
 
-    bool operator==(const TensorInfo& info) const noexcept;
+    bool operator==(const TensorInfo& shape) const;
+    bool operator!=(const TensorInfo& shape) const;
 
-    std::size_t Size();
+    /**
+     * Size (Number of elements) of The TensorData
+     * @return
+     */
+    size_t Size() const noexcept;
+    size_t ByteSize() const noexcept;
+    bool IsEmpty() const noexcept;
+    const std::vector<size_t>& GetShape() const noexcept;
 
  private:
-    bool m_isMutable;
-    const TensorShape& m_shape;
+    std::function<size_t(const std::vector<size_t>)> m_getTotalByteSize;
+    const std::vector<size_t> m_shape;
+    const size_t m_totalSize;
+    const size_t m_unitByteSize;
+    const NumberSystem m_numberSystem;
+    const bool m_isMutable;
 };
 }  // namespace CubbyDNN
 
-#endif  // CUBBYDNN_TENSOR_INFO_HPP
+#endif  // CUBBYDNN_TENSOR_SHAPE_HPP

@@ -4,48 +4,39 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_TENSOR_HPP
-#define CUBBYDNN_TENSOR_HPP
+#ifndef CUBBYDNN_TENSOR_DATA_HPP
+#define CUBBYDNN_TENSOR_DATA_HPP
 
-#include <cubbydnn/Tensors/TensorShape.hpp>
+#include <cubbydnn/Tensors/TensorDataInfo.hpp>
+
+#include <atomic>
+#include <memory>
+#include <vector>
 
 namespace CubbyDNN
 {
-//!
-//! \brief Tensor class.
-//!
-//! This graph contains information of graph being built methods of operation
-//! class builds TensorData class based on information of this class.
-//!
-class Tensor
+
+/**
+ * TensorData class contains data vector for processing
+ * with attributes describing it
+ * @tparam T : type of data this tensorData contains
+ */
+struct Tensor'Data
 {
- public:
-    Tensor(TensorShape shape, long prevOpID, bool isMutable = true) noexcept;
-
-    const TensorShape& Shape() const noexcept;
-    std::size_t DataSize() const noexcept;
-    long PrevOpID() const noexcept;
-
-    void AddOp(long nextOpID);
-
-    bool IsValid() const noexcept;
-    bool IsMutable() const noexcept;
-
-    void MakeImmutable() noexcept;
-
- private:
-    //! Shape of this tensor represents.
-    TensorShape m_shape;
-
-    //! Previous operation ID of operation that this tensor is generated.
-    long m_prevOpID;
-
-    //! Container for storing operations this tensor will head to.
-    std::vector<long> m_nextOps;
-
-    //! Determines whether data of this tensor can be modified.
-    bool m_isMutable = true;
+    TensorData(void* Data, NumberSystem numberSystem, const TensorDataInfo& info);
+    /// Data vector which possesses actual data
+    void* DataPtr;
+    /// Type of this ptr
+    NumberSystem numberSystem;
+    /// Shape of this tensorData
+    TensorDataInfo Info;
+    // TensorType Type;
 };
+
+
+
+using TensorDataPtr = typename std::unique_ptr<TensorData>;
+
 }  // namespace CubbyDNN
 
-#endif  // CUBBYDNN_TENSOR_HPP
+#endif  // CUBBYDNN_TENSOR_DATA_HPP
