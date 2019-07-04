@@ -9,12 +9,11 @@
 #define CUBBYDNN_OPERATION_HPP
 
 #include <cubbydnn/Computations/Decl/Interfaces.hpp>
-#include <cubbydnn/GraphUtil/Decl/Sync.hpp>
-#include <cubbydnn/Operations/OpEnums.hpp>
-#include <cubbydnn/Operations/OperationInfo.hpp>
+#include <cubbydnn/Utils/Sync.hpp>
+#include <cubbydnn/Deprecated/Operations/OpEnums.hpp>
+#include <cubbydnn/Deprecated/Operations/OperationInfo.hpp>
 #include <cubbydnn/Tensors/Tensor.hpp>
-#include <cubbydnn/Tensors/TensorPlug.hpp>
-#include <cubbydnn/Tensors/TensorSocket.hpp>
+#include <cubbydnn/Utils/DoubleBuffer.hpp>
 
 #include <memory>
 #include <string>
@@ -46,10 +45,6 @@ class Operation : virtual IExecutable
 
     OperationInfo GetInfo() const noexcept;
 
-    TensorPtr<T> RequestDataFrom(int index);
-
-    void AddOutput(TensorPlugPtr<T> tensorObjectPtr);
-
     void AddInput(TensorSocketPtr<T> tensorSocketPtr);
 
     void Start() final;
@@ -64,8 +59,6 @@ class Operation : virtual IExecutable
     OperationInfo m_operationInfo;
     /// contains Data to be used in operation
     std::vector<TensorSocketPtr<T>> m_tensorSocketDeck;
-    /// contains tensorObjects going out of this operation
-    std::vector<TensorPlugPtr<T>> m_tensorPlugDeck;
     /// ptr to Sync
     SyncPtr m_operationSyncPtr;
     /// Computation unit for running computation assigned for this operation

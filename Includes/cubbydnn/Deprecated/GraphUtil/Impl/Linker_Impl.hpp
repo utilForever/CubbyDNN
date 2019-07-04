@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_LINKER_IMPL_HPP
 #define CUBBYDNN_LINKER_IMPL_HPP
 
-#include <cubbydnn/GraphUtil/Decl/Linker.hpp>
+#include <cubbydnn/Deprecated/GraphUtil/Decl/Linker.hpp>
 #include <cubbydnn/Tensors/TensorPlug.hpp>
 
 namespace CubbyDNN

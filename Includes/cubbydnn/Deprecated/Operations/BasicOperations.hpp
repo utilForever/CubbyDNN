@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_BASIC_OPERATIONS_HPP
 #define CUBBYDNN_BASIC_OPERATIONS_HPP
 
-#include <cubbydnn/Operations/Decl/Operation.hpp>
+#include <cubbydnn/Deprecated/Operations/Decl/Operation.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
 namespace CubbyDNN

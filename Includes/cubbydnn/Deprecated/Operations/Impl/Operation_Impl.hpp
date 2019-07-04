@@ -5,7 +5,7 @@
 #ifndef CUBBYDNN_OPERATION_IMPL_HPP
 #define CUBBYDNN_OPERATION_IMPL_HPP
 
-#include <cubbydnn/Operations/Decl/Operation.hpp>
+#include <cubbydnn/Deprecated/Operations/Decl/Operation.hpp>
 
 namespace CubbyDNN
 {

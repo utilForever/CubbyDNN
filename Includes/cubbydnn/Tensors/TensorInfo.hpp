@@ -50,11 +50,11 @@ class TensorInfo
 
  private:
     std::function<size_t(const std::vector<size_t>)> m_getTotalByteSize;
-    const std::vector<size_t> m_shape;
-    const size_t m_totalSize;
-    const size_t m_unitByteSize;
-    const NumberSystem m_numberSystem;
-    const bool m_isMutable;
+    std::vector<size_t> m_shape;
+    size_t m_totalSize;
+    size_t m_unitByteSize;
+    NumberSystem m_numberSystem;
+    bool m_isMutable;
 };
 }  // namespace CubbyDNN
 

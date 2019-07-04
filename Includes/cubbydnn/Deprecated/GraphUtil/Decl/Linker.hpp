@@ -7,10 +7,10 @@
 #ifndef CUBBYDNN_LINKER_HPP
 #define CUBBYDNN_LINKER_HPP
 
-#include <cubbydnn/GraphUtil/Decl/Sync.hpp>
+#include <cubbydnn/Utils/Sync.hpp>
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Tensors/TensorPlug.hpp>
-#include <cubbydnn/Tensors/TensorSocket.hpp>
+#include <cubbydnn/Utils/DoubleBuffer.hpp>
 
 #include <memory>
 

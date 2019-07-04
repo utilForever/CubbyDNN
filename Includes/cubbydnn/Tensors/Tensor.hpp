@@ -23,6 +23,10 @@ namespace CubbyDNN
 struct Tensor
 {
     Tensor(std::unique_ptr<void> Data, TensorInfo info);
+
+    Tensor(Tensor&& tensor) noexcept;
+    /// move assignment operator
+    Tensor& operator=(Tensor&& tensor) noexcept;
     /// Data vector which possesses actual data
     std::unique_ptr<void> DataPtr;
     /// Shape of this tensorData
@@ -30,14 +34,13 @@ struct Tensor
 };
 
 
-using TensorPtr = typename std::unique_ptr<Tensor>;
 
 /**
  * Builds empty Tensor so data can be put potentially
  * @param info
  * @return
  */
-static TensorPtr AllocateTensor(TensorInfo info);
+Tensor AllocateTensor(const TensorInfo& info);
 
 //TODO : Implement methods for Initializing the Tensor
 

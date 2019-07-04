@@ -14,10 +14,23 @@ Tensor::Tensor(std::unique_ptr<void> Data, TensorInfo info)
 {
 }
 
-static TensorPtr AllocateTensor(TensorInfo info){
+Tensor::Tensor(Tensor&& tensor) noexcept
+    : DataPtr(std::move(tensor.DataPtr)), Info(std::move(tensor.Info))
+{
+}
+
+Tensor& Tensor::operator=(Tensor&& tensor) noexcept
+{
+    DataPtr = std::move(tensor.DataPtr);
+    Info = tensor.Info;
+    return *this;
+}
+
+Tensor AllocateTensor(const TensorInfo& info)
+{
     auto byteSize = info.ByteSize();
     auto dataPtr = std::make_unique<void>(byteSize);
-    return std::make_unique<Tensor>(std::move(dataPtr), info);
+    return Tensor(std::move(dataPtr), info);
 }
 
 }  // namespace CubbyDNN
