@@ -27,7 +27,7 @@ file(GLOB_RECURSE sources
 
 # Build library
 add_library(${target}
-    ${sources} ../../Includes/cubbydnn/Utils/SharedPtr.hpp Tensors/Tensor.cpp Deprecated/Utils/DoubleBuffer.cpp Deprecated/Utils/Sync.cpp)
+    ${sources} ../../Includes/cubbydnn/Utils/SharedPtr.hpp Tensors/Tensor.cpp Deprecated/Utils/DoubleBuffer.cpp Deprecated/Utils/Sync.cpp ../../Includes/cubbydnn/Computations/ComputableUnit.hpp Computations/ComputableUnit.cpp)
 
 # Project options
 set_target_properties(${target}

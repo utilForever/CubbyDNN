@@ -14,6 +14,12 @@ SharedPtr<T>::SharedPtr(SharedObject* objectPtr, PtrState state)
     : m_sharedObjectPtr(objectPtr), m_ptrState(state){};
 
 template <typename T>
+SharedPtr<T>::SharedPtr()
+    : m_sharedObjectPtr(nullptr), m_ptrState(PtrState::invalid)
+{
+}
+
+template <typename T>
 SharedPtr<T>::~SharedPtr()
 {
     if (m_sharedObjectPtr)

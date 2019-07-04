@@ -55,6 +55,8 @@ class SharedPtr
     SharedPtr<T> tryMakeCopy();
 
  public:
+    explicit SharedPtr();
+
     /**
      * Destructor will automatically decrease the reference counter if this ptr
      * has valid pointer

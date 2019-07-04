@@ -16,44 +16,6 @@
 namespace CubbyDNN
 {
 
-    enum class State{
-        pending,
-        ready,
-        busy,
-    };
-    struct OperationState{
-        std::atomic<int> StateNum;
-        State CurrentState;
-    };
-
-class IExecutable
-{
-    /**
-     * Starts executableUnit by enqueueing into the engine
-     */
-    virtual void Start() = 0;
-    /**
-     * Finishes operation by sending end signal
-     */
-    virtual void Finish() = 0;
-    /**
-     * Brings back state of the executableUnit
-     * @return : state of the operation
-     */
-    virtual OperationState GetState() = 0;
-
-    /**
-     * Atomically increments state number
-     */
-    virtual void IncrementStateNum() = 0;
-
-    /**
-     * Brings back if executableUnit is ready to be executed
-     * @return
-     */
-    virtual bool IsReady() = 0;
-};
-
 /**
  * Mtx and Cond_var for controlling synchronization from Operation to Linker
  */
