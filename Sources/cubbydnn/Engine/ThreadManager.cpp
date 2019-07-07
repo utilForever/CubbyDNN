@@ -1,7 +1,7 @@
 //
 // Created by jwkim98 on 6/26/19.
 //
-#include <captain/Engine/ThreadManager.hpp>
+#include <cubbydnn/Engine/ThreadManager.hpp>
 #include <iostream>
 
 namespace Captain {

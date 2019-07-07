@@ -1,8 +1,10 @@
-//
-// Created by jwkim98 on 6/27/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
 
-#include <captain/Engine/SpinLock-Decl.hpp>
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
+
+#include <cubbydnn/Engine/SpinLock-Decl.hpp>
 
 namespace Captain {
 

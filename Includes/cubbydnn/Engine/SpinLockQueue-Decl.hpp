@@ -1,11 +1,13 @@
-//
-// Created by jwkim98 on 6/30/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
 
-#ifndef CAPTAIN_SPINLOCKQUEUE_DECL_HPP
-#define CAPTAIN_SPINLOCKQUEUE_DECL_HPP
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
-#include <captain/Engine/SpinLock.hpp>
+#ifndef CUBBYDNN_SPINLOCKQUEUE_DECL_HPP
+#define CUBBYDNN_SPINLOCKQUEUE_DECL_HPP
+
+#include <cubbydnn/Engine/SpinLock.hpp>
 
 #include <type_traits>
 #include <vector>

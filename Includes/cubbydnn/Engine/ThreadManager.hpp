@@ -1,12 +1,13 @@
-//
-// Created by jwkim98 on 6/26/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
 
-#pragma once
-#ifndef CAPTAIN_THREADMANAGER_HPP
-#define CAPTAIN_THREADMANAGER_HPP
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
-#include <captain/Engine/SpinLockQueue.hpp>
+#ifndef CUBBYDNN_THREADMANAGER_HPP
+#define CUBBYDNN_THREADMANAGER_HPP
+
+#include <cubbydnn/Engine/SpinLockQueue.hpp>
 
 #include <functional>
 #include <thread>
