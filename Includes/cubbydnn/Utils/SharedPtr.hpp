@@ -1,6 +1,8 @@
-//
-// Created by jwkim98 on 4/21/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
 #ifndef CUBBYDNN_SHAREDPTR_HPP
 #define CUBBYDNN_SHAREDPTR_HPP
@@ -111,7 +113,7 @@ class SharedPtr
      * Access operator to object this possesses
      * @return : Reference of the object
      */
-    T& operator->();
+    T* operator->();
 
     /**
      * Makes copy of this SharedPtr

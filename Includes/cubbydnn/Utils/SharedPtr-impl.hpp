@@ -87,9 +87,9 @@ SharedPtr<T>& SharedPtr<T>::operator=(SharedPtr<T>&& sharedPtr) noexcept
 }
 
 template <typename T>
-T& SharedPtr<T>::operator->()
+T* SharedPtr<T>::operator->()
 {
-    return m_sharedObjectPtr->Object;
+    return &m_sharedObjectPtr->Object;
 }
 
 template <typename T>
