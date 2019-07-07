@@ -12,6 +12,7 @@
 #include <atomic>
 #include <cstdlib>
 #include <utility>
+#include <vector>
 
 namespace CubbyDNN
 {
@@ -24,9 +25,9 @@ enum class State
     ready,
     busy,
 };
-struct UnitState
+struct UnitInfo
 {
-    explicit UnitState(const State& state);
+    explicit UnitInfo(const State& state);
     std::atomic<std::size_t> StateNum;
     State CurrentState;
 };
@@ -35,14 +36,6 @@ class ComputableUnit
 {
  public:
     explicit ComputableUnit(State state);
-    /**
-     * Starts executableUnit by enqueueing into the engine
-     */
-    virtual void Start() = 0;
-    /**
-     * Finishes operation by sending end signal
-     */
-    virtual void Finish() = 0;
 
     /**
      * Brings back if executableUnit is ready to be executed
@@ -65,20 +58,80 @@ class ComputableUnit
     }
 
     /**
-     * Atomically increments state number
-     */
-    void UpdateState(const State& state);
-
-    /**
      * Brings back state number of current unit atomically
-     * @return
+     * @return : state number
      */
     std::size_t GetStateNum();
 
  protected:
-    UnitState m_unitState;
+    /**
+     * Atomically increments state number
+     */
+    void IncrementState(const State& state);
+
+    UnitInfo m_unitState;
 };
 
+/**
+ * Unit that has no input, but has output only.
+ * This type of unit must be able to fetch data(from the disk or cache)
+ * or generator
+ */
+class SourceUnit : ComputableUnit
+{
+    explicit SourceUnit(const State& state);
+
+    /**
+     * Set or add next ComputableUnit ptr
+     * @param computableUnitPtr
+     */
+    void SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
+
+    bool IsReady() final;
+
+ protected:
+    SharedPtr<ComputableUnit> m_nextPtr;
+};
+
+/**
+ * Unit that has no output, but has inputs
+ * This type of unit plays role as sink of the computable graph
+ */
+class SinkUnit : ComputableUnit
+{
+    explicit SinkUnit(const State& state);
+
+    /**
+     * Add previous computable Unit to this cell
+     * @param computableUnitPtr
+     */
+    void AddPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
+
+    bool IsReady() final;
+
+ protected:
+    std::vector<SharedPtr<ComputableUnit>> m_previousPtrVector;
+};
+
+class IntermediateUnit : ComputableUnit
+{
+ public:
+    explicit IntermediateUnit(const State& state);
+
+    void SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
+
+    void AddPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
+
+ protected:
+    std::vector<SharedPtr<ComputableUnit>> m_previousPtr;
+    SharedPtr<ComputableUnit> m_nextPtr;
+};
+
+/**
+ * Copy
+ * This will connect between other units(not copy) by copying the output of
+ * previous unit to input of next unit
+ */
 class Copy : ComputableUnit
 {
  public:
@@ -88,7 +141,10 @@ class Copy : ComputableUnit
 
     void SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
 
+    void Compute() final{};
+
  private:
+    /// Previous ptr
     SharedPtr<ComputableUnit> m_previousPtr;
     SharedPtr<ComputableUnit> m_nextPtr;
 };

@@ -8,7 +8,7 @@
 
 namespace CubbyDNN
 {
-UnitState::UnitState(const State& state) : StateNum(0), CurrentState(state)
+UnitInfo::UnitInfo(const State& state) : StateNum(0), CurrentState(state)
 {
 }
 
@@ -16,7 +16,7 @@ ComputableUnit::ComputableUnit(State state) : m_unitState(state)
 {
 }
 
-void ComputableUnit::UpdateState(const State& state)
+void ComputableUnit::IncrementState(const State& state)
 {
     m_unitState.CurrentState = state;
     m_unitState.StateNum.fetch_add(1, std::memory_order_release);
@@ -27,8 +27,52 @@ std::size_t ComputableUnit::GetStateNum()
     return m_unitState.StateNum;
 }
 
-Copy::Copy() : ComputableUnit(State::pending)
+SourceUnit::SourceUnit(const State& state) : ComputableUnit(state)
 {
+}
+
+void SourceUnit::SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
+{
+    m_nextPtr = std::move(computableUnitPtr);
+}
+
+bool SourceUnit::IsReady()
+{
+    return m_nextPtr->GetStateNum() == GetStateNum();
+}
+
+void SinkUnit::AddPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
+{
+    m_previousPtrVector.emplace_back(std::move(computableUnitPtr));
+}
+
+SinkUnit::SinkUnit(const State& state) : ComputableUnit(state)
+{
+}
+
+bool SinkUnit::IsReady()
+{
+    for (auto& previousPtr : m_previousPtrVector)
+    {
+        if (previousPtr->GetStateNum() != GetStateNum() + 1)
+            return false;
+    }
+    return true;
+}
+
+IntermediateUnit::IntermediateUnit(const State& state) : ComputableUnit(state)
+{
+}
+
+void IntermediateUnit::SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
+{
+    m_nextPtr = std::move(computableUnitPtr);
+}
+
+void IntermediateUnit::AddPreviousPtr(
+    SharedPtr<ComputableUnit>&& computableUnitPtr)
+{
+    m_previousPtr.emplace_back(std::move(computableUnitPtr));
 }
 
 void Copy::SetPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
