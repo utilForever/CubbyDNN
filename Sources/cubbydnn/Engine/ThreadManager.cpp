@@ -4,7 +4,7 @@
 #include <cubbydnn/Engine/ThreadManager.hpp>
 #include <iostream>
 
-namespace Captain {
+namespace CubbyDNN {
 
 std::vector<std::thread> ThreadManager::m_threadPool =
     std::vector<std::thread>();
