@@ -1,8 +1,27 @@
-//
-// Created by jwkim98 on 7/8/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
 
-#ifndef CUBBYDNN_BASICOPERATIONS_HPP
-#define CUBBYDNN_BASICOPERATIONS_HPP
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
-#endif //CUBBYDNN_BASICOPERATIONS_HPP
+#ifndef CUBBYDNN_BASEUNITS_HPP
+#define CUBBYDNN_BASEUNITS_HPP
+
+#include <cubbydnn/Tensors/TensorInfo.hpp>
+#include <cubbydnn/Units/ComputableUnit.hpp>
+
+namespace CubbyDNN
+{
+class GenerateRandom : public SourceUnit
+{
+ public:
+    explicit GenerateRandom(TensorInfo tensorInfo);
+
+    void Compute() override;
+
+ private:
+    TensorInfo m_tensorInfo;
+};
+}  // namespace CubbyDNN
+
+#endif  // CUBBYDNN_BASEUNITS_HPP
