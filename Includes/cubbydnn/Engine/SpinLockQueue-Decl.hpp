@@ -12,7 +12,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace Captain {
+namespace CubbyDNN {
 
 /**
  * Thread safe spinLockQueue which enqueues and dequeues, accesses element using

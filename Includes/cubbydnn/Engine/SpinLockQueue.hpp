@@ -9,7 +9,7 @@
 
 #include <cubbydnn/Engine/SpinLockQueue-Decl.hpp>
 
-namespace Captain
+namespace CubbyDNN
 {
 template <typename T>
 SpinLockQueue<T>::SpinLockQueue(size_t maxCapacity)
