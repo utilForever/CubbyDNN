@@ -25,6 +25,10 @@ enum class State
     ready,
     busy,
 };
+
+/**
+ * Wrapper class containing the state and statenum
+ */
 struct UnitInfo
 {
     explicit UnitInfo(const State& state);
@@ -52,9 +56,9 @@ class ComputableUnit
      * Brings back state of the executableUnit
      * @return : state of the operation
      */
-    State GetState()
+    State GetCurrentState()
     {
-        return m_unitState.CurrentState;
+        return m_unitInfo.CurrentState;
     }
 
     /**
@@ -64,12 +68,14 @@ class ComputableUnit
     std::size_t GetStateNum();
 
  protected:
+
+    void ChangeState(const State& state);
     /**
      * Atomically increments state number
      */
-    void IncrementState(const State& state);
+    void IncrementStateNum(const State& state);
 
-    UnitInfo m_unitState;
+    UnitInfo m_unitInfo;
 };
 
 /**
@@ -77,8 +83,9 @@ class ComputableUnit
  * This type of unit must be able to fetch data(from the disk or cache)
  * or generator
  */
-class SourceUnit : ComputableUnit
+class SourceUnit : public ComputableUnit
 {
+public:
     explicit SourceUnit(const State& state);
 
     /**
@@ -87,7 +94,16 @@ class SourceUnit : ComputableUnit
      */
     void SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
 
+    /**
+     * Checks if source is ready
+     * @return
+     */
     bool IsReady() final;
+
+    void Compute() override {
+        //DoNothing
+        IncrementStateNum(State::ready);
+    }
 
  protected:
     SharedPtr<ComputableUnit> m_nextPtr;
@@ -97,8 +113,9 @@ class SourceUnit : ComputableUnit
  * Unit that has no output, but has inputs
  * This type of unit plays role as sink of the computable graph
  */
-class SinkUnit : ComputableUnit
+class SinkUnit : public ComputableUnit
 {
+public:
     explicit SinkUnit(const State& state);
 
     /**
@@ -113,7 +130,7 @@ class SinkUnit : ComputableUnit
     std::vector<SharedPtr<ComputableUnit>> m_previousPtrVector;
 };
 
-class IntermediateUnit : ComputableUnit
+class IntermediateUnit : public ComputableUnit
 {
  public:
     explicit IntermediateUnit(const State& state);
@@ -128,14 +145,14 @@ class IntermediateUnit : ComputableUnit
 };
 
 /**
- * Copy
+ * CopyUnits
  * This will connect between other units(not copy) by copying the output of
  * previous unit to input of next unit
  */
-class Copy : ComputableUnit
+class CopyUnit : ComputableUnit
 {
  public:
-    Copy();
+    explicit CopyUnit(const State& state);
 
     void SetPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
 
