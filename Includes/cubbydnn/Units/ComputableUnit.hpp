@@ -23,7 +23,6 @@ namespace CubbyDNN
 enum class State
 {
     pending,
-    ready,
     busy,
 };
 
@@ -45,12 +44,6 @@ class ComputableUnit
      * Initializes unitInfo with pending state
      */
     ComputableUnit();
-
-    /**
-     * Constructor
-     * @param state : state to initialize unitInfo
-     */
-    explicit ComputableUnit(State state);
 
     /**
      * Brings back if executableUnit is ready to be executed
@@ -97,15 +90,16 @@ class ComputableUnit
 class CopyUnit : public ComputableUnit
 {
  public:
-    CopyUnit() = default;
 
-    explicit CopyUnit(const State& state);
+    CopyUnit() = default;
 
     void SetPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
 
     void SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
 
     void Compute() final{};
+
+    bool IsReady() final;
 
  private:
     /// Previous ptr
@@ -129,15 +123,8 @@ class SourceUnit : public ComputableUnit
     explicit SourceUnit(TensorInfo outputTensorInfo);
 
     /**
-     * Constructor
-     * @param state : state to initialize UnitInfo
-     * @param outputTensorInfo : TensorInfo of the output tensor
-     */
-    SourceUnit(const State& state, TensorInfo outputTensorInfo);
-
-    /**
      * Set or add next ComputableUnit ptr
-     * @param computableUnitPtr
+     * @param computableUnitPtr : computablePtr to set
      */
     void SetNextPtr(SharedPtr<CopyUnit>&& computableUnitPtr);
 
@@ -166,9 +153,11 @@ class SourceUnit : public ComputableUnit
 class SinkUnit : public ComputableUnit
 {
  public:
+    /**
+     * Constructor
+     * @param inputTensorInfoVector : vector of tensorInfo to accept
+     */
     explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
-
-    SinkUnit(const State& state, std::vector<TensorInfo> inputTensorInfoVector);
 
     /**
      * Add previous computable Unit to this cell
@@ -199,16 +188,14 @@ class IntermediateUnit : public ComputableUnit
     IntermediateUnit(std::vector<TensorInfo> inputTensorInfoVector,
                      TensorInfo outputTensorInfo);
 
-    IntermediateUnit(const State& state,
-                     std::vector<TensorInfo> inputTensorInfoVector,
-                     TensorInfo outputTensorInfo);
-
     void SetNextPtr(SharedPtr<CopyUnit>&& computableUnitPtr);
 
     void AddPreviousPtr(SharedPtr<CopyUnit>&& computableUnitPtr);
 
+    bool IsReady() final;
+
  protected:
-    std::vector<SharedPtr<CopyUnit>> m_previousPtr;
+    std::vector<SharedPtr<CopyUnit>> m_previousPtrVector;
     SharedPtr<CopyUnit> m_nextPtr;
 
     std::vector<TensorInfo> m_inputTensorInfoVector;
