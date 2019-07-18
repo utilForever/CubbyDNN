@@ -12,6 +12,8 @@
 #include <atomic>
 #include <memory>
 #include <vector>
+#include <cassert>
+#include <cstring>
 
 namespace CubbyDNN
 {
@@ -22,16 +24,19 @@ namespace CubbyDNN
  */
 struct Tensor
 {
-    Tensor(std::unique_ptr<void> Data, TensorInfo info);
+    Tensor(void* Data, TensorInfo info);
 
     Tensor(Tensor&& tensor) noexcept;
     /// move assignment operator
     Tensor& operator=(Tensor&& tensor) noexcept;
     /// Data vector which possesses actual data
-    std::unique_ptr<void> DataPtr;
+    void* DataPtr;
     /// Shape of this tensorData
     TensorInfo Info;
 };
+
+
+void CopyTensor(Tensor* source, Tensor* destination);
 
 
 
