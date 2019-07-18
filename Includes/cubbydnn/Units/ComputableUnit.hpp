@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Utils/SharedPtr-impl.hpp>
 
@@ -27,13 +28,17 @@ enum class State
 };
 
 /**
+ * UnitState
  * Wrapper class containing the state and StateNum
+ * this represents the execution state of computable unit
  */
-struct UnitInfo
+struct UnitState
 {
-    explicit UnitInfo(const State& state);
+    explicit UnitState();
+    /// State number of current
     std::atomic<std::size_t> StateNum;
-    State CurrentState;
+    /// True if unit is already in the task queue
+    std::atomic<bool> IsBusy;
 };
 
 class ComputableUnit
@@ -46,6 +51,23 @@ class ComputableUnit
     ComputableUnit();
 
     /**
+     * Called before computation for acquiring the unit in order to compute
+     * Marks IsBusy as True
+     */
+    void AcquireUnit(){
+        setBusy();
+    }
+
+    /**
+     * Called after computation for releasing the unit after computation
+     * Increments the stateNum and marks IsBusy as false
+     */
+    void ReleaseUnit(){
+        incrementStateNum();
+        setReleased();
+    }
+
+    /**
      * Brings back if executableUnit is ready to be executed
      * @return : whether corresponding unit is ready to be executed
      */
@@ -53,33 +75,68 @@ class ComputableUnit
 
     /**
      * Method that is executed on the engine
+     * This method must be called after checking computation is ready
      */
     virtual void Compute() = 0;
 
     /**
-     * Brings back state of the executableUnit
-     * @return : state of the operation
+     * Brings back reference of the atomic state counter for atomic comparison
+     * of state counter
+     * @return : reference of the state counter
      */
-    State GetCurrentState()
-    {
-        return m_unitInfo.CurrentState;
-    }
-
-    /**
-     * Brings back state number of current unit atomically
-     * @return : state number
-     */
-    std::size_t GetStateNum();
+    std::atomic<std::size_t>& GetStateNum();
 
  protected:
-    void ChangeState(const State& state);
-
     /**
      * Atomically increments state number
      */
-    void IncrementStateNum();
+    void incrementStateNum()
+    {
+        m_unitState.StateNum.fetch_add(1, std::memory_order_release);
+    }
 
-    UnitInfo m_unitInfo;
+    /**
+     * Atomically sets operation state to busy state (true)
+     */
+    void setBusy()
+    {
+        std::atomic_exchange_explicit(&m_unitState.IsBusy, true,
+                                      std::memory_order_release);
+    }
+
+    /**
+     * Atomically sets operation state to pending state (false)
+     */
+    void setReleased()
+    {
+        std::atomic_exchange_explicit(&m_unitState.IsBusy, false,
+                                      std::memory_order_release);
+    }
+
+    /**
+     * Checks if units surrounding the current unit is ready
+     * @return
+     */
+    std::pair<bool, bool> checkForSurroundingUnits()
+    {
+        bool isPreviousReady = true, isNextReady = true;
+
+        for (auto& previousUnitPtr : m_previousPtrVector)
+            if (!previousUnitPtr.IsValid() || !previousUnitPtr->IsReady())
+                isPreviousReady = false;
+
+        if (!m_nextPtr.IsValid() || !m_nextPtr->IsReady())
+            isNextReady = false;
+
+        return std::pair(isPreviousReady, isNextReady);
+    }
+
+    /// UnitState object indicates execution state of ComputableUnit
+    UnitState m_unitState;
+
+    SharedPtr<ComputableUnit> m_nextPtr;
+
+    std::vector<SharedPtr<ComputableUnit>> m_previousPtrVector;
 };
 
 /**
@@ -90,20 +147,25 @@ class ComputableUnit
 class CopyUnit : public ComputableUnit
 {
  public:
-
     CopyUnit() = default;
 
-    void SetPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
+    void SetPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
+    {
+        m_previousPtr = std::move(computableUnitPtr);
+    }
 
-    void SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr);
+    void SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
+    {
+        m_nextPtr = std::move(computableUnitPtr);
+    }
 
-    void Compute() final{};
+    void Compute() override;
 
-    bool IsReady() final;
+    bool IsReady() override;
 
  private:
     /// Previous ptr
-    SharedPtr<ComputableUnit> m_previousPtr;
+    std::vector<SharedPtr<ComputableUnit>> m_previousPtr;
     SharedPtr<ComputableUnit> m_nextPtr;
 };
 
@@ -134,16 +196,11 @@ class SourceUnit : public ComputableUnit
      */
     bool IsReady() final;
 
-    void Compute() override
-    {
-        // DoNothing
-        IncrementStateNum();
-    }
-
  protected:
     SharedPtr<CopyUnit> m_nextPtr;
-
     TensorInfo m_outputTensorInfo;
+
+    Tensor m_outputTensor;
 };
 
 /**
@@ -175,6 +232,7 @@ class SinkUnit : public ComputableUnit
     std::vector<SharedPtr<CopyUnit>> m_previousPtrVector;
 
     std::vector<TensorInfo> m_inputTensorInfoVector;
+    std::vector<Tensor> m_inputTensorVector;
 };
 
 class IntermediateUnit : public ComputableUnit
@@ -200,6 +258,9 @@ class IntermediateUnit : public ComputableUnit
 
     std::vector<TensorInfo> m_inputTensorInfoVector;
     TensorInfo m_outputTensorInfo;
+
+    Tensor m_outputTensor;
+    std::vector<Tensor> m_inputTensorVector;
 };
 
 }  // namespace CubbyDNN

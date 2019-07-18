@@ -8,52 +8,36 @@
 
 namespace CubbyDNN
 {
-UnitInfo::UnitInfo(const State& state) : StateNum(0), CurrentState(state)
+UnitState::UnitState() : StateNum(0), IsBusy(false)
 {
 }
 
-ComputableUnit::ComputableUnit() : m_unitInfo(State::busy)
+ComputableUnit::ComputableUnit() : m_unitState()
 {
 }
 
-void ComputableUnit::ChangeState(const State& state)
+std::atomic<std::size_t>& ComputableUnit::GetStateNum()
 {
-    m_unitInfo.CurrentState = state;
+    return m_unitState.StateNum;
 }
 
-void ComputableUnit::IncrementStateNum()
+void CopyUnit::Compute()
 {
-    m_unitInfo.StateNum.fetch_add(1, std::memory_order_release);
-}
-
-std::size_t ComputableUnit::GetStateNum()
-{
-    return m_unitInfo.StateNum;
-}
-
-void CopyUnit::SetPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
-{
-    m_previousPtr = std::move(computableUnitPtr);
-}
-
-void CopyUnit::SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
-{
-    m_nextPtr = std::move(computableUnitPtr);
 }
 
 bool CopyUnit::IsReady()
 {
-    if (m_unitInfo.CurrentState == State::busy)
+    if(ComputableUnit::m_unitState.IsBusy)
         return false;
 
-    auto stateNum = GetStateNum();
-
-    return (m_previousPtr->GetStateNum() == stateNum + 1 &&
+    auto& stateNum = GetStateNum();
+    return (m_previousPtr->GetStateNum() == (stateNum + 1) &&
             m_nextPtr->GetStateNum() == stateNum);
 }
 
 SourceUnit::SourceUnit(TensorInfo outputTensorInfo)
-    : m_outputTensorInfo(std::move(outputTensorInfo))
+    : m_outputTensorInfo(std::move(outputTensorInfo)),
+      m_outputTensor(AllocateTensor(outputTensorInfo))
 {
 }
 
@@ -64,8 +48,9 @@ void SourceUnit::SetNextPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
 
 bool SourceUnit::IsReady()
 {
-    return m_nextPtr->GetStateNum() == GetStateNum() &&
-           m_unitInfo.CurrentState == State::pending;
+    if(ComputableUnit::m_unitState.IsBusy)
+        return false;
+    return (m_nextPtr->GetStateNum()==GetStateNum());
 }
 
 void SinkUnit::AddPreviousPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
@@ -76,13 +61,17 @@ void SinkUnit::AddPreviousPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
 SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
     : m_inputTensorInfoVector(std::move(inputTensorInfoVector))
 {
+    m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
+    for (auto& tensorInfo : m_inputTensorInfoVector)
+    {
+        m_inputTensorVector.emplace_back(AllocateTensor(tensorInfo));
+    }
 }
 
 bool SinkUnit::IsReady()
 {
-    if (m_unitInfo.CurrentState == State::busy)
+    if(ComputableUnit::m_unitState.IsBusy)
         return false;
-
     for (auto& previousPtr : m_previousPtrVector)
     {
         if (previousPtr->GetStateNum() != GetStateNum() + 1)
@@ -94,8 +83,15 @@ bool SinkUnit::IsReady()
 IntermediateUnit::IntermediateUnit(
     std::vector<TensorInfo> inputTensorInfoVector, TensorInfo outputTensorInfo)
     : m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
-      m_outputTensorInfo(std::move(outputTensorInfo))
+      m_outputTensorInfo(std::move(outputTensorInfo)),
+      m_outputTensor(AllocateTensor(outputTensorInfo))
 {
+    m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
+
+    for (auto& inputTensorInfo : m_inputTensorInfoVector)
+    {
+        m_inputTensorVector.emplace_back(AllocateTensor(inputTensorInfo));
+    }
 }
 
 void IntermediateUnit::SetNextPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
@@ -110,10 +106,8 @@ void IntermediateUnit::AddPreviousPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
 
 bool IntermediateUnit::IsReady()
 {
-    if (m_unitInfo.CurrentState == State::busy)
-        return false;
 
-    if (m_nextPtr->GetStateNum() != GetStateNum())
+    if (m_nextPtr->GetStateNum() == GetStateNum())
 
         for (auto& previousPtr : m_previousPtrVector)
         {

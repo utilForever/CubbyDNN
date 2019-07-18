@@ -20,7 +20,7 @@ void Engine::Scan()
         if (sourceUnit.IsReady())
         {
             auto func = [&sourceUnit]() { return sourceUnit.Compute(); };
-            EnqueueTask(Task(TaskType::ComputeSource, func));
+            EnqueueTask(TaskWrapper(TaskType::ComputeSource, func));
         }
     }
 
@@ -29,7 +29,7 @@ void Engine::Scan()
         if (sinkUnit.IsReady())
         {
             auto func = [&sinkUnit]() { return sinkUnit.Compute(); };
-            EnqueueTask(Task(TaskType::ComputeSink, func));
+            EnqueueTask(TaskWrapper(TaskType::ComputeSink, func));
         }
     }
 
@@ -40,7 +40,7 @@ void Engine::Scan()
             auto func = [&intermediateUnit]() {
                 return intermediateUnit.Compute();
             };
-            EnqueueTask(Task(TaskType::ComputeIntermediate, func));
+            EnqueueTask(TaskWrapper(TaskType::ComputeIntermediate, func));
         }
     }
 }

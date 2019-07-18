@@ -11,7 +11,7 @@ namespace CubbyDNN
 {
 TensorInfo::TensorInfo(std::vector<size_t> shape, size_t unitByteSize,
                                NumberSystem numberSystem, bool isMutable)
-    : m_getTotalByteSize([](const std::vector<size_t> shape) {
+    : m_getTotalByteSize([](const std::vector<size_t>& shape) {
           size_t totalSize = 1;
           for (auto elem : shape)
           {
