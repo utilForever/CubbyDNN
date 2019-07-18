@@ -8,14 +8,13 @@
 #define CUBBYDNN_THREADMANAGER_HPP
 
 #include <cubbydnn/Engine/SpinLockQueue.hpp>
-#include <cubbydnn/Utils/SharedPtr-impl.hpp>
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Utils/SharedPtr-impl.hpp>
 
-
+#include <condition_variable>
 #include <functional>
 #include <thread>
 #include <vector>
-#include <condition_variable>
 
 namespace CubbyDNN
 {
@@ -26,7 +25,6 @@ enum class TaskType
     ComputeIntermediate,
     Copy,
     Join,
-    Empty
 };
 
 /**
@@ -40,7 +38,8 @@ struct TaskWrapper
      * @param type : type of this task
      * @param compute : function to execute the computation
      * @param updateState : function object that updates the unit states
-     * @param checkAndInsert : function object that checks previous and next unit
+     * @param checkAndInsert : function object that checks previous and next
+     * unit
      */
     TaskWrapper(TaskType type, std::function<void(void)> compute,
                 std::function<void(void)> updateState)
@@ -68,7 +67,6 @@ struct TaskWrapper
     std::function<void(void)> m_compute;
     /// Function used to update state of the ComputableUnit
     std::function<void(void)> m_updateState;
-
 };
 
 /**
@@ -78,16 +76,12 @@ class ThreadManager
 {
  protected:
     /**
-     * Starts thread which waits for tasks to come in
-     */
-    static void run();
-
-    /**
      * Initializes thread pool
-     * @param threadNum : number of threads to spawn (maxed out to hardware
+     * @param mainThreadNum : number of threads to spawn (maxed out to hardware
      * concurrency)
      */
-    static void InitializeThreadPool(size_t threadNum);
+    static void InitializeThreadPool(size_t mainThreadNum,
+                                     size_t copyThreadNum);
 
     /**
      * Enqueues tasks into task queue
@@ -107,7 +101,7 @@ class ThreadManager
      */
     static size_t TaskQueueSize()
     {
-        return m_taskQueue.Size();
+        return m_mainTaskQueue.Size();
     }
 
     /**
@@ -115,22 +109,45 @@ class ThreadManager
      */
     static void JoinThreads()
     {
-        for (auto& thread : m_threadPool)
+        for (auto& thread : m_mainThreadPool)
         {
             if (thread.joinable())
                 thread.join();
         }
     }
 
-    static void Scan();
+    /**
+     * Scans sourceUnitVector, sinkUnitVector, intermediateUnitUnitVector
+     * and pushes units ready to be executed in the mainTaskQueue
+     */
+    static void ScanUnitTasks();
+
+    /**
+     * Scans CopyUnitVector and pushes units ready to be executed in the
+     * copyTaskQueue
+     */
+    static void ScanCopyTasks();
 
  private:
-    static std::vector<std::thread> m_threadPool;
+    /**
+     * Routine for thread which executes mainUnits
+     */
+    static void m_runMain();
+    /**
+     * Routine for thread which executes copy operation
+     */
+    static void m_runCopy();
+    /// Stores active threads assigned for executing mainTasks
+    static std::vector<std::thread> m_mainThreadPool;
+    /// Stores active threads assigned for executing copyTasks
+    static std::vector<std::thread> m_copyThreadPool;
 
-    static SpinLockQueue<TaskWrapper> m_taskQueue;
+    static SpinLockQueue<TaskWrapper> m_mainTaskQueue;
 
-    /// True if there are any possible nodes that hasn't been queued into taskQueue
-    /// False if not
+    static SpinLockQueue<TaskWrapper> m_copyTaskQueue;
+
+    /// True if there are any possible nodes that hasn't been queued into
+    /// taskQueue False if not
     static std::atomic<bool> m_dirty;
     static bool m_active;
 
@@ -138,6 +155,10 @@ class ThreadManager
     static std::vector<SinkUnit> m_sinkUnitVector;
     static std::vector<IntermediateUnit> m_intermediateUnitVector;
     static std::vector<CopyUnit> m_copyUnitVector;
+
+    /// number of epochs to run the graph
+    /// If stateNum reaches this, that unit will be no longer computed
+    static const size_t m_maxEpochs;
 };
 
 }  // namespace CubbyDNN
