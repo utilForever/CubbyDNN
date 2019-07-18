@@ -9,19 +9,22 @@
 
 namespace CubbyDNN
 {
-Tensor::Tensor(std::unique_ptr<void> Data, TensorInfo info)
-    : DataPtr(std::move(Data)), Info(std ::move(info))
+Tensor::Tensor(void* Data, TensorInfo info)
+    : DataPtr(Data), Info(std ::move(info))
 {
+    Data = nullptr;
 }
 
 Tensor::Tensor(Tensor&& tensor) noexcept
-    : DataPtr(std::move(tensor.DataPtr)), Info(std::move(tensor.Info))
+    : DataPtr(tensor.DataPtr), Info(std::move(tensor.Info))
 {
+    tensor.DataPtr = nullptr;
 }
 
 Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 {
-    DataPtr = std::move(tensor.DataPtr);
+    DataPtr = tensor.DataPtr;
+    tensor.DataPtr = nullptr;
     Info = tensor.Info;
     return *this;
 }
@@ -29,8 +32,17 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 Tensor AllocateTensor(const TensorInfo& info)
 {
     auto byteSize = info.ByteSize();
-    auto dataPtr = std::make_unique<void>(byteSize);
-    return Tensor(std::move(dataPtr), info);
+    void* dataPtr = (void*)malloc(byteSize);
+    return Tensor(dataPtr, info);
+}
+
+void CopyTensor(Tensor& source, Tensor& destination)
+{
+    assert(source.Info == destination.Info);
+    assert(source.Info.ByteSize() == destination.Info.ByteSize());
+    size_t ByteSize = source.Info.ByteSize();
+
+    std::memcpy(destination.DataPtr, source.DataPtr, ByteSize);
 }
 
 }  // namespace CubbyDNN

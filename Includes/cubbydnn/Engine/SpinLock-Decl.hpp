@@ -11,7 +11,7 @@
 #include <deque>
 #include <thread>
 
-namespace Captain {
+namespace CubbyDNN {
 
 /**
  * Shared spinlock class

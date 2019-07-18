@@ -6,7 +6,7 @@
 
 #include <cubbydnn/Engine/SpinLock-Decl.hpp>
 
-namespace Captain {
+namespace CubbyDNN {
 
 template <typename T> void SpinLock<T>::ExclusiveLock() {
 
