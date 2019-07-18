@@ -141,6 +141,10 @@ class SharedPtr
     {
         return m_sharedObjectPtr->MaxRefCount;
     }
+
+    bool IsValid(){
+        return m_sharedObjectPtr != nullptr;
+    }
 };
 
 }  // namespace CubbyDNN
