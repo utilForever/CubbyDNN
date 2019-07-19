@@ -27,11 +27,12 @@ void CopyUnit::Compute()
 
 bool CopyUnit::IsReady()
 {
-    if(ComputableUnit::m_unitState.IsBusy)
+    if (ComputableUnit::m_unitState.IsBusy)
         return false;
 
     auto& stateNum = GetStateNum();
-    return (m_previousPtr->GetStateNum() == (stateNum + 1) &&
+    return (ComputableUnit::m_previousPtrVector.at(0)->GetStateNum() ==
+                (stateNum + 1) &&
             m_nextPtr->GetStateNum() == stateNum);
 }
 
@@ -41,21 +42,13 @@ SourceUnit::SourceUnit(TensorInfo outputTensorInfo)
 {
 }
 
-void SourceUnit::SetNextPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
-{
-    m_nextPtr = std::move(computableUnitPtr);
-}
+
 
 bool SourceUnit::IsReady()
 {
-    if(ComputableUnit::m_unitState.IsBusy)
+    if (ComputableUnit::m_unitState.IsBusy)
         return false;
-    return (m_nextPtr->GetStateNum()==GetStateNum());
-}
-
-void SinkUnit::AddPreviousPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
-{
-    m_previousPtrVector.emplace_back(std::move(computableUnitPtr));
+    return (m_nextPtr->GetStateNum() == GetStateNum());
 }
 
 SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
@@ -70,7 +63,7 @@ SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
 
 bool SinkUnit::IsReady()
 {
-    if(ComputableUnit::m_unitState.IsBusy)
+    if (ComputableUnit::m_unitState.IsBusy)
         return false;
     for (auto& previousPtr : m_previousPtrVector)
     {
@@ -94,19 +87,8 @@ IntermediateUnit::IntermediateUnit(
     }
 }
 
-void IntermediateUnit::SetNextPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
-{
-    m_nextPtr = std::move(computableUnitPtr);
-}
-
-void IntermediateUnit::AddPreviousPtr(SharedPtr<CopyUnit>&& computableUnitPtr)
-{
-    m_previousPtrVector.emplace_back(std::move(computableUnitPtr));
-}
-
 bool IntermediateUnit::IsReady()
 {
-
     if (m_nextPtr->GetStateNum() == GetStateNum())
 
         for (auto& previousPtr : m_previousPtrVector)

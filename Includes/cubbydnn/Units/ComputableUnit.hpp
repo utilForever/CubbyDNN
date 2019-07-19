@@ -54,7 +54,8 @@ class ComputableUnit
      * Called before computation for acquiring the unit in order to compute
      * Marks IsBusy as True
      */
-    void AcquireUnit(){
+    void AcquireUnit()
+    {
         setBusy();
     }
 
@@ -62,7 +63,8 @@ class ComputableUnit
      * Called after computation for releasing the unit after computation
      * Increments the stateNum and marks IsBusy as false
      */
-    void ReleaseUnit(){
+    void ReleaseUnit()
+    {
         incrementStateNum();
         setReleased();
     }
@@ -122,10 +124,10 @@ class ComputableUnit
         bool isPreviousReady = true, isNextReady = true;
 
         for (auto& previousUnitPtr : m_previousPtrVector)
-            if (!previousUnitPtr.IsValid() || !previousUnitPtr->IsReady())
+            if (!previousUnitPtr || !previousUnitPtr->IsReady())
                 isPreviousReady = false;
 
-        if (!m_nextPtr.IsValid() || !m_nextPtr->IsReady())
+        if (!m_nextPtr || !m_nextPtr->IsReady())
             isNextReady = false;
 
         return std::pair(isPreviousReady, isNextReady);
@@ -134,9 +136,9 @@ class ComputableUnit
     /// UnitState object indicates execution state of ComputableUnit
     UnitState m_unitState;
 
-    SharedPtr<ComputableUnit> m_nextPtr;
+    ComputableUnit* m_nextPtr;
 
-    std::vector<SharedPtr<ComputableUnit>> m_previousPtrVector;
+    std::vector<ComputableUnit*> m_previousPtrVector;
 };
 
 /**
@@ -149,24 +151,22 @@ class CopyUnit : public ComputableUnit
  public:
     CopyUnit() = default;
 
-    void SetPreviousPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
+    void SetPreviousPtr(ComputableUnit* computableUnitPtr)
     {
-        m_previousPtr = std::move(computableUnitPtr);
+        if (ComputableUnit::m_previousPtrVector.empty())
+            ComputableUnit::m_previousPtrVector.emplace_back(computableUnitPtr);
+        else
+            ComputableUnit::m_previousPtrVector.at(0) = computableUnitPtr;
     }
 
-    void SetNextPtr(SharedPtr<ComputableUnit>&& computableUnitPtr)
+    void SetNextPtr(ComputableUnit* computableUnitPtr)
     {
-        m_nextPtr = std::move(computableUnitPtr);
+        ComputableUnit::m_nextPtr = computableUnitPtr;
     }
 
     void Compute() override;
 
     bool IsReady() override;
-
- private:
-    /// Previous ptr
-    std::vector<SharedPtr<ComputableUnit>> m_previousPtr;
-    SharedPtr<ComputableUnit> m_nextPtr;
 };
 
 /**
@@ -188,7 +188,10 @@ class SourceUnit : public ComputableUnit
      * Set or add next ComputableUnit ptr
      * @param computableUnitPtr : computablePtr to set
      */
-    void SetNextPtr(SharedPtr<CopyUnit>&& computableUnitPtr);
+    void SetNextPtr(CopyUnit* computableUnitPtr)
+    {
+        ComputableUnit::m_nextPtr = computableUnitPtr;
+    }
 
     /**
      * Checks if source is ready
@@ -197,7 +200,6 @@ class SourceUnit : public ComputableUnit
     bool IsReady() final;
 
  protected:
-    SharedPtr<CopyUnit> m_nextPtr;
     TensorInfo m_outputTensorInfo;
 
     Tensor m_outputTensor;
@@ -220,7 +222,10 @@ class SinkUnit : public ComputableUnit
      * Add previous computable Unit to this cell
      * @param computableUnitPtr
      */
-    void AddPreviousPtr(SharedPtr<CopyUnit>&& computableUnitPtr);
+    void AddPreviousPtr(CopyUnit* computableUnitPtr)
+    {
+        ComputableUnit::m_previousPtrVector.emplace_back(computableUnitPtr);
+    }
 
     /**
      * Brings back if executableUnit is ready to be executed
@@ -229,8 +234,6 @@ class SinkUnit : public ComputableUnit
     bool IsReady() final;
 
  protected:
-    std::vector<SharedPtr<CopyUnit>> m_previousPtrVector;
-
     std::vector<TensorInfo> m_inputTensorInfoVector;
     std::vector<Tensor> m_inputTensorVector;
 };
@@ -246,16 +249,19 @@ class IntermediateUnit : public ComputableUnit
     IntermediateUnit(std::vector<TensorInfo> inputTensorInfoVector,
                      TensorInfo outputTensorInfo);
 
-    void SetNextPtr(SharedPtr<CopyUnit>&& computableUnitPtr);
+    void SetNextPtr(CopyUnit* computableUnitPtr)
+    {
+        ComputableUnit::m_nextPtr = computableUnitPtr;
+    }
 
-    void AddPreviousPtr(SharedPtr<CopyUnit>&& computableUnitPtr);
+    void AddPreviousPtr(CopyUnit* computableUnitPtr)
+    {
+        ComputableUnit::m_previousPtrVector.emplace_back(computableUnitPtr);
+    }
 
     bool IsReady() final;
 
  protected:
-    std::vector<SharedPtr<CopyUnit>> m_previousPtrVector;
-    SharedPtr<CopyUnit> m_nextPtr;
-
     std::vector<TensorInfo> m_inputTensorInfoVector;
     TensorInfo m_outputTensorInfo;
 
