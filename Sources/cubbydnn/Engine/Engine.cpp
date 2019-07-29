@@ -24,15 +24,75 @@ void Engine::InitializeThreadPool(size_t mainThreadNum, size_t copyThreadNum)
 
     std::cout << "Creating " << mainThreadNum << "main threads" << std::endl;
     m_mainThreadPool.reserve(mainThreadNum);
-    for (unsigned count = 0; count < mainThreadNum; ++count)
+    for (size_t count = 0; count < mainThreadNum; ++count)
     {
         m_mainThreadPool.emplace_back(std::thread(m_runMain));
     }
 
-    for (unsigned count = 0; count < copyThreadNum; count++)
+    for (size_t count = 0; count < copyThreadNum; count++)
     {
         m_copyThreadPool.emplace_back(std::thread(m_runMain));
     }
+}
+
+size_t Engine::AddSourceUnit(SourceUnit&& sourceUnit)
+{
+    auto id = m_sourceUnitVector.size();
+    m_sourceUnitVector.emplace_back(std::move(sourceUnit));
+    return id;
+}
+
+size_t Engine::AddIntermediateUnit(IntermediateUnit&& intermediateUnit)
+{
+    auto id = m_intermediateUnitVector.size();
+    m_intermediateUnitVector.emplace_back(std::move(intermediateUnit));
+    return id;
+}
+
+size_t Engine::AddSinkUnit(SinkUnit&& sinkUnit)
+{
+    auto id = m_sinkUnitVector.size();
+    m_sinkUnitVector.emplace_back(std::move(sinkUnit));
+    return id;
+}
+
+void Engine::ConnectSourceToIntermediate(size_t originID, size_t destID,
+                                         size_t destInputIndex)
+{
+    assert(originID < m_sourceUnitVector.size());
+    assert(destID < m_intermediateUnitVector.size());
+    auto& sourceUnit = m_sourceUnitVector.at(originID);
+    auto& intermediateUnit = m_intermediateUnitVector.at(destID);
+    auto& copyUnit = m_copyUnitVector.emplace_back(CopyUnit());
+    copyUnit.SetOriginPtr(&sourceUnit);
+    copyUnit.SetDestinationPtr(&intermediateUnit);
+    sourceUnit.AddOutputPtr(&copyUnit);
+    intermediateUnit.AddInputPtr(&copyUnit, destInputIndex);
+}
+
+void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID, size_t destInputIndex)
+{
+    assert(originID < m_intermediateUnitVector.size());
+    assert(destID < m_intermediateUnitVector.size());
+    auto& originIntermediateUnit = m_intermediateUnitVector.at(originID);
+    auto& destIntermediateUnit = m_intermediateUnitVector.at(destID);
+    auto& copyUnit = m_copyUnitVector.emplace_back(CopyUnit());
+    copyUnit.SetOriginPtr(&originIntermediateUnit);
+    copyUnit.SetDestinationPtr(&destIntermediateUnit);
+    originIntermediateUnit.AddOutputPtr(&copyUnit);
+    destIntermediateUnit.AddInputPtr(&copyUnit, destInputIndex);
+}
+
+void Engine::ConnectIntermediateToSink(size_t originID, size_t destID, size_t destInputIndex){
+    assert(originID < m_intermediateUnitVector.size());
+    assert(destID < m_sinkUnitVector.size());
+    auto& intermediateUnit = m_intermediateUnitVector.at(originID);
+    auto& sinkUnit = m_sinkUnitVector.at(destID);
+    auto& copyUnit = m_copyUnitVector.emplace_back(CopyUnit());
+    copyUnit.SetOriginPtr(&intermediateUnit);
+    copyUnit.SetDestinationPtr(&sinkUnit);
+    intermediateUnit.AddOutputPtr(&copyUnit);
+    sinkUnit.AddInputPtr(&copyUnit, destInputIndex);
 }
 
 // TODO : turn this into spinlock based pending function

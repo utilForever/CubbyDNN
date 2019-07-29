@@ -25,6 +25,7 @@ enum class TaskType
     ComputeIntermediate,
     Copy,
     Join,
+    None,
 };
 
 /**
@@ -33,6 +34,9 @@ enum class TaskType
  */
 struct TaskWrapper
 {
+    TaskWrapper() : Type(TaskType::None)
+    {
+    }
     /**
      * Constructor
      * @param type : type of this task
@@ -49,6 +53,11 @@ struct TaskWrapper
     {
     }
 
+    /**
+     * Automatically builds function that will execute main operation and update
+     * its state
+     * @return
+     */
     std::function<void()> GetTask()
     {
         auto& mainFunc = m_compute;
@@ -127,6 +136,59 @@ class Engine
      * copyTaskQueue
      */
     static void ScanCopyTasks();
+
+    /**
+     * Adds sourceUnit to sourceUnitVector and assigns ID for the unit
+     * @param sourceUnit : sourceUnit to add
+     * @return : assigned id of the unit
+     */
+    static size_t AddSourceUnit(SourceUnit&& sourceUnit);
+
+    /**
+     * Adds intermediateUnit to intermediateUnitVector and assigns ID for the
+     * unit
+     * @param intermediateUnit : intermediateUnit to add
+     * @return : assigned id of the unit
+     */
+    static size_t AddIntermediateUnit(IntermediateUnit&& intermediateUnit);
+
+    /**
+     * Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
+     * @param sinkUnit : sinkUnit to add
+     * @return : assigned id of the unit
+     */
+    static size_t AddSinkUnit(SinkUnit&& sinkUnit);
+
+    /**
+     * Connects between sourceUnit and intermediateUnit by assigning copyUnit
+     * between them
+     * @param originID : sourceUnit ID to connect
+     * @param destID : intermediateUnit ID of destination
+     * @param destInputIndex : input index of this connection to destination
+     */
+    static void ConnectSourceToIntermediate(size_t originID, size_t destID,
+                                            size_t destInputIndex);
+
+    /**
+     * Connects between intermediateUnit and intermediateUnit by assigning
+     * copyUnit between them
+     * @param originID : unique ID of origin intermediateUnit
+     * @param destID : unique ID of destination intermediateUnit
+     * @param destInputIndex : input index of this connection to destination
+     */
+    static void ConnectIntermediateToIntermediate(size_t originID,
+                                                  size_t destID,
+                                                  size_t destInputIndex);
+
+    /**
+     * Connects between intermediateUnit and sinkUnit by assigning
+     * copyUnit between them
+     * @param originID : unique ID of origin intermediateUnit
+     * @param destID : unique ID of destination sinkUnit
+     * @param destInputIndex : input index of this connection to destination
+     */
+    static void ConnectIntermediateToSink(size_t originID, size_t destID,
+                                          size_t destInputIndex);
 
  private:
     /**
