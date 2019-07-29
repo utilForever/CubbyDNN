@@ -48,7 +48,9 @@ class ComputableUnit
      * Default constructor
      * Initializes unitInfo with pending state
      */
-    ComputableUnit();
+    ComputableUnit(size_t inputSize, size_t outputSize);
+
+    ComputableUnit(ComputableUnit&& computableUnit);
 
     /**
      * Called before computation for acquiring the unit in order to compute
@@ -88,6 +90,7 @@ class ComputableUnit
      */
     std::atomic<std::size_t>& GetStateNum();
 
+
  protected:
     /**
      * Atomically increments state number
@@ -115,30 +118,12 @@ class ComputableUnit
                                       std::memory_order_release);
     }
 
-    /**
-     * Checks if units surrounding the current unit is ready
-     * @return
-     */
-    std::pair<bool, bool> checkForSurroundingUnits()
-    {
-        bool isPreviousReady = true, isNextReady = true;
-
-        for (auto& previousUnitPtr : m_previousPtrVector)
-            if (!previousUnitPtr || !previousUnitPtr->IsReady())
-                isPreviousReady = false;
-
-        if (!m_nextPtr || !m_nextPtr->IsReady())
-            isNextReady = false;
-
-        return std::pair(isPreviousReady, isNextReady);
-    }
-
     /// UnitState object indicates execution state of ComputableUnit
     UnitState m_unitState;
 
-    ComputableUnit* m_nextPtr;
+    std::vector<ComputableUnit*> m_inputPtrVector;
 
-    std::vector<ComputableUnit*> m_previousPtrVector;
+    std::vector<ComputableUnit*> m_outputPtrVector;
 };
 
 /**
@@ -149,21 +134,43 @@ class ComputableUnit
 class CopyUnit : public ComputableUnit
 {
  public:
-    CopyUnit() = default;
+    CopyUnit();
 
-    void SetPreviousPtr(ComputableUnit* computableUnitPtr)
+    CopyUnit(CopyUnit&& copyUnit) noexcept;
+
+    /**
+     * Sets ComputableUnitPtr of previous unit to copy from
+     * If no computableUnitPtr has been assigned, unit is added. If it has
+     * previously assigned computableUnitPtr, computableUnitPtr is replaced by
+     * given parameter
+     * @param computableUnitPtr : computableUnitPtr to add or replace
+     */
+    void SetOriginPtr(ComputableUnit* computableUnitPtr)
     {
-        if (ComputableUnit::m_previousPtrVector.empty())
-            ComputableUnit::m_previousPtrVector.emplace_back(computableUnitPtr);
+        if (ComputableUnit::m_inputPtrVector.empty())
+            ComputableUnit::m_inputPtrVector.emplace_back(computableUnitPtr);
         else
-            ComputableUnit::m_previousPtrVector.at(0) = computableUnitPtr;
+            ComputableUnit::m_inputPtrVector.at(0) = computableUnitPtr;
     }
 
-    void SetNextPtr(ComputableUnit* computableUnitPtr)
+    /**
+     * Sets ComputableUnitPtr of previous unit to copy from
+     * If no computableUnitPtr has been assigned, unit is added. If it has
+     * previously assigned computableUnitPtr, computableUnitPtr is replaced by
+     * given parameter
+     * @param computableUnitPtr : computableUnitPtr to add or replace
+     */
+    void SetDestinationPtr(ComputableUnit* computableUnitPtr)
     {
-        ComputableUnit::m_nextPtr = computableUnitPtr;
+        if (ComputableUnit::m_outputPtrVector.empty())
+            ComputableUnit::m_outputPtrVector.emplace_back(computableUnitPtr);
+        else
+            ComputableUnit::m_outputPtrVector.at(0) = computableUnitPtr;
     }
 
+    /**
+     * Computation
+     */
     void Compute() override;
 
     bool IsReady() override;
@@ -179,30 +186,33 @@ class SourceUnit : public ComputableUnit
  public:
     /**
      * Constructor
-     * @param outputTensorInfo : TensorInfo of the output tensor(Which is always
-     * less than 1)
+     * @param outputTensorInfoVector : TensorInfo of the output tensor(Which is
+     * always less than 1)
      */
-    explicit SourceUnit(TensorInfo outputTensorInfo);
+    explicit SourceUnit(std::vector<TensorInfo> outputTensorInfoVector);
+
+    SourceUnit(SourceUnit&& sourceUnit) noexcept;
 
     /**
      * Set or add next ComputableUnit ptr
      * @param computableUnitPtr : computablePtr to set
      */
-    void SetNextPtr(CopyUnit* computableUnitPtr)
+    void AddOutputPtr(CopyUnit* computableUnitPtr)
     {
-        ComputableUnit::m_nextPtr = computableUnitPtr;
+        ComputableUnit::m_outputPtrVector.emplace_back(computableUnitPtr);
     }
 
     /**
      * Checks if source is ready
-     * @return
+     * @return : true if ready to be computed false otherwise
      */
     bool IsReady() final;
 
- protected:
-    TensorInfo m_outputTensorInfo;
+    void Compute() override{}
 
-    Tensor m_outputTensor;
+ protected:
+    std::vector<TensorInfo> m_outputTensorInfoVector;
+    std::vector<Tensor> m_outputTensorVector;
 };
 
 /**
@@ -216,15 +226,18 @@ class SinkUnit : public ComputableUnit
      * Constructor
      * @param inputTensorInfoVector : vector of tensorInfo to accept
      */
-    explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
+    explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector,
+                      size_t inputSize);
+
+    SinkUnit(SinkUnit&& sinkUnit) noexcept;
 
     /**
      * Add previous computable Unit to this cell
-     * @param computableUnitPtr
+     * @param computableUnitPtr : computableUnitPtr to add
      */
-    void AddPreviousPtr(CopyUnit* computableUnitPtr)
+    void AddInputPtr(CopyUnit* computableUnitPtr, size_t index)
     {
-        ComputableUnit::m_previousPtrVector.emplace_back(computableUnitPtr);
+        ComputableUnit::m_inputPtrVector.at(index) = computableUnitPtr;
     }
 
     /**
@@ -232,6 +245,8 @@ class SinkUnit : public ComputableUnit
      * @return : whether corresponding unit is ready to be executed
      */
     bool IsReady() final;
+
+    void Compute() override{}
 
  protected:
     std::vector<TensorInfo> m_inputTensorInfoVector;
@@ -244,29 +259,44 @@ class IntermediateUnit : public ComputableUnit
     /**
      * Constructor
      * @param inputTensorInfoVector : vector of TensorInfo
-     * @param outputTensorInfo : TensorInfo of the output tensor
+     * @param outputTensorInfoVector : TensorInfo of the output tensor
      */
     IntermediateUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                     TensorInfo outputTensorInfo);
+                     std::vector<TensorInfo> outputTensorInfoVector);
 
-    void SetNextPtr(CopyUnit* computableUnitPtr)
+    IntermediateUnit(IntermediateUnit&& intermediateUnit) noexcept;
+
+    /**
+     * Add next computable Unit to this cell
+     * @param computableUnitPtr : computableUnitPtr to add
+     */
+    void AddOutputPtr(CopyUnit* computableUnitPtr)
     {
-        ComputableUnit::m_nextPtr = computableUnitPtr;
+        ComputableUnit::m_outputPtrVector.emplace_back(computableUnitPtr);
     }
 
-    void AddPreviousPtr(CopyUnit* computableUnitPtr)
+    /**
+     * Add previous computable Unit to this cell
+     * @param computableUnitPtr : computableUnitPtr to add
+     */
+    void AddInputPtr(CopyUnit* computableUnitPtr, size_t index)
     {
-        ComputableUnit::m_previousPtrVector.emplace_back(computableUnitPtr);
+        ComputableUnit::m_outputPtrVector.at(index) = computableUnitPtr;
     }
 
+    /**
+     * @return
+     */
     bool IsReady() final;
+
+    void Compute() override {}
 
  protected:
     std::vector<TensorInfo> m_inputTensorInfoVector;
-    TensorInfo m_outputTensorInfo;
+    std::vector<TensorInfo> m_outputTensorInfoVector;
 
-    Tensor m_outputTensor;
     std::vector<Tensor> m_inputTensorVector;
+    std::vector<Tensor> m_outputTensorVector;
 };
 
 }  // namespace CubbyDNN

@@ -12,13 +12,29 @@ UnitState::UnitState() : StateNum(0), IsBusy(false)
 {
 }
 
-ComputableUnit::ComputableUnit() : m_unitState()
+ComputableUnit::ComputableUnit(size_t inputSize, size_t outputSize)
+    : m_inputPtrVector(inputSize), m_outputPtrVector(outputSize)
+{
+}
+
+ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit)
+    : m_inputPtrVector(std::move(computableUnit.m_inputPtrVector)),
+      m_outputPtrVector(std::move(computableUnit.m_outputPtrVector))
 {
 }
 
 std::atomic<std::size_t>& ComputableUnit::GetStateNum()
 {
     return m_unitState.StateNum;
+}
+
+CopyUnit::CopyUnit() : ComputableUnit(1, 1)
+{
+}
+
+CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
+    : ComputableUnit(std::move(copyUnit))
+{
 }
 
 void CopyUnit::Compute()
@@ -31,41 +47,70 @@ bool CopyUnit::IsReady()
         return false;
 
     auto& stateNum = GetStateNum();
-    return (ComputableUnit::m_previousPtrVector.at(0)->GetStateNum() ==
+    return (ComputableUnit::m_inputPtrVector.at(0)->GetStateNum() ==
                 (stateNum + 1) &&
-            m_nextPtr->GetStateNum() == stateNum);
+            ComputableUnit::m_outputPtrVector.at(0)->GetStateNum() == stateNum);
 }
 
-SourceUnit::SourceUnit(TensorInfo outputTensorInfo)
-    : m_outputTensorInfo(std::move(outputTensorInfo)),
-      m_outputTensor(AllocateTensor(outputTensorInfo))
+SourceUnit::SourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
+    : ComputableUnit(1, outputTensorInfoVector.size()),
+      m_outputTensorInfoVector(std::move(outputTensorInfoVector))
+{
+    m_outputTensorVector.reserve(outputTensorInfoVector.size());
+    for (const auto& tensorInfo : m_outputTensorInfoVector)
+    {
+        m_outputTensorVector.emplace_back(AllocateTensor(tensorInfo));
+    }
+}
+
+SourceUnit::SourceUnit(SourceUnit&& sourceUnit) noexcept
+    : ComputableUnit(std::move(sourceUnit)),
+      m_outputTensorInfoVector(std::move(sourceUnit.m_outputTensorInfoVector)),
+      m_outputTensorVector(std::move(sourceUnit.m_outputTensorVector))
 {
 }
-
-
 
 bool SourceUnit::IsReady()
 {
     if (ComputableUnit::m_unitState.IsBusy)
         return false;
-    return (m_nextPtr->GetStateNum() == GetStateNum());
+
+    auto isReady = true;
+    for (const auto& nextPtr : m_outputPtrVector)
+    {
+        if (nextPtr->GetStateNum() != GetStateNum())
+        {
+            isReady = false;
+            break;
+        }
+    }
+    return isReady;
 }
 
-SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
-    : m_inputTensorInfoVector(std::move(inputTensorInfoVector))
+SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector,
+                   size_t inputSize)
+    : ComputableUnit(inputSize, 1),
+      m_inputTensorInfoVector(std::move(inputTensorInfoVector))
 {
     m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
-    for (auto& tensorInfo : m_inputTensorInfoVector)
+    for (const auto& tensorInfo : m_inputTensorInfoVector)
     {
         m_inputTensorVector.emplace_back(AllocateTensor(tensorInfo));
     }
+}
+
+SinkUnit::SinkUnit(SinkUnit&& sinkUnit) noexcept
+    : ComputableUnit(std::move(sinkUnit)),
+      m_inputTensorInfoVector(std::move(sinkUnit.m_inputTensorInfoVector)),
+      m_inputTensorVector(std::move(sinkUnit.m_inputTensorVector))
+{
 }
 
 bool SinkUnit::IsReady()
 {
     if (ComputableUnit::m_unitState.IsBusy)
         return false;
-    for (auto& previousPtr : m_previousPtrVector)
+    for (const auto& previousPtr : m_inputPtrVector)
     {
         if (previousPtr->GetStateNum() != GetStateNum() + 1)
             return false;
@@ -74,28 +119,54 @@ bool SinkUnit::IsReady()
 }
 
 IntermediateUnit::IntermediateUnit(
-    std::vector<TensorInfo> inputTensorInfoVector, TensorInfo outputTensorInfo)
-    : m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
-      m_outputTensorInfo(std::move(outputTensorInfo)),
-      m_outputTensor(AllocateTensor(outputTensorInfo))
+    std::vector<TensorInfo> inputTensorInfoVector,
+    std::vector<TensorInfo> outputTensorInfoVector)
+    : ComputableUnit(inputTensorInfoVector.size(),
+                     outputTensorInfoVector.size()),
+      m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
+      m_outputTensorInfoVector(std::move(outputTensorInfoVector))
 {
     m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
-
     for (auto& inputTensorInfo : m_inputTensorInfoVector)
     {
         m_inputTensorVector.emplace_back(AllocateTensor(inputTensorInfo));
     }
+
+    m_outputTensorVector.reserve(m_outputTensorInfoVector.size());
+    for (auto& outputTensorInfo : m_outputTensorInfoVector)
+    {
+        m_outputTensorVector.emplace_back(AllocateTensor(outputTensorInfo));
+    }
+}
+
+IntermediateUnit::IntermediateUnit(IntermediateUnit&& intermediateUnit) noexcept
+    : ComputableUnit(std::move(intermediateUnit)),
+      m_inputTensorInfoVector(
+          std::move(intermediateUnit.m_inputTensorInfoVector)),
+      m_outputTensorInfoVector(
+          std::move(intermediateUnit.m_outputTensorInfoVector)),
+      m_inputTensorVector(std::move(intermediateUnit.m_inputTensorVector)),
+      m_outputTensorVector(std::move(intermediateUnit.m_outputTensorVector))
+{
 }
 
 bool IntermediateUnit::IsReady()
 {
-    if (m_nextPtr->GetStateNum() == GetStateNum())
+    if (ComputableUnit::m_unitState.IsBusy)
+        return false;
 
-        for (auto& previousPtr : m_previousPtrVector)
-        {
-            if (previousPtr->GetStateNum() != GetStateNum() + 1)
-                return false;
-        }
+    for (const auto& tensor : m_inputPtrVector)
+    {
+        if (tensor->GetStateNum() != this->GetStateNum() + 1)
+            return false;
+    }
+
+    for (const auto& tensor : m_outputPtrVector)
+    {
+        if (tensor->GetStateNum() != this->GetStateNum())
+            return false;
+    }
+
     return true;
 }
 
