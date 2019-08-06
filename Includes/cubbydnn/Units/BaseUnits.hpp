@@ -12,12 +12,10 @@
 
 namespace CubbyDNN
 {
-class GenerateRandom : public SourceUnit
+class GenerateRandom
 {
  public:
     explicit GenerateRandom(TensorInfo tensorInfo);
-
-    void Compute() override;
 
  private:
     TensorInfo m_tensorInfo;

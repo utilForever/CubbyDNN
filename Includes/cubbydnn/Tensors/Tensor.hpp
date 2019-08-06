@@ -35,10 +35,7 @@ struct Tensor
     TensorInfo Info;
 };
 
-
-void CopyTensor(Tensor* source, Tensor* destination);
-
-
+void CopyTensor(Tensor& source, Tensor& destination);
 
 /**
  * Builds empty Tensor so data can be put potentially

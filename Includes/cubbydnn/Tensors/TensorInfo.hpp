@@ -8,6 +8,7 @@
 #define CUBBYDNN_TENSOR_SHAPE_HPP
 
 #include <functional>
+#include <map>
 #include <vector>
 
 namespace CubbyDNN
@@ -16,7 +17,7 @@ enum class NumberSystem
 {
     Float16,
     Float32,
-    Double,
+    Float64,
     Int8,
     Int16,
     Int32,
@@ -32,36 +33,37 @@ enum class NumberSystem
 class TensorInfo
 {
  public:
+    static std::map<NumberSystem, size_t> UnitByteSizeMap;
     /// Constructs TensorShape with given parameters
-    TensorInfo(std::vector<size_t> shape, size_t unitByteSize,
-               NumberSystem numberSystem, bool isMutable = true);
+    TensorInfo(std::vector<size_t> shape,
+               NumberSystem numberSystem = NumberSystem::Float32,
+               bool isMutable = true);
 
     bool operator==(const TensorInfo& shape) const;
     bool operator!=(const TensorInfo& shape) const;
 
-    /**
-     * Size (Number of elements) of The TensorData
-     * @return
-     */
-    size_t Size() const noexcept;
+    //!
+    //! Size (Number of elements) of The TensorData
+    //! @return
+    [[nodiscard]] size_t Size() const noexcept;
 
     /**
      * Brings back total byte size of the tensor
      * @return : total byte size of the tensor
      */
-    size_t ByteSize() const noexcept;
+    [[nodiscard]] size_t ByteSize() const noexcept;
 
     /**
      * Brings back whether tensor is empty or not
      * @return : true if empty otherwise false
      */
-    bool IsEmpty() const noexcept;
+    [[nodiscard]] bool IsEmpty() const noexcept;
 
     /**
      * Brings back number system of this tensor
      * @return
      */
-    NumberSystem GetNumberSystem() const noexcept
+    [[nodiscard]] NumberSystem GetNumberSystem() const noexcept
     {
         return m_numberSystem;
     }
@@ -70,7 +72,7 @@ class TensorInfo
      * Brings back shape of this tensor
      * @return : shape of this tensor in vector
      */
-    const std::vector<size_t>& GetShape() const noexcept;
+    [[nodiscard]] const std::vector<size_t>& GetShape() const noexcept;
 
  private:
     std::function<size_t(const std::vector<size_t>&)> m_getTotalByteSize;

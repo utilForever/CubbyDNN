@@ -10,8 +10,4 @@ GenerateRandom::GenerateRandom(TensorInfo tensorInfo)
     : m_tensorInfo(std::move(tensorInfo))
 {
 }
-
-void GenerateRandom::Compute()
-{
-}
 }  // namespace CubbyDNN

@@ -1,8 +1,8 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+//! Copyright (c) 2019 Chris Ohk, Justin Kim
 
-// We are making my contributions/submissions to this project solely in our
-// personal capacity and are not conveying any rights to any intellectual
-// property of any third parties.
+//! We are making my contributions/submissions to this project solely in our
+//! personal capacity and are not conveying any rights to any intellectual
+//! property of any third parties.
 
 #ifndef CUBBYDNN_ENGINE_HPP
 #define CUBBYDNN_ENGINE_HPP
@@ -45,6 +45,7 @@ struct TaskWrapper
      * @param checkAndInsert : function object that checks previous and next
      * unit
      */
+    // TODO : Remove updateState if it can be unified to one function
     TaskWrapper(TaskType type, std::function<void(void)> compute,
                 std::function<void(void)> updateState)
         : Type(type),
@@ -85,14 +86,6 @@ class Engine
 {
  protected:
     /**
-     * Initializes thread pool
-     * @param mainThreadNum : number of threads to spawn (maxed out to hardware
-     * concurrency)
-     */
-    static void InitializeThreadPool(size_t mainThreadNum,
-                                     size_t copyThreadNum);
-
-    /**
      * Enqueues tasks into task queue
      * @param task
      */
@@ -114,18 +107,6 @@ class Engine
     }
 
     /**
-     * Joins threads in the thread queue and terminates the execution
-     */
-    static void JoinThreads()
-    {
-        for (auto& thread : m_mainThreadPool)
-        {
-            if (thread.joinable())
-                thread.join();
-        }
-    }
-
-    /**
      * Scans sourceUnitVector, sinkUnitVector, intermediateUnitUnitVector
      * and pushes units ready to be executed in the mainTaskQueue
      */
@@ -136,6 +117,20 @@ class Engine
      * copyTaskQueue
      */
     static void ScanCopyTasks();
+
+ public:
+    /**
+     * Initializes thread pool
+     * @param mainThreadNum : number of threads to spawn (maxed out to hardware
+     * concurrency)
+     */
+    static void StartExecution(size_t mainThreadNum, size_t copyThreadNum,
+                               size_t epochs);
+
+    /**
+     * Joins threads in the thread queue and terminates the execution
+     */
+    static void JoinThreads();
 
     /**
      * Adds sourceUnit to sourceUnitVector and assigns ID for the unit
@@ -150,7 +145,7 @@ class Engine
      * @param intermediateUnit : intermediateUnit to add
      * @return : assigned id of the unit
      */
-    static size_t AddIntermediateUnit(IntermediateUnit&& intermediateUnit);
+    static size_t AddIntermediateUnit(HiddenUnit&& intermediateUnit);
 
     /**
      * Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
@@ -167,7 +162,7 @@ class Engine
      * @param destInputIndex : input index of this connection to destination
      */
     static void ConnectSourceToIntermediate(size_t originID, size_t destID,
-                                            size_t destInputIndex);
+                                            size_t destInputIndex = 0);
 
     /**
      * Connects between intermediateUnit and intermediateUnit by assigning
@@ -178,7 +173,7 @@ class Engine
      */
     static void ConnectIntermediateToIntermediate(size_t originID,
                                                   size_t destID,
-                                                  size_t destInputIndex);
+                                                  size_t destInputIndex = 0);
 
     /**
      * Connects between intermediateUnit and sinkUnit by assigning
@@ -188,7 +183,7 @@ class Engine
      * @param destInputIndex : input index of this connection to destination
      */
     static void ConnectIntermediateToSink(size_t originID, size_t destID,
-                                          size_t destInputIndex);
+                                          size_t destInputIndex = 0);
 
  private:
     /**
@@ -215,7 +210,7 @@ class Engine
 
     static std::vector<SourceUnit> m_sourceUnitVector;
     static std::vector<SinkUnit> m_sinkUnitVector;
-    static std::vector<IntermediateUnit> m_intermediateUnitVector;
+    static std::vector<HiddenUnit> m_intermediateUnitVector;
     static std::vector<CopyUnit> m_copyUnitVector;
 
     /// number of epochs to run the graph

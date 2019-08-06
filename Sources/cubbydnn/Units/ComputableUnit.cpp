@@ -15,11 +15,14 @@ UnitState::UnitState() : StateNum(0), IsBusy(false)
 ComputableUnit::ComputableUnit(size_t inputSize, size_t outputSize)
     : m_inputPtrVector(inputSize), m_outputPtrVector(outputSize)
 {
+    m_inputPtrVector.reserve(inputSize);
+    m_outputPtrVector.reserve(outputSize);
 }
 
-ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit)
+ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
     : m_inputPtrVector(std::move(computableUnit.m_inputPtrVector)),
-      m_outputPtrVector(std::move(computableUnit.m_outputPtrVector))
+      m_outputPtrVector(std::move(computableUnit.m_outputPtrVector)),
+      m_logVector(std::move(computableUnit.m_logVector))
 {
 }
 
@@ -87,9 +90,8 @@ bool SourceUnit::IsReady()
     return isReady;
 }
 
-SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                   size_t inputSize)
-    : ComputableUnit(inputSize, 1),
+SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
+    : ComputableUnit(inputTensorInfoVector.size(), 1),
       m_inputTensorInfoVector(std::move(inputTensorInfoVector))
 {
     m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
@@ -118,9 +120,8 @@ bool SinkUnit::IsReady()
     return true;
 }
 
-IntermediateUnit::IntermediateUnit(
-    std::vector<TensorInfo> inputTensorInfoVector,
-    std::vector<TensorInfo> outputTensorInfoVector)
+HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
+                       std::vector<TensorInfo> outputTensorInfoVector)
     : ComputableUnit(inputTensorInfoVector.size(),
                      outputTensorInfoVector.size()),
       m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
@@ -139,7 +140,7 @@ IntermediateUnit::IntermediateUnit(
     }
 }
 
-IntermediateUnit::IntermediateUnit(IntermediateUnit&& intermediateUnit) noexcept
+HiddenUnit::HiddenUnit(HiddenUnit&& intermediateUnit) noexcept
     : ComputableUnit(std::move(intermediateUnit)),
       m_inputTensorInfoVector(
           std::move(intermediateUnit.m_inputTensorInfoVector)),
@@ -150,7 +151,7 @@ IntermediateUnit::IntermediateUnit(IntermediateUnit&& intermediateUnit) noexcept
 {
 }
 
-bool IntermediateUnit::IsReady()
+bool HiddenUnit::IsReady()
 {
     if (ComputableUnit::m_unitState.IsBusy)
         return false;
@@ -169,5 +170,4 @@ bool IntermediateUnit::IsReady()
 
     return true;
 }
-
 }  // namespace CubbyDNN

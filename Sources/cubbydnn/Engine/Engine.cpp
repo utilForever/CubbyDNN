@@ -8,10 +8,27 @@ namespace CubbyDNN
 {
 std::vector<std::thread> Engine::m_mainThreadPool = std::vector<std::thread>();
 
-SpinLockQueue<TaskWrapper> Engine::m_mainTaskQueue =
-    SpinLockQueue<TaskWrapper>(10000);
+std::vector<std::thread> Engine::m_copyThreadPool;
 
-void Engine::InitializeThreadPool(size_t mainThreadNum, size_t copyThreadNum)
+SpinLockQueue<TaskWrapper> Engine::m_mainTaskQueue(10000);
+
+SpinLockQueue<TaskWrapper> Engine::m_copyTaskQueue(10000);
+
+std::atomic<bool> Engine::m_dirty(true);
+
+bool Engine::m_active = true;
+
+std::vector<SourceUnit> Engine::m_sourceUnitVector;
+
+std::vector<SinkUnit> Engine::m_sinkUnitVector;
+
+std::vector<HiddenUnit> Engine::m_intermediateUnitVector;
+
+std::vector<CopyUnit> Engine::m_copyUnitVector;
+
+const size_t Engine::m_maxEpochs = 0;
+
+void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum, size_t epochs)
 {
     if (mainThreadNum + copyThreadNum > std::thread::hardware_concurrency())
     {
@@ -22,17 +39,20 @@ void Engine::InitializeThreadPool(size_t mainThreadNum, size_t copyThreadNum)
                   << " threads were requested" << std::endl;
     }
 
-    std::cout << "Creating " << mainThreadNum << "main threads" << std::endl;
+    std::cout << "Creating " << mainThreadNum << " main threads" << std::endl;
     m_mainThreadPool.reserve(mainThreadNum);
     for (size_t count = 0; count < mainThreadNum; ++count)
     {
         m_mainThreadPool.emplace_back(std::thread(m_runMain));
     }
-
+    std::cout << "Creating " << copyThreadNum << " copy threads" << std::endl;
     for (size_t count = 0; count < copyThreadNum; count++)
     {
-        m_copyThreadPool.emplace_back(std::thread(m_runMain));
+        m_copyThreadPool.emplace_back(std::thread(m_runCopy));
     }
+
+    ScanUnitTasks();
+    ScanCopyTasks();
 }
 
 size_t Engine::AddSourceUnit(SourceUnit&& sourceUnit)
@@ -42,7 +62,7 @@ size_t Engine::AddSourceUnit(SourceUnit&& sourceUnit)
     return id;
 }
 
-size_t Engine::AddIntermediateUnit(IntermediateUnit&& intermediateUnit)
+size_t Engine::AddIntermediateUnit(HiddenUnit&& intermediateUnit)
 {
     auto id = m_intermediateUnitVector.size();
     m_intermediateUnitVector.emplace_back(std::move(intermediateUnit));
@@ -61,38 +81,41 @@ void Engine::ConnectSourceToIntermediate(size_t originID, size_t destID,
 {
     assert(originID < m_sourceUnitVector.size());
     assert(destID < m_intermediateUnitVector.size());
-    auto& sourceUnit = m_sourceUnitVector.at(originID);
-    auto& intermediateUnit = m_intermediateUnitVector.at(destID);
-    auto& copyUnit = m_copyUnitVector.emplace_back(CopyUnit());
-    copyUnit.SetOriginPtr(&sourceUnit);
-    copyUnit.SetDestinationPtr(&intermediateUnit);
-    sourceUnit.AddOutputPtr(&copyUnit);
-    intermediateUnit.AddInputPtr(&copyUnit, destInputIndex);
+    auto* sourceUnit = &m_sourceUnitVector.at(originID);
+    auto* intermediateUnit = &m_intermediateUnitVector.at(destID);
+    auto* copyUnit = &m_copyUnitVector.emplace_back(CopyUnit());
+    copyUnit->SetInputPtr(sourceUnit);
+    copyUnit->SetOutputPtr(intermediateUnit);
+    sourceUnit->AddOutputPtr(copyUnit);
+    intermediateUnit->AddInputPtr(copyUnit, destInputIndex);
 }
 
-void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID, size_t destInputIndex)
+void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID,
+                                               size_t destInputIndex)
 {
     assert(originID < m_intermediateUnitVector.size());
     assert(destID < m_intermediateUnitVector.size());
-    auto& originIntermediateUnit = m_intermediateUnitVector.at(originID);
-    auto& destIntermediateUnit = m_intermediateUnitVector.at(destID);
-    auto& copyUnit = m_copyUnitVector.emplace_back(CopyUnit());
-    copyUnit.SetOriginPtr(&originIntermediateUnit);
-    copyUnit.SetDestinationPtr(&destIntermediateUnit);
-    originIntermediateUnit.AddOutputPtr(&copyUnit);
-    destIntermediateUnit.AddInputPtr(&copyUnit, destInputIndex);
+    auto* originIntermediateUnit = &m_intermediateUnitVector.at(originID);
+    auto* destIntermediateUnit = &m_intermediateUnitVector.at(destID);
+    auto* copyUnit = &m_copyUnitVector.emplace_back(CopyUnit());
+    copyUnit->SetInputPtr(originIntermediateUnit);
+    copyUnit->SetOutputPtr(destIntermediateUnit);
+    originIntermediateUnit->AddOutputPtr(copyUnit);
+    destIntermediateUnit->AddInputPtr(copyUnit, destInputIndex);
 }
 
-void Engine::ConnectIntermediateToSink(size_t originID, size_t destID, size_t destInputIndex){
+void Engine::ConnectIntermediateToSink(size_t originID, size_t destID,
+                                       size_t destInputIndex)
+{
     assert(originID < m_intermediateUnitVector.size());
     assert(destID < m_sinkUnitVector.size());
-    auto& intermediateUnit = m_intermediateUnitVector.at(originID);
-    auto& sinkUnit = m_sinkUnitVector.at(destID);
-    auto& copyUnit = m_copyUnitVector.emplace_back(CopyUnit());
-    copyUnit.SetOriginPtr(&intermediateUnit);
-    copyUnit.SetDestinationPtr(&sinkUnit);
-    intermediateUnit.AddOutputPtr(&copyUnit);
-    sinkUnit.AddInputPtr(&copyUnit, destInputIndex);
+    auto* intermediateUnit = &m_intermediateUnitVector.at(originID);
+    auto* sinkUnit = &m_sinkUnitVector.at(destID);
+    auto* copyUnit = &m_copyUnitVector.emplace_back(CopyUnit());
+    copyUnit->SetInputPtr(intermediateUnit);
+    copyUnit->SetOutputPtr(sinkUnit);
+    intermediateUnit->AddOutputPtr(copyUnit);
+    sinkUnit->AddInputPtr(copyUnit, destInputIndex);
 }
 
 // TODO : turn this into spinlock based pending function
@@ -130,6 +153,15 @@ void Engine::EnqueueTask(TaskWrapper&& task)
 TaskWrapper Engine::DequeueTask()
 {
     return m_mainTaskQueue.Dequeue();
+}
+
+void Engine::JoinThreads()
+{
+    for (auto& thread : m_mainThreadPool)
+    {
+        if (thread.joinable())
+            thread.join();
+    }
 }
 
 void Engine::ScanUnitTasks()
@@ -208,14 +240,23 @@ void Engine::ScanUnitTasks()
             std::this_thread::yield();
         }
     }
+
+    for (size_t count = 0; count < m_mainThreadPool.size(); ++count)
+    {
+        auto dummyFunc = []() {};
+        TaskWrapper taskWrapper(TaskType::ComputeSource, dummyFunc, dummyFunc);
+        m_mainTaskQueue.Enqueue(std::move(taskWrapper));
+    }
 }
 
 void Engine::ScanCopyTasks()
 {
-    while (m_active)
+    bool isFinished = false;
+    while (m_active && !isFinished)
     {
         if (m_dirty)
         {
+            isFinished = true;
             for (auto& copyUnit : m_copyUnitVector)
             {
                 if (copyUnit.IsReady() && copyUnit.GetStateNum() < m_maxEpochs)
@@ -229,12 +270,20 @@ void Engine::ScanCopyTasks()
                                             updateState);
                     m_copyTaskQueue.Enqueue(std::move(taskWrapper));
                 }
+                isFinished = false;
             }
         }
         else
         {
             std::this_thread::yield();
         }
+    }
+
+    for (size_t count = 0; count < m_copyThreadPool.size(); ++count)
+    {
+        auto dummyFunc = []() {};
+        TaskWrapper taskWrapper(TaskType::ComputeSource, dummyFunc, dummyFunc);
+        m_copyTaskQueue.Enqueue(std::move(taskWrapper));
     }
 }
 

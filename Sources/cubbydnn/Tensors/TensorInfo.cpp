@@ -9,8 +9,14 @@
 
 namespace CubbyDNN
 {
-TensorInfo::TensorInfo(std::vector<size_t> shape, size_t unitByteSize,
-                               NumberSystem numberSystem, bool isMutable)
+std::map<NumberSystem, size_t> TensorInfo::UnitByteSizeMap = {
+    { NumberSystem::Float16, 16 }, { NumberSystem::Float32, 32 },
+    { NumberSystem::Float64, 64 }, { NumberSystem::Int8, 8 },
+    { NumberSystem::Int16, 16 },   { NumberSystem::Int32, 32 },
+    { NumberSystem::Int64, 64 },
+};
+
+TensorInfo::TensorInfo(std::vector<size_t> shape, NumberSystem numberSystem, bool isMutable)
     : m_getTotalByteSize([](const std::vector<size_t>& shape) {
           size_t totalSize = 1;
           for (auto elem : shape)
@@ -21,7 +27,7 @@ TensorInfo::TensorInfo(std::vector<size_t> shape, size_t unitByteSize,
       }),
       m_shape(std::move(shape)),
       m_totalSize(m_getTotalByteSize(shape)),
-      m_unitByteSize(unitByteSize),
+      m_unitByteSize(UnitByteSizeMap.at(numberSystem)),
       m_numberSystem(numberSystem),
       m_isMutable(isMutable)
 {

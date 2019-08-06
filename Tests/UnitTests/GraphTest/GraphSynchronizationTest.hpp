@@ -5,13 +5,16 @@
 #ifndef CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 #define CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 
-#include <cubbydnn/Tensors/Impl/TensorData-Impl.hpp>
-#include <cubbydnn/Tensors/Impl/TensorPlug-impl.hpp>
-#include <cubbydnn/Operations/Impl/Operation_Impl.hpp>
+#include <cubbydnn/Engine/Engine.hpp>
+#include <cubbydnn/Units/ComputableUnit.hpp>
+#include "gtest/gtest.h"
 
-using namespace CubbyDNN;
+
+#include <vector>
 
 namespace GraphTest{
+
+    void GraphConstruction();
 
 }
 
