@@ -42,6 +42,8 @@ CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
 
 void CopyUnit::Compute()
 {
+    std::cout<<"CopyUnit"<<std::endl;
+    std::cout<<m_unitState.StateNum<<std::endl;
 }
 
 bool CopyUnit::IsReady()
@@ -156,13 +158,13 @@ bool HiddenUnit::IsReady()
     if (ComputableUnit::m_unitState.IsBusy)
         return false;
 
-    for (const auto& tensor : m_inputPtrVector)
+    for (auto tensor : m_inputPtrVector)
     {
         if (tensor->GetStateNum() != this->GetStateNum() + 1)
             return false;
     }
 
-    for (const auto& tensor : m_outputPtrVector)
+    for (auto tensor : m_outputPtrVector)
     {
         if (tensor->GetStateNum() != this->GetStateNum())
             return false;

@@ -6,6 +6,10 @@
 
 namespace CubbyDNN
 {
+std::thread Engine::m_scanMainThread;
+
+std::thread Engine::m_scanCopyThread;
+
 std::vector<std::thread> Engine::m_mainThreadPool = std::vector<std::thread>();
 
 std::vector<std::thread> Engine::m_copyThreadPool;
@@ -18,17 +22,18 @@ std::atomic<bool> Engine::m_dirty(true);
 
 bool Engine::m_active = true;
 
-std::vector<SourceUnit> Engine::m_sourceUnitVector;
+std::vector<SourceUnit*> Engine::m_sourceUnitVector;
 
-std::vector<SinkUnit> Engine::m_sinkUnitVector;
+std::vector<SinkUnit*> Engine::m_sinkUnitVector;
 
-std::vector<HiddenUnit> Engine::m_intermediateUnitVector;
+std::vector<HiddenUnit*> Engine::m_intermediateUnitVector;
 
-std::vector<CopyUnit> Engine::m_copyUnitVector;
+std::vector<CopyUnit*> Engine::m_copyUnitVector;
 
-const size_t Engine::m_maxEpochs = 0;
+size_t Engine::m_maxEpochs = 0;
 
-void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum, size_t epochs)
+void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
+                            size_t epochs)
 {
     if (mainThreadNum + copyThreadNum > std::thread::hardware_concurrency())
     {
@@ -38,6 +43,7 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum, size_t e
                   << (mainThreadNum + copyThreadNum)
                   << " threads were requested" << std::endl;
     }
+    m_maxEpochs = epochs;
 
     std::cout << "Creating " << mainThreadNum << " main threads" << std::endl;
     m_mainThreadPool.reserve(mainThreadNum);
@@ -51,25 +57,25 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum, size_t e
         m_copyThreadPool.emplace_back(std::thread(m_runCopy));
     }
 
-    ScanUnitTasks();
-    ScanCopyTasks();
+    m_scanMainThread = std::thread(ScanUnitTasks);
+    m_scanCopyThread = std::thread(ScanCopyTasks);
 }
 
-size_t Engine::AddSourceUnit(SourceUnit&& sourceUnit)
+size_t Engine::AddSourceUnit(SourceUnit* sourceUnit)
 {
     auto id = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(std::move(sourceUnit));
     return id;
 }
 
-size_t Engine::AddIntermediateUnit(HiddenUnit&& intermediateUnit)
+size_t Engine::AddHiddenUnit(HiddenUnit* hiddenUnit)
 {
     auto id = m_intermediateUnitVector.size();
-    m_intermediateUnitVector.emplace_back(std::move(intermediateUnit));
+    m_intermediateUnitVector.emplace_back(std::move(hiddenUnit));
     return id;
 }
 
-size_t Engine::AddSinkUnit(SinkUnit&& sinkUnit)
+size_t Engine::AddSinkUnit(SinkUnit* sinkUnit)
 {
     auto id = m_sinkUnitVector.size();
     m_sinkUnitVector.emplace_back(std::move(sinkUnit));
@@ -81,9 +87,10 @@ void Engine::ConnectSourceToIntermediate(size_t originID, size_t destID,
 {
     assert(originID < m_sourceUnitVector.size());
     assert(destID < m_intermediateUnitVector.size());
-    auto* sourceUnit = &m_sourceUnitVector.at(originID);
-    auto* intermediateUnit = &m_intermediateUnitVector.at(destID);
-    auto* copyUnit = &m_copyUnitVector.emplace_back(CopyUnit());
+    auto* sourceUnit = m_sourceUnitVector.at(originID);
+    auto* intermediateUnit = m_intermediateUnitVector.at(destID);
+    m_copyUnitVector.emplace_back(new CopyUnit());
+    auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(sourceUnit);
     copyUnit->SetOutputPtr(intermediateUnit);
     sourceUnit->AddOutputPtr(copyUnit);
@@ -95,9 +102,10 @@ void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID,
 {
     assert(originID < m_intermediateUnitVector.size());
     assert(destID < m_intermediateUnitVector.size());
-    auto* originIntermediateUnit = &m_intermediateUnitVector.at(originID);
-    auto* destIntermediateUnit = &m_intermediateUnitVector.at(destID);
-    auto* copyUnit = &m_copyUnitVector.emplace_back(CopyUnit());
+    auto* originIntermediateUnit = m_intermediateUnitVector.at(originID);
+    auto* destIntermediateUnit = m_intermediateUnitVector.at(destID);
+    m_copyUnitVector.emplace_back(new CopyUnit());
+    auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(originIntermediateUnit);
     copyUnit->SetOutputPtr(destIntermediateUnit);
     originIntermediateUnit->AddOutputPtr(copyUnit);
@@ -109,9 +117,10 @@ void Engine::ConnectIntermediateToSink(size_t originID, size_t destID,
 {
     assert(originID < m_intermediateUnitVector.size());
     assert(destID < m_sinkUnitVector.size());
-    auto* intermediateUnit = &m_intermediateUnitVector.at(originID);
-    auto* sinkUnit = &m_sinkUnitVector.at(destID);
-    auto* copyUnit = &m_copyUnitVector.emplace_back(CopyUnit());
+    auto* intermediateUnit = m_intermediateUnitVector.at(originID);
+    auto* sinkUnit = m_sinkUnitVector.at(destID);
+    m_copyUnitVector.emplace_back(new CopyUnit());
+    auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(intermediateUnit);
     copyUnit->SetOutputPtr(sinkUnit);
     intermediateUnit->AddOutputPtr(copyUnit);
@@ -162,6 +171,30 @@ void Engine::JoinThreads()
         if (thread.joinable())
             thread.join();
     }
+    if (m_scanMainThread.joinable())
+        m_scanMainThread.join();
+    if (m_scanCopyThread.joinable())
+        m_scanCopyThread.join();
+}
+
+void Engine::Abort()
+{
+    for (size_t count = 0; count < m_mainThreadPool.size(); ++count)
+        m_mainTaskQueue.Enqueue(TaskWrapper(TaskType::Join, []() {}, []() {}));
+
+    for (size_t count = 0; count < m_copyThreadPool.size(); ++count)
+        m_mainTaskQueue.Enqueue(TaskWrapper(TaskType::Join, []() {}, []() {}));
+
+    for (auto& thread : m_mainThreadPool)
+    {
+        if (thread.joinable())
+            thread.join();
+    }
+    m_active = false;
+    if (m_scanMainThread.joinable())
+        m_scanMainThread.join();
+    if (m_scanCopyThread.joinable())
+        m_scanCopyThread.join();
 }
 
 void Engine::ScanUnitTasks()
@@ -174,43 +207,43 @@ void Engine::ScanUnitTasks()
             isFinished = true;
             for (auto& sourceUnit : m_sourceUnitVector)
             {
-                if (sourceUnit.IsReady() &&
-                    sourceUnit.GetStateNum() < m_maxEpochs)
+                if (sourceUnit->IsReady() &&
+                    sourceUnit->GetStateNum() < m_maxEpochs)
                 {
                     auto computeFunc = [&sourceUnit]() {
-                        sourceUnit.Compute();
+                        sourceUnit->Compute();
                     };
                     auto updateState = [&sourceUnit]() {
-                        sourceUnit.ReleaseUnit();
+                        sourceUnit->ReleaseUnit();
                     };
-                    sourceUnit.AcquireUnit();
+                    sourceUnit->AcquireUnit();
                     TaskWrapper taskWrapper(TaskType::ComputeSource,
                                             computeFunc, updateState);
                     m_mainTaskQueue.Enqueue(std::move(taskWrapper));
                 }
-                else if (sourceUnit.GetStateNum() != m_maxEpochs)
+                else if (sourceUnit->GetStateNum() != m_maxEpochs)
                 {
                     isFinished = false;
                 }
             }
 
-            for (auto& intermediateUnit : m_intermediateUnitVector)
+            for (auto& hiddenUnit : m_intermediateUnitVector)
             {
-                if (intermediateUnit.IsReady() &&
-                    intermediateUnit.GetStateNum() < m_maxEpochs)
+                if (hiddenUnit->IsReady() &&
+                    hiddenUnit->GetStateNum() < m_maxEpochs)
                 {
-                    auto computeFunc = [&intermediateUnit]() {
-                        intermediateUnit.Compute();
+                    auto computeFunc = [&hiddenUnit]() {
+                        hiddenUnit->Compute();
                     };
-                    auto updateState = [&intermediateUnit]() {
-                        intermediateUnit.ReleaseUnit();
+                    auto updateState = [&hiddenUnit]() {
+                        hiddenUnit->ReleaseUnit();
                     };
-                    intermediateUnit.AcquireUnit();
+                    hiddenUnit->AcquireUnit();
                     TaskWrapper taskWrapper(TaskType::ComputeIntermediate,
                                             computeFunc, updateState);
                     m_mainTaskQueue.Enqueue(std::move(taskWrapper));
                 }
-                else if (intermediateUnit.GetStateNum() != m_maxEpochs)
+                else if (hiddenUnit->GetStateNum() != m_maxEpochs)
                 {
                     isFinished = false;
                 }
@@ -218,18 +251,19 @@ void Engine::ScanUnitTasks()
 
             for (auto& sinkUnit : m_sinkUnitVector)
             {
-                if (sinkUnit.IsReady() && sinkUnit.GetStateNum() < m_maxEpochs)
+                if (sinkUnit->IsReady() &&
+                    sinkUnit->GetStateNum() < m_maxEpochs)
                 {
-                    auto computeFunc = [&sinkUnit]() { sinkUnit.Compute(); };
+                    auto computeFunc = [&sinkUnit]() { sinkUnit->Compute(); };
                     auto updateState = [&sinkUnit]() {
-                        sinkUnit.ReleaseUnit();
+                        sinkUnit->ReleaseUnit();
                     };
-                    sinkUnit.AcquireUnit();
+                    sinkUnit->AcquireUnit();
                     TaskWrapper taskWrapper(TaskType::ComputeSink, computeFunc,
                                             updateState);
                     m_mainTaskQueue.Enqueue(std::move(taskWrapper));
                 }
-                else if (sinkUnit.GetStateNum() != m_maxEpochs)
+                else if (sinkUnit->GetStateNum() != m_maxEpochs)
                 {
                     isFinished = false;
                 }
@@ -244,8 +278,26 @@ void Engine::ScanUnitTasks()
     for (size_t count = 0; count < m_mainThreadPool.size(); ++count)
     {
         auto dummyFunc = []() {};
-        TaskWrapper taskWrapper(TaskType::ComputeSource, dummyFunc, dummyFunc);
+        TaskWrapper taskWrapper(TaskType::Join, dummyFunc, dummyFunc);
         m_mainTaskQueue.Enqueue(std::move(taskWrapper));
+    }
+}
+
+void Engine::ReleaseResources()
+{
+    for (auto* sourcePtr : m_sourceUnitVector)
+    {
+        delete sourcePtr;
+    }
+
+    for (auto* hiddenPtr : m_intermediateUnitVector)
+    {
+        delete hiddenPtr;
+    }
+
+    for (auto* copyPtr : m_copyUnitVector)
+    {
+        delete copyPtr;
     }
 }
 
@@ -259,18 +311,22 @@ void Engine::ScanCopyTasks()
             isFinished = true;
             for (auto& copyUnit : m_copyUnitVector)
             {
-                if (copyUnit.IsReady() && copyUnit.GetStateNum() < m_maxEpochs)
+                if (copyUnit->IsReady() &&
+                    copyUnit->GetStateNum() < m_maxEpochs)
                 {
-                    auto computeFunc = [&copyUnit]() { copyUnit.Compute(); };
+                    auto computeFunc = [&copyUnit]() { copyUnit->Compute(); };
                     auto updateState = [&copyUnit]() {
-                        copyUnit.ReleaseUnit();
+                        copyUnit->ReleaseUnit();
                     };
-                    copyUnit.AcquireUnit();
+                    copyUnit->AcquireUnit();
                     TaskWrapper taskWrapper(TaskType::Copy, computeFunc,
                                             updateState);
                     m_copyTaskQueue.Enqueue(std::move(taskWrapper));
                 }
-                isFinished = false;
+                if (copyUnit->GetStateNum() < m_maxEpochs)
+                {
+                    isFinished = false;
+                }
             }
         }
         else
@@ -282,7 +338,7 @@ void Engine::ScanCopyTasks()
     for (size_t count = 0; count < m_copyThreadPool.size(); ++count)
     {
         auto dummyFunc = []() {};
-        TaskWrapper taskWrapper(TaskType::ComputeSource, dummyFunc, dummyFunc);
+        TaskWrapper taskWrapper(TaskType::Join, dummyFunc, dummyFunc);
         m_copyTaskQueue.Enqueue(std::move(taskWrapper));
     }
 }

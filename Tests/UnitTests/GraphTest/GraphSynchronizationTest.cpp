@@ -18,64 +18,58 @@ void GraphConstruction()
     std::vector<TensorInfo> sourceTensorInfoVector = {
         TensorInfo({ 1, 1, 1 }), TensorInfo({ 1, 2, 1 })
     };
-    SourceUnit sourceUnit(sourceTensorInfoVector);
+    SourceUnit* sourceUnit = new SourceUnit(sourceTensorInfoVector);
 
     std::vector<TensorInfo> inputTensorInfoVector1 = { TensorInfo(
         { 1, 1, 1 }) };
     std::vector<TensorInfo> outputTensorInfoVector1 = { TensorInfo(
         { 3, 3, 3 }) };
-    HiddenUnit intermediateUnit1(inputTensorInfoVector1,
-                                 outputTensorInfoVector1);
+    HiddenUnit* hiddenUnit1 =
+        new HiddenUnit(inputTensorInfoVector1, outputTensorInfoVector1);
 
     std::vector<TensorInfo> inputTensorInfoVector2 = { TensorInfo(
         { 3, 3, 3 }) };
     std::vector<TensorInfo> outputTensorInfoVector2 = { TensorInfo(
         { 6, 6, 6 }) };
-    HiddenUnit intermediateUnit2(inputTensorInfoVector2,
-                                 outputTensorInfoVector2);
+    HiddenUnit* hiddenUnit2 =
+        new HiddenUnit(inputTensorInfoVector2, outputTensorInfoVector2);
 
     std::vector<TensorInfo> inputTensorInfoVector3 = { TensorInfo(
         { 1, 2, 1 }) };
     std::vector<TensorInfo> outputTensorInfoVector3 = { TensorInfo(
         { 3, 3, 3 }) };
-    HiddenUnit intermediateUnit3(inputTensorInfoVector3,
-                                 outputTensorInfoVector3);
+    HiddenUnit* hiddenUnit3 =
+        new HiddenUnit(inputTensorInfoVector3, outputTensorInfoVector3);
 
     std::vector<TensorInfo> inputTensorInfoVector4 = { TensorInfo(
         { 3, 3, 3 }) };
     std::vector<TensorInfo> outputTensorInfoVector4 = { TensorInfo(
         { 6, 6, 6 }) };
-    HiddenUnit intermediateUnit4(inputTensorInfoVector4,
-                                 outputTensorInfoVector4);
+    HiddenUnit* hiddenUnit4 =
+        new HiddenUnit(inputTensorInfoVector4, outputTensorInfoVector4);
 
     std::vector<TensorInfo> sinkTensorInfoVector = { TensorInfo({ 6, 6, 6 }),
                                                      TensorInfo({ 6, 6, 6 }) };
-    SinkUnit sinkUnit(sinkTensorInfoVector);
+    SinkUnit* sinkUnit = new SinkUnit(sinkTensorInfoVector);
 
     auto sourceID = Engine::AddSourceUnit(std::move(sourceUnit));
-    auto intermediate1ID =
-        Engine::AddIntermediateUnit(std::move(intermediateUnit1));
-    auto intermediate2ID =
-        Engine::AddIntermediateUnit(std::move(intermediateUnit2));
-    auto intermediate3ID =
-        Engine::AddIntermediateUnit(std::move(intermediateUnit3));
-    auto intermediate4ID =
-        Engine::AddIntermediateUnit(std::move(intermediateUnit4));
+    auto intermediate1ID = Engine::AddHiddenUnit(std::move(hiddenUnit1));
+    auto intermediate2ID = Engine::AddHiddenUnit(std::move(hiddenUnit2));
+    auto intermediate3ID = Engine::AddHiddenUnit(std::move(hiddenUnit3));
+    auto intermediate4ID = Engine::AddHiddenUnit(std::move(hiddenUnit4));
     auto sinkID = Engine::AddSinkUnit(std::move(sinkUnit));
 
-    std::cout<<"A"<<std::endl;
     Engine::ConnectSourceToIntermediate(sourceID, intermediate1ID);
-    std::cout<<"B"<<std::endl;
-    Engine::ConnectSourceToIntermediate(sourceID, intermediate2ID);
-    Engine::ConnectIntermediateToIntermediate(intermediate1ID, intermediate3ID);
-    Engine::ConnectIntermediateToIntermediate(intermediate2ID, intermediate4ID);
-    Engine::ConnectIntermediateToSink(intermediate3ID, sinkID, 0);
+    Engine::ConnectSourceToIntermediate(sourceID, intermediate3ID);
+    Engine::ConnectIntermediateToIntermediate(intermediate1ID, intermediate2ID);
+    Engine::ConnectIntermediateToIntermediate(intermediate3ID, intermediate4ID);
+    Engine::ConnectIntermediateToSink(intermediate2ID, sinkID, 0);
     Engine::ConnectIntermediateToSink(intermediate4ID, sinkID, 1);
 
-    std::cout<<"hi"<<std::endl;
-    Engine::StartExecution(2, 2, 100);
-    std::cout<<"he"<<std::endl;
+    Engine::StartExecution(3, 3, 100);
     Engine::JoinThreads();
+    Engine::ReleaseResources();
+    std::cout<<"Terminated"<<std::endl;
 }
 
 void SimpleGraph()
@@ -87,5 +81,6 @@ void SimpleGraph()
 TEST(SimpleGraph, GraphConstruction)
 {
     GraphConstruction();
+    EXPECT_EQ(0,0);
 }
 }  // namespace GraphTest
