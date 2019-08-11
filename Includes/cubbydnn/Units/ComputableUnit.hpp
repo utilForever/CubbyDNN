@@ -33,9 +33,9 @@ struct UnitState
 {
     explicit UnitState();
     /// State number of current
-    std::atomic<std::size_t> StateNum;
+    std::atomic<std::size_t> StateNum = 0;
     /// True if unit is already in the task queue
-    std::atomic<bool> IsBusy;
+    std::atomic<bool> IsBusy = false;
 };
 
 class ComputableUnit
@@ -50,6 +50,8 @@ class ComputableUnit
     //! Move constructor
     //! \param computableUnit : ComputableUnit to move from
     ComputableUnit(ComputableUnit&& computableUnit) noexcept;
+
+    virtual ~ComputableUnit() = default;
 
     //! Called before computation for acquiring the unit in order to compute
     //! Marks IsBusy as True in order to prevent same tasks being enqueued
@@ -84,21 +86,22 @@ class ComputableUnit
     //! increments state number after execution
     void incrementStateNum()
     {
-        m_unitState.StateNum.fetch_add(1, std::memory_order_release);
+        m_unitState.StateNum.fetch_add(1, std::memory_order_relaxed);
+        std::cout<<"Increment"<<std::endl;
     }
 
     //! Atomically sets isBusy to true
     void setBusy()
     {
         std::atomic_exchange_explicit(&m_unitState.IsBusy, true,
-                                      std::memory_order_release);
+                                      std::memory_order_relaxed);
     }
 
     //! Atomically sets operation state to pending state (false)
     void setReleased()
     {
         std::atomic_exchange_explicit(&m_unitState.IsBusy, false,
-                                      std::memory_order_release);
+                                      std::memory_order_relaxed);
     }
 
     /// UnitState object indicates execution state of ComputableUnit
@@ -180,6 +183,8 @@ class SourceUnit : public ComputableUnit
 
     void Compute() override
     {
+        std::cout<<"SourceUnit"<<std::endl;
+        std::cout<<m_unitState.StateNum<<std::endl;
     }
 
  private:
@@ -192,31 +197,27 @@ class SourceUnit : public ComputableUnit
 class SinkUnit : public ComputableUnit
 {
  public:
-    /**
-     * Constructor
-     * @param inputTensorInfoVector : vector of tensorInfo to accept
-     */
+    //! Constructor
+    //! \param inputTensorInfoVector : vector of tensorInfo to accept
     explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
 
     SinkUnit(SinkUnit&& sinkUnit) noexcept;
 
-    /**
-     * Add previous computable Unit to this cell
-     * @param computableUnitPtr : computableUnitPtr to add
-     */
+    //! Add previous computable Unit to this cell
+    //! \param computableUnitPtr : computableUnitPtr to add
     void AddInputPtr(CopyUnit* computableUnitPtr, size_t index)
     {
         ComputableUnit::m_inputPtrVector.at(index) = computableUnitPtr;
     }
 
-    /**
-     * Brings back if executableUnit is ready to be executed
-     * @return : whether corresponding unit is ready to be executed
-     */
+    //! Brings back if executableUnit is ready to be executed
+    //! \return : whether corresponding unit is ready to be executed
     bool IsReady() final;
 
     void Compute() override
     {
+        std::cout<<"SinkUnit"<<std::endl;
+        std::cout<<m_unitState.StateNum<<std::endl;
     }
 
  protected:
@@ -227,29 +228,23 @@ class SinkUnit : public ComputableUnit
 class HiddenUnit : public ComputableUnit
 {
  public:
-    /**
-     * Constructor
-     * @param inputTensorInfoVector : vector of TensorInfo
-     * @param outputTensorInfoVector : TensorInfo of the output tensor
-     */
+    //! Constructor
+    //! \param inputTensorInfoVector : vector of TensorInfo
+    //! \param outputTensorInfoVector : TensorInfo of the output tensor
     HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                std::vector<TensorInfo> outputTensorInfoVector);
 
     HiddenUnit(HiddenUnit&& intermediateUnit) noexcept;
 
-    /**
-     * Add next computable Unit to this cell
-     * @param computableUnitPtr : computableUnitPtr to add
-     */
+    //! Add next computable Unit to this cell
+    //! \param computableUnitPtr : computableUnitPtr to add
     void AddOutputPtr(CopyUnit* computableUnitPtr)
     {
         ComputableUnit::m_outputPtrVector.at(m_outputIndex) = computableUnitPtr;
     }
 
-    /**
-     * Add previous computable Unit to this cell
-     * @param computableUnitPtr : computableUnitPtr to add
-     */
+    //! Add previous computable Unit to this cell
+    //! \param computableUnitPtr : computableUnitPtr to add
     void AddInputPtr(CopyUnit* computableUnitPtr, size_t index)
     {
         ComputableUnit::m_inputPtrVector.at(index) = computableUnitPtr;
@@ -262,6 +257,7 @@ class HiddenUnit : public ComputableUnit
 
     void Compute() override
     {
+        std::cout<<"HiddenUnit"<<std::endl;
         std::cout<<m_unitState.StateNum<<std::endl;
     }
 

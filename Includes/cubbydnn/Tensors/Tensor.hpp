@@ -10,10 +10,10 @@
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
 #include <atomic>
-#include <memory>
-#include <vector>
 #include <cassert>
 #include <cstring>
+#include <memory>
+#include <vector>
 
 namespace CubbyDNN
 {
@@ -25,6 +25,11 @@ namespace CubbyDNN
 struct Tensor
 {
     Tensor(void* Data, TensorInfo info);
+
+    ~Tensor()
+    {
+        free(DataPtr);
+    }
 
     Tensor(Tensor&& tensor) noexcept;
     /// move assignment operator
@@ -44,7 +49,7 @@ void CopyTensor(Tensor& source, Tensor& destination);
  */
 Tensor AllocateTensor(const TensorInfo& info);
 
-//TODO : Implement methods for Initializing the Tensor
+// TODO : Implement methods for Initializing the Tensor
 
 }  // namespace CubbyDNN
 

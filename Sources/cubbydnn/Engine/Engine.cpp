@@ -171,6 +171,12 @@ void Engine::JoinThreads()
         if (thread.joinable())
             thread.join();
     }
+
+    for (auto& thread : m_copyThreadPool)
+    {
+        if (thread.joinable())
+            thread.join();
+    }
     if (m_scanMainThread.joinable())
         m_scanMainThread.join();
     if (m_scanCopyThread.joinable())
@@ -293,6 +299,10 @@ void Engine::ReleaseResources()
     for (auto* hiddenPtr : m_intermediateUnitVector)
     {
         delete hiddenPtr;
+    }
+
+    for(auto* sinkPtr : m_sinkUnitVector){
+        delete sinkPtr;
     }
 
     for (auto* copyPtr : m_copyUnitVector)
