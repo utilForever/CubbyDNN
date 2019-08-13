@@ -9,9 +9,9 @@
 
 #include <atomic>
 #include <cstdlib>
+#include <iostream>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
@@ -19,13 +19,6 @@
 
 namespace CubbyDNN
 {
-//! Describes state of the unit
-enum class State
-{
-    pending,
-    busy,
-};
-
 //! UnitState
 //! Wrapper class containing the state and StateNum
 //! This represents the execution state of computable Unit
@@ -87,7 +80,7 @@ class ComputableUnit
     void incrementStateNum()
     {
         m_unitState.StateNum.fetch_add(1, std::memory_order_relaxed);
-        std::cout<<"Increment"<<std::endl;
+        std::cout << "Increment" << std::endl;
     }
 
     //! Atomically sets isBusy to true
@@ -104,6 +97,10 @@ class ComputableUnit
                                       std::memory_order_relaxed);
     }
 
+    virtual Tensor& GetInputTensor(size_t index) = 0;
+
+    virtual Tensor& GetOutputTensor(size_t index) = 0;
+
     /// UnitState object indicates execution state of ComputableUnit
     UnitState m_unitState;
     /// ptr to units to receive result from
@@ -115,6 +112,8 @@ class ComputableUnit
 
     size_t m_inputIndex = 0;
     size_t m_outputIndex = 0;
+
+    Tensor tensor = Tensor(nullptr, TensorInfo({ 0 }));
 };
 
 /**
@@ -150,9 +149,21 @@ class CopyUnit : public ComputableUnit
             computableUnitPtr;
     }
 
+    Tensor& GetInputTensor(size_t index) override
+    {
+        assert(false);
+        return tensor;
+    }
+
+    Tensor& GetOutputTensor(size_t index) override
+    {
+        assert(false);
+        return tensor;
+    }
+
     //! Implements copy operation between input and output
     void Compute() override;
-    //! Checks if this copyunit is ready to be executed
+    //! Checks if this copyUnit is ready to be executed
     bool IsReady() override;
 };
 
@@ -183,8 +194,18 @@ class SourceUnit : public ComputableUnit
 
     void Compute() override
     {
-        std::cout<<"SourceUnit"<<std::endl;
-        std::cout<<m_unitState.StateNum<<std::endl;
+        std::cout << "SourceUnit" << std::endl;
+        std::cout << m_unitState.StateNum << std::endl;
+    }
+
+    Tensor& GetInputTensor(size_t index) override
+    {
+        return tensor;
+    }
+
+    Tensor& GetOutputTensor(size_t index) override
+    {
+        return m_outputTensorVector.at(index);
     }
 
  private:
@@ -216,8 +237,18 @@ class SinkUnit : public ComputableUnit
 
     void Compute() override
     {
-        std::cout<<"SinkUnit"<<std::endl;
-        std::cout<<m_unitState.StateNum<<std::endl;
+        std::cout << "SinkUnit" << std::endl;
+        std::cout << m_unitState.StateNum << std::endl;
+    }
+
+    Tensor& GetInputTensor(size_t index) override
+    {
+        return m_inputTensorVector.at(index);
+    }
+
+    Tensor& GetOutputTensor(size_t index) override
+    {
+        return tensor;
     }
 
  protected:
@@ -257,8 +288,18 @@ class HiddenUnit : public ComputableUnit
 
     void Compute() override
     {
-        std::cout<<"HiddenUnit"<<std::endl;
-        std::cout<<m_unitState.StateNum<<std::endl;
+        std::cout << "HiddenUnit" << std::endl;
+        std::cout << m_unitState.StateNum << std::endl;
+    }
+
+    Tensor& GetInputTensor(size_t index) override
+    {
+        return m_inputTensorVector.at(index);
+    }
+
+    Tensor& GetOutputTensor(size_t index) override
+    {
+        return m_outputTensorVector.at(index);
     }
 
  protected:

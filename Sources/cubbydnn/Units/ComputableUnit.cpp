@@ -38,6 +38,7 @@ CopyUnit::CopyUnit() : ComputableUnit(1, 1)
 CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
     : ComputableUnit(std::move(copyUnit))
 {
+
 }
 
 void CopyUnit::Compute()

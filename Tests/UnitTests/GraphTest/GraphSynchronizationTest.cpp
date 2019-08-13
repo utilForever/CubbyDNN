@@ -66,7 +66,7 @@ void GraphConstruction()
     Engine::ConnectIntermediateToSink(intermediate2ID, sinkID, 0);
     Engine::ConnectIntermediateToSink(intermediate4ID, sinkID, 1);
 
-    Engine::StartExecution(3, 3, 3);
+    Engine::StartExecution(3, 3, 100);
     Engine::JoinThreads();
     Engine::ReleaseResources();
     std::cout<<"Terminated"<<std::endl;
