@@ -6,7 +6,10 @@
 #define CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 
 #include <cubbydnn/Engine/Engine.hpp>
-#include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Units/CopyUnit.hpp>
+#include <cubbydnn/Units/SourceUnit.hpp>
+#include <cubbydnn/Units/SinkUnit.hpp>
+#include <cubbydnn/Units/HiddenUnit.hpp>
 #include "gtest/gtest.h"
 
 

@@ -8,7 +8,10 @@
 #define CUBBYDNN_ENGINE_HPP
 
 #include <cubbydnn/Engine/SpinLockQueue.hpp>
-#include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Units/CopyUnit.hpp>
+#include <cubbydnn/Units/HiddenUnit.hpp>
+#include <cubbydnn/Units/SinkUnit.hpp>
+#include <cubbydnn/Units/SourceUnit.hpp>
 #include <cubbydnn/Utils/SharedPtr-impl.hpp>
 
 #include <condition_variable>
