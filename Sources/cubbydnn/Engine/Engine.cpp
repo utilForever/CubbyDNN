@@ -93,8 +93,10 @@ void Engine::ConnectSourceToIntermediate(size_t originID, size_t destID,
     auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(sourceUnit);
     copyUnit->SetOutputPtr(intermediateUnit);
-    sourceUnit->AddOutputPtr(copyUnit);
+    auto inputIndex = sourceUnit->AddOutputPtr(copyUnit);
     intermediateUnit->AddInputPtr(copyUnit, destInputIndex);
+    copyUnit->SetInputTensorIndex(inputIndex);
+    copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
 void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID,
@@ -108,8 +110,10 @@ void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID,
     auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(originIntermediateUnit);
     copyUnit->SetOutputPtr(destIntermediateUnit);
-    originIntermediateUnit->AddOutputPtr(copyUnit);
+    auto inputIndex = originIntermediateUnit->AddOutputPtr(copyUnit);
     destIntermediateUnit->AddInputPtr(copyUnit, destInputIndex);
+    copyUnit->SetInputTensorIndex(inputIndex);
+    copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
 void Engine::ConnectIntermediateToSink(size_t originID, size_t destID,
@@ -123,8 +127,10 @@ void Engine::ConnectIntermediateToSink(size_t originID, size_t destID,
     auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(intermediateUnit);
     copyUnit->SetOutputPtr(sinkUnit);
-    intermediateUnit->AddOutputPtr(copyUnit);
+    auto inputIndex = intermediateUnit->AddOutputPtr(copyUnit);
     sinkUnit->AddInputPtr(copyUnit, destInputIndex);
+    copyUnit->SetInputTensorIndex(inputIndex);
+    copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
 // TODO : turn this into spinlock based pending function
@@ -301,7 +307,8 @@ void Engine::ReleaseResources()
         delete hiddenPtr;
     }
 
-    for(auto* sinkPtr : m_sinkUnitVector){
+    for (auto* sinkPtr : m_sinkUnitVector)
+    {
         delete sinkPtr;
     }
 

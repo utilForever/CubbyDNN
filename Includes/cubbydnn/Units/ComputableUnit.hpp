@@ -75,6 +75,9 @@ class ComputableUnit
     //! \return : reference of the state counter
     std::atomic<std::size_t>& GetStateNum();
 
+    virtual Tensor& GetInputTensor(size_t index) = 0;
+    virtual Tensor& GetOutputTensor(size_t index) = 0;
+
  protected:
     //! increments state number after execution
     void incrementStateNum()
@@ -96,10 +99,6 @@ class ComputableUnit
         std::atomic_exchange_explicit(&m_unitState.IsBusy, false,
                                       std::memory_order_relaxed);
     }
-
-    virtual Tensor& GetInputTensor(size_t index) = 0;
-
-    virtual Tensor& GetOutputTensor(size_t index) = 0;
 
     /// UnitState object indicates execution state of ComputableUnit
     UnitState m_unitState;
@@ -161,10 +160,24 @@ class CopyUnit : public ComputableUnit
         return tensor;
     }
 
+    void SetInputTensorIndex(size_t index)
+    {
+        m_inputTensorIndex = index;
+    }
+
+    void SetOutputTensorIndex(size_t index)
+    {
+        m_outputTensorIndex = index;
+    }
+
     //! Implements copy operation between input and output
     void Compute() override;
     //! Checks if this copyUnit is ready to be executed
     bool IsReady() override;
+
+ private:
+    size_t m_inputTensorIndex;
+    size_t m_outputTensorIndex;
 };
 
 //! Unit that has no input, but has output only.
@@ -182,10 +195,10 @@ class SourceUnit : public ComputableUnit
 
     //! Set or add next ComputableUnit ptr
     //! \param computableUnitPtr : computablePtr to set
-    void AddOutputPtr(CopyUnit* computableUnitPtr)
+    size_t AddOutputPtr(CopyUnit* computableUnitPtr)
     {
-        ComputableUnit::m_outputPtrVector.at(m_outputIndex++) =
-            computableUnitPtr;
+        ComputableUnit::m_outputPtrVector.at(m_outputIndex) = computableUnitPtr;
+        return m_outputIndex++;
     }
 
     //! Checks if source is ready
@@ -269,9 +282,10 @@ class HiddenUnit : public ComputableUnit
 
     //! Add next computable Unit to this cell
     //! \param computableUnitPtr : computableUnitPtr to add
-    void AddOutputPtr(CopyUnit* computableUnitPtr)
+    size_t AddOutputPtr(CopyUnit* computableUnitPtr)
     {
         ComputableUnit::m_outputPtrVector.at(m_outputIndex) = computableUnitPtr;
+        return m_outputIndex++;
     }
 
     //! Add previous computable Unit to this cell

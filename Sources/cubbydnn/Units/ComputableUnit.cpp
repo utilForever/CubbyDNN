@@ -38,13 +38,19 @@ CopyUnit::CopyUnit() : ComputableUnit(1, 1)
 CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
     : ComputableUnit(std::move(copyUnit))
 {
-
 }
 
 void CopyUnit::Compute()
 {
-    std::cout<<"CopyUnit"<<std::endl;
-    std::cout<<m_unitState.StateNum<<std::endl;
+    std::cout << "CopyUnit" << std::endl;
+    std::cout << m_unitState.StateNum << std::endl;
+
+    auto& inputTensor =
+        m_inputPtrVector.at(0)->GetOutputTensor(m_inputTensorIndex);
+
+    auto& outputTensor =
+        m_outputPtrVector.at(0)->GetInputTensor(m_outputTensorIndex);
+    CopyTensor(inputTensor, outputTensor);
 }
 
 bool CopyUnit::IsReady()
