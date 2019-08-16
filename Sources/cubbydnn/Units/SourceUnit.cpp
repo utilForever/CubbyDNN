@@ -2,7 +2,7 @@
 // Created by jwkim98 on 8/13/19.
 //
 
-#include <cubbydnn/Units/SourceUnit.hpp>
+#include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 
 namespace CubbyDNN
 {

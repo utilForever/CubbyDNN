@@ -1,6 +1,9 @@
-//
-// Created by jwkim98 on 6/26/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
+
 #include <cubbydnn/Engine/Engine.hpp>
 #include <iostream>
 

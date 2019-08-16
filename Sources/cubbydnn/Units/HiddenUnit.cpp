@@ -2,7 +2,7 @@
 // Created by jwkim98 on 8/13/19.
 //
 
-#include <cubbydnn/Units/HiddenUnit.hpp>
+#include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 
 namespace CubbyDNN
 {

@@ -9,9 +9,9 @@
 
 #include <cubbydnn/Engine/SpinLockQueue.hpp>
 #include <cubbydnn/Units/CopyUnit.hpp>
-#include <cubbydnn/Units/HiddenUnit.hpp>
-#include <cubbydnn/Units/SinkUnit.hpp>
-#include <cubbydnn/Units/SourceUnit.hpp>
+#include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
+#include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
+#include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 #include <cubbydnn/Utils/SharedPtr-impl.hpp>
 
 #include <condition_variable>
