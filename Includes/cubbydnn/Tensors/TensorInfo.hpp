@@ -21,7 +21,8 @@ enum class NumberSystem
     Int8,
     Int16,
     Int32,
-    Int64
+    Int64,
+    Posit
 };
 
 //!
@@ -66,6 +67,10 @@ class TensorInfo
     [[nodiscard]] NumberSystem GetNumberSystem() const noexcept
     {
         return m_numberSystem;
+    }
+
+    [[nodiscard]] size_t GetNumberSystemByteSize() const noexcept{
+        return m_unitByteSize;
     }
 
     /**

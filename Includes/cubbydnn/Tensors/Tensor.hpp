@@ -14,6 +14,7 @@
 #include <cstring>
 #include <memory>
 #include <vector>
+#include <bitset>
 
 namespace CubbyDNN
 {

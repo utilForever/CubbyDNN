@@ -17,9 +17,9 @@ std::vector<std::thread> Engine::m_mainThreadPool = std::vector<std::thread>();
 
 std::vector<std::thread> Engine::m_copyThreadPool;
 
-SpinLockQueue<TaskWrapper> Engine::m_mainTaskQueue(10000);
+SpinLockQueue<TaskWrapper> Engine::m_mainTaskQueue(1000);
 
-SpinLockQueue<TaskWrapper> Engine::m_copyTaskQueue(10000);
+SpinLockQueue<TaskWrapper> Engine::m_copyTaskQueue(1000);
 
 std::atomic<bool> Engine::m_dirty(true);
 

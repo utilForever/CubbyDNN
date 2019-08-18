@@ -10,3 +10,6 @@
 [submodule "Libraries/mtl4"]
 	path = Libraries/mtl4
 	url = https://github.com/simunova/mtl4.git
+[submodule "Libraries/hpr-blas"]
+	path = Libraries/hpr-blas
+	url = https://github.com/stillwater-sc/hpr-blas.git
