@@ -14,17 +14,6 @@ class Logistic : public HiddenUnit
 {
     void Compute() final
     {
-#ifdef CubbyMath
-        auto& tensor = m_inputTensorVector.at(0);
-#else
-        auto& tensor = m_inputTensorVector.at(0);
-        switch(tensor.Info.GetNumberSystem()){
-        case NumberSystem::Float16 :
-
-
-        }
-
-#endif
     }
 
 private:

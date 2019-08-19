@@ -8,8 +8,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 project(CubbyDNN)
 
 #set MTL and unuversal path
-set(MTL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/mtl4)
-set(UNIVERSAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}}/Libraries/unum)
+#set(MTL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/mtl4)
+#set(UNIVERSAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}}/Libraries/unum)
 
 # Set output directories
 set(DEFAULT_CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
@@ -21,10 +21,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Includes
+include_directories(Liraries)
 include_directories(Includes)
-include_directories(Libraries)
 include_directories(Libraries/googletest/googletest/include)
-include_directories(Libraries/hpr-blas)
+
 
 # Compile options
 include(CMake/CompileOptions.cmake)

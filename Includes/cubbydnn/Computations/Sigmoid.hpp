@@ -8,9 +8,12 @@
 //! This file contains different implementations depending on numberSystems
 
 #include <cubbydnn/Tensors/Tensor.hpp>
+#include <cubbydnn/Utils/TypeCast.hpp>
 #include <iostream>
 #include <type_traits>
 #include <unum/posit/posit>
+
+#define exponent 2.718281828459045235360287471352662497757247093699959574966
 
 namespace CubbyDNN
 {
@@ -46,28 +49,27 @@ class ComputeLogistic
                                                     T>* = nullptr>
     void Calculate(Tensor& tensor)
     {
-
     }
 
-    template <size_t a, size_t b, size_t numberSystemByteSize>
-    void CalculatePosit(Tensor& tensor)
+    template <size_t nbits, size_t es>
+    void Calculate(Tensor& destTensor, Tensor& sourceTensor)
     {
-        if constexpr (numberSystemByteSize == 8)
-        {
-            auto* castPtr = (uint8_t*)tensor.DataPtr;
+        using positType = typename sw::unum::posit<nbits, es>;
 
-            for (size_t count = 0; count < tensor.Info.ByteSize(); ++count)
-            {
-            }
+        auto size = sourceTensor.Info.Size();
+        positType sourceValue[size];
+        positType destValue[size];
+        TypeCast<positType>::CastFromTensor<nbits, es>(sourceTensor, sourceValue);
 
-            sw::unum::posit<a, b> posit;
-        }
-        else if constexpr (numberSystemByteSize == 16)
+        // TODO : parallelize this for loop if possible
+        for (size_t count = 0; count < size; ++count)
         {
+            destValue[count] =
+                positType(1) /
+                (positType(1) + sw::unum::exp<nbits, es>(-sourceValue[count]));
         }
-        else if constexpr (numberSystemByteSize == 32)
-        {
-        }
+
+        TypeCast<positType>::CastToTensor<nbits, es>(destTensor, destValue);
     }
 };
 }  // namespace CubbyDNN
