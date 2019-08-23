@@ -67,21 +67,21 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
 size_t Engine::AddSourceUnit(SourceUnit* sourceUnit)
 {
     auto id = m_sourceUnitVector.size();
-    m_sourceUnitVector.emplace_back(std::move(sourceUnit));
+    m_sourceUnitVector.emplace_back(sourceUnit);
     return id;
 }
 
 size_t Engine::AddHiddenUnit(HiddenUnit* hiddenUnit)
 {
     auto id = m_intermediateUnitVector.size();
-    m_intermediateUnitVector.emplace_back(std::move(hiddenUnit));
+    m_intermediateUnitVector.emplace_back(hiddenUnit);
     return id;
 }
 
 size_t Engine::AddSinkUnit(SinkUnit* sinkUnit)
 {
     auto id = m_sinkUnitVector.size();
-    m_sinkUnitVector.emplace_back(std::move(sinkUnit));
+    m_sinkUnitVector.emplace_back(sinkUnit);
     return id;
 }
 

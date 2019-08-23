@@ -36,9 +36,7 @@ class HiddenUnit : public ComputableUnit
         ComputableUnit::m_inputPtrVector.at(index) = computableUnitPtr;
     }
 
-    /**
-     * @return
-     */
+    //! Determines whether system is ready to compute
     bool IsReady() final;
 
     void Compute() override

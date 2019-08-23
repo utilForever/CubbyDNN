@@ -7,20 +7,20 @@
 #ifndef CUBBYDNN_TYPECAST_HPP
 #define CUBBYDNN_TYPECAST_HPP
 #include <cubbydnn/Tensors/Tensor.hpp>
+#include <include/universal/posit/posit>
 #include <type_traits>
-#include <unum/posit/posit>
 #include <vector>
 
 namespace CubbyDNN
 {
 //! Set of static functions for casting tensor(universal type wrapper)
 //! to supported types
-template <typename T>
 class TypeCast
 {
+ public:
     /// Converts tensor to floating point types
-    template <typename std::enable_if_t<std::is_floating_point<T>::value, T>* =
-                  nullptr>
+    template <typename T, typename std::enable_if_t<
+                              std::is_floating_point<T>::value, T>* = nullptr>
     static T* CastFromTensor(Tensor& tensor)
     {
         T* castedPtr = static_cast<T*>(tensor.DataPtr);
@@ -28,8 +28,8 @@ class TypeCast
     }
 
     /// Converts tensor to integer types
-    template <
-        typename std::enable_if_t<std::is_integral<T>::value, T>* = nullptr>
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value,
+                                                    T>* = nullptr>
     static T* CastFromTensor(Tensor& tensor)
     {
         T* castedPtr = static_cast<T*>(tensor.DataPtr);

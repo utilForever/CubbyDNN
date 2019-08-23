@@ -22,7 +22,10 @@ enum class NumberSystem
     Int16,
     Int32,
     Int64,
-    Posit
+    Posit8,
+    Posit16,
+    Posit32,
+    Posit64,
 };
 
 //!
