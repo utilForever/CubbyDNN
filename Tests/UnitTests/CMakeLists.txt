@@ -5,16 +5,12 @@ set(target UnitTests)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # Sources
-file(GLOB sources
+file(GLOB_RECURSE sources
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 # Build executable
 add_executable(${target}
-    ${sources}
-        SimpleTest.hpp
-        GraphTest/GraphSynchronizationTest.cpp
-        GraphTest/GraphSynchronizationTest.hpp
-        UtilTests/SharedPtrTests.cpp UtilTests/SharedPtrTests.hpp)
+    ${sources})
 
 # Project options{
 set_target_properties(${target}

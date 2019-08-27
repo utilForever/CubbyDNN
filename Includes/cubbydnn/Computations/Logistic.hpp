@@ -1,12 +1,15 @@
-//
-// Created by jwkim98 on 8/15/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
 #ifndef CUBBYDNN_LOGISTIC_HPP
 #define CUBBYDNN_LOGISTIC_HPP
 
 //! This file contains different implementations depending on numberSystems
 
+#include <cubbydnn/Computations/Functions/ComputeTensor.hpp>
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 #include <cubbydnn/Utils/GlobalHyperparams.hpp>
@@ -71,7 +74,7 @@ class LogisticBasic : public HiddenUnit
         }
     }
 
-    //TODO : separate implementations by bytes
+    // TODO : separate implementations by bytes
     template <typename T, typename std::enable_if_t<
                               std::is_floating_point<T>::value, T>* = nullptr>
     void Calculate(Tensor& destTensor, Tensor& sourceTensor)
@@ -82,10 +85,8 @@ class LogisticBasic : public HiddenUnit
         auto size = destTensor.Info.Size();
         auto sourcePtr = TypeCast::CastFromTensor<T>(destTensor);
         auto destPtr = TypeCast::CastFromTensor<T>(sourceTensor);
-        for (size_t count = 0; count < size; ++count)
-        {
-            *(destPtr + count) = 1 / (1 + exp(-*(sourcePtr + count)));
-        }
+        auto function = [](T& data) { return 1 / (1 + exp(data)); };
+        ComputeTensor::BasicLoop<T>(destPtr, sourcePtr, function, size);
     }
 
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value,
@@ -98,10 +99,8 @@ class LogisticBasic : public HiddenUnit
         auto size = destTensor.Info.Size();
         auto sourcePtr = TypeCast::CastFromTensor<T>(destTensor);
         auto destPtr = TypeCast::CastFromTensor<T>(sourceTensor);
-        for (size_t count = 0; count < size; ++count)
-        {
-            *(destPtr + count) = 1 / (1 + exp(-*(sourcePtr + count)));
-        }
+        auto function = [](T& data) { return 1 / (1 + exp(data)); };
+        ComputeTensor::BasicLoop<T>(destPtr, sourcePtr, function, size);
     }
 
     template <size_t nbits, size_t es>
@@ -115,17 +114,13 @@ class LogisticBasic : public HiddenUnit
         auto size = sourceTensor.Info.Size();
         positType sourceValue[size];
         positType destValue[size];
-        TypeCast::CastFromTensor<nbits, es>(sourceTensor,
-                                                       sourceValue);
+        TypeCast::CastFromTensor<nbits, es>(sourceTensor, sourceValue);
 
+        auto function = [](positType& data){return positType(1) /
+                (positType(1) + sw::unum::exp<nbits, es>(data));};
         // TODO : parallelize this for loop if possible
-        for (size_t count = 0; count < size; ++count)
-        {
-            destValue[count] =
-                positType(1) /
-                (positType(1) + sw::unum::exp<nbits, es>(-sourceValue[count]));
-        }
 
+        ComputeTensor::BasicLoop<positType>(destValue, sourceValue, function, size);
         TypeCast::CastToTensor<nbits, es>(destTensor, destValue);
     }
 };
