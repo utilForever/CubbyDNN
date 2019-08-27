@@ -30,8 +30,9 @@ class ComputeTensor
     }
 
     template <typename T>
-    static void NaiveTranspose(T* destPtr, T* sourcePtr, size_t matrixSizeRow,
-                               size_t matrixSizeCol)
+    static void NaiveTranspose(T* destPtr, const T* sourcePtr,
+                               size_t matrixSizeRow,
+                               size_t matrixSizeCol) noexcept
     {
         for (size_t rowIdx = 0; rowIdx < matrixSizeRow; ++rowIdx)
         {
@@ -53,17 +54,34 @@ class ComputeTensor
      * @param matrixSizeCol : column size of source matrix
      */
     template <typename T>
-    static void Transpose(T* destPtr, T* sourcePtr, size_t matrixSizeRow,
-                          size_t matrixSizeCol)
+    static void Transpose(T* destPtr, const T* sourcePtr, size_t matrixSizeRow,
+                          size_t matrixSizeCol) noexcept
     {
         /// optimized to intel skylake architecture
-        constexpr size_t blockSize = m_pow(2, 10) / sizeof(T);
-        for (size_t rowIdx = 0; rowIdx < matrixSizeRow; rowIdx += blockSize)
+        constexpr size_t blockSize = 32;
+        for (size_t rowIdx = 0; rowIdx * blockSize < matrixSizeRow; ++rowIdx)
         {
-            for (size_t colIdx = 0; colIdx < matrixSizeCol; colIdx += blockSize)
+            for (size_t colIdx = 0; colIdx * blockSize < matrixSizeCol;
+                 ++colIdx)
             {
                 m_transPoseBlock<T>(destPtr, sourcePtr, matrixSizeRow,
                                     matrixSizeCol, blockSize, rowIdx, colIdx);
+            }
+        }
+    }
+
+    template <typename T>
+    static void Transpose2(T* dst, const T* src, size_t n, size_t p) noexcept
+    {
+        size_t block = 32;
+        for (size_t i = 0; i < n; i += block)
+        {
+            for (size_t j = 0; j < p; ++j)
+            {
+                for (size_t b = 0; b < block && i + b < n; ++b)
+                {
+                    dst[j * n + i + b] = src[(i + b) * p + j];
+                }
             }
         }
     }
@@ -81,9 +99,11 @@ class ComputeTensor
      * @param blockIdxCol
      */
     template <typename T>
-    static void m_transPoseBlock(T* destPtr, T* sourcePtr, size_t matrixSizeRow,
-                                 size_t matrixSizeCol, size_t blockSize,
-                                 size_t blockIdxRow, size_t blockIdxCol)
+    static void inline m_transPoseBlock(T* destPtr, const T* sourcePtr,
+                                        size_t matrixSizeRow,
+                                        size_t matrixSizeCol, size_t blockSize,
+                                        size_t blockIdxRow,
+                                        size_t blockIdxCol) noexcept
     {
         size_t rowSize = (matrixSizeRow < (blockIdxRow + 1) * blockSize)
                              ? matrixSizeRow - blockIdxRow * blockSize
@@ -97,12 +117,12 @@ class ComputeTensor
         {
             for (size_t blockColIdx = 0; blockColIdx < colSize; ++blockColIdx)
             {
-                *(destPtr + blockIdxCol * matrixSizeCol * blockSize +
-                  matrixSizeCol * blockColIdx + blockIdxRow * blockSize +
-                  blockRowIdx) =
-                    *(sourcePtr + blockIdxRow * matrixSizeRow * blockSize +
-                      matrixSizeRow * blockRowIdx + blockIdxCol * blockSize +
-                      blockColIdx);
+                *(destPtr +
+                  (blockIdxCol * blockSize + blockColIdx) * matrixSizeCol +
+                  blockIdxRow * blockSize + blockRowIdx) =
+                    *(sourcePtr +
+                      (blockIdxRow * blockSize + blockRowIdx) * matrixSizeRow +
+                      blockIdxCol * blockSize + blockColIdx);
             }
         }
     }

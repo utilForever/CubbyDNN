@@ -10,8 +10,8 @@ using namespace CubbyDNN;
 void MatrixTransposeTest()
 {
     {
-        const size_t rowSize = 100;
-        const size_t colSize = 100;
+        const size_t rowSize = 150;
+        const size_t colSize = 150;
         float* sourcePtr = CreateMatrix<float>(rowSize, colSize);
         float* destPtr = CreateMatrix<float>(colSize, rowSize);
         float* checkPtr = CreateMatrix<float>(colSize, rowSize);
@@ -26,9 +26,6 @@ void MatrixTransposeTest()
         /// Check if transpose was valid
         for (size_t count = 0; count < rowSize * colSize; ++count)
         {
-            //            std::cout << *(sourcePtr + count) << " | " <<
-            //            *(destPtr + count)
-            //                      << std::endl;
             assert(*(sourcePtr + count) == *(destPtr + count));
         }
 
