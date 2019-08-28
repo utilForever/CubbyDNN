@@ -14,18 +14,21 @@
 namespace UtilTest
 {
 template <typename T>
-static T* CreateMatrix(size_t rowSize, size_t colSize)
+static T* CreateMatrix(size_t rowSize, size_t colSize, bool toZero = false)
 {
-    //T* ptr = static_cast<T*>(malloc(sizeof(T)*rowSize * colSize));
-    T* ptr = new T[sizeof(T)*rowSize * colSize];
+    // T* ptr = static_cast<T*>(malloc(sizeof(T)*rowSize * colSize));
+    T* ptr = new T[sizeof(T) * rowSize * colSize];
     for (size_t count = 0; count < rowSize * colSize; ++count)
     {
-        *(ptr + count) = count;
+        if (!toZero)
+            *(ptr + count) = count;
+        else
+            *(ptr + count) = 0;
     }
     return ptr;
 }
 static void MatrixTransposeTest();
 
-}  // namespace CubbyDNN
+}  // namespace UtilTest
 
 #endif  // CUBBYDNN_MATRIXTEST_HPP

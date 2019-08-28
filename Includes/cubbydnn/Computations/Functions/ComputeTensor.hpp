@@ -30,6 +30,47 @@ class ComputeTensor
     }
 
     template <typename T>
+    static void Matmul(T* destPtr, const T* sourceA, const T* sourceB,
+                       size_t rowSizeA, size_t colSizeA, size_t rowSizeB,
+                       size_t colSizeB)
+    {
+        assert(colSizeA == rowSizeB);
+        constexpr size_t blockSize = 32;
+        for (size_t rowIdx = 0; rowIdx * blockSize < rowSizeA; ++rowIdx)
+        {
+            for (size_t colIdx = 0; colIdx * blockSize < colSizeB; ++colIdx)
+            {
+                for (size_t temp = 0; temp * blockSize < colSizeA; ++temp)
+                {
+                    m_matMulBlock<T>(destPtr, sourceA, sourceB, rowSizeA,
+                                     colSizeA, rowSizeB, colSizeB, rowIdx,
+                                     colIdx, temp, blockSize);
+                }
+            }
+        }
+    }
+
+    template <typename T>
+    static void NaiveMatmul(T* destPtr, const T* sourceA, const T* sourceB,
+                            size_t rowSizeA, size_t colSizeA, size_t rowSizeB,
+                            size_t colSizeB)
+    {
+        assert(colSizeA == rowSizeB);
+        for (size_t rowIdx = 0; rowIdx < rowSizeA; ++rowIdx)
+        {
+            for (size_t colIdx = 0; colIdx < colSizeB; ++colIdx)
+            {
+                for (size_t tempIdx = 0; tempIdx < colSizeA; ++tempIdx)
+                {
+                    *(destPtr + rowIdx * rowSizeA + colIdx) +=
+                        *(sourceA + rowIdx * rowSizeA + tempIdx) *
+                        *(sourceB + tempIdx * rowSizeB + colIdx);
+                }
+            }
+        }
+    }
+
+    template <typename T>
     static void NaiveTranspose(T* destPtr, const T* sourcePtr,
                                size_t matrixSizeRow,
                                size_t matrixSizeCol) noexcept
@@ -70,6 +111,14 @@ class ComputeTensor
         }
     }
 
+    /**
+     *
+     * @tparam T
+     * @param dst
+     * @param src
+     * @param n
+     * @param p
+     */
     template <typename T>
     static void Transpose2(T* dst, const T* src, size_t n, size_t p) noexcept
     {
@@ -123,6 +172,47 @@ class ComputeTensor
                     *(sourcePtr +
                       (blockIdxRow * blockSize + blockRowIdx) * matrixSizeRow +
                       blockIdxCol * blockSize + blockColIdx);
+            }
+        }
+    }
+
+    template <typename T>
+    static void inline m_matMulBlock(T* destPtr, const T* sourcePtr1,
+                                     const T* sourcePtr2, size_t rowSizeA,
+                                     size_t colSizeA, size_t rowSizeB,
+                                     size_t colSizeB, size_t blockIdxRow,
+                                     size_t blockIdxCol, size_t blockIdxTemp,
+                                     size_t blockSize) noexcept
+    {
+        size_t rowSize = (rowSizeA < (blockIdxRow + 1) * blockSize)
+                             ? rowSizeA - blockIdxRow * blockSize
+                             : blockSize;
+
+        size_t colSize = (colSizeB < (blockIdxCol + 1) * blockSize)
+                             ? colSizeB - blockIdxCol * blockSize
+                             : blockSize;
+
+        size_t tempSize = (colSizeA < (blockIdxTemp + 1) * blockSize)
+                              ? colSizeA - blockIdxTemp * blockSize
+                              : blockSize;
+
+        for (size_t blockRowIdx = 0; blockRowIdx < rowSize; ++blockRowIdx)
+        {
+            for (size_t blockColIdx = 0; blockColIdx < colSize; ++blockColIdx)
+            {
+                T* dest = (destPtr +
+                           (blockIdxRow * blockSize + blockRowIdx) * rowSizeA +
+                           (blockIdxCol * blockSize + blockColIdx));
+                for (size_t tempIdx = 0; tempIdx < tempSize; ++tempIdx)
+                {
+                    *dest +=
+                        *(sourcePtr1 +
+                          (blockIdxRow * blockSize + blockRowIdx) * rowSizeA +
+                          (blockIdxTemp * blockSize + tempIdx)) *
+                        *(sourcePtr2 +
+                          (blockIdxTemp * blockSize + tempIdx) * rowSizeB +
+                          (blockIdxCol * blockSize + blockColIdx));
+                }
             }
         }
     }
