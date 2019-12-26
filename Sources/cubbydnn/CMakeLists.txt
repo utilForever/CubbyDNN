@@ -10,11 +10,6 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries
 )
 
-#Added by Justin
-include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../Includes
-)
-
 # Sources
 file(GLOB header_dir
         ${root_dir}/Includes/cubbydnn)
