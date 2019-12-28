@@ -45,6 +45,7 @@ class SinkUnit : public ComputableUnit
 
     Tensor& GetOutputTensor(size_t index) override
     {
+        index;
         return tensor;
     }
 

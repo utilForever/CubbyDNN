@@ -21,7 +21,7 @@ static T* CreateMatrix(size_t rowSize, size_t colSize, bool toZero = false)
     for (size_t count = 0; count < rowSize * colSize; ++count)
     {
         if (!toZero)
-            *(ptr + count) = count;
+            *(ptr + count) = static_cast<T>(count);
         else
             *(ptr + count) = 0;
     }

@@ -20,6 +20,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include_directories(Liraries)
 include_directories(Includes)
 include_directories(Libraries/googletest/googletest/include)
+include_directories(Libraries/universal/include/universal/valid)
+include_directories(Libraries/universal/include/universal/posit)
+
 
 
 # Compile options

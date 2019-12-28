@@ -42,15 +42,15 @@ bool HiddenUnit::IsReady()
     if (ComputableUnit::m_unitState.IsBusy)
         return false;
 
-    for (auto tensor : m_inputPtrVector)
+    for (auto elem : m_inputPtrVector)
     {
-        if (tensor->GetStateNum() != this->GetStateNum() + 1)
+        if (elem->GetStateNum() != this->GetStateNum() + 1)
             return false;
     }
 
-    for (auto tensor : m_outputPtrVector)
+    for (auto elem : m_outputPtrVector)
     {
-        if (tensor->GetStateNum() != this->GetStateNum())
+        if (elem->GetStateNum() != this->GetStateNum())
             return false;
     }
 

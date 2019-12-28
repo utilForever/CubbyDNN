@@ -43,6 +43,7 @@ class SourceUnit : public ComputableUnit
 
     Tensor& GetInputTensor(size_t index) override
     {
+        index;
         return tensor;
     }
 

@@ -44,12 +44,14 @@ class CopyUnit : public ComputableUnit
 
     Tensor& GetInputTensor(size_t index) override
     {
+        index;
         assert(false);
         return tensor;
     }
 
     Tensor& GetOutputTensor(size_t index) override
     {
+        index;
         assert(false);
         return tensor;
     }

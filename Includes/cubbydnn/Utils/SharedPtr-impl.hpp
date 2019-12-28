@@ -62,7 +62,7 @@ template <typename T>
 template <typename... Ts>
 SharedPtr<T> SharedPtr<T>::Make(int maxReferenceCount, Ts&&... args)
 {
-    auto* ptr = new SharedObject(T(args...), maxReferenceCount);
+    auto* ptr = new SharedObject(std::move(T(args...)), maxReferenceCount);
     return SharedPtr<T>(ptr, PtrState::valid);
 }
 
