@@ -8,145 +8,92 @@
 #define CUBBYDNN_SHAREDPTR_HPP
 
 #include <atomic>
-#include <memory>
 
 namespace CubbyDNN
 {
-enum class PtrState
-{
-    valid,
-    dirty,
-    invalid,
-};
-
 template <typename T>
 class SharedPtr
 {
- private:
-    /**
-     * Shared object stores the actual object with atomic reference counter
-     */
-    struct SharedObject
+    //! Shared m_objectPtr stores the actual m_objectPtr with atomic reference
+    //! counter
+    struct SharedObjectInfo
     {
-        SharedObject(T&& object, const int maxRefCount)
-            : Object(std::move(object)),
-              RefCount(1),
-              MaxRefCount(maxRefCount){};
+        SharedObjectInfo() : RefCount(1)
+        {
+        }
 
-        T Object;
+        /// T m_objectPtr might not be initializable
         std::atomic<int> RefCount;
-        /// Maximum reference count that it can reach
-        const int MaxRefCount;
     };
 
-    SharedObject* m_sharedObjectPtr;
+    /// Ptr to the object
+    T* m_objectPtr = nullptr;
 
-    PtrState m_ptrState;
+    /// Ptr to the reference counter
+    SharedObjectInfo* m_sharedObjectPtr = nullptr;
 
-    /**
-     * private constructor for constructing the object for the first time
-     * @param objectPtr : objectPtr that has been created
-     * @param state : state of the sharedObject
-     */
-    explicit SharedPtr(SharedObject* objectPtr, PtrState state);
-
-    /**
-     * Makes copy of the sharedPtr
-     * @return
-     */
-    SharedPtr<T> tryMakeCopy();
+    //! private constructor for constructing the m_objectPtr for the first time
+    //! \param objectPtr : ptr for the object
+    //! \param informationPtr : informationPtr that has been created
+    explicit SharedPtr(T* objectPtr, SharedObjectInfo* informationPtr);
 
  public:
-    explicit SharedPtr();
+    SharedPtr() = default;
 
-    /**
-     * Destructor will automatically decrease the reference counter if this ptr
-     * has valid pointer
-     */
-    ~SharedPtr();
+    //! Copy constructor
+    //! \param sharedPtr
+    SharedPtr(const SharedPtr<T>& sharedPtr);
 
-    /**
-     * Builds new SharedPtr object with no parameters
-     * @return : SharedPtr
-     */
-    static SharedPtr<T> Make(int maxReferenceCount);
-
-    /**
-     * Builds new SharedPtr object with parameters
-     * @tparam Ts : template parameter pack
-     * @param maxReferenceCount : maximum reference count of this object
-     * @param args : arguments to build new object
-     * @return : SharedPtr
-     */
-    template <typename... Ts>
-    static SharedPtr<T> Make(int maxReferenceCount, Ts&&... args);
-
-    /**
-     * Copy constructor is explicitly deleted
-     * @param sharedPtr
-     */
-    SharedPtr(const SharedPtr<T>& sharedPtr) = delete;
-
-    /**
-     * Copy assign operator is explicitly deleted
-     * @param sharedPtr
-     * @return
-     */
-    SharedPtr<T>& operator=(const SharedPtr<T>& sharedPtr) = delete;
-
-    /**
-     * Move constructor
-     * This will make given parameter (sharedPtr) invalid
-     * @param sharedPtr : SharedPtr<T> to move from
-     */
+    //! Move constructor
+    //! This will make given parameter (sharedPtr) invalid
+    //! \param sharedPtr : SharedPtr<T> to move from
     SharedPtr(SharedPtr<T>&& sharedPtr) noexcept;
 
-    /**
-     * Move assign operator
-     * This will make given parameter (sharedPtr) invalid
-     * @param sharedPtr : SharedPtr<T> to move from
-     * @return : SharedPtr<T>
-     */
+    //! Compute assign operator is explicitly deleted
+    //! \param sharedPtr
+    //! \return
+    SharedPtr<T>& operator=(const SharedPtr<T>& sharedPtr);
+
+    //! Move assign operator
+    //! This will make given parameter (sharedPtr) invalid
+    //! \param sharedPtr : SharedPtr<T> to move from
+    //! \return : SharedPtr<T>
     SharedPtr<T>& operator=(SharedPtr<T>&& sharedPtr) noexcept;
 
-    /**
-     * Access operator to object this possesses
-     * @return : Reference of the object
-     */
+    //! Destructor will automatically decrease the reference counter if this ptr
+    //! has valid pointer
+    ~SharedPtr();
+
+    //! Builds SharedPtr m_objectPtr using raw pointer
+    //! \param objectPtr : pointer to the object
+    static SharedPtr<T> Make(T* objectPtr);
+
+    //! Builds new SharedPtr m_objectPtr with no parameters
+    //! \return : SharedPtr
+    static SharedPtr<T> Make();
+
+    //! Builds new SharedPtr m_objectPtr with parameters
+    //! \tparam Ts : template parameter pack
+    //! \param args : arguments to build new m_objectPtr
+    //! \return : SharedPtr
+    template <typename... Ts>
+    static SharedPtr<T> Make(Ts&&... args);
+
+    //! Access operator to m_objectPtr this possesses
+    //! \return : ptr to m_objectPtr
     T* operator->();
 
-    /**
-     * Makes copy of this SharedPtr
-     * Increments reference count of the object
-     * @return : Copied SharedPtr
-     */
-    SharedPtr<T> MakeCopy();
+    //! Const access operator
+    //! \return : Const ptr to m_objectPtr
+    const T* operator->() const;
 
-    /**
-     * Returns state of this SharedPtr
-     * This is used to determine if SharePtr is in valid state
-     * @return : state of this SharedPtr
-     */
-    PtrState GetState() const
+    //! Gets current reference count
+    //! \return :  current reference count
+    [[nodiscard]] int GetCurrentRefCount() const
     {
-        return m_ptrState;
-    }
-
-    int GetCurrentRefCount() const
-    {
-        return m_sharedObjectPtr->RefCount;
-    }
-
-    int GetMaximumRefCount() const
-    {
-        return m_sharedObjectPtr->MaxRefCount;
-    }
-
-    bool IsValid(){
-        return m_sharedObjectPtr != nullptr;
+        return m_sharedObjectPtr->RefCount.load();
     }
 };
-
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_SHAREDPTR_HPP

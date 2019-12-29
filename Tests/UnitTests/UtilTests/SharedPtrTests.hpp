@@ -1,20 +1,20 @@
-//
-// Created by jwkim98 on 6/22/19.
-//
-#include <cubbydnn/Utils/SharedPtr-impl.hpp>
+// Copyright (c) 2019 Chris Ohk, Justin Kim
 
-#include "gtest/gtest.h"
-#include <deque>
-#include <thread>
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
 #ifndef CUBBYDNN_SHAREDPTRTESTS_HPP
 #define CUBBYDNN_SHAREDPTRTESTS_HPP
 
+#include <cubbydnn/Utils/SharedPtr-impl.hpp>
+
 namespace CubbyDNN
 {
-    void CopyandDestruct(SharedPtr<int>&& ptr);
+    void CopyAndDestruct(SharedPtr<int>& sharedPtr);
 
-    void ConcurrentCopy(int spawnNum, int maxRefCount);
+    void ConcurrentCopy(int spawnNum);
+
 }
 
 #endif //CUBBYDNN_SHAREDPTRTESTS_HPP

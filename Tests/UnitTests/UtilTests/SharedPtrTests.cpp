@@ -1,38 +1,60 @@
-//
-// Created by jwkim98 on 6/21/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
 #include "SharedPtrTests.hpp"
+#include <deque>
+#include <thread>
+#include "gtest/gtest.h"
 
 namespace CubbyDNN
 {
-void CopyandDestruct(SharedPtr<int>&& ptr)
+void CopyandDestruct(const SharedPtr<int>& sharedPtr, bool* stop)
 {
-    SharedPtr<int> copy = ptr.MakeCopy();
+    volatile auto ptr = sharedPtr;
+    while (!*stop)
+    {
+        std::this_thread::yield();
+    }
     /// MaximumRefCount should be always be greater or equal than reference
     /// counter
-    EXPECT_GE(ptr.GetMaximumRefCount(), ptr.GetCurrentRefCount());
 }
 
-void ConcurrentCopy(int spawnNum, int maxRefCount)
+void ConcurrentCopy(int spawnNum)
 {
-    SharedPtr<int> ptr = SharedPtr<int>::Make(maxRefCount, 1);
+    auto* ptr = new int(1);
+    SharedPtr<int> shared = SharedPtr<int>::Make(ptr);
     std::deque<std::thread> threadPool;
+    bool stop = std::atomic_bool(false);
 
     for (int i = 0; i < spawnNum; ++i)
     {
         threadPool.emplace_back(
-            std::thread(std::move(CopyandDestruct), ptr.MakeCopy()));
+            std::thread(std::move(CopyandDestruct), shared, &stop));
+        volatile const auto count = shared.GetCurrentRefCount();
+        std::cout << count << std::endl;
     }
 
-    for (auto&& thread : threadPool)
+    while (shared.GetCurrentRefCount() < spawnNum + 1)
+    {
+        volatile const auto count = shared.GetCurrentRefCount();
+        std::cout << count << std::endl;
+        count;
+    }
+
+    EXPECT_EQ(shared.GetCurrentRefCount(), spawnNum + 1);
+    stop = true;
+
+    for (auto& thread : threadPool)
     {
         if (thread.joinable())
             thread.join();
     }
 
     /// Only 1 refCount should be left at the end
-    EXPECT_EQ(ptr.GetCurrentRefCount(), 1);
+    EXPECT_EQ(shared.GetCurrentRefCount(), 1);
 }
 
 TEST(ConcurrentCopy_basic, ConcurrentCopy)
@@ -41,7 +63,7 @@ TEST(ConcurrentCopy_basic, ConcurrentCopy)
      * Spawn 10 threads with enough maxRefCount
      * Check if reference counter successfully reterns 1 at the end
      */
-    ConcurrentCopy(10, 20);
+    ConcurrentCopy(10);
 }
 
 TEST(ConcurrentCopy_RefLimit, ConcurrentCopy)
@@ -50,6 +72,6 @@ TEST(ConcurrentCopy_RefLimit, ConcurrentCopy)
      * Spawn 50 threads and copy SharedPtr
      * Checks if reference counter does not exceed maximumRefCount
      */
-    ConcurrentCopy(50, 10);
+    ConcurrentCopy(50);
 }
 }  // namespace CubbyDNN
