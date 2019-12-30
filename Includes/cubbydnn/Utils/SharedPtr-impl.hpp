@@ -20,10 +20,11 @@ SharedPtr<T>::SharedPtr(T* objectPtr, SharedObjectInfo* informationPtr)
 template <typename T>
 SharedPtr<T>::SharedPtr(const SharedPtr<T>& sharedPtr)
 {
-    int oldRefCount = sharedPtr.m_sharedObjectPtr->RefCount.load(std::memory_order_relaxed);
-    while (!sharedPtr.m_sharedObjectPtr->RefCount.compare_exchange_weak(
-               oldRefCount, oldRefCount + 1),
-           std::memory_order_release, std::memory_order_relaxed)
+    int oldRefCount =
+        sharedPtr.m_sharedObjectPtr->RefCount.load(std::memory_order_seq_cst);
+    while (!sharedPtr.m_sharedObjectPtr->RefCount.compare_exchange_strong(
+        oldRefCount, oldRefCount + 1, std::memory_order_seq_cst,
+        std::memory_order_seq_cst))
         ;
     m_objectPtr = sharedPtr.m_objectPtr;
     m_sharedObjectPtr = sharedPtr.m_sharedObjectPtr;
@@ -41,10 +42,11 @@ SharedPtr<T>::SharedPtr(SharedPtr<T>&& sharedPtr) noexcept
 template <typename T>
 SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<T>& sharedPtr)
 {
-    int oldRefCount = sharedPtr.m_sharedObjectPtr->RefCount.load(std::memory_order_relaxed);
-    while (!sharedPtr.m_sharedObjectPtr->RefCount.compare_exchange_weak(
-               oldRefCount, oldRefCount + 1),
-           std::memory_order_release, std::memory_order_relaxed)
+    int oldRefCount =
+        sharedPtr.m_sharedObjectPtr->RefCount.load(std::memory_order_seq_cst);
+    while (!sharedPtr.m_sharedObjectPtr->RefCount.compare_exchange_strong(
+        oldRefCount, oldRefCount + 1, std::memory_order_seq_cst,
+        std::memory_order_seq_cst))
         ;
 
     m_objectPtr = sharedPtr.m_objectPtr;
@@ -74,8 +76,7 @@ SharedPtr<T>::~SharedPtr()
         }
         else
         {
-            m_sharedObjectPtr->RefCount.fetch_sub(
-                1, std::memory_order_seq_cst);
+            m_sharedObjectPtr->RefCount.fetch_sub(1, std::memory_order_seq_cst);
         }
     }
 }

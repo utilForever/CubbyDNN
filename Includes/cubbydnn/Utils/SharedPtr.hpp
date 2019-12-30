@@ -91,7 +91,7 @@ class SharedPtr
     //! \return :  current reference count
     [[nodiscard]] int GetCurrentRefCount() const
     {
-        return m_sharedObjectPtr->RefCount.load();
+        return m_sharedObjectPtr->RefCount.load(std::memory_order_seq_cst);
     }
 };
 }  // namespace CubbyDNN
