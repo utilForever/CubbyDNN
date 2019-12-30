@@ -11,10 +11,10 @@
 
 namespace CubbyDNN
 {
-    void CopyAndDestruct(SharedPtr<int>& sharedPtr);
+void CopyAndDestruct(const SharedPtr<int>& sharedPtr, int numCopy, bool* stop);
 
-    void ConcurrentCopy(int spawnNum);
+void ConcurrentCopy(int spawnNum, int numCopy);
 
-}
+}  // namespace CubbyDNN
 
-#endif //CUBBYDNN_SHAREDPTRTESTS_HPP
+#endif  // CUBBYDNN_SHAREDPTRTESTS_HPP

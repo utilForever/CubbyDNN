@@ -5,13 +5,14 @@
 // property of any third parties.
 
 #include "SharedPtrTests.hpp"
+#include "gtest/gtest.h"
+
 #include <deque>
 #include <thread>
-#include "gtest/gtest.h"
 
 namespace CubbyDNN
 {
-void CopyandDestruct(const SharedPtr<int>& sharedPtr, int numCopy, bool* stop)
+void CopyAndDestruct(const SharedPtr<int>& sharedPtr, int numCopy, bool* stop)
 {
     std::vector<SharedPtr<int>> intVector;
     intVector.reserve(numCopy);
@@ -38,16 +39,12 @@ void ConcurrentCopy(int spawnNum, int numCopy)
     for (int i = 0; i < spawnNum; ++i)
     {
         threadPool.emplace_back(
-            std::thread(std::move(CopyandDestruct), shared, numCopy, &stop));
-       //volatile const auto count = shared.GetCurrentRefCount();
-       // std::cout << count << std::endl;
+            std::thread(std::move(CopyAndDestruct), shared, numCopy, &stop));
+
     }
 
-    while (shared.GetCurrentRefCount() < spawnNum*(numCopy + 1) + 1)
-    {
-       // volatile const auto count = shared.GetCurrentRefCount();
-        //std::cout << count << std::endl;
-    }
+    while (shared.GetCurrentRefCount() < spawnNum * (numCopy + 1) + 1)
+        ;
 
     EXPECT_EQ(shared.GetCurrentRefCount(), spawnNum * (numCopy + 1) + 1);
     stop = true;
@@ -64,19 +61,15 @@ void ConcurrentCopy(int spawnNum, int numCopy)
 
 TEST(ConcurrentCopy_basic, ConcurrentCopy)
 {
-    /**
-     * Spawn 10 threads with enough maxRefCount
-     * Check if reference counter successfully reterns 1 at the end
-     */
+    //! Spawn 10 threads and copy SharedPtr
+    //! Check if reference counter successfully returns 1 at the end
     ConcurrentCopy(10, 100);
 }
 
 TEST(ConcurrentCopy_RefLimit, ConcurrentCopy)
 {
-    /**
-     * Spawn 50 threads and copy SharedPtr
-     * Checks if reference counter does not exceed maximumRefCount
-     */
+    //! Spawn 100 threads and copy SharedPtr
+    //!  Check if reference counter successfully returns 1 at the end
     ConcurrentCopy(100, 100);
 }
 }  // namespace CubbyDNN
