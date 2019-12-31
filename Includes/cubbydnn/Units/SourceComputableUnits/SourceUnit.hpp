@@ -25,9 +25,10 @@ class SourceUnit : public ComputableUnit
 
     //! Set or add next ComputableUnit ptr
     //! \param computableUnitPtr : computablePtr to set
-    size_t AddOutputPtr(CopyUnit* computableUnitPtr)
+    size_t AddOutputPtr(ComputableUnit* computableUnitPtr)
     {
-        ComputableUnit::m_outputPtrVector.at(m_outputIndex) = computableUnitPtr;
+        m_outputPtrVector.at(m_outputIndex) =
+            SharedPtr<ComputableUnit>::Make(computableUnitPtr);
         return m_outputIndex++;
     }
 

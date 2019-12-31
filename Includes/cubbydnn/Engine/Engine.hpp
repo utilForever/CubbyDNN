@@ -44,8 +44,8 @@ struct TaskWrapper
     //! Constructor
     //! @param type : type of this task
     //! @param compute : function to execute the computation
-    //! @param updateState : function object that updates the unit states
-    //! @param checkAndInsert : function object that checks previous and next
+    //! @param updateState : function m_objectPtr that updates the unit states
+    //! @param checkAndInsert : function m_objectPtr that checks previous and next
     //! unit
     //! TODO : Remove updateState if it can be unified to one function
     TaskWrapper(TaskType type, std::function<void(void)> compute,
@@ -63,7 +63,7 @@ struct TaskWrapper
     {
         auto& mainFunc = m_compute;
         auto& updateState = m_updateState;
-        auto combinedFunc = [mainFunc, updateState]() {
+        const auto combinedFunc = [mainFunc, updateState]() {
             mainFunc();
             updateState();
         };

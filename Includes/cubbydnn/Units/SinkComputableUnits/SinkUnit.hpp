@@ -23,9 +23,9 @@ class SinkUnit : public ComputableUnit
 
     //! Add previous computable Unit to this cell
     //! \param computableUnitPtr : computableUnitPtr to add
-    void AddInputPtr(CopyUnit* computableUnitPtr, size_t index)
+    void AddInputPtr(ComputableUnit* computableUnitPtr, size_t index)
     {
-        ComputableUnit::m_inputPtrVector.at(index) = computableUnitPtr;
+        m_inputPtrVector.at(index) = SharedPtr<ComputableUnit>::Make(computableUnitPtr);
     }
 
     //! Brings back if executableUnit is ready to be executed

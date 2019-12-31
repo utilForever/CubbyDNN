@@ -6,7 +6,6 @@
 #define CUBBYDNN_HIDDENUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Units/CopyUnit.hpp>
 
 namespace CubbyDNN
 {
@@ -19,21 +18,23 @@ class HiddenUnit : public ComputableUnit
     HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                std::vector<TensorInfo> outputTensorInfoVector);
 
-    HiddenUnit(HiddenUnit&& intermediateUnit) noexcept;
+    HiddenUnit(HiddenUnit&& hiddenUnit) noexcept;
 
     //! Add next computable Unit to this cell
     //! \param computableUnitPtr : computableUnitPtr to add
-    size_t AddOutputPtr(CopyUnit* computableUnitPtr)
+    size_t AddOutputPtr(ComputableUnit* computableUnitPtr)
     {
-        ComputableUnit::m_outputPtrVector.at(m_outputIndex) = computableUnitPtr;
+        ComputableUnit::m_outputPtrVector.at(m_outputIndex) = 
+			SharedPtr<ComputableUnit>::Make(computableUnitPtr);
         return m_outputIndex++;
     }
 
     //! Add previous computable Unit to this cell
     //! \param computableUnitPtr : computableUnitPtr to add
-    void AddInputPtr(CopyUnit* computableUnitPtr, size_t index)
+    void AddInputPtr(ComputableUnit* computableUnitPtr, size_t index)
     {
-        ComputableUnit::m_inputPtrVector.at(index) = computableUnitPtr;
+        ComputableUnit::m_inputPtrVector.at(index) = 
+			SharedPtr<ComputableUnit>::Make(computableUnitPtr);
     }
 
     //! Determines whether system is ready to compute

@@ -9,7 +9,7 @@
 namespace CubbyDNN
 {
 SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
-    : ComputableUnit(inputTensorInfoVector.size(), 1),
+    : ComputableUnit(inputTensorInfoVector.size(), 0, UnitType::Sink),
       m_inputTensorInfoVector(std::move(inputTensorInfoVector))
 {
     m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
@@ -28,8 +28,9 @@ SinkUnit::SinkUnit(SinkUnit&& sinkUnit) noexcept
 
 bool SinkUnit::IsReady()
 {
-    if (ComputableUnit::m_unitState.IsBusy)
+    if (m_unitState.IsBusy)
         return false;
+
     for (const auto& previousPtr : m_inputPtrVector)
     {
         if (previousPtr->GetStateNum() != GetStateNum() + 1)

@@ -7,7 +7,7 @@
 namespace CubbyDNN
 {
 SourceUnit::SourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
-    : ComputableUnit(1, outputTensorInfoVector.size()),
+    : ComputableUnit(0, outputTensorInfoVector.size(), UnitType::Source),
       m_outputTensorInfoVector(std::move(outputTensorInfoVector))
 {
     m_outputTensorVector.reserve(outputTensorInfoVector.size());
@@ -26,7 +26,7 @@ SourceUnit::SourceUnit(SourceUnit&& sourceUnit) noexcept
 
 bool SourceUnit::IsReady()
 {
-    if (ComputableUnit::m_unitState.IsBusy)
+    if (m_unitState.IsBusy)
         return false;
 
     auto isReady = true;

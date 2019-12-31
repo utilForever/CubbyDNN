@@ -17,7 +17,7 @@ namespace CubbyDNN {
 /**
  * Thread safe spinLockQueue which enqueues and dequeues, accesses element using
  * spinlocks
- * @tparam T : type of object to store
+ * @tparam T : type of m_objectPtr to store
  */
 template <typename T> class SpinLockQueue {
 public:
@@ -34,8 +34,8 @@ public:
   template <typename U> void Enqueue(U &&elem);
 
   /**
-   * Enqueues object to the queue
-   * @tparam U : type of object to store this type must be same as
+   * Enqueues m_objectPtr to the queue
+   * @tparam U : type of m_objectPtr to store this type must be same as
    * SpinLockQueue's template type 'T'
    * @param elem : element to enqueue
    * @return : whether enqueue has been succeeded. This can fail if queue goes
@@ -44,17 +44,17 @@ public:
   template <typename U> bool TryEnqueue(U &&elem);
 
   /**
-   * Dequeues object from the queue
+   * Dequeues m_objectPtr from the queue
    * This waits until there are some elements ready to be dequeued. Otherwise,
    * it busy waits
-   * @return : dequeued object from the queue
+   * @return : dequeued m_objectPtr from the queue
    */
 
   T Dequeue();
 
   /**
    * Tries to dequeue element from the queue
-   * @return : tuple which contains first element as dequeued object(if
+   * @return : tuple which contains first element as dequeued m_objectPtr(if
    * successful) and second as whether dequeue was successful
    */
   std::tuple<T, bool> TryDequeue();

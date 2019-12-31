@@ -1,6 +1,8 @@
-//
-// Created by jwkim98 on 8/13/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 
@@ -9,7 +11,7 @@ namespace CubbyDNN
 HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                        std::vector<TensorInfo> outputTensorInfoVector)
     : ComputableUnit(inputTensorInfoVector.size(),
-                     outputTensorInfoVector.size()),
+                     outputTensorInfoVector.size(), UnitType::Hidden),
       m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
       m_outputTensorInfoVector(std::move(outputTensorInfoVector))
 {
@@ -26,29 +28,29 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
     }
 }
 
-HiddenUnit::HiddenUnit(HiddenUnit&& intermediateUnit) noexcept
-    : ComputableUnit(std::move(intermediateUnit)),
+HiddenUnit::HiddenUnit(HiddenUnit&& hiddenUnit) noexcept
+    : ComputableUnit(std::move(hiddenUnit)),
       m_inputTensorInfoVector(
-          std::move(intermediateUnit.m_inputTensorInfoVector)),
+          std::move(hiddenUnit.m_inputTensorInfoVector)),
       m_outputTensorInfoVector(
-          std::move(intermediateUnit.m_outputTensorInfoVector)),
-      m_inputTensorVector(std::move(intermediateUnit.m_inputTensorVector)),
-      m_outputTensorVector(std::move(intermediateUnit.m_outputTensorVector))
+          std::move(hiddenUnit.m_outputTensorInfoVector)),
+      m_inputTensorVector(std::move(hiddenUnit.m_inputTensorVector)),
+      m_outputTensorVector(std::move(hiddenUnit.m_outputTensorVector))
 {
 }
 
 bool HiddenUnit::IsReady()
 {
-    if (ComputableUnit::m_unitState.IsBusy)
+    if (m_unitState.IsBusy)
         return false;
 
-    for (auto elem : m_inputPtrVector)
+    for (auto& elem : m_inputPtrVector)
     {
         if (elem->GetStateNum() != this->GetStateNum() + 1)
             return false;
     }
 
-    for (auto elem : m_outputPtrVector)
+    for (auto& elem : m_outputPtrVector)
     {
         if (elem->GetStateNum() != this->GetStateNum())
             return false;

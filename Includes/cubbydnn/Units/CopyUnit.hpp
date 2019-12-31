@@ -1,6 +1,8 @@
-//
-// Created by jwkim98 on 8/13/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
 
 #ifndef CUBBYDNN_COPYUNIT_HPP
 #define CUBBYDNN_COPYUNIT_HPP
@@ -9,17 +11,23 @@
 
 namespace CubbyDNN
 {
-/**
- * CopyUnits
- * This will connect between other units(not copy) by copying the output of
- * previous unit to input of next unit
- */
+//! CopyUnit
+//! This will connect between other units(not copy) by copying the output of
+//! previous unit to input of next unit
 class CopyUnit : public ComputableUnit
 {
- public:
+public:
     CopyUnit();
 
+    ~CopyUnit() = default;
+
+    CopyUnit(CopyUnit& copyUnit) = delete;
+
     CopyUnit(CopyUnit&& copyUnit) noexcept;
+
+    CopyUnit& operator=(CopyUnit& copyUnit) = delete;
+
+    CopyUnit& operator=(CopyUnit&& copyUnit) = delete;
 
     //! Sets ComputableUnitPtr of previous unit to copy from
     //! If no computableUnitPtr has been assigned, unit is added. If it has
@@ -28,7 +36,7 @@ class CopyUnit : public ComputableUnit
     //! \param computableUnitPtr : computableUnitPtr to add or replace
     void SetInputPtr(ComputableUnit* computableUnitPtr)
     {
-        ComputableUnit::m_inputPtrVector.at(m_inputIndex++) = computableUnitPtr;
+        m_inputUnitPtr = SharedPtr<ComputableUnit>::Make(computableUnitPtr);
     }
 
     //! Sets ComputableUnitPtr of previous unit to copy from
@@ -38,43 +46,41 @@ class CopyUnit : public ComputableUnit
     //! \param computableUnitPtr : computableUnitPtr to add or replace
     void SetOutputPtr(ComputableUnit* computableUnitPtr)
     {
-        ComputableUnit::m_outputPtrVector.at(m_outputIndex++) =
-            computableUnitPtr;
+        m_outputUnitPtr = SharedPtr<ComputableUnit>::Make(computableUnitPtr);
     }
 
-    Tensor& GetInputTensor(size_t index) override
-    {
-        index;
-        assert(false);
-        return tensor;
-    }
 
-    Tensor& GetOutputTensor(size_t index) override
-    {
-        index;
-        assert(false);
-        return tensor;
-    }
-
+    //! Sets index of previous tensor to copy
+    //! \param index : index of the previous tensor
     void SetInputTensorIndex(size_t index)
     {
         m_inputTensorIndex = index;
     }
 
+    //! Sets index of destination tensor to write
+    //! \param index : index of the output tensor
     void SetOutputTensorIndex(size_t index)
     {
         m_outputTensorIndex = index;
     }
 
-    //! Implements copy operation between input and output
-    void Compute() override;
     //! Checks if this copyUnit is ready to be executed
     bool IsReady() override;
 
- private:
-    size_t m_inputTensorIndex;
-    size_t m_outputTensorIndex;
+    //! Implements copy operation between input and output
+    void Compute() override;
+
+
+private:
+
+    size_t m_inputTensorIndex = 0;
+    size_t m_outputTensorIndex = 0;
+
+    /// ptr to source of the copy
+    SharedPtr<ComputableUnit> m_inputUnitPtr;
+    /// ptr to destination of the copy
+    SharedPtr<ComputableUnit> m_outputUnitPtr;
 };
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif  // CUBBYDNN_COPYUNIT_HPP
