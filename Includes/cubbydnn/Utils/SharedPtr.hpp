@@ -11,54 +11,67 @@
 
 namespace CubbyDNN
 {
+//! Shared m_objectPtr stores the actual m_objectPtr with atomic reference
+//! counter
+struct SharedObjectInfo
+{
+    SharedObjectInfo() : RefCount(1)
+    {
+    }
+
+    /// T m_objectPtr might not be initializable
+    std::atomic<int> RefCount;
+};
+
+template <typename T>
+class WeakPtr;
+
 template <typename T>
 class SharedPtr
 {
-    //! Shared m_objectPtr stores the actual m_objectPtr with atomic reference
-    //! counter
-    struct SharedObjectInfo
-    {
-        SharedObjectInfo() : RefCount(1)
-        {
-        }
-
-        /// T m_objectPtr might not be initializable
-        std::atomic<int> RefCount;
-    };
-
     /// Ptr to the object
     T* m_objectPtr = nullptr;
 
     /// Ptr to the reference counter
-    SharedObjectInfo* m_sharedObjectPtr = nullptr;
+    SharedObjectInfo* m_sharedObjectInfoPtr = nullptr;
+
+    template<typename U>
+    friend class SharedPtr;
+
+    friend class WeakPtr<T>;
 
     //! private constructor for constructing the m_objectPtr for the first time
     //! \param objectPtr : ptr for the object
     //! \param informationPtr : informationPtr that has been created
-    explicit SharedPtr(T* objectPtr, SharedObjectInfo* informationPtr);
+    template <typename U>
+    explicit SharedPtr(U* objectPtr, SharedObjectInfo* informationPtr);
 
  public:
     SharedPtr() = default;
 
     //! Copy constructor
     //! \param sharedPtr
-    SharedPtr(const SharedPtr<T>& sharedPtr);
+    template <typename U>
+    SharedPtr(const SharedPtr<U>& sharedPtr);
 
     //! Move constructor
     //! This will make given parameter (sharedPtr) invalid
     //! \param sharedPtr : SharedPtr<T> to move from
-    SharedPtr(SharedPtr<T>&& sharedPtr) noexcept;
+    template<typename U>
+    SharedPtr(SharedPtr<U>&& sharedPtr) noexcept;
 
     //! Compute assign operator is explicitly deleted
     //! \param sharedPtr
-    //! \return
-    SharedPtr<T>& operator=(const SharedPtr<T>& sharedPtr);
+    //! \return reference to current object
+    template<typename U>
+    SharedPtr<T>& operator=(const SharedPtr<U>& sharedPtr);
 
     //! Move assign operator
     //! This will make given parameter (sharedPtr) invalid
     //! \param sharedPtr : SharedPtr<T> to move from
     //! \return : SharedPtr<T>
-    SharedPtr<T>& operator=(SharedPtr<T>&& sharedPtr) noexcept;
+    template<typename U>
+    SharedPtr<T>& operator=(SharedPtr<U>&& sharedPtr) noexcept;
 
     //! Destructor will automatically decrease the reference counter if this ptr
     //! has valid pointer
@@ -81,17 +94,13 @@ class SharedPtr
 
     //! Access operator to m_objectPtr this possesses
     //! \return : ptr to m_objectPtr
-    T* operator->();
-
-    //! Const access operator
-    //! \return : Const ptr to m_objectPtr
-    const T* operator->() const;
+    T* operator->() const;
 
     //! Gets current reference count
     //! \return :  current reference count
     [[nodiscard]] int GetCurrentRefCount() const
     {
-        return m_sharedObjectPtr->RefCount.load(std::memory_order_acquire);
+        return m_sharedObjectInfoPtr->RefCount.load(std::memory_order_acquire);
     }
 };
 }  // namespace CubbyDNN
