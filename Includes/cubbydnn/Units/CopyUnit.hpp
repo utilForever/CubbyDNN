@@ -8,6 +8,7 @@
 #define CUBBYDNN_COPYUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Utils/WeakPtr-impl.hpp>
 
 namespace CubbyDNN
 {
@@ -34,9 +35,9 @@ public:
     //! previously assigned computableUnitPtr, computableUnitPtr is replaced by
     //! given parameter
     //! \param computableUnitPtr : computableUnitPtr to add or replace
-    void SetInputPtr(ComputableUnit* computableUnitPtr)
+    void SetInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr)
     {
-        m_inputUnitPtr = SharedPtr<ComputableUnit>::Make(computableUnitPtr);
+        m_inputUnitPtr = computableUnitPtr;
     }
 
     //! Sets ComputableUnitPtr of previous unit to copy from
@@ -44,9 +45,9 @@ public:
     //! previously assigned computableUnitPtr, computableUnitPtr is replaced by
     //! given parameter
     //! \param computableUnitPtr : computableUnitPtr to add or replace
-    void SetOutputPtr(ComputableUnit* computableUnitPtr)
+    void SetOutputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr)
     {
-        m_outputUnitPtr = SharedPtr<ComputableUnit>::Make(computableUnitPtr);
+        m_outputUnitPtr = computableUnitPtr;
     }
 
 
@@ -77,9 +78,9 @@ private:
     size_t m_outputTensorIndex = 0;
 
     /// ptr to source of the copy
-    SharedPtr<ComputableUnit> m_inputUnitPtr;
+    WeakPtr<ComputableUnit> m_inputUnitPtr;
     /// ptr to destination of the copy
-    SharedPtr<ComputableUnit> m_outputUnitPtr;
+    WeakPtr<ComputableUnit> m_outputUnitPtr;
 };
 } // namespace CubbyDNN
 

@@ -20,23 +20,6 @@ class HiddenUnit : public ComputableUnit
 
     HiddenUnit(HiddenUnit&& hiddenUnit) noexcept;
 
-    //! Add next computable Unit to this cell
-    //! \param computableUnitPtr : computableUnitPtr to add
-    size_t AddOutputPtr(ComputableUnit* computableUnitPtr)
-    {
-        ComputableUnit::m_outputPtrVector.at(m_outputIndex) = 
-			SharedPtr<ComputableUnit>::Make(computableUnitPtr);
-        return m_outputIndex++;
-    }
-
-    //! Add previous computable Unit to this cell
-    //! \param computableUnitPtr : computableUnitPtr to add
-    void AddInputPtr(ComputableUnit* computableUnitPtr, size_t index)
-    {
-        ComputableUnit::m_inputPtrVector.at(index) = 
-			SharedPtr<ComputableUnit>::Make(computableUnitPtr);
-    }
-
     //! Determines whether system is ready to compute
     bool IsReady() final;
 

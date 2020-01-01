@@ -55,6 +55,10 @@ class ComputableUnit
 
     virtual ~ComputableUnit() = default;
 
+    size_t AddOutputPtr(SharedPtr<ComputableUnit> computableUnitPtr);
+
+    void AddInputPtr(SharedPtr<ComputableUnit> computableUnitPtr ,size_t  index);
+
     //! Brings back if executableUnit is ready to be executed
     //! \return : whether corresponding unit is ready to be executed
     virtual bool IsReady() = 0;

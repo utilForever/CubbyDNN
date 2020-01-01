@@ -25,13 +25,13 @@ std::atomic<bool> Engine::m_dirty(true);
 
 bool Engine::m_active = true;
 
-std::vector<SourceUnit*> Engine::m_sourceUnitVector;
+std::vector<SharedPtr<SourceUnit>> Engine::m_sourceUnitVector;
 
-std::vector<SinkUnit*> Engine::m_sinkUnitVector;
+std::vector<SharedPtr<SinkUnit>> Engine::m_sinkUnitVector;
 
-std::vector<HiddenUnit*> Engine::m_intermediateUnitVector;
+std::vector<SharedPtr<HiddenUnit>> Engine::m_intermediateUnitVector;
 
-std::vector<CopyUnit*> Engine::m_copyUnitVector;
+std::vector<SharedPtr<CopyUnit>> Engine::m_copyUnitVector;
 
 size_t Engine::m_maxEpochs = 0;
 
@@ -43,8 +43,8 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
         const auto hardwareConcurrency = std::thread::hardware_concurrency();
         std::cout << "This computer has only " << hardwareConcurrency
                   << " threads available, but total "
-                  << mainThreadNum + copyThreadNum
-                  << " threads were requested" << std::endl;
+                  << mainThreadNum + copyThreadNum << " threads were requested"
+                  << std::endl;
     }
     m_maxEpochs = epochs;
 
@@ -64,24 +64,27 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
     // m_scanCopyThread = std::thread(ScanCopyTasks);
 }
 
-size_t Engine::AddSourceUnit(SourceUnit* sourceUnit)
+size_t Engine::AddSourceUnit(SourceUnit sourceUnit)
 {
     const auto id = m_sourceUnitVector.size();
-    m_sourceUnitVector.emplace_back(sourceUnit);
+    m_sourceUnitVector.emplace_back(
+        SharedPtr<SourceUnit>::Make(std::move(sourceUnit)));
     return id;
 }
 
-size_t Engine::AddHiddenUnit(HiddenUnit* hiddenUnit)
+size_t Engine::AddHiddenUnit(HiddenUnit hiddenUnit)
 {
     auto id = m_intermediateUnitVector.size();
-    m_intermediateUnitVector.emplace_back(hiddenUnit);
+    m_intermediateUnitVector.emplace_back(
+        SharedPtr<HiddenUnit>::Make(std::move(hiddenUnit)));
     return id;
 }
 
-size_t Engine::AddSinkUnit(SinkUnit* sinkUnit)
+size_t Engine::AddSinkUnit(SinkUnit sinkUnit)
 {
     auto id = m_sinkUnitVector.size();
-    m_sinkUnitVector.emplace_back(sinkUnit);
+    m_sinkUnitVector.emplace_back(
+        SharedPtr<SinkUnit>::Make(std::move(sinkUnit)));
     return id;
 }
 
@@ -90,10 +93,11 @@ void Engine::ConnectSourceToIntermediate(size_t originID, size_t destID,
 {
     assert(originID < m_sourceUnitVector.size());
     assert(destID < m_intermediateUnitVector.size());
-    auto* sourceUnit = m_sourceUnitVector.at(originID);
-    auto* intermediateUnit = m_intermediateUnitVector.at(destID);
-    m_copyUnitVector.emplace_back(new CopyUnit());
-    auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
+    auto sourceUnit = m_sourceUnitVector.at(originID);
+    auto intermediateUnit = m_intermediateUnitVector.at(destID);
+    m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
+    auto copyUnit =
+        m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(sourceUnit);
     copyUnit->SetOutputPtr(intermediateUnit);
     const auto inputIndex = sourceUnit->AddOutputPtr(copyUnit);
@@ -107,10 +111,10 @@ void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID,
 {
     assert(originID < m_intermediateUnitVector.size());
     assert(destID < m_intermediateUnitVector.size());
-    auto* originIntermediateUnit = m_intermediateUnitVector.at(originID);
-    auto* destIntermediateUnit = m_intermediateUnitVector.at(destID);
-    m_copyUnitVector.emplace_back(new CopyUnit());
-    auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
+    auto originIntermediateUnit = m_intermediateUnitVector.at(originID);
+    auto destIntermediateUnit = m_intermediateUnitVector.at(destID);
+    m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
+    auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(originIntermediateUnit);
     copyUnit->SetOutputPtr(destIntermediateUnit);
     const auto inputIndex = originIntermediateUnit->AddOutputPtr(copyUnit);
@@ -124,10 +128,10 @@ void Engine::ConnectIntermediateToSink(size_t originID, size_t destID,
 {
     assert(originID < m_intermediateUnitVector.size());
     assert(destID < m_sinkUnitVector.size());
-    auto* intermediateUnit = m_intermediateUnitVector.at(originID);
-    auto* sinkUnit = m_sinkUnitVector.at(destID);
-    m_copyUnitVector.emplace_back(new CopyUnit());
-    auto* copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
+    auto intermediateUnit = m_intermediateUnitVector.at(originID);
+    auto sinkUnit = m_sinkUnitVector.at(destID);
+    m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
+    auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(intermediateUnit);
     copyUnit->SetOutputPtr(sinkUnit);
     const auto inputIndex = intermediateUnit->AddOutputPtr(copyUnit);
@@ -194,10 +198,12 @@ void Engine::JoinThreads()
 void Engine::Abort()
 {
     for (size_t count = 0; count < m_mainThreadPool.size(); ++count)
-        m_mainTaskQueue.Enqueue(TaskWrapper(TaskType::Join, []() {}, []() {}));
+        m_mainTaskQueue.Enqueue(TaskWrapper(
+            TaskType::Join, []() {}, []() {}));
 
     for (size_t count = 0; count < m_copyThreadPool.size(); ++count)
-        m_mainTaskQueue.Enqueue(TaskWrapper(TaskType::Join, []() {}, []() {}));
+        m_mainTaskQueue.Enqueue(TaskWrapper(
+            TaskType::Join, []() {}, []() {}));
 
     for (auto& thread : m_mainThreadPool)
     {
@@ -275,7 +281,9 @@ void Engine::ScanUnitTasks()
                 if (sinkUnit->IsReady() &&
                     sinkUnit->GetStateNum() < m_maxEpochs)
                 {
-                    const auto computeFunc = [&sinkUnit]() { sinkUnit->Compute(); };
+                    const auto computeFunc = [&sinkUnit]() {
+                        sinkUnit->Compute();
+                    };
                     const auto updateState = [&sinkUnit]() {
                         sinkUnit->ReleaseUnit();
                     };
@@ -329,35 +337,11 @@ void Engine::ScanUnitTasks()
         m_mainTaskQueue.Enqueue(std::move(taskWrapper));
     }
 
-    
     for (size_t count = 0; count < m_copyThreadPool.size(); ++count)
     {
         auto dummyFunc = []() {};
         TaskWrapper taskWrapper(TaskType::Join, dummyFunc, dummyFunc);
         m_copyTaskQueue.Enqueue(std::move(taskWrapper));
-    }
-}
-
-void Engine::ReleaseResources()
-{
-    for (auto* sourcePtr : m_sourceUnitVector)
-    {
-        delete sourcePtr;
-    }
-
-    for (auto* hiddenPtr : m_intermediateUnitVector)
-    {
-        delete hiddenPtr;
-    }
-
-    for (auto* sinkPtr : m_sinkUnitVector)
-    {
-        delete sinkPtr;
-    }
-
-    for (auto* copyPtr : m_copyUnitVector)
-    {
-        delete copyPtr;
     }
 }
 
@@ -374,7 +358,9 @@ void Engine::ScanCopyTasks()
                 if (copyUnit->IsReady() &&
                     copyUnit->GetStateNum() < m_maxEpochs)
                 {
-                    const auto computeFunc = [&copyUnit]() { copyUnit->Compute(); };
+                    const auto computeFunc = [&copyUnit]() {
+                        copyUnit->Compute();
+                    };
                     const auto updateState = [&copyUnit]() {
                         copyUnit->ReleaseUnit();
                     };

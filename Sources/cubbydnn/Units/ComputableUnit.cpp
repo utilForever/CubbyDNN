@@ -26,4 +26,16 @@ ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
 {
 }
 
+size_t ComputableUnit::AddOutputPtr(SharedPtr<ComputableUnit> computableUnitPtr)
+{
+    m_outputPtrVector.at(m_outputIndex) = computableUnitPtr;
+    return m_outputIndex++;
+}
+
+void ComputableUnit::AddInputPtr(SharedPtr<ComputableUnit> computableUnitPtr, size_t index)
+{
+    m_inputPtrVector.at(index) = computableUnitPtr;
+}
+
+
 }  // namespace CubbyDNN

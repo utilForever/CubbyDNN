@@ -23,15 +23,6 @@ class SourceUnit : public ComputableUnit
 
     SourceUnit(SourceUnit&& sourceUnit) noexcept;
 
-    //! Set or add next ComputableUnit ptr
-    //! \param computableUnitPtr : computablePtr to set
-    size_t AddOutputPtr(ComputableUnit* computableUnitPtr)
-    {
-        m_outputPtrVector.at(m_outputIndex) =
-            SharedPtr<ComputableUnit>::Make(computableUnitPtr);
-        return m_outputIndex++;
-    }
-
     //! Checks if source is ready
     //! \return : true if ready to be computed false otherwise
     bool IsReady() final;
