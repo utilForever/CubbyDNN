@@ -15,6 +15,11 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
       m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
       m_outputTensorInfoVector(std::move(outputTensorInfoVector))
 {
+    m_outputPtrVector =
+        std::vector<SharedPtr<ComputableUnit>>(m_outputTensorInfoVector.size());
+    m_inputPtrVector =
+        std::vector<SharedPtr<ComputableUnit>>(m_inputTensorInfoVector.size());
+
     m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
     for (auto& inputTensorInfo : m_inputTensorInfoVector)
     {

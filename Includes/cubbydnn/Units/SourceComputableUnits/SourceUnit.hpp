@@ -17,7 +17,7 @@ class SourceUnit : public ComputableUnit
 {
  public:
     //! Constructor
-    //! \param outputTensorInfoVector : TensorInfo of the output tensor(Which is
+    //! \param outputTensorInfoVector : TensorInfo of the output m_tensor(Which is
     //! always less than 1)
     explicit SourceUnit(std::vector<TensorInfo> outputTensorInfoVector);
 
@@ -36,7 +36,7 @@ class SourceUnit : public ComputableUnit
     Tensor& GetInputTensor(size_t index) override
     {
         index;
-        return tensor;
+        return m_tensor;
     }
 
     Tensor& GetOutputTensor(size_t index) override

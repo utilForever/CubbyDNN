@@ -51,15 +51,15 @@ public:
     }
 
 
-    //! Sets index of previous tensor to copy
-    //! \param index : index of the previous tensor
+    //! Sets index of previous m_tensor to copy
+    //! \param index : index of the previous m_tensor
     void SetInputTensorIndex(size_t index)
     {
         m_inputTensorIndex = index;
     }
 
-    //! Sets index of destination tensor to write
-    //! \param index : index of the output tensor
+    //! Sets index of destination m_tensor to write
+    //! \param index : index of the output m_tensor
     void SetOutputTensorIndex(size_t index)
     {
         m_outputTensorIndex = index;

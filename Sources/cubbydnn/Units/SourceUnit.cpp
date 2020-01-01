@@ -1,6 +1,9 @@
-//
-// Created by jwkim98 on 8/13/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
+
 
 #include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 
@@ -10,6 +13,9 @@ SourceUnit::SourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
     : ComputableUnit(0, outputTensorInfoVector.size(), UnitType::Source),
       m_outputTensorInfoVector(std::move(outputTensorInfoVector))
 {
+    m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(
+        m_outputTensorInfoVector.size(), SharedPtr<ComputableUnit>());
+
     m_outputTensorVector.reserve(outputTensorInfoVector.size());
     for (const auto& tensorInfo : m_outputTensorInfoVector)
     {

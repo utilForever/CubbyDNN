@@ -19,7 +19,7 @@
 
 namespace GraphTest{
 
-    void GraphConstruction();
+    void SimpleGraphTest();
 
 }
 

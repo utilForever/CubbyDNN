@@ -22,18 +22,23 @@ ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
     : Type(computableUnit.Type),
       m_inputPtrVector(std::move(computableUnit.m_inputPtrVector)),
       m_outputPtrVector(std::move(computableUnit.m_outputPtrVector)),
-      m_logVector(std::move(computableUnit.m_logVector))
+      m_logVector(std::move(computableUnit.m_logVector)),
+      m_outputVectorIndex(computableUnit.m_outputVectorIndex)
 {
 }
 
-size_t ComputableUnit::AddOutputPtr(SharedPtr<ComputableUnit> computableUnitPtr)
+size_t ComputableUnit::AddOutputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr)
 {
-    m_outputPtrVector.at(m_outputIndex) = computableUnitPtr;
-    return m_outputIndex++;
+    assert(m_outputVectorIndex < m_outputPtrVector.size() && "Number of outputs exceeds number given from decleration");
+
+    m_outputPtrVector.at(m_outputVectorIndex) = computableUnitPtr;
+    return m_outputVectorIndex++;
 }
 
-void ComputableUnit::AddInputPtr(SharedPtr<ComputableUnit> computableUnitPtr, size_t index)
+void ComputableUnit::AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr, size_t index)
 {
+    assert(index< m_inputPtrVector.size() &&
+           "Number of inputs exceeds number given from decleration");
     m_inputPtrVector.at(index) = computableUnitPtr;
 }
 

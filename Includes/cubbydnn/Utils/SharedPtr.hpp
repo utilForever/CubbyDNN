@@ -35,10 +35,14 @@ class SharedPtr
     /// Ptr to the reference counter
     SharedObjectInfo* m_sharedObjectInfoPtr = nullptr;
 
-    template<typename U>
+    template <typename U>
     friend class SharedPtr;
 
     friend class WeakPtr<T>;
+
+    //! Deletes object if this shared_ptr is last shared_ptr owning object
+    //! or decrements reference count
+    void m_delete() const;
 
     //! private constructor for constructing the m_objectPtr for the first time
     //! \param objectPtr : ptr for the object
@@ -54,23 +58,25 @@ class SharedPtr
     template <typename U>
     SharedPtr(const SharedPtr<U>& sharedPtr);
 
+    SharedPtr(const SharedPtr<T>& sharedPtr);
+
     //! Move constructor
     //! This will make given parameter (sharedPtr) invalid
     //! \param sharedPtr : SharedPtr<T> to move from
-    template<typename U>
+    template <typename U>
     SharedPtr(SharedPtr<U>&& sharedPtr) noexcept;
 
     //! Compute assign operator is explicitly deleted
     //! \param sharedPtr
     //! \return reference to current object
-    template<typename U>
+    template <typename U>
     SharedPtr<T>& operator=(const SharedPtr<U>& sharedPtr);
 
     //! Move assign operator
     //! This will make given parameter (sharedPtr) invalid
     //! \param sharedPtr : SharedPtr<T> to move from
     //! \return : SharedPtr<T>
-    template<typename U>
+    template <typename U>
     SharedPtr<T>& operator=(SharedPtr<U>&& sharedPtr) noexcept;
 
     //! Destructor will automatically decrease the reference counter if this ptr

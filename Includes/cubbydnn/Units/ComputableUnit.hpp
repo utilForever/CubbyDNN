@@ -55,9 +55,9 @@ class ComputableUnit
 
     virtual ~ComputableUnit() = default;
 
-    size_t AddOutputPtr(SharedPtr<ComputableUnit> computableUnitPtr);
+    size_t AddOutputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr);
 
-    void AddInputPtr(SharedPtr<ComputableUnit> computableUnitPtr ,size_t  index);
+    void AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr, size_t  index);
 
     //! Brings back if executableUnit is ready to be executed
     //! \return : whether corresponding unit is ready to be executed
@@ -95,12 +95,12 @@ class ComputableUnit
     virtual Tensor& GetInputTensor(size_t index)
     {
         index;
-        return tensor;
+        return m_tensor;
     }
     virtual Tensor& GetOutputTensor(size_t index)
     {
         index;
-        return tensor;
+        return m_tensor;
     }
 
     const UnitType Type = UnitType::Undefined;
@@ -131,10 +131,10 @@ class ComputableUnit
     /// vector to log states for debugging purpose
     std::vector<std::string> m_logVector;
 
-    size_t m_inputIndex = 0;
-    size_t m_outputIndex = 0;
+    Tensor m_tensor = Tensor(nullptr, TensorInfo({ 0 }));
 
-    Tensor tensor = Tensor(nullptr, TensorInfo({ 0 }));
+private:
+    size_t m_outputVectorIndex = 0;
 };
 }  // namespace CubbyDNN
 

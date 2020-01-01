@@ -12,6 +12,9 @@ SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
     : ComputableUnit(inputTensorInfoVector.size(), 0, UnitType::Sink),
       m_inputTensorInfoVector(std::move(inputTensorInfoVector))
 {
+    m_inputPtrVector =
+        std::vector<SharedPtr<ComputableUnit>>(m_inputTensorInfoVector.size());
+
     m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
     for (const auto& tensorInfo : m_inputTensorInfoVector)
     {

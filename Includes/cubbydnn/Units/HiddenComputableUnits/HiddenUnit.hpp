@@ -14,7 +14,7 @@ class HiddenUnit : public ComputableUnit
  public:
     //! Constructor
     //! \param inputTensorInfoVector : vector of TensorInfo
-    //! \param outputTensorInfoVector : TensorInfo of the output tensor
+    //! \param outputTensorInfoVector : TensorInfo of the output m_tensor
     HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                std::vector<TensorInfo> outputTensorInfoVector);
 

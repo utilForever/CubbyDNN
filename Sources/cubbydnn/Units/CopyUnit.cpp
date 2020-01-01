@@ -16,8 +16,8 @@ CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
     : ComputableUnit(std::move(copyUnit)),
       m_inputTensorIndex(copyUnit.m_inputTensorIndex),
       m_outputTensorIndex(copyUnit.m_outputTensorIndex),
-      m_inputUnitPtr(std::move(copyUnit.m_inputUnitPtr)),
-      m_outputUnitPtr(std::move(copyUnit.m_outputUnitPtr))
+      m_inputUnitPtr(copyUnit.m_inputUnitPtr),
+      m_outputUnitPtr(copyUnit.m_outputUnitPtr)
 {
 }
 

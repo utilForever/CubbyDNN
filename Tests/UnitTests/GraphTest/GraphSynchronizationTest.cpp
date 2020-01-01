@@ -9,7 +9,7 @@
 namespace GraphTest
 {
 using namespace CubbyDNN;
-void GraphConstruction()
+void SimpleGraphTest()
 {
     /**         hidden1 -- hidden3
      *        /                     \
@@ -81,7 +81,7 @@ void SimpleGraph()
 
 TEST(SimpleGraph, GraphConstruction)
 {
-    GraphConstruction();
+    SimpleGraphTest();
     EXPECT_EQ(0,0);
 }
 }  // namespace GraphTest
