@@ -120,23 +120,21 @@ class Engine
 
     static void Abort();
 
-    static void ReleaseResources();
-
     //! Adds sourceUnit to sourceUnitVector and assigns ID for the unit
     //! @param sourceUnit : sourceUnit to add
     //! @return : assigned id of the unit
-    static size_t AddSourceUnit(SourceUnit* sourceUnit);
+    static size_t AddSourceUnit(SourceUnit sourceUnit);
 
     //! Adds intermediateUnit to intermediateUnitVector and assigns ID for the
     //! unit
     //! @param hiddenUnit : intermediateUnit to add
     //! @return : assigned id of the unit
-    static size_t AddHiddenUnit(HiddenUnit* hiddenUnit);
+    static size_t AddHiddenUnit(HiddenUnit hiddenUnit);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
     //! @param sinkUnit : sinkUnit to add
     //! @return : assigned id of the unit
-    static size_t AddSinkUnit(SinkUnit* sinkUnit);
+    static size_t AddSinkUnit(SinkUnit sinkUnit);
 
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
     //! between them
@@ -186,10 +184,10 @@ class Engine
     /// True if this engine is active false otherwise
     static bool m_active;
 
-    static std::vector<SourceUnit*> m_sourceUnitVector;
-    static std::vector<SinkUnit*> m_sinkUnitVector;
-    static std::vector<HiddenUnit*> m_intermediateUnitVector;
-    static std::vector<CopyUnit*> m_copyUnitVector;
+    static std::vector<SharedPtr<SourceUnit>> m_sourceUnitVector;
+    static std::vector<SharedPtr<SinkUnit>> m_sinkUnitVector;
+    static std::vector<SharedPtr<HiddenUnit>> m_intermediateUnitVector;
+    static std::vector<SharedPtr<CopyUnit>> m_copyUnitVector;
 
     /// number of epochs to run the graph
     /// If stateNum reaches this, that unit will be no longer computed
