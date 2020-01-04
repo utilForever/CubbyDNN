@@ -4,111 +4,244 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_SHAREDPTR_HPP
-#define CUBBYDNN_SHAREDPTR_HPP
+#ifndef CUBBYDNN_SHAREDPTR_IMPL_HPP
+#define CUBBYDNN_SHAREDPTR_IMPL_HPP
 
-#include <atomic>
+#include <cubbydnn/Utils/SharedPtr-Decl.hpp>
 
 namespace CubbyDNN
 {
-//! Shared m_objectPtr stores the actual m_objectPtr with atomic reference
-//! counter
-struct SharedObjectInfo
+template <typename T>
+void SharedPtr<T>::m_delete() const
 {
-    SharedObjectInfo() : RefCount(1)
+    if (m_sharedObjectInfoPtr)
     {
+        if (m_sharedObjectInfoPtr->RefCount.load(std::memory_order_acquire) ==
+            1)
+        {
+            delete m_sharedObjectInfoPtr;
+            delete m_objectPtr;
+        }
+        else
+        {
+            m_sharedObjectInfoPtr->RefCount.fetch_sub(
+                1, std::memory_order_release);
+        }
     }
-
-    /// T m_objectPtr might not be initializable
-    std::atomic<int> RefCount;
-};
+}
 
 template <typename T>
-class WeakPtr;
+template <typename U>
+SharedPtr<T>::SharedPtr(U* objectPtr, SharedObjectInfo* informationPtr)
+    : m_id(0), m_objectPtr(objectPtr), m_sharedObjectInfoPtr(informationPtr)
+{
+    static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value ||
+                  std::is_base_of<std::decay_t<T>, std::decay_t<U>>::value);
+    ;
+}
 
 template <typename T>
-class SharedPtr
+template <typename U>
+SharedPtr<T>::SharedPtr(const SharedPtr<U>& sharedPtr)
+    : m_objectPtr(sharedPtr.m_objectPtr),
+      m_sharedObjectInfoPtr(sharedPtr.m_sharedObjectInfoPtr)
 {
-    /// Ptr to the object
-    T* m_objectPtr = nullptr;
+    static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value ||
+                  std::is_base_of<std::decay_t<T>, std::decay_t<U>>::value);
 
-    /// Ptr to the reference counter
-    SharedObjectInfo* m_sharedObjectInfoPtr = nullptr;
-
-    template <typename U>
-    friend class SharedPtr;
-
-    friend class WeakPtr<T>;
-
-    //! Deletes object if this shared_ptr is last shared_ptr owning object
-    //! or decrements reference count
-    void m_delete() const;
-
-    //! private constructor for constructing the m_objectPtr for the first time
-    //! \param objectPtr : ptr for the object
-    //! \param informationPtr : informationPtr that has been created
-    template <typename U>
-    explicit SharedPtr(U* objectPtr, SharedObjectInfo* informationPtr);
-
- public:
-    SharedPtr() = default;
-
-    //! Copy constructor
-    //! \param sharedPtr
-    template <typename U>
-    SharedPtr(const SharedPtr<U>& sharedPtr);
-
-    SharedPtr(const SharedPtr<T>& sharedPtr);
-
-    //! Move constructor
-    //! This will make given parameter (sharedPtr) invalid
-    //! \param sharedPtr : SharedPtr<T> to move from
-    template <typename U>
-    SharedPtr(SharedPtr<U>&& sharedPtr) noexcept;
-
-    //! Compute assign operator is explicitly deleted
-    //! \param sharedPtr
-    //! \return reference to current object
-    template <typename U>
-    SharedPtr<T>& operator=(const SharedPtr<U>& sharedPtr);
-
-    //! Move assign operator
-    //! This will make given parameter (sharedPtr) invalid
-    //! \param sharedPtr : SharedPtr<T> to move from
-    //! \return : SharedPtr<T>
-    template <typename U>
-    SharedPtr<T>& operator=(SharedPtr<U>&& sharedPtr) noexcept;
-
-    //! Destructor will automatically decrease the reference counter if this ptr
-    //! has valid pointer
-    ~SharedPtr();
-
-    //! Builds SharedPtr m_objectPtr using raw pointer
-    //! \param objectPtr : pointer to the object
-    static SharedPtr<T> Make(T* objectPtr);
-
-    //! Builds new SharedPtr m_objectPtr with no parameters
-    //! \return : SharedPtr
-    static SharedPtr<T> Make();
-
-    //! Builds new SharedPtr m_objectPtr with parameters
-    //! \tparam Ts : template parameter pack
-    //! \param args : arguments to build new m_objectPtr
-    //! \return : SharedPtr
-    template <typename... Ts>
-    static SharedPtr<T> Make(Ts&&... args);
-
-    //! Access operator to m_objectPtr this possesses
-    //! \return : ptr to m_objectPtr
-    T* operator->() const;
-
-    //! Gets current reference count
-    //! \return :  current reference count
-    [[nodiscard]] int GetCurrentRefCount() const
+    if (sharedPtr.m_sharedObjectInfoPtr)
     {
-        return m_sharedObjectInfoPtr->RefCount.load(std::memory_order_acquire);
+        int oldRefCount = sharedPtr.m_sharedObjectInfoPtr->RefCount.load(
+            std::memory_order_relaxed);
+        while (!sharedPtr.m_sharedObjectInfoPtr->RefCount.compare_exchange_weak(
+            oldRefCount, oldRefCount + 1, std::memory_order_release,
+            std::memory_order_relaxed))
+            ;
     }
-};
+}
+
+template <typename T>
+SharedPtr<T>::SharedPtr(const SharedPtr<T>& sharedPtr)
+{
+    if (sharedPtr.m_sharedObjectInfoPtr)
+    {
+        int oldRefCount = sharedPtr.m_sharedObjectInfoPtr->RefCount.load(
+            std::memory_order_relaxed);
+        while (!sharedPtr.m_sharedObjectInfoPtr->RefCount.compare_exchange_weak(
+            oldRefCount, oldRefCount + 1, std::memory_order_release,
+            std::memory_order_relaxed))
+            ;
+    }
+    m_objectPtr = sharedPtr.m_objectPtr;
+    m_sharedObjectInfoPtr = sharedPtr.m_sharedObjectInfoPtr;
+}
+
+template <typename T>
+template <typename U>
+SharedPtr<T>::SharedPtr(SharedPtr<U>&& sharedPtr) noexcept
+    : m_objectPtr(sharedPtr.m_objectPtr),
+      m_sharedObjectInfoPtr(sharedPtr.m_sharedObjectInfoPtr)
+{
+    static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value ||
+                  std::is_base_of<std::decay_t<T>, std::decay_t<U>>::value);
+
+    sharedPtr.m_objectPtr = nullptr;
+    sharedPtr.m_sharedObjectInfoPtr = nullptr;
+}
+
+template <typename T>
+SharedPtr<T>::SharedPtr(SharedPtr<T>&& sharedPtr) noexcept
+{
+    m_objectPtr = sharedPtr.m_objectPtr;
+    m_sharedObjectInfoPtr = sharedPtr.m_sharedObjectInfoPtr;
+    sharedPtr.m_objectPtr = nullptr;
+    sharedPtr.m_sharedObjectInfoPtr = nullptr;
+}
+
+template <typename T>
+template <typename U>
+SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<U>& sharedPtr)
+{
+    static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value ||
+                  std::is_base_of<std::decay_t<T>, std::decay_t<U>>::value);
+
+    if (*this != sharedPtr)
+    {
+        int oldRefCount = sharedPtr.m_sharedObjectInfoPtr->RefCount.load(
+            std::memory_order_relaxed);
+        while (!sharedPtr.m_sharedObjectInfoPtr->RefCount.compare_exchange_weak(
+            oldRefCount, oldRefCount + 1, std::memory_order_release,
+            std::memory_order_relaxed))
+            ;
+
+        m_delete();
+        m_objectPtr = sharedPtr.m_objectPtr;
+        m_sharedObjectInfoPtr = sharedPtr.m_sharedObjectInfoPtr;
+    }
+    return *this;
+}
+
+template <typename T>
+SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<T>& sharedPtr)
+{
+    if (*this != sharedPtr)
+    {
+        int oldRefCount = sharedPtr.m_sharedObjectInfoPtr->RefCount.load(
+            std::memory_order_relaxed);
+        while (!sharedPtr.m_sharedObjectInfoPtr->RefCount.compare_exchange_weak(
+            oldRefCount, oldRefCount + 1, std::memory_order_release,
+            std::memory_order_relaxed))
+            ;
+
+        m_delete();
+        m_objectPtr = sharedPtr.m_objectPtr;
+        m_sharedObjectInfoPtr = sharedPtr.m_sharedObjectInfoPtr;
+    }
+    return *this;
+}
+
+template <typename T>
+template <typename U>
+SharedPtr<T>& SharedPtr<T>::operator=(SharedPtr<U>&& sharedPtr) noexcept
+{
+    static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value ||
+                  std::is_base_of<std::decay_t<T>, std::decay_t<U>>::value);
+
+    if (*this != sharedPtr)
+    {
+        m_delete();
+        m_objectPtr = sharedPtr.m_objectPtr;
+        m_sharedObjectInfoPtr = sharedPtr.m_sharedObjectInfoPtr;
+    }
+
+    sharedPtr.m_objectPtr = nullptr;
+    sharedPtr.m_sharedObjectInfoPtr = nullptr;
+
+    return *this;
+}
+
+template <typename T>
+SharedPtr<T>& SharedPtr<T>::operator=(SharedPtr<T>&& sharedPtr) noexcept
+{
+    if (*this != sharedPtr)
+    {
+        m_delete();
+        m_objectPtr = sharedPtr.m_objectPtr;
+        m_sharedObjectInfoPtr = sharedPtr.m_sharedObjectInfoPtr;
+    }
+
+    sharedPtr.m_objectPtr = nullptr;
+    sharedPtr.m_sharedObjectInfoPtr = nullptr;
+
+    return *this;
+}
+
+template <typename T>
+template <typename U>
+bool SharedPtr<T>::operator==(const SharedPtr<U>& sharedPtr)
+{
+    static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value ||
+                  std::is_base_of<std::decay_t<T>, std::decay_t<U>>::value);
+    return m_sharedObjectInfoPtr == sharedPtr.m_sharedObjectInfoPtr &&
+           m_objectPtr == sharedPtr.m_objectPtr;
+}
+
+template <typename T>
+bool SharedPtr<T>::operator==(const SharedPtr<T>& sharedPtr)
+{
+    return m_sharedObjectInfoPtr == sharedPtr.m_sharedObjectInfoPtr &&
+           m_objectPtr == sharedPtr.m_objectPtr;
+}
+
+template<typename T>
+template<typename U>
+bool SharedPtr<T>::operator!=(const SharedPtr<U>& sharedPtr)
+{
+    return !(*this == sharedPtr);
+}
+
+template <typename T>
+bool SharedPtr<T>::operator!=(const SharedPtr<T>& sharedPtr)
+{
+    return !(*this == sharedPtr);
+}
+
+template <typename T>
+SharedPtr<T>::~SharedPtr()
+{
+    m_delete();
+}
+
+template <typename T>
+SharedPtr<T> SharedPtr<T>::Make(T* objectPtr)
+{
+    auto* infoPtr = new SharedObjectInfo();
+    return SharedPtr<T>(objectPtr, infoPtr);
+}
+
+template <typename T>
+SharedPtr<T> SharedPtr<T>::Make()
+{
+    T* objectPtr = new T();
+    auto* infoPtr = new SharedObjectInfo();
+    return SharedPtr<T>(objectPtr, infoPtr);
+}
+
+template <typename T>
+template <typename... Ts>
+SharedPtr<T> SharedPtr<T>::Make(Ts&&... args)
+{
+    T* objectPtr = new T(std::forward<Ts>(args)...);
+    auto* infoPtr = new SharedObjectInfo();
+    return SharedPtr<T>(objectPtr, infoPtr);
+}
+
+template <typename T>
+T* SharedPtr<T>::operator->() const
+{
+    return m_objectPtr;
+}
+
 }  // namespace CubbyDNN
 
-#endif  // CUBBYDNN_SHAREDPTR_HPP
+#endif  // CUBBYDNN_SHAREDPTR_IMPL_HPP
