@@ -4,7 +4,6 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-
 #include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 
 namespace CubbyDNN

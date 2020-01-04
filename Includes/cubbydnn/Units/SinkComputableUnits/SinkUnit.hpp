@@ -27,8 +27,8 @@ class SinkUnit : public ComputableUnit
 
     void Compute() override
     {
-        std::cout << "SinkUnit" << std::endl;
-        std::cout << m_unitState.StateNum << std::endl;
+        // std::cout << "SinkUnit" << std::endl;
+        // std::cout << m_unitState.StateNum << std::endl;
     }
 
     Tensor& GetInputTensor(size_t index) override

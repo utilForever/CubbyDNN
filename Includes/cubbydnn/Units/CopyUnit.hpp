@@ -8,7 +8,7 @@
 #define CUBBYDNN_COPYUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Utils/WeakPtr-impl.hpp>
+#include <cubbydnn/Utils/WeakPtr.hpp>
 
 namespace CubbyDNN
 {

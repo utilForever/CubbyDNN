@@ -5,8 +5,7 @@
 // property of any third parties.
 
 #pragma once
-
-#include <cubbydnn/Utils/WeakPtr-impl.hpp>
+#include <cubbydnn/Utils/WeakPtr.hpp>
 
 namespace CubbyDNN
 {

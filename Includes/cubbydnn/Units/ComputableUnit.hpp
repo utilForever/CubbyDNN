@@ -15,7 +15,7 @@
 
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
-#include <cubbydnn/Utils/SharedPtr-impl.hpp>
+#include <cubbydnn/Utils/SharedPtr.hpp>
 
 namespace CubbyDNN
 {

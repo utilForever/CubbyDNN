@@ -12,7 +12,7 @@
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 #include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
 #include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
-#include <cubbydnn/Utils/SharedPtr-impl.hpp>
+#include <cubbydnn/Utils/SharedPtr.hpp>
 
 #include <condition_variable>
 #include <functional>

@@ -25,8 +25,8 @@ class HiddenUnit : public ComputableUnit
 
     void Compute() override
     {
-        std::cout << "HiddenUnit" << std::endl;
-        std::cout << m_unitState.StateNum << std::endl;
+        // std::cout << "HiddenUnit" << std::endl;
+        // std::cout << m_unitState.StateNum << std::endl;
     }
 
     Tensor& GetInputTensor(size_t index) override

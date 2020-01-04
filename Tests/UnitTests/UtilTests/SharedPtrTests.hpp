@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_SHAREDPTRTESTS_HPP
 #define CUBBYDNN_SHAREDPTRTESTS_HPP
 
-#include <cubbydnn/Utils/SharedPtr-impl.hpp>
+#include <cubbydnn/Utils/SharedPtr.hpp>
 
 namespace CubbyDNN
 {

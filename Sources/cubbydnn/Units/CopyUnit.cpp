@@ -23,8 +23,8 @@ CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
 
 void CopyUnit::Compute()
 {
-    std::cout << "CopyUnit" << std::endl;
-    std::cout << m_unitState.StateNum << std::endl;
+    // std::cout << "CopyUnit" << std::endl;
+    // std::cout << m_unitState.StateNum << std::endl;
 
     auto& inputTensor = m_inputUnitPtr->GetOutputTensor(m_inputTensorIndex);
 

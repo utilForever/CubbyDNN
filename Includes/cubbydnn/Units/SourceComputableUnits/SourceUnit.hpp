@@ -29,8 +29,8 @@ class SourceUnit : public ComputableUnit
 
     void Compute() override
     {
-        std::cout << "SourceUnit" << std::endl;
-        std::cout << m_unitState.StateNum << std::endl;
+       // std::cout << "SourceUnit" << std::endl;
+       // std::cout << m_unitState.StateNum << std::endl;
     }
 
     Tensor& GetInputTensor(size_t index) override

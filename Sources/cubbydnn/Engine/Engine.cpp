@@ -339,7 +339,7 @@ void Engine::ScanUnitTasks()
 
     for (size_t count = 0; count < m_copyThreadPool.size(); ++count)
     {
-        auto dummyFunc = []() {};
+        const auto dummyFunc = []() {};
         TaskWrapper taskWrapper(TaskType::Join, dummyFunc, dummyFunc);
         m_copyTaskQueue.Enqueue(std::move(taskWrapper));
     }
