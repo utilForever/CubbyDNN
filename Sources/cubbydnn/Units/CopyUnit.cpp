@@ -37,12 +37,10 @@ bool CopyUnit::IsReady()
     if (m_unitState.IsBusy.load(std::memory_order_seq_cst))
         return false;
 
-    auto stateNum = m_outputUnitPtr->GetStateNum();
     const bool ready =  m_inputUnitPtr->GetStateNum() ==
                m_unitState.StateNum.load(std::memory_order_seq_cst) + 1 &&
            m_outputUnitPtr->GetStateNum() ==
                m_unitState.StateNum.load(std::memory_order_seq_cst);
-    stateNum;
     return ready;
 }
 }  // namespace CubbyDNN

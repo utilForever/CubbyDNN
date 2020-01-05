@@ -33,20 +33,6 @@ class SourceUnit : public ComputableUnit
        // std::cout << m_unitState.StateNum << std::endl;
     }
 
-    Tensor& GetInputTensor(size_t index) override
-    {
-        index;
-        return m_tensor;
-    }
-
-    Tensor& GetOutputTensor(size_t index) override
-    {
-        return m_outputTensorVector.at(index);
-    }
-
- private:
-    std::vector<TensorInfo> m_outputTensorInfoVector;
-    std::vector<Tensor> m_outputTensorVector;
 };
 
 }  // namespace CubbyDNN

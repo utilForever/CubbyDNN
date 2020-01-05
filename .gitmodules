@@ -4,6 +4,3 @@
 [submodule "Libraries/googlebenchmark"]
 	path = Libraries/googlebenchmark
 	url = https://github.com/google/benchmark.git
-[submodule "Libraries/hpr-blas"]
-	path = Libraries/hpr-blas
-	url = https://github.com/stillwater-sc/hpr-blas.git

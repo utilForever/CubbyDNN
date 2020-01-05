@@ -28,23 +28,6 @@ class HiddenUnit : public ComputableUnit
         // std::cout << "HiddenUnit" << std::endl;
         // std::cout << m_unitState.StateNum << std::endl;
     }
-
-    Tensor& GetInputTensor(size_t index) override
-    {
-        return m_inputTensorVector.at(index);
-    }
-
-    Tensor& GetOutputTensor(size_t index) override
-    {
-        return m_outputTensorVector.at(index);
-    }
-
- protected:
-    std::vector<TensorInfo> m_inputTensorInfoVector;
-    std::vector<TensorInfo> m_outputTensorInfoVector;
-
-    std::vector<Tensor> m_inputTensorVector;
-    std::vector<Tensor> m_outputTensorVector;
 };
 }  // namespace CubbyDNN
 

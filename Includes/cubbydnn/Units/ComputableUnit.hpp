@@ -47,8 +47,17 @@ class ComputableUnit
     //! Initializes unitInfo with pending state
     //! \param inputSize : size of the input for this unit
     //! \param outputSize : size of the output for this unit
+    //! \param unitType : type of the unit
     ComputableUnit(size_t inputSize, size_t outputSize, UnitType unitType);
 
+    ComputableUnit(std::vector<TensorInfo> inputTensorInfoVector,
+                   std::vector<TensorInfo> outputTensorInfoVector,
+                   UnitType unitType)
+        : Type(unitType),
+          m_inputTensorInfoVector(inputTensorInfoVector),
+          m_outputTensorInfoVector(outputTensorInfoVector)
+    {
+    }
     //! Move constructor
     //! \param computableUnit : ComputableUnit to move from
     ComputableUnit(ComputableUnit&& computableUnit) noexcept;
@@ -57,7 +66,8 @@ class ComputableUnit
 
     size_t AddOutputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr);
 
-    void AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr, size_t  index);
+    void AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr,
+                     size_t index);
 
     //! Brings back if executableUnit is ready to be executed
     //! \return : whether corresponding unit is ready to be executed
@@ -94,13 +104,11 @@ class ComputableUnit
 
     virtual Tensor& GetInputTensor(size_t index)
     {
-        index;
-        return m_tensor;
+        return m_inputTensorVector.at(index);
     }
     virtual Tensor& GetOutputTensor(size_t index)
     {
-        index;
-        return m_tensor;
+        return m_outputTensorVector.at(index);
     }
 
     const UnitType Type = UnitType::Undefined;
@@ -110,8 +118,6 @@ class ComputableUnit
     void incrementStateNum()
     {
         m_unitState.StateNum.fetch_add(1, std::memory_order_seq_cst);
-        std::size_t currentStateNum = m_unitState.StateNum.load();
-        currentStateNum;
         // std::cout << "Increment" << std::endl;
     }
 
@@ -131,11 +137,17 @@ class ComputableUnit
     /// vector to log states for debugging purpose
     std::vector<std::string> m_logVector;
 
+    std::vector<TensorInfo> m_inputTensorInfoVector;
+    std::vector<TensorInfo> m_outputTensorInfoVector;
+
+    std::vector<Tensor> m_inputTensorVector;
+    std::vector<Tensor> m_outputTensorVector;
+
     Tensor m_tensor = Tensor(nullptr, TensorInfo({ 0 }));
 
-private:
+ private:
     size_t m_outputVectorIndex = 0;
 };
-}  // namespace CubbyDNN
+};  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_COMPUTABLEUNIT_HPP

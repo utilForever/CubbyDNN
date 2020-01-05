@@ -10,10 +10,8 @@ namespace CubbyDNN
 {
 HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                        std::vector<TensorInfo> outputTensorInfoVector)
-    : ComputableUnit(inputTensorInfoVector.size(),
-                     outputTensorInfoVector.size(), UnitType::Hidden),
-      m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
-      m_outputTensorInfoVector(std::move(outputTensorInfoVector))
+    : ComputableUnit(inputTensorInfoVector, outputTensorInfoVector,
+                     UnitType::Hidden)
 {
     m_outputPtrVector =
         std::vector<SharedPtr<ComputableUnit>>(m_outputTensorInfoVector.size());
@@ -34,13 +32,7 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
 }
 
 HiddenUnit::HiddenUnit(HiddenUnit&& hiddenUnit) noexcept
-    : ComputableUnit(std::move(hiddenUnit)),
-      m_inputTensorInfoVector(
-          std::move(hiddenUnit.m_inputTensorInfoVector)),
-      m_outputTensorInfoVector(
-          std::move(hiddenUnit.m_outputTensorInfoVector)),
-      m_inputTensorVector(std::move(hiddenUnit.m_inputTensorVector)),
-      m_outputTensorVector(std::move(hiddenUnit.m_outputTensorVector))
+    : ComputableUnit(std::move(hiddenUnit))
 {
 }
 

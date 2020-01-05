@@ -9,8 +9,7 @@
 namespace CubbyDNN
 {
 SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
-    : ComputableUnit(inputTensorInfoVector.size(), 0, UnitType::Sink),
-      m_inputTensorInfoVector(std::move(inputTensorInfoVector))
+    : ComputableUnit(inputTensorInfoVector, {}, UnitType::Sink)
 {
     m_inputPtrVector =
         std::vector<SharedPtr<ComputableUnit>>(m_inputTensorInfoVector.size());
@@ -23,9 +22,7 @@ SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
 }
 
 SinkUnit::SinkUnit(SinkUnit&& sinkUnit) noexcept
-    : ComputableUnit(std::move(sinkUnit)),
-      m_inputTensorInfoVector(std::move(sinkUnit.m_inputTensorInfoVector)),
-      m_inputTensorVector(std::move(sinkUnit.m_inputTensorVector))
+    : ComputableUnit(std::move(sinkUnit))
 {
 }
 

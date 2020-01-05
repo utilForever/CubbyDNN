@@ -31,20 +31,6 @@ class SinkUnit : public ComputableUnit
         // std::cout << m_unitState.StateNum << std::endl;
     }
 
-    Tensor& GetInputTensor(size_t index) override
-    {
-        return m_inputTensorVector.at(index);
-    }
-
-    Tensor& GetOutputTensor(size_t index) override
-    {
-        index;
-        return m_tensor;
-    }
-
- protected:
-    std::vector<TensorInfo> m_inputTensorInfoVector;
-    std::vector<Tensor> m_inputTensorVector;
 };
 }  // namespace CubbyDNN
 

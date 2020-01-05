@@ -9,8 +9,7 @@
 namespace CubbyDNN
 {
 SourceUnit::SourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
-    : ComputableUnit(0, outputTensorInfoVector.size(), UnitType::Source),
-      m_outputTensorInfoVector(std::move(outputTensorInfoVector))
+    : ComputableUnit({}, outputTensorInfoVector, UnitType::Source)
 {
     m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(
         m_outputTensorInfoVector.size(), SharedPtr<ComputableUnit>());
@@ -23,9 +22,7 @@ SourceUnit::SourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
 }
 
 SourceUnit::SourceUnit(SourceUnit&& sourceUnit) noexcept
-    : ComputableUnit(std::move(sourceUnit)),
-      m_outputTensorInfoVector(std::move(sourceUnit.m_outputTensorInfoVector)),
-      m_outputTensorVector(std::move(sourceUnit.m_outputTensorVector))
+    : ComputableUnit(std::move(sourceUnit))
 {
 }
 
