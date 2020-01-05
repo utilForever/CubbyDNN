@@ -20,9 +20,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include_directories(Liraries)
 include_directories(Includes)
 include_directories(Libraries/googletest/googletest/include)
-include_directories(Libraries/universal/include/universal/valid)
-include_directories(Libraries/universal/include/universal/posit)
-
 
 
 # Compile options
@@ -44,7 +41,6 @@ add_subdirectory(Libraries/googletest EXCLUDE_FROM_ALL)
 cmake_policy(SET CMP0063 NEW)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 add_subdirectory(Libraries/googlebenchmark)
-add_subdirectory(Libraries/hpr-blas)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 add_subdirectory(Sources/cubbydnn)
