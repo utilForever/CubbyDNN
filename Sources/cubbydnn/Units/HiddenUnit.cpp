@@ -31,11 +31,6 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
     }
 }
 
-HiddenUnit::HiddenUnit(HiddenUnit&& hiddenUnit) noexcept
-    : ComputableUnit(std::move(hiddenUnit))
-{
-}
-
 bool HiddenUnit::IsReady()
 {
     if (m_unitState.IsBusy)

@@ -19,7 +19,11 @@ class SinkUnit : public ComputableUnit
     //! \param inputTensorInfoVector : vector of tensorInfo to accept
     explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
 
-    SinkUnit(SinkUnit&& sinkUnit) noexcept;
+    //! SinkUnit is not copy-assignable
+    SinkUnit(const SinkUnit& sinkUnit) = delete;
+
+    //! SinkUnit is not copy-assignable
+    SinkUnit& operator=(const SinkUnit& sinkUnit) = delete;
 
     //! Brings back if executableUnit is ready to be executed
     //! \return : whether corresponding unit is ready to be executed

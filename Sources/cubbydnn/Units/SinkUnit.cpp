@@ -21,11 +21,6 @@ SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
     }
 }
 
-SinkUnit::SinkUnit(SinkUnit&& sinkUnit) noexcept
-    : ComputableUnit(std::move(sinkUnit))
-{
-}
-
 bool SinkUnit::IsReady()
 {
     if (m_unitState.IsBusy)

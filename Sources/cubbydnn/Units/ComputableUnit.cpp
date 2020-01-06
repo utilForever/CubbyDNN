@@ -10,26 +10,12 @@ namespace CubbyDNN
 {
 UnitState::UnitState() = default;
 
-ComputableUnit::ComputableUnit(size_t inputSize, size_t outputSize,
+ComputableUnit::ComputableUnit(std::vector<TensorInfo> inputTensorInfoVector,
+                               std::vector<TensorInfo> outputTensorInfoVector,
                                UnitType unitType)
-    : Type(unitType), m_inputPtrVector(inputSize), m_outputPtrVector(outputSize)
-{
-    m_inputPtrVector.reserve(inputSize);
-    m_outputPtrVector.reserve(outputSize);
-}
-
-ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
-    : Type(computableUnit.Type),
-      m_inputPtrVector(std::move(computableUnit.m_inputPtrVector)),
-      m_outputPtrVector(std::move(computableUnit.m_outputPtrVector)),
-      m_logVector(std::move(computableUnit.m_logVector)),
-      m_inputTensorInfoVector(
-          std::move(computableUnit.m_inputTensorInfoVector)),
-      m_outputTensorInfoVector(
-          std::move(computableUnit.m_outputTensorInfoVector)),
-      m_inputTensorVector(std::move(computableUnit.m_inputTensorVector)),
-      m_outputTensorVector(std::move(computableUnit.m_outputTensorVector)),
-      m_outputVectorIndex(computableUnit.m_outputVectorIndex)
+    : Type(unitType),
+      m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
+      m_outputTensorInfoVector(std::move(outputTensorInfoVector))
 {
 }
 
@@ -50,5 +36,4 @@ void ComputableUnit::AddInputPtr(
            "Number of inputs exceeds number given from decleration");
     m_inputPtrVector.at(index) = computableUnitPtr;
 }
-
 }  // namespace CubbyDNN

@@ -18,7 +18,11 @@ class HiddenUnit : public ComputableUnit
     HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                std::vector<TensorInfo> outputTensorInfoVector);
 
-    HiddenUnit(HiddenUnit&& hiddenUnit) noexcept;
+    ~HiddenUnit() = default;
+
+    HiddenUnit(const HiddenUnit& hiddenUnit) = delete;
+
+    HiddenUnit& operator=(const HiddenUnit& hiddenUnit) = delete;
 
     //! Determines whether system is ready to compute
     bool IsReady() final;

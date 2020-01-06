@@ -8,16 +8,7 @@
 
 namespace CubbyDNN
 {
-CopyUnit::CopyUnit() : ComputableUnit(1, 1, UnitType::Copy)
-{
-}
-
-CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
-    : ComputableUnit(std::move(copyUnit)),
-      m_inputTensorIndex(copyUnit.m_inputTensorIndex),
-      m_outputTensorIndex(copyUnit.m_outputTensorIndex),
-      m_inputUnitPtr(copyUnit.m_inputUnitPtr),
-      m_outputUnitPtr(copyUnit.m_outputUnitPtr)
+CopyUnit::CopyUnit() : ComputableUnit({},{},UnitType::Copy)
 {
 }
 

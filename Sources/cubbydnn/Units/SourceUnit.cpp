@@ -21,11 +21,6 @@ SourceUnit::SourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
     }
 }
 
-SourceUnit::SourceUnit(SourceUnit&& sourceUnit) noexcept
-    : ComputableUnit(std::move(sourceUnit))
-{
-}
-
 bool SourceUnit::IsReady()
 {
     if (m_unitState.IsBusy)

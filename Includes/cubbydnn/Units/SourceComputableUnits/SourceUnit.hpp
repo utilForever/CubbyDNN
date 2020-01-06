@@ -21,7 +21,11 @@ class SourceUnit : public ComputableUnit
     //! always less than 1)
     explicit SourceUnit(std::vector<TensorInfo> outputTensorInfoVector);
 
-    SourceUnit(SourceUnit&& sourceUnit) noexcept;
+    //! SourceUnit is not copy-assignable
+    SourceUnit(const SourceUnit& sourceUnit) = delete;
+
+    //! SourceUnit is not copy-assignable
+    SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
 
     //! Checks if source is ready
     //! \return : true if ready to be computed false otherwise

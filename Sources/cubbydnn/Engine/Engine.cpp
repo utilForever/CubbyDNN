@@ -64,27 +64,29 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
     // m_scanCopyThread = std::thread(ScanCopyTasks);
 }
 
-size_t Engine::AddSourceUnit(SourceUnit sourceUnit)
+size_t Engine::AddSourceUnit(
+    std::vector<TensorInfo> outputTensorInfoVector)
 {
     const auto id = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
-        SharedPtr<SourceUnit>::Make(std::move(sourceUnit)));
+        SharedPtr<SourceUnit>::Make(std::move(outputTensorInfoVector)));
     return id;
 }
 
-size_t Engine::AddHiddenUnit(HiddenUnit hiddenUnit)
+size_t Engine::AddHiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
+                             std::vector<TensorInfo> outputTensorInfoVector)
 {
-    auto id = m_intermediateUnitVector.size();
+    const auto id = m_intermediateUnitVector.size();
     m_intermediateUnitVector.emplace_back(
-        SharedPtr<HiddenUnit>::Make(std::move(hiddenUnit)));
+        SharedPtr<HiddenUnit>::Make(std::move(inputTensorInfoVector), std::move(outputTensorInfoVector)));
     return id;
 }
 
-size_t Engine::AddSinkUnit(SinkUnit sinkUnit)
+size_t Engine::AddSinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
 {
-    auto id = m_sinkUnitVector.size();
+    const auto id = m_sinkUnitVector.size();
     m_sinkUnitVector.emplace_back(
-        SharedPtr<SinkUnit>::Make(std::move(sinkUnit)));
+        SharedPtr<SinkUnit>::Make(std::move(inputTensorInfoVector)));
     return id;
 }
 

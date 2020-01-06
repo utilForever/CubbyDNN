@@ -31,10 +31,8 @@ enum class TaskType
     None,
 };
 
-/**
- * Task wrapper for sending tasks to pending threads in the thread pool
- * tasks are sent as function pointers and its type
- */
+//! Task wrapper for sending tasks to pending threads in the thread pool
+//! tasks are sent as function pointers and its type
 struct TaskWrapper
 {
     TaskWrapper() : Type(TaskType::None)
@@ -42,14 +40,13 @@ struct TaskWrapper
     }
 
     //! Constructor
-    //! @param type : type of this task
-    //! @param compute : function to execute the computation
-    //! @param updateState : function m_objectPtr that updates the unit states
-    //! @param checkAndInsert : function m_objectPtr that checks previous and next
-    //! unit
+    //! \param type : type of this task
+    //! \param compute : function to execute the computation
+    //! \param updateState : function m_objectPtr that updates the unit states
+    //! next unit
     //! TODO : Remove updateState if it can be unified to one function
-    TaskWrapper(TaskType type, std::function<void(void)> compute,
-                std::function<void(void)> updateState)
+    TaskWrapper(TaskType type, std::function<void()> compute,
+                std::function<void()> updateState)
         : Type(type),
           m_compute(std::move(compute)),
           m_updateState(std::move(updateState))
@@ -58,7 +55,7 @@ struct TaskWrapper
 
     //! Automatically builds function that will execute main operation and
     //! update its state
-    //! @return
+    //! \return
     std::function<void()> GetTask()
     {
         auto& mainFunc = m_compute;
@@ -86,15 +83,15 @@ class Engine
 {
  protected:
     //! Enqueues tasks into task queue
-    //! @param task
+    //! \param task
     static void EnqueueTask(TaskWrapper&& task);
 
     //! Dequeue tasks from task queue
-    //! @return
+    //! \return
     static TaskWrapper DequeueTask();
 
     //! Brings back size of the task queue
-    //! @return : size of task queue
+    //! \return : size of task queue
     static size_t TaskQueueSize()
     {
         return m_mainTaskQueue.Size();
@@ -110,7 +107,9 @@ class Engine
 
  public:
     //! Initializes thread pool
-    //! @param mainThreadNum : number of threads to spawn (maxed out to hardware
+    //! \param mainThreadNum : number of threads to assign to main operation
+    //! \param copyThreadNum : number of threads to assign to copy operation
+    //! \param epochs : number of epochs to execute the graph
     //! concurrency)
     static void StartExecution(size_t mainThreadNum, size_t copyThreadNum,
                                size_t epochs);
@@ -121,43 +120,45 @@ class Engine
     static void Abort();
 
     //! Adds sourceUnit to sourceUnitVector and assigns ID for the unit
-    //! @param sourceUnit : sourceUnit to add
-    //! @return : assigned id of the unit
-    static size_t AddSourceUnit(SourceUnit sourceUnit);
+    //! \param outputTensorInfoVector:  vector of TensorInfo of outputs
+    //! \return : assigned id of the unit
+    static size_t AddSourceUnit(std::vector<TensorInfo> outputTensorInfoVector);
 
     //! Adds intermediateUnit to intermediateUnitVector and assigns ID for the
     //! unit
-    //! @param hiddenUnit : intermediateUnit to add
-    //! @return : assigned id of the unit
-    static size_t AddHiddenUnit(HiddenUnit hiddenUnit);
+    //! \param inputTensorInfoVector : vector of TensorInfo of inputs
+    //! \param outputTensorInfoVector : vector of TensorInfo of outputs
+    //! \return : assigned id of the unit
+    static size_t AddHiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
+                                std::vector<TensorInfo> outputTensorInfoVector);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
-    //! @param sinkUnit : sinkUnit to add
-    //! @return : assigned id of the unit
-    static size_t AddSinkUnit(SinkUnit sinkUnit);
+    //! \param inputTensorInfoVector : vector of TensorInfo of inputsr  kf gli i
+    //! ttt ra \return : assigned id of the unit
+    static size_t AddSinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
 
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
     //! between them
-    //! @param originID : sourceUnit ID to connect
-    //! @param destID : intermediateUnit ID of destination
-    //! @param destInputIndex : input index of this connection to destination
+    //! \param originID : sourceUnit ID to connect
+    //! \param destID : intermediateUnit ID of destination
+    //! \param destInputIndex : input index of this connection to destination
     static void ConnectSourceToIntermediate(size_t originID, size_t destID,
                                             size_t destInputIndex = 0);
 
     //! Connects between intermediateUnit and intermediateUnit by assigning
     //! copyUnit between them
-    //! @param originID : unique ID of origin intermediateUnit
-    //! @param destID : unique ID of destination intermediateUnit
-    //! @param destInputIndex : input index of this connection to destination
+    //! \param originID : unique ID of origin intermediateUnit
+    //! \param destID : unique ID of destination intermediateUnit
+    //! \param destInputIndex : input index of this connection to destination
     static void ConnectIntermediateToIntermediate(size_t originID,
                                                   size_t destID,
                                                   size_t destInputIndex = 0);
 
     //! Connects between intermediateUnit and sinkUnit by assigning
     //! copyUnit between them
-    //! @param originID : unique ID of origin intermediateUnit
-    //! @param destID : unique ID of destination sinkUnit
-    //! @param destInputIndex : input index of this connection to destination
+    //! \param originID : unique ID of origin intermediateUnit
+    //! \param destID : unique ID of destination sinkUnit
+    //! \param destInputIndex : input index of this connection to destination
     static void ConnectIntermediateToSink(size_t originID, size_t destID,
                                           size_t destInputIndex = 0);
 

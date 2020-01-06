@@ -8,8 +8,6 @@
 #define CUBBYDNN_COMPUTABLEUNIT_HPP
 
 #include <atomic>
-#include <cstdlib>
-#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -43,33 +41,34 @@ struct UnitState
 class ComputableUnit
 {
  public:
-    //! Default constructor
-    //! Initializes unitInfo with pending state
-    //! \param inputSize : size of the input for this unit
-    //! \param outputSize : size of the output for this unit
-    //! \param unitType : type of the unit
-    ComputableUnit(size_t inputSize, size_t outputSize, UnitType unitType);
 
+    //! Constructor
+    //! \param inputTensorInfoVector : vector of TensorInfo of inputs
+    //! \param outputTensorInfoVector : vector of TensorInfo of outputs
+    //! \param unitType : type of the unit
     ComputableUnit(std::vector<TensorInfo> inputTensorInfoVector,
                    std::vector<TensorInfo> outputTensorInfoVector,
-                   UnitType unitType)
-        : Type(unitType),
-          m_inputTensorInfoVector(inputTensorInfoVector),
-          m_outputTensorInfoVector(outputTensorInfoVector)
-    {
-    }
-    //! Move constructor
-    //! \param computableUnit : ComputableUnit to move from
-    ComputableUnit(ComputableUnit&& computableUnit) noexcept;
+                   UnitType unitType);
 
     virtual ~ComputableUnit() = default;
 
+    //! ComputableUnit is not Copy-assignable
+    ComputableUnit(const ComputableUnit& computableUnit) = delete;
+
+    //! ComputableUnit is not Copy-assignable
+    ComputableUnit& operator=(const ComputableUnit& computableUnit) = delete;
+
+    //! Adds output computable unit ptr to ComputableUnit
+    //! \param computableUnitPtr : ptr to output computable unit
     size_t AddOutputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr);
 
+    //! Adds input computable unit ptr to this ComputableUnit
+    //! \param computableUnitPtr : ptr to input computable unit
+    //! \param index : indicates order of input argument.
     void AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr,
                      size_t index);
 
-    //! Brings back if executableUnit is ready to be executed
+    //! Gets whether if executableUnit is ready to be executed
     //! \return : whether corresponding unit is ready to be executed
     virtual bool IsReady() = 0;
 
@@ -94,7 +93,7 @@ class ComputableUnit
         setReleased();
     }
 
-    //! Brings back reference of the atomic state counter for atomic comparison
+    //! Gets reference of the atomic state counter for atomic comparison
     //! of state counter
     //! \return : reference of the state counter
     size_t GetStateNum() const
