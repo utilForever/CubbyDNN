@@ -40,8 +40,7 @@ class TensorInfo
     static std::map<NumberSystem, size_t> UnitByteSizeMap;
     /// Constructs TensorShape with given parameters
     TensorInfo(std::vector<size_t> shape,
-               NumberSystem numberSystem = NumberSystem::Float32,
-               bool isMutable = true);
+               NumberSystem numberSystem = NumberSystem::Float32);
 
     bool operator==(const TensorInfo& shape) const;
     bool operator!=(const TensorInfo& shape) const;
@@ -88,7 +87,6 @@ class TensorInfo
     size_t m_totalSize;
     size_t m_unitByteSize;
     NumberSystem m_numberSystem;
-    bool m_isMutable;
 };
 }  // namespace CubbyDNN
 

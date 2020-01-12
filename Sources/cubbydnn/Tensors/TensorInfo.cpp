@@ -16,7 +16,7 @@ std::map<NumberSystem, size_t> TensorInfo::UnitByteSizeMap = {
     { NumberSystem::Int64, 64 },
 };
 
-TensorInfo::TensorInfo(std::vector<size_t> shape, NumberSystem numberSystem, bool isMutable)
+TensorInfo::TensorInfo(std::vector<size_t> shape, NumberSystem numberSystem)
     : m_getTotalByteSize([](const std::vector<size_t>& shape) {
           size_t totalSize = 1;
           for (auto elem : shape)
@@ -28,8 +28,7 @@ TensorInfo::TensorInfo(std::vector<size_t> shape, NumberSystem numberSystem, boo
       m_shape(std::move(shape)),
       m_totalSize(m_getTotalByteSize(shape)),
       m_unitByteSize(UnitByteSizeMap.at(numberSystem)),
-      m_numberSystem(numberSystem),
-      m_isMutable(isMutable)
+      m_numberSystem(numberSystem)
 {
 }
 
