@@ -7,6 +7,7 @@ set(root_dir ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 # Includes
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../Includes
         ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries
 )
 
@@ -22,7 +23,7 @@ file(GLOB_RECURSE sources
 
 # Build library
 add_library(${target}
-        ${sources})
+    ${sources})
 
 # Project options
 set_target_properties(${target}
