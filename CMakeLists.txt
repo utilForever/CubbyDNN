@@ -1,5 +1,5 @@
 # CMake version
-cmake_minimum_required(VERSION 3.12.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 
 # Include cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
@@ -17,10 +17,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Includes
-include_directories(Liraries)
 include_directories(Includes)
+include_directories(Libraries)
 include_directories(Libraries/googletest/googletest/include)
-
 
 # Compile options
 include(CMake/CompileOptions.cmake)
