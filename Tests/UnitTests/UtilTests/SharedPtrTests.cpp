@@ -59,17 +59,17 @@ void ConcurrentCopy(int spawnNum, int numCopy)
     EXPECT_EQ(shared.GetCurrentRefCount(), 1);
 }
 
-TEST(ConcurrentCopy_basic, ConcurrentCopy)
-{
-    //! Spawn 10 threads and copy SharedPtr
-    //! Check if reference counter successfully returns 1 at the end
-    ConcurrentCopy(10, 100);
-}
-
-TEST(ConcurrentCopy_RefLimit, ConcurrentCopy)
-{
-    //! Spawn 100 threads and copy SharedPtr
-    //!  Check if reference counter successfully returns 1 at the end
-    ConcurrentCopy(100, 100);
-}
+// TEST(ConcurrentCopy_basic, ConcurrentCopy)
+// {
+//     //! Spawn 10 threads and copy SharedPtr
+//     //! Check if reference counter successfully returns 1 at the end
+//     ConcurrentCopy(10, 100);
+// }
+//
+// TEST(ConcurrentCopy_RefLimit, ConcurrentCopy)
+// {
+//     //! Spawn 100 threads and copy SharedPtr
+//     //!  Check if reference counter successfully returns 1 at the end
+//     ConcurrentCopy(100, 100);
+// }
 }  // namespace CubbyDNN
