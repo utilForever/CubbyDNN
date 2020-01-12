@@ -64,7 +64,7 @@ void SimpleGraphTest()
     Engine::ConnectIntermediateToSink(intermediate2ID, sinkID, 0);
     Engine::ConnectIntermediateToSink(intermediate4ID, sinkID, 1);
 
-    Engine::StartExecution(3, 3, 100);
+    Engine::StartExecution(1, 1, 100);
     Engine::JoinThreads();
     std::cout << "Terminated" << std::endl;
 }
