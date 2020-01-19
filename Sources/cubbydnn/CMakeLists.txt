@@ -17,7 +17,7 @@ include_directories(
 
 # Sources
 file(GLOB header_dir
-        ${root_dir}/Includes/cubbydnn)
+        ${root_dir}/Includes/CubbyDNN)
 
 file(GLOB_RECURSE headers
         ${header_dir}/*.hpp)
