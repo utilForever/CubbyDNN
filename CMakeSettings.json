@@ -1,4 +1,4 @@
-{
+﻿{
   "configurations": [
     {
       "name": "x86-Debug",
@@ -34,18 +34,7 @@
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": [
-        {
-          "name": "UNIVERSAL_DIR",
-          "value": "C:\\Users\\jwkim\\Desktop\\projects\\CubbyDNN\\Libraries\\universal",
-          "type": "PATH"
-        },
-        {
-          "name": "MTL_DIR",
-          "value": "C:\\Users\\jwkim\\Desktop\\projects\\CubbyDNN\\Libraries\\mtl4",
-          "type": "PATH"
-        }
-      ]
+      "variables": []
     },
     {
       "name": "x64-Release",

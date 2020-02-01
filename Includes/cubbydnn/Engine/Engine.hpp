@@ -35,7 +35,8 @@ enum class TaskType
 //! tasks are sent as function pointers and its type
 struct TaskWrapper
 {
-    TaskWrapper() : Type(TaskType::None)
+    TaskWrapper()
+        : Type(TaskType::None)
     {
     }
 
@@ -55,21 +56,30 @@ struct TaskWrapper
 
     //! Automatically builds function that will execute main operation and
     //! update its state
-    //! \return
+    //! \return : lambda including main function and state updater
     std::function<void()> GetTask()
     {
         auto& mainFunc = m_compute;
         auto& updateState = m_updateState;
-        const auto combinedFunc = [mainFunc, updateState]() {
+        const auto combinedFunc = [mainFunc, updateState]()
+        {
             mainFunc();
             updateState();
         };
         return combinedFunc;
     }
 
+    //! Gets lambda executing main function
+    //! \return : lambda including main function
+    std::function<void()> GetPureTask()
+    {
+        auto& mainFunc = m_compute;
+        return [mainFunc]() { mainFunc(); };
+    }
+
     TaskType Type;
 
- private:
+private:
     /// Function to execute in the thread queue
     std::function<void(void)> m_compute;
     /// Function used to update state of the ComputableUnit
@@ -81,7 +91,7 @@ struct TaskWrapper
  */
 class Engine
 {
- protected:
+protected:
     //! Enqueues tasks into task queue
     //! \param task
     static void EnqueueTask(TaskWrapper&& task);
@@ -105,7 +115,11 @@ class Engine
     //! copyTaskQueue
     static void ScanCopyTasks();
 
- public:
+public:
+
+    //! Execute the graph using single thread
+    static void StartExecution(size_t epochs);
+
     //! Initializes thread pool
     //! \param mainThreadNum : number of threads to assign to main operation
     //! \param copyThreadNum : number of threads to assign to copy operation
@@ -162,7 +176,7 @@ class Engine
     static void ConnectIntermediateToSink(size_t originID, size_t destID,
                                           size_t destInputIndex = 0);
 
- private:
+private:
     //! Routine for thread which executes mainUnits
     static void m_runMain();
     //! Routine for thread which executes copy operation
@@ -194,6 +208,6 @@ class Engine
     /// If stateNum reaches this, that unit will be no longer computed
     static size_t m_maxEpochs;
 };
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif  // CAPTAIN_THREADMANAGER_HPP

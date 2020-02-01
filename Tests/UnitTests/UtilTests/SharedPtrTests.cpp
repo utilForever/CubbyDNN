@@ -40,7 +40,6 @@ void ConcurrentCopy(int spawnNum, int numCopy)
     {
         threadPool.emplace_back(
             std::thread(std::move(CopyAndDestruct), shared, numCopy, &stop));
-
     }
 
     while (shared.GetCurrentRefCount() < spawnNum * (numCopy + 1) + 1)

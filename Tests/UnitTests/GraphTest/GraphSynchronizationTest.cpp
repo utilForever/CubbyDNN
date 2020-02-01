@@ -64,8 +64,7 @@ void SimpleGraphTest()
     Engine::ConnectIntermediateToSink(intermediate2ID, sinkID, 0);
     Engine::ConnectIntermediateToSink(intermediate4ID, sinkID, 1);
 
-    Engine::StartExecution(1, 1, 100);
-    Engine::JoinThreads();
+    Engine::StartExecution(100);
     std::cout << "Terminated" << std::endl;
 }
 
@@ -75,9 +74,9 @@ void SimpleGraph()
         { 1, 1, 1 }) };
 }
 
-// TEST(SimpleGraph, GraphConstruction)
-// {
-//     SimpleGraphTest();
-//     EXPECT_EQ(0, 0);
-// }
+TEST(SimpleGraph, GraphConstruction)
+{
+    SimpleGraphTest();
+    EXPECT_EQ(0, 0);
+}
 }  // namespace GraphTest

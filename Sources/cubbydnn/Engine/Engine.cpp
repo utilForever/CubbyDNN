@@ -35,6 +35,71 @@ std::vector<SharedPtr<CopyUnit>> Engine::m_copyUnitVector;
 
 size_t Engine::m_maxEpochs = 0;
 
+void Engine::StartExecution(size_t epochs)
+{
+    bool isFinished = false;
+    m_maxEpochs = epochs;
+
+    while (m_active && !isFinished)
+    {
+        isFinished = true;
+        for (auto& sourceUnit : m_sourceUnitVector)
+        {
+            if (sourceUnit->IsReady() &&
+                sourceUnit->GetStateNum() < m_maxEpochs)
+            {
+                sourceUnit->Compute();
+                sourceUnit->ReleaseUnit();
+            }
+            else if (sourceUnit->GetStateNum() < m_maxEpochs)
+            {
+                isFinished = false;
+            }
+        }
+
+        for (auto& hiddenUnit : m_intermediateUnitVector)
+        {
+            if (hiddenUnit->IsReady() &&
+                hiddenUnit->GetStateNum() < m_maxEpochs)
+            {
+                hiddenUnit->Compute();
+                hiddenUnit->ReleaseUnit();
+            }
+            else if (hiddenUnit->GetStateNum() < m_maxEpochs)
+            {
+                isFinished = false;
+            }
+        }
+
+        for (auto& sinkUnit : m_sinkUnitVector)
+        {
+            if (sinkUnit->IsReady() && sinkUnit->GetStateNum() < m_maxEpochs)
+            {
+                sinkUnit->Compute();
+                sinkUnit->ReleaseUnit();
+            }
+            else if (sinkUnit->GetStateNum() < m_maxEpochs)
+            {
+                isFinished = false;
+            }
+        }
+
+        for (auto& copyUnit : m_copyUnitVector)
+        {
+            if (copyUnit->IsReady() &&
+                copyUnit->GetStateNum() < m_maxEpochs)
+            {
+                copyUnit->Compute();
+                copyUnit->ReleaseUnit();
+            }
+            else if (copyUnit->GetStateNum() < m_maxEpochs)
+            {
+                isFinished = false;
+            }
+        }
+    }
+}
+
 void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
                             size_t epochs)
 {
@@ -42,9 +107,9 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
     {
         const auto hardwareConcurrency = std::thread::hardware_concurrency();
         std::cout << "This computer has only " << hardwareConcurrency
-                  << " threads available, but total "
-                  << mainThreadNum + copyThreadNum << " threads were requested"
-                  << std::endl;
+            << " threads available, but total "
+            << mainThreadNum + copyThreadNum << " threads were requested"
+            << std::endl;
     }
     m_maxEpochs = epochs;
 
@@ -61,11 +126,9 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
     }
 
     m_scanMainThread = std::thread(ScanUnitTasks);
-    // m_scanCopyThread = std::thread(ScanCopyTasks);
 }
 
-size_t Engine::AddSourceUnit(
-    std::vector<TensorInfo> outputTensorInfoVector)
+size_t Engine::AddSourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
 {
     const auto id = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
@@ -77,8 +140,8 @@ size_t Engine::AddHiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                              std::vector<TensorInfo> outputTensorInfoVector)
 {
     const auto id = m_intermediateUnitVector.size();
-    m_intermediateUnitVector.emplace_back(
-        SharedPtr<HiddenUnit>::Make(std::move(inputTensorInfoVector), std::move(outputTensorInfoVector)));
+    m_intermediateUnitVector.emplace_back(SharedPtr<HiddenUnit>::Make(
+        std::move(inputTensorInfoVector), std::move(outputTensorInfoVector)));
     return id;
 }
 
@@ -98,8 +161,7 @@ void Engine::ConnectSourceToIntermediate(size_t originID, size_t destID,
     auto sourceUnit = m_sourceUnitVector.at(originID);
     auto intermediateUnit = m_intermediateUnitVector.at(destID);
     m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
-    auto copyUnit =
-        m_copyUnitVector.at(m_copyUnitVector.size() - 1);
+    auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(sourceUnit);
     copyUnit->SetOutputPtr(intermediateUnit);
     const auto inputIndex = sourceUnit->AddOutputPtr(copyUnit);
@@ -201,11 +263,19 @@ void Engine::Abort()
 {
     for (size_t count = 0; count < m_mainThreadPool.size(); ++count)
         m_mainTaskQueue.Enqueue(TaskWrapper(
-            TaskType::Join, []() {}, []() {}));
+            TaskType::Join, []()
+            {
+            }, []()
+            {
+            }));
 
     for (size_t count = 0; count < m_copyThreadPool.size(); ++count)
         m_mainTaskQueue.Enqueue(TaskWrapper(
-            TaskType::Join, []() {}, []() {}));
+            TaskType::Join, []()
+            {
+            }, []()
+            {
+            }));
 
     for (auto& thread : m_mainThreadPool)
     {
@@ -237,10 +307,12 @@ void Engine::ScanUnitTasks()
                 if (sourceUnit->IsReady() &&
                     sourceUnit->GetStateNum() < m_maxEpochs)
                 {
-                    const auto computeFunc = [&sourceUnit]() {
+                    const auto computeFunc = [&sourceUnit]()
+                    {
                         sourceUnit->Compute();
                     };
-                    const auto updateState = [&sourceUnit]() {
+                    const auto updateState = [&sourceUnit]()
+                    {
                         sourceUnit->ReleaseUnit();
                     };
                     sourceUnit->AcquireUnit();
@@ -260,10 +332,12 @@ void Engine::ScanUnitTasks()
                 if (hiddenUnit->IsReady() &&
                     hiddenUnit->GetStateNum() < m_maxEpochs)
                 {
-                    const auto computeFunc = [&hiddenUnit]() {
+                    const auto computeFunc = [&hiddenUnit]()
+                    {
                         hiddenUnit->Compute();
                     };
-                    const auto updateState = [&hiddenUnit]() {
+                    const auto updateState = [&hiddenUnit]()
+                    {
                         hiddenUnit->ReleaseUnit();
                     };
                     hiddenUnit->AcquireUnit();
@@ -283,10 +357,12 @@ void Engine::ScanUnitTasks()
                 if (sinkUnit->IsReady() &&
                     sinkUnit->GetStateNum() < m_maxEpochs)
                 {
-                    const auto computeFunc = [&sinkUnit]() {
+                    const auto computeFunc = [&sinkUnit]()
+                    {
                         sinkUnit->Compute();
                     };
-                    const auto updateState = [&sinkUnit]() {
+                    const auto updateState = [&sinkUnit]()
+                    {
                         sinkUnit->ReleaseUnit();
                     };
                     sinkUnit->AcquireUnit();
@@ -306,10 +382,12 @@ void Engine::ScanUnitTasks()
                 if (copyUnit->IsReady() &&
                     copyUnit->GetStateNum() < m_maxEpochs)
                 {
-                    const auto computeFunc = [&copyUnit]() {
+                    const auto computeFunc = [&copyUnit]()
+                    {
                         copyUnit->Compute();
                     };
-                    const auto updateState = [&copyUnit]() {
+                    const auto updateState = [&copyUnit]()
+                    {
                         copyUnit->ReleaseUnit();
                     };
                     copyUnit->AcquireUnit();
@@ -334,14 +412,18 @@ void Engine::ScanUnitTasks()
 
     for (size_t count = 0; count < m_mainThreadPool.size(); ++count)
     {
-        const auto dummyFunc = []() {};
+        const auto dummyFunc = []()
+        {
+        };
         TaskWrapper taskWrapper(TaskType::Join, dummyFunc, dummyFunc);
         m_mainTaskQueue.Enqueue(std::move(taskWrapper));
     }
 
     for (size_t count = 0; count < m_copyThreadPool.size(); ++count)
     {
-        const auto dummyFunc = []() {};
+        const auto dummyFunc = []()
+        {
+        };
         TaskWrapper taskWrapper(TaskType::Join, dummyFunc, dummyFunc);
         m_copyTaskQueue.Enqueue(std::move(taskWrapper));
     }
@@ -360,10 +442,12 @@ void Engine::ScanCopyTasks()
                 if (copyUnit->IsReady() &&
                     copyUnit->GetStateNum() < m_maxEpochs)
                 {
-                    const auto computeFunc = [&copyUnit]() {
+                    const auto computeFunc = [&copyUnit]()
+                    {
                         copyUnit->Compute();
                     };
-                    const auto updateState = [&copyUnit]() {
+                    const auto updateState = [&copyUnit]()
+                    {
                         copyUnit->ReleaseUnit();
                     };
                     copyUnit->AcquireUnit();
@@ -386,5 +470,4 @@ void Engine::ScanCopyTasks()
         }
     }
 }
-
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
