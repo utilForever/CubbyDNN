@@ -1,4 +1,4 @@
-#include <cubbydnn/Datas/Image.hpp>
+#include <CubbyDNN/Datas/Image.hpp>
 
 #include <fstream>
 #include <stdexcept>

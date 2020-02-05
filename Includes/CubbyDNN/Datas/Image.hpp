@@ -1,7 +1,6 @@
 #ifndef CUBBYDNN_IMAGE_HPP
 #define CUBBYDNN_IMAGE_HPP
 
-#include <istream>
 #include <string>
 #include <vector>
 
