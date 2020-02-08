@@ -7,7 +7,7 @@ namespace CubbyDNN
 {
 bool Image::Pixel::operator==(const Pixel& other) const
 {
-    return (r == other.r) && (g == other.g) && (b == other.b);
+    return (a == other.a) && (r == other.r) && (g == other.g) && (b == other.b);
 }
 
 bool Image::Pixel::operator!=(const Pixel& other) const
@@ -15,8 +15,8 @@ bool Image::Pixel::operator!=(const Pixel& other) const
     return !(*this == other);
 }
 
-Image::Image(std::size_t width, std::size_t height)
-    : m_width(width), m_height(height), m_data(width * height)
+Image::Image(std::size_t width, std::size_t height, bool hasAlpha)
+    : m_width(width), m_height(height), m_data(width * height), m_hasAlpha(hasAlpha)
 {
 }
 
@@ -30,6 +30,11 @@ std::size_t Image::GetHeight() const
     return m_height;
 }
 
+bool Image::HasAlpha() const
+{
+    return m_hasAlpha;
+}
+
 Image Image::Load(const std::string& filename)
 {
     switch (checkFileFormat(filename))
@@ -41,7 +46,7 @@ Image Image::Load(const std::string& filename)
     }
 }
 
-void Image::Save(const std::string& filename, FileFormat format)
+void Image::Save(const std::string& filename, FileFormat format) const
 {
     (void)filename;
     (void)format;
@@ -91,7 +96,7 @@ Image Image::loadBMP(const std::string& filename)
     const std::size_t width = *reinterpret_cast<int*>(&header[18]);
     const std::size_t height = *reinterpret_cast<int*>(&header[22]);
 
-    Image image(width, height);
+    Image image(width, height, false);
 
     const int rowPadded = (3 * width + 3) & (~3);
     std::vector<unsigned char> data(rowPadded);
