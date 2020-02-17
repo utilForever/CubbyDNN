@@ -10,8 +10,8 @@ namespace CubbyDNN
 {
 HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                        std::vector<TensorInfo> outputTensorInfoVector)
-    : ComputableUnit(inputTensorInfoVector, outputTensorInfoVector,
-                     UnitType::Hidden)
+    : ComputableUnit(std::move(inputTensorInfoVector),
+                     std::move(outputTensorInfoVector), UnitType::Hidden)
 {
     m_outputPtrVector =
         std::vector<SharedPtr<ComputableUnit>>(m_outputTensorInfoVector.size());
@@ -49,6 +49,20 @@ bool HiddenUnit::IsReady()
     }
 
     return true;
+}
+
+MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
+               const TensorInfo& output)
+    : HiddenUnit({ inputA, inputB }, { output })
+{
+    assert(inputA.GetShape().at(1) == inputB.GetShape().at(0));
+
+
+
+}
+
+void MatMul::Compute()
+{
 }
 
 }  // namespace CubbyDNN

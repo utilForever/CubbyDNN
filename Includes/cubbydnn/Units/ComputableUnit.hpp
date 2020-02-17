@@ -142,7 +142,7 @@ class ComputableUnit
     std::vector<Tensor> m_inputTensorVector;
     std::vector<Tensor> m_outputTensorVector;
 
-    Tensor m_tensor = Tensor(nullptr, TensorInfo({ 0 }));
+    Tensor m_tensor = Tensor(nullptr, TensorInfo({ 0 }, ShapeAlignment::None));
 
  private:
     size_t m_outputVectorIndex = 0;

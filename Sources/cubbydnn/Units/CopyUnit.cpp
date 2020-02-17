@@ -14,9 +14,6 @@ CopyUnit::CopyUnit() : ComputableUnit({},{},UnitType::Copy)
 
 void CopyUnit::Compute()
 {
-    // std::cout << "CopyUnit" << std::endl;
-    // std::cout << m_unitState.StateNum << std::endl;
-
     auto& inputTensor = m_inputUnitPtr->GetOutputTensor(m_inputTensorIndex);
 
     auto& outputTensor = m_outputUnitPtr->GetInputTensor(m_outputTensorIndex);

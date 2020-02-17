@@ -2,6 +2,7 @@
   "configurations": [
     {
       "name": "x86-Debug",
+      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe",
       "generator": "Ninja",
       "configurationType": "Debug",
       "buildRoot": "${workspaceRoot}\\build\\${name}",
@@ -10,10 +11,12 @@
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x86" ],
-      "variables": []
+      "variables": [],
+      "cmakeToolchain": ""
     },
     {
       "name": "x86-Release",
+      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${workspaceRoot}\\build\\${name}",
@@ -26,6 +29,7 @@
     },
     {
       "name": "x64-Debug",
+      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe",
       "generator": "Ninja",
       "configurationType": "Debug",
       "buildRoot": "${workspaceRoot}\\build\\${name}",
@@ -34,10 +38,12 @@
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
+      "variables": [],
+      "cmakeToolchain": ""
     },
     {
       "name": "x64-Release",
+      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${workspaceRoot}\\build\\${name}",
@@ -46,7 +52,8 @@
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
+      "variables": [],
+      "cmakeToolchain": ""
     }
   ]
 }

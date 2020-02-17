@@ -16,7 +16,8 @@ std::map<NumberSystem, size_t> TensorInfo::UnitByteSizeMap = {
     { NumberSystem::Int64, 64 },
 };
 
-TensorInfo::TensorInfo(std::vector<size_t> shape, NumberSystem numberSystem)
+TensorInfo::TensorInfo(std::vector<size_t> shape, ShapeAlignment shapeAlignment,
+                       NumberSystem numberSystem)
     : m_getTotalByteSize([](const std::vector<size_t>& shape) {
           size_t totalSize = 1;
           for (auto elem : shape)
@@ -30,6 +31,29 @@ TensorInfo::TensorInfo(std::vector<size_t> shape, NumberSystem numberSystem)
       m_unitByteSize(UnitByteSizeMap.at(numberSystem)),
       m_numberSystem(numberSystem)
 {
+    switch (shapeAlignment)
+    {
+        case ShapeAlignment::NCHW:
+            m_shapeIndexInfo = { 0, 2, 1, 3 };
+            break;
+        case ShapeAlignment::NHCW:
+            m_shapeIndexInfo = { 0, 1, 2, 3 };
+            break;
+        case ShapeAlignment::NCR:
+            m_shapeIndexInfo = { 0, 2, -1, 1 };
+            break;
+        case ShapeAlignment::NRC:
+            m_shapeIndexInfo = { 0, 1, -1, 2 };
+            break;
+        case ShapeAlignment::NC:
+            m_shapeIndexInfo = { 0, -1, -1, 1 };
+            break;
+        case ShapeAlignment::NR:
+            m_shapeIndexInfo = { 0, 1, -1, -1 };
+            break;
+        case ShapeAlignment::None:
+            break;
+    }
 }
 
 bool TensorInfo::operator==(const TensorInfo& shape) const
@@ -63,5 +87,4 @@ const std::vector<size_t>& TensorInfo::GetShape() const noexcept
 {
     return m_shape;
 }
-
 }  // namespace CubbyDNN

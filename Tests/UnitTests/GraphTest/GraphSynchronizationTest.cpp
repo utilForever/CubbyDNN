@@ -9,6 +9,7 @@
 namespace GraphTest
 {
 using namespace CubbyDNN;
+
 void SimpleGraphTest()
 {
     /**         hidden1 -- hidden3
@@ -18,31 +19,34 @@ void SimpleGraphTest()
      */
 
     const std::vector<TensorInfo> sourceOutputTensorInfoVector = {
-        TensorInfo({ 1, 1, 1 }), TensorInfo({ 1, 2, 1 })
+        TensorInfo({ 1, 1, 1 }, ShapeAlignment::NRC),
+        TensorInfo({ 1, 2, 1 }, ShapeAlignment::NRC)
     };
 
     const std::vector<TensorInfo> inputTensorInfoVector1 = { TensorInfo(
-        { 1, 1, 1 }) };
-    const std::vector<TensorInfo> outputTensorInfoVector1 = { TensorInfo(
-        { 3, 3, 3 }) };
+        { 1, 1, 1 }, ShapeAlignment::NRC) };
+    const std::vector<TensorInfo> outputTensorInfoVector1 = {
+        TensorInfo({ 3, 3, 3 }, ShapeAlignment::NRC)
+    };
 
     const std::vector<TensorInfo> inputTensorInfoVector2 = { TensorInfo(
-        { 3, 3, 3 }) };
+        { 3, 3, 3 }, ShapeAlignment::NRC) };
     const std::vector<TensorInfo> outputTensorInfoVector2 = { TensorInfo(
-        { 6, 6, 6 }) };
+        { 6, 6, 6 }, ShapeAlignment::NRC) };
 
     const std::vector<TensorInfo> inputTensorInfoVector3 = { TensorInfo(
-        { 1, 2, 1 }) };
+        { 1, 2, 1 }, ShapeAlignment::NRC) };
     const std::vector<TensorInfo> outputTensorInfoVector3 = { TensorInfo(
-        { 3, 3, 3 }) };
+        { 3, 3, 3 }, ShapeAlignment::NRC) };
 
     const std::vector<TensorInfo> inputTensorInfoVector4 = { TensorInfo(
-        { 3, 3, 3 }) };
+        { 3, 3, 3 }, ShapeAlignment::NRC) };
     const std::vector<TensorInfo> outputTensorInfoVector4 = { TensorInfo(
-        { 6, 6, 6 }) };
+        { 6, 6, 6 }, ShapeAlignment::NRC) };
 
     const std::vector<TensorInfo> sinkInputTensorInfoVector = {
-        TensorInfo({ 6, 6, 6 }), TensorInfo({ 6, 6, 6 })
+        TensorInfo({ 6, 6, 6 }, ShapeAlignment::NRC),
+        TensorInfo({ 6, 6, 6 }, ShapeAlignment::NRC)
     };
     SinkUnit sinkUnit = SinkUnit(sinkInputTensorInfoVector);
 
@@ -71,7 +75,7 @@ void SimpleGraphTest()
 void SimpleGraph()
 {
     std::vector<TensorInfo> sourceTensorInfoVector = { TensorInfo(
-        { 1, 1, 1 }) };
+        { 1, 1, 1 }, ShapeAlignment::NRC) };
 }
 
 TEST(SimpleGraph, GraphConstruction)
@@ -79,4 +83,4 @@ TEST(SimpleGraph, GraphConstruction)
     SimpleGraphTest();
     EXPECT_EQ(0, 0);
 }
-}  // namespace GraphTest
+} // namespace GraphTest

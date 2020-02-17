@@ -10,19 +10,17 @@
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
 #include <atomic>
+#include <bitset>
 #include <cassert>
 #include <cstring>
 #include <memory>
 #include <vector>
-#include <bitset>
 
 namespace CubbyDNN
 {
-/**
- * TensorData class contains data vector for processing
- * with attributes describing it
- * @tparam T : type of data this tensorData contains
- */
+//! TensorData class contains data vector for processing
+//! with attributes describing it
+//! \tparam T : type of data this tensorData contains
 struct Tensor
 {
     Tensor(void* Data, TensorInfo info);
@@ -35,6 +33,8 @@ struct Tensor
     Tensor(Tensor&& tensor) noexcept;
     /// move assignment operator
     Tensor& operator=(Tensor&& tensor) noexcept;
+
+    [[nodiscard]] size_t GetElementOffset(ShapeOffsetInfo offsetInfo) const;
     /// Data vector which possesses actual data
     void* DataPtr;
     /// Shape of this tensorData
@@ -43,11 +43,9 @@ struct Tensor
 
 void CopyTensor(Tensor& source, Tensor& destination);
 
-/**
- * Builds empty Tensor so data can be put potentially
- * @param info
- * @return
- */
+//! Builds empty Tensor so data can be put potentially
+//! \param info : information of tensor to allocate
+//! \return : Tensor that has been allocated
 Tensor AllocateTensor(const TensorInfo& info);
 
 // TODO : Implement methods for Initializing the Tensor
