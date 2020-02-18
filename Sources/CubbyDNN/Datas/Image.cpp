@@ -1,19 +1,95 @@
 #include <CubbyDNN/Datas/Image.hpp>
 
+#include <stdexcept>
+
 namespace CubbyDNN
 {
-bool Image::Pixel::operator==(const Pixel& other) const
+Pixel::Pixel(unsigned char r, unsigned char g, unsigned char b)
+    : m_r(r), m_g(g), m_b(b)
 {
-    return (a == other.a) && (r == other.r) && (g == other.g) && (b == other.b);
 }
 
-bool Image::Pixel::operator!=(const Pixel& other) const
+Pixel::Pixel(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+    : m_r(r), m_g(g), m_b(b), m_a(a)
+{
+}
+
+Pixel::Pixel(unsigned char gray) : m_a(gray), m_grayScale(true)
+{
+}
+
+unsigned char& Pixel::R()
+{
+    return m_r;
+}
+
+unsigned char Pixel::R() const
+{
+    return m_r;
+}
+
+unsigned char& Pixel::G()
+{
+    return m_g;
+}
+
+unsigned char Pixel::G() const
+{
+    return m_g;
+}
+
+unsigned char& Pixel::B()
+{
+    return m_b;
+}
+
+unsigned char Pixel::B() const
+{
+    return m_b;
+}
+
+unsigned char& Pixel::A()
+{
+    return m_a;
+}
+
+unsigned char Pixel::A() const
+{
+    return m_a;
+}
+
+unsigned char& Pixel::Gray()
+{
+    if (!m_grayScale)
+        throw std::runtime_error("Pixel is not gray scale");
+
+    return m_a;
+}
+
+unsigned char Pixel::Gray() const
+{
+    if (!m_grayScale)
+        throw std::runtime_error("Pixel is not gray scale");
+
+    return m_a;
+}
+
+bool Pixel::operator==(const Pixel& other) const
+{
+    return (m_a == other.m_a) && (m_r == other.m_r) && (m_g == other.m_g) &&
+           (m_b == other.m_b);
+}
+
+bool Pixel::operator!=(const Pixel& other) const
 {
     return !(*this == other);
 }
 
 Image::Image(std::size_t width, std::size_t height, bool hasAlpha)
-    : m_width(width), m_height(height), m_data(width * height), m_hasAlpha(hasAlpha)
+    : m_width(width),
+      m_height(height),
+      m_data(width * height),
+      m_hasAlpha(hasAlpha)
 {
 }
 
@@ -32,12 +108,12 @@ bool Image::HasAlpha() const
     return m_hasAlpha;
 }
 
-Image::Pixel& Image::At(std::size_t x, std::size_t y)
+Pixel& Image::At(std::size_t x, std::size_t y)
 {
     return const_cast<Pixel&>(std::as_const(*this).At(x, y));
 }
 
-const Image::Pixel& Image::At(std::size_t x, std::size_t y) const
+const Pixel& Image::At(std::size_t x, std::size_t y) const
 {
     return m_data[x + y * m_width];
 }

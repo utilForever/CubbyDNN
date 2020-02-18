@@ -13,7 +13,7 @@ Image Rotation(const Image& origin, double degree)
 
     const double cosV = cos(PI * degree / 180.);
     const double sinV = sin(PI * degree / 180.);
-    const double centerX = origin.GetWidth() / 2, centerY = origin.GetHeight();
+    const double centerX = origin.GetWidth() / 2., centerY = origin.GetHeight() / 2.;
 
     for (std::size_t y = 0; y < origin.GetHeight(); ++y)
     {

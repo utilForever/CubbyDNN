@@ -5,17 +5,40 @@
 
 namespace CubbyDNN
 {
+class Pixel final
+{
+ public:
+    Pixel() = default;
+    Pixel(unsigned char r, unsigned char g, unsigned char b);
+    Pixel(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+    explicit Pixel(unsigned char gray);
+
+    unsigned char& R();
+    unsigned char R() const;
+
+    unsigned char& G();
+    unsigned char G() const;
+
+    unsigned char& B();
+    unsigned char B() const;
+
+    unsigned char& A();
+    unsigned char A() const;
+
+    unsigned char& Gray();
+    unsigned char Gray() const;
+
+    bool operator==(const Pixel& other) const;
+    bool operator!=(const Pixel& other) const;
+
+ private:
+    unsigned char m_r{ 0 }, m_g{ 0 }, m_b{ 0 }, m_a{ 255 };
+    bool m_grayScale{ false };
+};
+
 class Image final
 {
  public:
-    struct Pixel
-    {
-        unsigned char r{ 0 }, g{ 0 }, b{ 0 }, a{ 255 };
-
-        bool operator==(const Pixel& other) const;
-        bool operator!=(const Pixel& other) const;
-    };
-
     Image() = default;
     Image(std::size_t width, std::size_t height, bool hasAlpha = true);
 
