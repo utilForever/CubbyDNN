@@ -1,5 +1,7 @@
 #include <CubbyDNN/Preprocess/Transforms.hpp>
 
+#include <cmath>
+
 namespace
 {
 constexpr double PI = 3.141592653589793238462643383279;
@@ -41,8 +43,8 @@ Image Rotation(const Image& origin, double degree)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
-    const double cosV = cos(PI * degree / 180.);
-    const double sinV = sin(PI * degree / 180.);
+    const double cosV = std::cos(PI * degree / 180.);
+    const double sinV = std::sin(PI * degree / 180.);
     const double centerX = origin.GetWidth() / 2.,
                  centerY = origin.GetHeight() / 2.;
 

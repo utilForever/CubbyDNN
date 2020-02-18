@@ -88,8 +88,8 @@ bool Pixel::operator!=(const Pixel& other) const
 Image::Image(std::size_t width, std::size_t height, bool hasAlpha)
     : m_width(width),
       m_height(height),
-      m_data(width * height),
-      m_hasAlpha(hasAlpha)
+      m_hasAlpha(hasAlpha),
+      m_data(width * height)
 {
 }
 
