@@ -7,13 +7,44 @@ constexpr double PI = 3.141592653589793238462643383279;
 
 namespace CubbyDNN::Transforms
 {
+Image FlipHorizontal(const Image& origin)
+{
+    Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
+
+    for (std::size_t y = 0; y < origin.GetHeight(); ++y)
+    {
+        for (std::size_t x = 0; x < origin.GetWidth(); ++x)
+        {
+            result.At(x, y) = origin.At(origin.GetWidth() - x - 1, y);
+        }
+    }
+
+    return result;
+}
+
+Image FlipVertical(const Image& origin)
+{
+    Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
+
+    for (std::size_t y = 0; y < origin.GetHeight(); ++y)
+    {
+        for (std::size_t x = 0; x < origin.GetWidth(); ++x)
+        {
+            result.At(x, y) = origin.At(x, origin.GetHeight() - y - 1);
+        }
+    }
+
+    return result;
+}
+
 Image Rotation(const Image& origin, double degree)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
     const double cosV = cos(PI * degree / 180.);
     const double sinV = sin(PI * degree / 180.);
-    const double centerX = origin.GetWidth() / 2., centerY = origin.GetHeight() / 2.;
+    const double centerX = origin.GetWidth() / 2.,
+                 centerY = origin.GetHeight() / 2.;
 
     for (std::size_t y = 0; y < origin.GetHeight(); ++y)
     {
