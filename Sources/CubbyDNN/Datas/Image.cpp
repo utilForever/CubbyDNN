@@ -74,6 +74,13 @@ unsigned char Pixel::Gray() const
     return m_a;
 }
 
+void Pixel::ToGrayScale()
+{
+    m_a = static_cast<unsigned char>(0.299 * m_r + 0.587 * m_g + 0.144 * m_b);
+
+    m_grayScale = true;
+}
+
 bool Pixel::operator==(const Pixel& other) const
 {
     return (m_a == other.m_a) && (m_r == other.m_r) && (m_g == other.m_g) &&
@@ -85,12 +92,21 @@ bool Pixel::operator!=(const Pixel& other) const
     return !(*this == other);
 }
 
-Image::Image(std::size_t width, std::size_t height, bool hasAlpha)
+Image::Image(std::size_t width, std::size_t height, bool hasAlpha,
+             bool grayScale)
     : m_width(width),
       m_height(height),
       m_hasAlpha(hasAlpha),
+      m_grayScale(grayScale),
       m_data(width * height)
 {
+    if (grayScale)
+    {
+        for (auto& pixel : m_data)
+        {
+            pixel.ToGrayScale();
+        }
+    }
 }
 
 std::size_t Image::GetWidth() const

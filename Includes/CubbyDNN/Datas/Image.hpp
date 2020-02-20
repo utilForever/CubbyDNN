@@ -28,6 +28,8 @@ class Pixel final
     unsigned char& Gray();
     unsigned char Gray() const;
 
+    void ToGrayScale();
+
     bool operator==(const Pixel& other) const;
     bool operator!=(const Pixel& other) const;
 
@@ -40,7 +42,7 @@ class Image final
 {
  public:
     Image() = default;
-    Image(std::size_t width, std::size_t height, bool hasAlpha = true);
+    Image(std::size_t width, std::size_t height, bool hasAlpha = true, bool grayScale = false);
 
     std::size_t GetWidth() const;
     std::size_t GetHeight() const;
@@ -52,6 +54,7 @@ class Image final
  private:
     std::size_t m_width{ 0 }, m_height{ 0 };
     bool m_hasAlpha{ true };
+    bool m_grayScale{ false };
     std::vector<Pixel> m_data;
 };
 }  // namespace CubbyDNN

@@ -68,4 +68,19 @@ Image Rotation(const Image& origin, double degree)
 
     return result;
 }
+
+Image GrayScale(const Image& origin)
+{
+    Image result(origin);
+
+    for (std::size_t y = 0; y < result.GetHeight(); ++y)
+    {
+        for (std::size_t x = 0; x < result.GetWidth(); ++x)
+        {
+            result.At(x, y).ToGrayScale();
+        }
+    }
+
+    return result;
+}
 }  // namespace CubbyDNN::Transforms

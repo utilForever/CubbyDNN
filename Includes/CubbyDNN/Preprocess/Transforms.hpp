@@ -8,6 +8,7 @@ namespace CubbyDNN::Transforms
 Image FlipHorizontal(const Image& origin);
 Image FlipVertical(const Image& origin);
 Image Rotation(const Image& origin, double degree);
-} // namespace CubbyDNN::Transforms
+Image GrayScale(const Image& origin);
+}  // namespace CubbyDNN::Transforms
 
 #endif  // CUBBYDNN_TRANFORMS_HPP
