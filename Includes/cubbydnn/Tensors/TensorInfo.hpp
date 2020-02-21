@@ -26,35 +26,47 @@ enum class NumberSystem
 
 enum class ShapeAlignment
 {
+    // Batch, Channel, height, Width
     NCHW,
-    // Batch size, channel, height, width
+    // Batch, Height Channel, Width
     NHCW,
-    // Batch size, height channel, width
+    // Batch, Row, Column
     NRC,
-    // Batch size, row, column
+    // Batch, Column, Row
     NCR,
-    // Batch size, row, column
+    // Batch, Row
     NR,
-    // Batch size, row
+    // Batch, Column
     NC,
-    // Batch size, column
+    // Not specified
     None,
 };
 
-struct ShapeIndexInfo
+struct Shape
 {
-    int BatchSizeIdx = -1;
-    int RowSizeIdx = -1;
-    int ChannelSizeIdx = -1;
-    int ColSizeIdx = -1;
-};
+    size_t BatchSize = 1;
+    size_t RowSize = 1;
+    size_t ChannelSize = 1;
+    size_t ColSize = 1;
 
-struct ShapeOffsetInfo
-{
-    size_t BatchSizeIdx = 1;
-    size_t RowSizeIdx = 1;
-    size_t ChannelSizeIdx = 1;
-    size_t ColSizeIdx = 1;
+
+    friend bool operator==(const Shape& lhs, const Shape& rhs)
+    {
+        return lhs.BatchSize == rhs.BatchSize
+               && lhs.RowSize == rhs.RowSize
+               && lhs.ChannelSize == rhs.ChannelSize
+               && lhs.ColSize == rhs.ColSize;
+    }
+
+    friend bool operator!=(const Shape& lhs, const Shape& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    size_t GetTotalSize() const
+    {
+        return BatchSize * RowSize * ChannelSize * ColSize;
+    }
 };
 
 //! \brief TensorShape class.
@@ -64,11 +76,11 @@ class TensorInfo
 public:
     static std::map<NumberSystem, size_t> UnitByteSizeMap;
     /// Constructs TensorShape with given parameters
-    TensorInfo(std::vector<size_t> shape, ShapeAlignment shapeAlignment,
+    TensorInfo(const Shape& shape, 
                NumberSystem numberSystem = NumberSystem::Float32);
 
-    bool operator==(const TensorInfo& shape) const;
-    bool operator!=(const TensorInfo& shape) const;
+    bool operator==(const TensorInfo& tensorInfo) const;
+    bool operator!=(const TensorInfo& tensorInfo) const;
 
     //! Size (Number of elements) of The TensorData
     //! \return : Total element size of the tensor
@@ -78,10 +90,6 @@ public:
     //! \return : total byte size of the tensor
     [[nodiscard]] size_t ByteSize() const noexcept;
 
-    //! Gets whether tensor is empty or not
-    //! \return : true if empty otherwise false
-    [[nodiscard]] bool IsEmpty() const noexcept;
-
     //! Gets number system of this tensor
     //! \return : NumberSystem of this tensor
     [[nodiscard]] NumberSystem GetNumberSystem() const noexcept
@@ -89,28 +97,15 @@ public:
         return m_numberSystem;
     }
 
-    [[nodiscard]] size_t GetNumberSystemByteSize() const noexcept
-    {
-        return m_unitByteSize;
-    }
-
     //! Gets shape of this tensor
     //! \return : shape of this tensor in vector
-    [[nodiscard]] const std::vector<size_t>& GetShape() const noexcept;
+    [[nodiscard]] const Shape& GetShape() const noexcept;
 
-    [[nodiscard]] ShapeIndexInfo GetShapeIndex() const
-    noexcept
-    {
-        return m_shapeIndexInfo;
-    }
 
 private:
-    std::function<size_t(const std::vector<size_t>&)> m_getTotalByteSize;
-    std::vector<size_t> m_shape;
-    size_t m_totalSize;
+    Shape m_shape;
     size_t m_unitByteSize;
     NumberSystem m_numberSystem;
-    ShapeIndexInfo m_shapeIndexInfo;
 };
 } // namespace CubbyDNN
 

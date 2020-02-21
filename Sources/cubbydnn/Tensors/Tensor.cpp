@@ -31,21 +31,19 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     return *this;
 }
 
-size_t Tensor::GetElementOffset(ShapeOffsetInfo offsetInfo) const
+size_t Tensor::GetElementOffset(Shape offsetInfo) const
 {
     const auto [batchIdx, rowIdx, channelIdx, colIdx] = offsetInfo;
-    const auto shapeIndex = Info.GetShapeIndex();
     const auto& shape = Info.GetShape();
-    const auto batchSize = shape.at(shapeIndex.BatchSizeIdx);
-    const auto rowSize = shape.at(shapeIndex.RowSizeIdx);
-    const auto channelSize = shape.at(shapeIndex.ChannelSizeIdx);
-    const auto colSize = shape.at(shapeIndex.ColSizeIdx);
+    const auto batchSize = shape.BatchSize;
+    const auto rowSize = shape.RowSize;
+    const auto channelSize = shape.ChannelSize;
+    const auto colSize = shape.ColSize;
 
     size_t offset = 0;
-    size_t multiplier = 1;
 
     offset += colSize * colIdx;
-    multiplier = colSize;
+    size_t multiplier = colSize;
     offset += multiplier * rowSize * rowIdx;
     multiplier *= rowSize;
     offset += multiplier * channelSize * channelIdx;
@@ -58,7 +56,7 @@ size_t Tensor::GetElementOffset(ShapeOffsetInfo offsetInfo) const
 Tensor AllocateTensor(const TensorInfo& info)
 {
     const auto byteSize = info.ByteSize();
-    void* dataPtr = (void*)malloc(byteSize);
+    void* dataPtr = static_cast<void*>(malloc(byteSize));
     return Tensor(dataPtr, info);
 }
 

@@ -12,65 +12,33 @@ namespace CubbyDNN
 std::map<NumberSystem, size_t> TensorInfo::UnitByteSizeMap = {
     { NumberSystem::Float16, 16 }, { NumberSystem::Float32, 32 },
     { NumberSystem::Float64, 64 }, { NumberSystem::Int8, 8 },
-    { NumberSystem::Int16, 16 },   { NumberSystem::Int32, 32 },
+    { NumberSystem::Int16, 16 }, { NumberSystem::Int32, 32 },
     { NumberSystem::Int64, 64 },
 };
 
-TensorInfo::TensorInfo(std::vector<size_t> shape, ShapeAlignment shapeAlignment,
+TensorInfo::TensorInfo(const Shape& shape,
                        NumberSystem numberSystem)
-    : m_getTotalByteSize([](const std::vector<size_t>& shape) {
-          size_t totalSize = 1;
-          for (auto elem : shape)
-          {
-              totalSize *= elem;
-          }
-          return totalSize;
-      }),
-      m_shape(std::move(shape)),
-      m_totalSize(m_getTotalByteSize(shape)),
+    : m_shape(shape),
       m_unitByteSize(UnitByteSizeMap.at(numberSystem)),
       m_numberSystem(numberSystem)
 {
-    switch (shapeAlignment)
-    {
-        case ShapeAlignment::NCHW:
-            m_shapeIndexInfo = { 0, 2, 1, 3 };
-            break;
-        case ShapeAlignment::NHCW:
-            m_shapeIndexInfo = { 0, 1, 2, 3 };
-            break;
-        case ShapeAlignment::NCR:
-            m_shapeIndexInfo = { 0, 2, -1, 1 };
-            break;
-        case ShapeAlignment::NRC:
-            m_shapeIndexInfo = { 0, 1, -1, 2 };
-            break;
-        case ShapeAlignment::NC:
-            m_shapeIndexInfo = { 0, -1, -1, 1 };
-            break;
-        case ShapeAlignment::NR:
-            m_shapeIndexInfo = { 0, 1, -1, -1 };
-            break;
-        case ShapeAlignment::None:
-            break;
-    }
 }
 
-bool TensorInfo::operator==(const TensorInfo& shape) const
+bool TensorInfo::operator==(const TensorInfo& tensorInfo) const
 {
-    return (m_shape == shape.m_shape &&
-            m_numberSystem == shape.m_numberSystem &&
-            m_unitByteSize == shape.m_unitByteSize);
+    return (m_shape == tensorInfo.m_shape &&
+            m_numberSystem == tensorInfo.m_numberSystem &&
+            m_unitByteSize == tensorInfo.m_unitByteSize);
 }
 
-bool TensorInfo::operator!=(const TensorInfo& shape) const
+bool TensorInfo::operator!=(const TensorInfo& tensorInfo) const
 {
-    return !(*this == shape);
+    return !(*this == tensorInfo);
 }
 
 size_t TensorInfo::Size() const noexcept
 {
-    return m_totalSize;
+    return m_shape.GetTotalSize();
 }
 
 size_t TensorInfo::ByteSize() const noexcept
@@ -78,13 +46,8 @@ size_t TensorInfo::ByteSize() const noexcept
     return m_unitByteSize * Size();
 }
 
-bool TensorInfo::IsEmpty() const noexcept
-{
-    return m_shape.empty();
-}
-
-const std::vector<size_t>& TensorInfo::GetShape() const noexcept
+const Shape& TensorInfo::GetShape() const noexcept
 {
     return m_shape;
 }
-}  // namespace CubbyDNN
+} // namespace CubbyDNN

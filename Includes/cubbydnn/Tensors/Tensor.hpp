@@ -34,7 +34,7 @@ struct Tensor
     /// move assignment operator
     Tensor& operator=(Tensor&& tensor) noexcept;
 
-    [[nodiscard]] size_t GetElementOffset(ShapeOffsetInfo offsetInfo) const;
+    [[nodiscard]] size_t GetElementOffset(Shape offsetInfo) const;
     /// Data vector which possesses actual data
     void* DataPtr;
     /// Shape of this tensorData
