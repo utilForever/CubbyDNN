@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_MATRIX_HPP
-#define CUBBYDNN_MATRIX_HPP
+#ifndef CUBBYDNN_MATRIXOP_HPP
+#define CUBBYDNN_MATRIXOP_HPP
 
 #include <blaze/math/CustomMatrix.h>
 #include <cubbydnn/Tensors/Tensor.hpp>
@@ -22,7 +22,7 @@ using blaze::unpadded;
 
 
 template<typename T>
-static void GetIdentityMatrix(const Tensor& tensor)
+static void GetIdentityMatrix(Tensor& tensor)
 {
 
     const auto batchSize = tensor.Info.GetShape().BatchSize;
