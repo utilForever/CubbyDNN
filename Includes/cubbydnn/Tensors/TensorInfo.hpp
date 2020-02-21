@@ -44,18 +44,18 @@ enum class ShapeAlignment
 
 struct Shape
 {
-    size_t BatchSize = 1;
-    size_t RowSize = 1;
-    size_t ChannelSize = 1;
-    size_t ColSize = 1;
+    size_t Batch = 1;
+    size_t Channel = 1;
+    size_t Row = 1;
+    size_t Col = 1;
 
 
     friend bool operator==(const Shape& lhs, const Shape& rhs)
     {
-        return lhs.BatchSize == rhs.BatchSize
-               && lhs.RowSize == rhs.RowSize
-               && lhs.ChannelSize == rhs.ChannelSize
-               && lhs.ColSize == rhs.ColSize;
+        return lhs.Batch == rhs.Batch
+               && lhs.Row == rhs.Row
+               && lhs.Channel == rhs.Channel
+               && lhs.Col == rhs.Col;
     }
 
     friend bool operator!=(const Shape& lhs, const Shape& rhs)
@@ -65,7 +65,7 @@ struct Shape
 
     size_t GetTotalSize() const
     {
-        return BatchSize * RowSize * ChannelSize * ColSize;
+        return Batch * Row * Channel * Col;
     }
 };
 

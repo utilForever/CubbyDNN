@@ -55,14 +55,10 @@ MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
                const TensorInfo& output)
     : HiddenUnit({ inputA, inputB }, { output })
 {
-    assert(inputA.GetShape().at(1) == inputB.GetShape().at(0));
-
-
-
+    assert(inputA.GetShape().Col == inputB.GetShape().Row);
 }
 
 void MatMul::Compute()
 {
 }
-
-}  // namespace CubbyDNN
+} // namespace CubbyDNN

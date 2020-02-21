@@ -16,8 +16,10 @@ void IdentityMatrix(const Shape& shape, NumberSystem numberSystem)
     {
         case NumberSystem::Float32:
             GetIdentityMatrix<float>(tensor);
+            break;
         case NumberSystem::Int32:
             GetIdentityMatrix<int>(tensor);
+            break;
         default:
             assert(false && "NotImplementedError");
     }
@@ -33,8 +35,10 @@ void Multiply(const Tensor& inputA, const Tensor& inputB, Tensor& output)
     {
         case NumberSystem::Float32:
             MatMul<float>(inputA, inputB, output);
+            break;
         case NumberSystem::Int32:
             MatMul<int>(inputA, inputB, output);
+            break;
         default:
             assert(false && "NotImplementedError");
     }

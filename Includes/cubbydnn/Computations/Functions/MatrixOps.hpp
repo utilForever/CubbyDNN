@@ -22,13 +22,13 @@ using blaze::unpadded;
 
 
 template<typename T>
-static void GetIdentityMatrix(Tensor& tensor)
+inline  void GetIdentityMatrix(Tensor& tensor)
 {
 
-    const auto batchSize = tensor.Info.GetShape().BatchSize;
-    const auto channelSize = tensor.Info.GetShape().ChannelSize;
-    const auto rowSize = tensor.Info.GetShape().RowSize;
-    const auto colSize = tensor.Info.GetShape().ColSize;
+    const auto batchSize = tensor.Info.GetShape().Batch;
+    const auto channelSize = tensor.Info.GetShape().Channel;
+    const auto rowSize = tensor.Info.GetShape().Row;
+    const auto colSize = tensor.Info.GetShape().Col;
     assert(rowSize == colSize);
 
     for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -41,39 +41,38 @@ static void GetIdentityMatrix(Tensor& tensor)
 }
 
 template<typename T>
-static void MatMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+inline void MatMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
 {
     const auto inputShapeA = inputA.Info.GetShape();
     const auto inputShapeB = inputA.Info.GetShape();
     const auto outputShape = output.Info.GetShape();
 
-    assert(inputShapeA.BatchSize == inputShapeB.BatchSize &&
-        inputShapeA.BatchSize == outputShape.BatchSize);
-    assert(inputShapeA.ChannelSize == inputShapeB.ChannelSize &&
-        inputShapeA.ChannelSize == outputShape.ChannelSize);
-    assert(inputShapeA.ColSize == inputShapeB.RowSize);
+    assert(inputShapeA.Batch == inputShapeB.Batch &&
+        inputShapeA.Batch == outputShape.Batch);
+    assert(inputShapeA.Channel == inputShapeB.Channel &&
+        inputShapeA.Channel == outputShape.Channel);
+    assert(inputShapeA.Col == inputShapeB.Row);
 
-    const auto channelSize = inputShapeA.ChannelSize;
-    const auto batchSize = inputShapeA.BatchSize;
-    const auto loopSize = channelSize * batchSize;
+    const auto channelSize = inputShapeA.Channel;
+    const auto batchSize = inputShapeA.Batch;
 
-    for (size_t batchIdx = 0; batchIdx < loopSize; ++batchIdx)
+    for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
         {
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
                 static_cast<T*>(inputA.DataPtr) +
                 output.GetElementOffset({ batchIdx, 0, channelIdx, 0 }),
-                inputShapeA.RowSize, inputShapeB.ColSize);
+                inputShapeA.Row, inputShapeB.Col);
 
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> B(
                 static_cast<T*>(inputB.DataPtr) +
                 output.GetElementOffset({ batchIdx, 0, channelIdx, 0 }),
-                inputShapeB.RowSize, inputShapeB.ColSize);
+                inputShapeB.Row, inputShapeB.Col);
 
             CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> C(
                 static_cast<T*>(output.DataPtr) +
                 output.GetElementOffset({ batchIdx, 0, channelIdx, 0 }),
-                outputShape.RowSize, outputShape.ColSize);
+                outputShape.Row, outputShape.Col);
 
             C = A * B;
         }

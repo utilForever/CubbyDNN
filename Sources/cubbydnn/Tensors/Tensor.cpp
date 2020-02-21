@@ -33,22 +33,27 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 
 size_t Tensor::GetElementOffset(Shape offsetInfo) const
 {
-    const auto [batchIdx, rowIdx, channelIdx, colIdx] = offsetInfo;
+    const auto [batchIdx, channelIdx, rowIdx, colIdx] = offsetInfo;
     const auto& shape = Info.GetShape();
-    const auto batchSize = shape.BatchSize;
-    const auto rowSize = shape.RowSize;
-    const auto channelSize = shape.ChannelSize;
-    const auto colSize = shape.ColSize;
+    const auto batchSize = shape.Batch;
+    const auto rowSize = shape.Row;
+    const auto channelSize = shape.Channel;
+    const auto colSize = shape.Col;
+
+    assert(batchIdx < batchSize);
+    assert(rowIdx < rowSize);
+    assert(channelIdx < channelSize);
+    assert(colIdx < colSize);
 
     size_t offset = 0;
 
     offset += colSize * colIdx;
     size_t multiplier = colSize;
-    offset += multiplier * rowSize * rowIdx;
+    offset += multiplier * rowIdx;
     multiplier *= rowSize;
-    offset += multiplier * channelSize * channelIdx;
+    offset += multiplier * channelIdx;
     multiplier *= channelSize;
-    offset += multiplier * batchSize * batchIdx;
+    offset += multiplier * batchIdx;
 
     return offset;
 }

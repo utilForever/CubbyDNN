@@ -49,6 +49,19 @@ void CopyTensor(Tensor& source, Tensor& destination);
 Tensor AllocateTensor(const TensorInfo& info);
 
 // TODO : Implement methods for Initializing the Tensor
+template <typename T>
+void SetData(const Shape& index, Tensor& tensor, T value)
+{
+    const auto offset = tensor.GetElementOffset(index);
+    *(static_cast<T*>(tensor.DataPtr) + offset) = value;
+}
+
+template <typename T>
+T GetData(const Shape& index, const Tensor& tensor)
+{
+    const auto offset = tensor.GetElementOffset(index);
+    return *(static_cast<T*>(tensor.DataPtr) + offset);
+}
 
 }  // namespace CubbyDNN
 

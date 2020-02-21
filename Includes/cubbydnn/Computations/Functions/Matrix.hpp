@@ -10,15 +10,15 @@
 
 namespace CubbyDNN
 {
-static void IdentityMatrix(const Shape& shape, NumberSystem numberSystem);
+void IdentityMatrix(const Shape& shape, NumberSystem numberSystem);
 
-static void Multiply(const Tensor& inputA, const Tensor& inputB,
+void Multiply(const Tensor& inputA, const Tensor& inputB,
                      Tensor& output);
-static void Add();
+void Add();
 
-static void Transpose();
+void Transpose();
 
-static void dot();
+void dot();
 }
 
 #endif
