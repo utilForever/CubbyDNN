@@ -76,9 +76,15 @@ unsigned char Pixel::Gray() const
 
 void Pixel::ToGrayScale()
 {
-    m_a = static_cast<unsigned char>(0.299 * m_r + 0.587 * m_g + 0.144 * m_b);
+    m_a = ToGrayScale(*this).Gray();
 
     m_grayScale = true;
+}
+
+Pixel Pixel::ToGrayScale(const Pixel& pixel)
+{
+    return Pixel(static_cast<unsigned char>(
+        0.299 * pixel.R() + 0.587 * pixel.G() + 0.144 * pixel.B()));
 }
 
 bool Pixel::operator==(const Pixel& other) const
@@ -122,6 +128,11 @@ std::size_t Image::GetHeight() const
 bool Image::HasAlpha() const
 {
     return m_hasAlpha;
+}
+
+bool Image::IsGrayScale() const
+{
+    return m_grayScale;
 }
 
 Pixel& Image::At(std::size_t x, std::size_t y)

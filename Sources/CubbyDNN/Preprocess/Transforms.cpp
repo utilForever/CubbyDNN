@@ -71,13 +71,13 @@ Image Rotation(const Image& origin, double degree)
 
 Image GrayScale(const Image& origin)
 {
-    Image result(origin);
+    Image result(origin.GetWidth(), origin.GetHeight(), false, true);
 
     for (std::size_t y = 0; y < result.GetHeight(); ++y)
     {
         for (std::size_t x = 0; x < result.GetWidth(); ++x)
         {
-            result.At(x, y).ToGrayScale();
+            result.At(x, y) = Pixel::ToGrayScale(origin.At(x, y));
         }
     }
 

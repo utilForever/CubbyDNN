@@ -29,6 +29,7 @@ class Pixel final
     unsigned char Gray() const;
 
     void ToGrayScale();
+    static Pixel ToGrayScale(const Pixel& pixel);
 
     bool operator==(const Pixel& other) const;
     bool operator!=(const Pixel& other) const;
@@ -42,11 +43,13 @@ class Image final
 {
  public:
     Image() = default;
-    Image(std::size_t width, std::size_t height, bool hasAlpha = true, bool grayScale = false);
+    Image(std::size_t width, std::size_t height, bool hasAlpha = true,
+          bool grayScale = false);
 
     std::size_t GetWidth() const;
     std::size_t GetHeight() const;
     bool HasAlpha() const;
+    bool IsGrayScale() const;
 
     Pixel& At(std::size_t x, std::size_t y);
     const Pixel& At(std::size_t x, std::size_t y) const;
