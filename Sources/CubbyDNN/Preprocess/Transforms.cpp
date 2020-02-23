@@ -10,22 +10,26 @@ constexpr double PI = 3.141592653589793238462643383279;
 
 namespace CubbyDNN::Transforms
 {
-Image CenterCrop(const Image& origin, std::size_t size)
+CenterCrop::CenterCrop(std::size_t size) : m_cropSize_(size)
 {
-    if (origin.GetWidth() < size || origin.GetHeight())
+}
+
+Image CenterCrop::operator()(const Image& origin)
+{
+    if (origin.GetWidth() < m_cropSize_ || origin.GetHeight())
     {
         throw std::invalid_argument(
             "Crop size is bigger than original image's size");
     }
 
-    Image result(size, size, origin.HasAlpha(), origin.IsGrayScale());
+    Image result(m_cropSize_, m_cropSize_, origin.HasAlpha(), origin.IsGrayScale());
 
-    const std::size_t startX = origin.GetWidth() / 2 - size / 2;
-    const std::size_t startY = origin.GetHeight() / 2 - size / 2;
+    const std::size_t startX = origin.GetWidth() / 2 - m_cropSize_ / 2;
+    const std::size_t startY = origin.GetHeight() / 2 - m_cropSize_ / 2;
 
-    for (std::size_t y = 0; y < size; ++y)
+    for (std::size_t y = 0; y < m_cropSize_; ++y)
     {
-        for (std::size_t x = 0; x < size; ++x)
+        for (std::size_t x = 0; x < m_cropSize_; ++x)
         {
             result.At(x, y) = origin.At(startX + x, startY + y);
         }
@@ -34,7 +38,7 @@ Image CenterCrop(const Image& origin, std::size_t size)
     return result;
 }
 
-Image FlipHorizontal(const Image& origin)
+Image FlipHorizontal::operator()(const Image& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
@@ -49,7 +53,7 @@ Image FlipHorizontal(const Image& origin)
     return result;
 }
 
-Image FlipVertical(const Image& origin)
+Image FlipVertical::operator()(const Image& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
@@ -64,12 +68,16 @@ Image FlipVertical(const Image& origin)
     return result;
 }
 
-Image Rotation(const Image& origin, double degree)
+Rotation::Rotation(double degree) : m_rotationDegree_(degree)
+{    
+}
+
+Image Rotation::operator()(const Image& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
-    const double cosV = std::cos(PI * degree / 180.);
-    const double sinV = std::sin(PI * degree / 180.);
+    const double cosV = std::cos(PI * m_rotationDegree_ / 180.);
+    const double sinV = std::sin(PI * m_rotationDegree_ / 180.);
     const double centerX = origin.GetWidth() / 2.,
                  centerY = origin.GetHeight() / 2.;
 
@@ -94,7 +102,7 @@ Image Rotation(const Image& origin, double degree)
     return result;
 }
 
-Image GrayScale(const Image& origin)
+Image GrayScale::operator()(const Image& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), false, true);
 
