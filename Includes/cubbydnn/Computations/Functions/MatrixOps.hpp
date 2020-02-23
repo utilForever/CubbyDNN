@@ -22,7 +22,7 @@ using blaze::unpadded;
 
 
 template<typename T>
-inline  void GetIdentityMatrix(Tensor& tensor)
+void GetIdentityMatrix(Tensor& tensor)
 {
 
     const auto batchSize = tensor.Info.GetShape().Batch;
@@ -41,7 +41,7 @@ inline  void GetIdentityMatrix(Tensor& tensor)
 }
 
 template<typename T>
-inline void MatMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+void MatMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
 {
     const auto inputShapeA = inputA.Info.GetShape();
     const auto inputShapeB = inputA.Info.GetShape();
