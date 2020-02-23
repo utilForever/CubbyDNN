@@ -18,13 +18,13 @@ void TestMatMul()
     Tensor tensorB =
         AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
 
-    SetData<float>({ 0, 0, 0, 0 }, tensorA, 3.0f);
-    SetData<float>({ 0, 0, 1, 1 }, tensorA, 3.0f);
-    SetData<float>({ 0, 0, 2, 2 }, tensorA, 3.0f);
+    SetData<float>({ 0, 0, 0, 0 }, tensorA, 4.0f);
+    SetData<float>({ 0, 0, 1, 1 }, tensorA, 4.0f);
+    SetData<float>({ 0, 0, 2, 2 }, tensorA, 4.0f);
 
-    SetData<float>({ 0, 0, 0, 0 }, tensorB, 3.0f);
-    SetData<float>({ 0, 0, 1, 1 }, tensorB, 3.0f);
-    SetData<float>({ 0, 0, 2, 2 }, tensorB, 3.0f);
+    SetData<float>({ 0, 0, 0, 0 }, tensorB, 4.0f);
+    SetData<float>({ 0, 0, 1, 1 }, tensorB, 4.0f);
+    SetData<float>({ 0, 0, 2, 2 }, tensorB, 4.0f);
 
     Tensor output =
         AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
@@ -35,7 +35,8 @@ void TestMatMul()
     {
         for (size_t j = 0; j < 3; j++)
         {
-            std::cout << GetData<float>({ 0, 0, i, j }, output) << " ";
+            const auto num = GetData<float>({ 0, 0, i, j }, output);
+            std::cout << num << " ";
         }
         std::cout << std::endl;
     }

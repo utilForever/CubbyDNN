@@ -61,17 +61,17 @@ inline void MatMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
         {
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
                 static_cast<T*>(inputA.DataPtr) +
-                output.GetElementOffset({ batchIdx, 0, channelIdx, 0 }),
+                output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
                 inputShapeA.Row, inputShapeB.Col);
 
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> B(
                 static_cast<T*>(inputB.DataPtr) +
-                output.GetElementOffset({ batchIdx, 0, channelIdx, 0 }),
+                output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
                 inputShapeB.Row, inputShapeB.Col);
 
             CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> C(
                 static_cast<T*>(output.DataPtr) +
-                output.GetElementOffset({ batchIdx, 0, channelIdx, 0 }),
+                output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
                 outputShape.Row, outputShape.Col);
 
             C = A * B;

@@ -47,7 +47,7 @@ size_t Tensor::GetElementOffset(Shape offsetInfo) const
 
     size_t offset = 0;
 
-    offset += colSize * colIdx;
+    offset += colIdx;
     size_t multiplier = colSize;
     offset += multiplier * rowIdx;
     multiplier *= rowSize;
@@ -62,6 +62,7 @@ Tensor AllocateTensor(const TensorInfo& info)
 {
     const auto byteSize = info.ByteSize();
     void* dataPtr = static_cast<void*>(malloc(byteSize));
+    std::memset(dataPtr, 0, byteSize);
     return Tensor(dataPtr, info);
 }
 
