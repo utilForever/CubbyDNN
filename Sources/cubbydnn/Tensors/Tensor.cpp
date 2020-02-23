@@ -6,19 +6,20 @@
  */
 
 #include <cubbydnn/Tensors/Tensor.hpp>
+#include <iostream>
 
 namespace CubbyDNN
 {
 Tensor::Tensor(void* Data, TensorInfo info)
     : DataPtr(Data),
-      Info(std::move(info))
+      Info(info)
 {
     Data = nullptr;
 }
 
 Tensor::Tensor(Tensor&& tensor) noexcept
     : DataPtr(tensor.DataPtr),
-      Info(std::move(tensor.Info))
+      Info(tensor.Info)
 {
     tensor.DataPtr = nullptr;
 }
@@ -46,7 +47,6 @@ size_t Tensor::GetElementOffset(Shape offsetInfo) const
     assert(colIdx < colSize);
 
     size_t offset = 0;
-
     offset += colIdx;
     size_t multiplier = colSize;
     offset += multiplier * rowIdx;

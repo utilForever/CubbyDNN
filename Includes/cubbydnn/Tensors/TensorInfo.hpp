@@ -44,10 +44,10 @@ enum class ShapeAlignment
 
 struct Shape
 {
-    size_t Batch = 1;
-    size_t Channel = 1;
-    size_t Row = 1;
-    size_t Col = 1;
+    size_t Batch = 0;
+    size_t Channel = 0;
+    size_t Row = 0;
+    size_t Col = 0;
 
 
     friend bool operator==(const Shape& lhs, const Shape& rhs)

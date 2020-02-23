@@ -48,12 +48,38 @@ void CopyTensor(Tensor& source, Tensor& destination);
 //! \return : Tensor that has been allocated
 Tensor AllocateTensor(const TensorInfo& info);
 
-// TODO : Implement methods for Initializing the Tensor
+template <typename T>
+void* AllocateData(const Shape& shape)
+{
+    const auto byteSize =
+        shape.Batch * shape.Channel * shape.Row * shape.Col * sizeof(T);
+    void* dataPtr = malloc(byteSize);
+    std::memset(dataPtr, 0, byteSize);
+    return dataPtr;
+}
+
+//! Used only for testing
 template <typename T>
 void SetData(const Shape& index, Tensor& tensor, T value)
 {
     const auto offset = tensor.GetElementOffset(index);
     *(static_cast<T*>(tensor.DataPtr) + offset) = value;
+}
+
+//! Used only for testing
+template <typename T>
+void SetData(const Shape& index, const Shape& shape, void* dataPtr, T data)
+{
+    size_t offset = 0;
+    offset += index.Col;
+    size_t multiplier = shape.Col;
+    offset += multiplier * index.Row;
+    multiplier *= shape.Row;
+    offset += multiplier * index.Channel;
+    multiplier *= shape.Channel;
+    offset += multiplier * index.Batch;
+
+    *(static_cast<T*>(dataPtr) + offset) = data;
 }
 
 template <typename T>
@@ -62,7 +88,6 @@ T GetData(const Shape& index, const Tensor& tensor)
     const auto offset = tensor.GetElementOffset(index);
     return *(static_cast<T*>(tensor.DataPtr) + offset);
 }
-
 }  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_DATA_HPP
