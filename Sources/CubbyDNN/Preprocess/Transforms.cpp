@@ -1,6 +1,7 @@
 #include <CubbyDNN/Preprocess/Transforms.hpp>
 
 #include <cmath>
+#include <stdexcept>
 
 namespace
 {
@@ -9,6 +10,30 @@ constexpr double PI = 3.141592653589793238462643383279;
 
 namespace CubbyDNN::Transforms
 {
+Image CenterCrop(const Image& origin, std::size_t size)
+{
+    if (origin.GetWidth() < size || origin.GetHeight())
+    {
+        throw std::invalid_argument(
+            "Crop size is bigger than original image's size");
+    }
+
+    Image result(size, size, origin.HasAlpha(), origin.IsGrayScale());
+
+    const std::size_t startX = origin.GetWidth() / 2 - size / 2;
+    const std::size_t startY = origin.GetHeight() / 2 - size / 2;
+
+    for (std::size_t y = 0; y < size; ++y)
+    {
+        for (std::size_t x = 0; x < size; ++x)
+        {
+            result.At(x, y) = origin.At(startX + x, startY + y);
+        }
+    }
+
+    return result;
+}
+
 Image FlipHorizontal(const Image& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());

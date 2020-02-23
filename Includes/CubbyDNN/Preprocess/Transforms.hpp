@@ -5,6 +5,7 @@
 
 namespace CubbyDNN::Transforms
 {
+Image CenterCrop(const Image& origin, std::size_t size);
 Image FlipHorizontal(const Image& origin);
 Image FlipVertical(const Image& origin);
 Image Rotation(const Image& origin, double degree);
