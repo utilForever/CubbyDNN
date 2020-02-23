@@ -4,6 +4,7 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+#include <cubbydnn/Computations/Functions/Matrix.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 
 namespace CubbyDNN
@@ -56,9 +57,15 @@ MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
     : HiddenUnit({ inputA, inputB }, { output })
 {
     assert(inputA.GetShape().Col == inputB.GetShape().Row);
+    assert(inputA.GetShape().Batch == inputB.GetShape().Batch &&
+        inputA.GetShape().Batch == output.GetShape().Batch);;
+    assert(inputA.GetShape().Channel == inputB.GetShape().Channel &&
+        inputA.GetShape().Channel == output.GetShape().Channel);
 }
 
 void MatMul::Compute()
 {
+    Multiply(m_inputTensorVector.at(0), m_inputTensorVector.at(1),
+             m_outputTensorVector.at(0));
 }
 } // namespace CubbyDNN

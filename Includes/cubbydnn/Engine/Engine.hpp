@@ -136,27 +136,41 @@ public:
     //! Adds sourceUnit to sourceUnitVector and assigns ID for the unit
     //! \param outputTensorInfoVector:  vector of TensorInfo of outputs
     //! \return : assigned id of the unit
-    static size_t AddSourceUnit(std::vector<TensorInfo> outputTensorInfoVector);
+    static size_t AddSourceUnit(const std::vector<TensorInfo>& outputTensorInfoVector);
 
-    //! Adds intermediateUnit to intermediateUnitVector and assigns ID for the
-    //! unit
+    //! Adds constant to sourceUnitVector and assigns ID for the unit
+    //! \param output : output tensor information of this constant
+    //! \param numberOfOutputs : number of output tensors
+    //! \param dataPtr : ptr to data to set as constant this will be freed by destructor of Constant unit
+    static size_t AddConstant(const TensorInfo& output, void* dataPtr,
+                              int numberOfOutputs = 1);
+
+    //! Adds hiddenUnit to HiddenUnitVector
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param outputTensorInfoVector : vector of TensorInfo of outputs
     //! \return : assigned id of the unit
-    static size_t AddHiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                                std::vector<TensorInfo> outputTensorInfoVector);
+    static size_t AddHiddenUnit(const std::vector<TensorInfo>& inputTensorInfoVector,
+                                const std::vector<TensorInfo>& outputTensorInfoVector);
+
+    //! Adds MultiplyUnit to HiddenUnitVector and assigns ID
+    //! MultiplyUnit performs multiplications between two tensors (matrices) C= A*B
+    //! \param inputA : first input operand information
+    //! \param inputB : second input operand information
+    //! \param output : output information
+    static size_t AddMultiplyUnit(const TensorInfo& inputA,
+                                  const TensorInfo& inputB, const TensorInfo& output);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
-    //! \param inputTensorInfoVector : vector of TensorInfo of inputsr  kf gli i
-    //! ttt ra \return : assigned id of the unit
-    static size_t AddSinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
+    //! \param inputTensorInfoVector : vector of TensorInfo of inputs
+    //!  \return : assigned id of the unit
+    static size_t AddSinkUnit(const std::vector<TensorInfo>& inputTensorInfoVector);
 
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
     //! between them
     //! \param originID : sourceUnit ID to connect
     //! \param destID : intermediateUnit ID of destination
     //! \param destInputIndex : input index of this connection to destination
-    static void ConnectSourceToIntermediate(size_t originID, size_t destID,
+    static void ConnectSourceToHidden(size_t originID, size_t destID,
                                             size_t destInputIndex = 0);
 
     //! Connects between intermediateUnit and intermediateUnit by assigning
@@ -164,7 +178,7 @@ public:
     //! \param originID : unique ID of origin intermediateUnit
     //! \param destID : unique ID of destination intermediateUnit
     //! \param destInputIndex : input index of this connection to destination
-    static void ConnectIntermediateToIntermediate(size_t originID,
+    static void ConnectHiddenToHidden(size_t originID,
                                                   size_t destID,
                                                   size_t destInputIndex = 0);
 
@@ -173,7 +187,7 @@ public:
     //! \param originID : unique ID of origin intermediateUnit
     //! \param destID : unique ID of destination sinkUnit
     //! \param destInputIndex : input index of this connection to destination
-    static void ConnectIntermediateToSink(size_t originID, size_t destID,
+    static void ConnectHiddenToSink(size_t originID, size_t destID,
                                           size_t destInputIndex = 0);
 
 private:
@@ -201,7 +215,7 @@ private:
 
     static std::vector<SharedPtr<SourceUnit>> m_sourceUnitVector;
     static std::vector<SharedPtr<SinkUnit>> m_sinkUnitVector;
-    static std::vector<SharedPtr<HiddenUnit>> m_intermediateUnitVector;
+    static std::vector<SharedPtr<HiddenUnit>> m_hiddenUnitVector;
     static std::vector<SharedPtr<CopyUnit>> m_copyUnitVector;
 
     /// number of epochs to run the graph

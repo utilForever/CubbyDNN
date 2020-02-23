@@ -29,11 +29,7 @@ class SinkUnit : public ComputableUnit
     //! \return : whether corresponding unit is ready to be executed
     bool IsReady() final;
 
-    void Compute() override
-    {
-        // std::cout << "SinkUnit" << std::endl;
-        // std::cout << m_unitState.StateNum << std::endl;
-    }
+    void Compute() override;
 
 };
 }  // namespace CubbyDNN

@@ -29,7 +29,7 @@ std::vector<SharedPtr<SourceUnit>> Engine::m_sourceUnitVector;
 
 std::vector<SharedPtr<SinkUnit>> Engine::m_sinkUnitVector;
 
-std::vector<SharedPtr<HiddenUnit>> Engine::m_intermediateUnitVector;
+std::vector<SharedPtr<HiddenUnit>> Engine::m_hiddenUnitVector;
 
 std::vector<SharedPtr<CopyUnit>> Engine::m_copyUnitVector;
 
@@ -57,7 +57,7 @@ void Engine::StartExecution(size_t epochs)
             }
         }
 
-        for (auto& hiddenUnit : m_intermediateUnitVector)
+        for (auto& hiddenUnit : m_hiddenUnitVector)
         {
             if (hiddenUnit->IsReady() &&
                 hiddenUnit->GetStateNum() < m_maxEpochs)
@@ -86,8 +86,7 @@ void Engine::StartExecution(size_t epochs)
 
         for (auto& copyUnit : m_copyUnitVector)
         {
-            if (copyUnit->IsReady() &&
-                copyUnit->GetStateNum() < m_maxEpochs)
+            if (copyUnit->IsReady() && copyUnit->GetStateNum() < m_maxEpochs)
             {
                 copyUnit->Compute();
                 copyUnit->ReleaseUnit();
@@ -128,38 +127,60 @@ void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
     m_scanMainThread = std::thread(ScanUnitTasks);
 }
 
-size_t Engine::AddSourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
+size_t Engine::AddSourceUnit(
+    const std::vector<TensorInfo>& outputTensorInfoVector)
 {
-    const auto id = m_sourceUnitVector.size();
+    const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
-        SharedPtr<SourceUnit>::Make(std::move(outputTensorInfoVector)));
-    return id;
+        SharedPtr<SourceUnit>::Make(outputTensorInfoVector));
+    return unitId;
 }
 
-size_t Engine::AddHiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                             std::vector<TensorInfo> outputTensorInfoVector)
+size_t Engine::AddConstant(const TensorInfo& output, void* dataPtr,
+                           int numberOfOutputs)
 {
-    const auto id = m_intermediateUnitVector.size();
-    m_intermediateUnitVector.emplace_back(SharedPtr<HiddenUnit>::Make(
-        std::move(inputTensorInfoVector), std::move(outputTensorInfoVector)));
-    return id;
+    const auto unitId = m_sourceUnitVector.size();
+    m_sourceUnitVector.emplace_back(
+        SharedPtr<Constant>::Make(output, numberOfOutputs, dataPtr));
+    return unitId;
 }
 
-size_t Engine::AddSinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
+size_t Engine::AddHiddenUnit(
+    const std::vector<TensorInfo>& inputTensorInfoVector,
+    const std::vector<TensorInfo>& outputTensorInfoVector)
+{
+    const auto unitId = m_hiddenUnitVector.size();
+    m_hiddenUnitVector.emplace_back(SharedPtr<HiddenUnit>::Make(
+        inputTensorInfoVector, outputTensorInfoVector));
+    return unitId;
+}
+
+
+size_t Engine::AddMultiplyUnit(const TensorInfo& inputA,
+                               const TensorInfo& inputB,
+                               const TensorInfo& output)
+{
+    const auto unitId = m_hiddenUnitVector.size();
+    m_hiddenUnitVector.emplace_back(
+        SharedPtr<MatMul>::Make(inputA, inputB, output));
+    return unitId;
+}
+
+size_t Engine::AddSinkUnit(const std::vector<TensorInfo>& inputTensorInfoVector)
 {
     const auto id = m_sinkUnitVector.size();
     m_sinkUnitVector.emplace_back(
-        SharedPtr<SinkUnit>::Make(std::move(inputTensorInfoVector)));
+        SharedPtr<SinkUnit>::Make(inputTensorInfoVector));
     return id;
 }
 
-void Engine::ConnectSourceToIntermediate(size_t originID, size_t destID,
-                                         size_t destInputIndex)
+void Engine::ConnectSourceToHidden(size_t originID, size_t destID,
+                                   size_t destInputIndex)
 {
     assert(originID < m_sourceUnitVector.size());
-    assert(destID < m_intermediateUnitVector.size());
+    assert(destID < m_hiddenUnitVector.size());
     auto sourceUnit = m_sourceUnitVector.at(originID);
-    auto intermediateUnit = m_intermediateUnitVector.at(destID);
+    auto intermediateUnit = m_hiddenUnitVector.at(destID);
     m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
     auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(sourceUnit);
@@ -170,13 +191,13 @@ void Engine::ConnectSourceToIntermediate(size_t originID, size_t destID,
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID,
-                                               size_t destInputIndex)
+void Engine::ConnectHiddenToHidden(size_t originID, size_t destID,
+                                   size_t destInputIndex)
 {
-    assert(originID < m_intermediateUnitVector.size());
-    assert(destID < m_intermediateUnitVector.size());
-    auto originIntermediateUnit = m_intermediateUnitVector.at(originID);
-    auto destIntermediateUnit = m_intermediateUnitVector.at(destID);
+    assert(originID < m_hiddenUnitVector.size());
+    assert(destID < m_hiddenUnitVector.size());
+    auto originIntermediateUnit = m_hiddenUnitVector.at(originID);
+    auto destIntermediateUnit = m_hiddenUnitVector.at(destID);
     m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
     auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(originIntermediateUnit);
@@ -187,12 +208,12 @@ void Engine::ConnectIntermediateToIntermediate(size_t originID, size_t destID,
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::ConnectIntermediateToSink(size_t originID, size_t destID,
-                                       size_t destInputIndex)
+void Engine::ConnectHiddenToSink(size_t originID, size_t destID,
+                                 size_t destInputIndex)
 {
-    assert(originID < m_intermediateUnitVector.size());
+    assert(originID < m_hiddenUnitVector.size());
     assert(destID < m_sinkUnitVector.size());
-    auto intermediateUnit = m_intermediateUnitVector.at(originID);
+    auto intermediateUnit = m_hiddenUnitVector.at(originID);
     auto sinkUnit = m_sinkUnitVector.at(destID);
     m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
     auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
@@ -327,7 +348,7 @@ void Engine::ScanUnitTasks()
                 }
             }
 
-            for (auto& hiddenUnit : m_intermediateUnitVector)
+            for (auto& hiddenUnit : m_hiddenUnitVector)
             {
                 if (hiddenUnit->IsReady() &&
                     hiddenUnit->GetStateNum() < m_maxEpochs)

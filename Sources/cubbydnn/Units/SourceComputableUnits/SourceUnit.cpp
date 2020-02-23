@@ -9,7 +9,7 @@
 namespace CubbyDNN
 {
 SourceUnit::SourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
-    : ComputableUnit({}, outputTensorInfoVector, UnitType::Source)
+    : ComputableUnit({}, std::move(outputTensorInfoVector), UnitType::Source)
 {
     m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(
         m_outputTensorInfoVector.size(), SharedPtr<ComputableUnit>());
@@ -37,4 +37,18 @@ bool SourceUnit::IsReady()
     }
     return isReady;
 }
-}  // namespace CubbyDNN
+
+Constant::Constant(TensorInfo output, int numberOfOutputs, void* dataPtr)
+    : SourceUnit(std::vector<TensorInfo>(numberOfOutputs, output)),
+      m_dataPtr(std::move(dataPtr))
+{
+    const auto byteSize = output.ByteSize();
+    assert(dataPtr != nullptr);
+    m_byteSize = byteSize;
+    for (auto& outputTensor : m_outputTensorVector)
+    {
+        std::memcpy(outputTensor.DataPtr, static_cast<void*>(m_dataPtr),
+                    m_byteSize);
+    }
+}
+} // namespace CubbyDNN
