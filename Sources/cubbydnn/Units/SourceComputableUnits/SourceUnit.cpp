@@ -38,9 +38,9 @@ bool SourceUnit::IsReady()
     return isReady;
 }
 
-Constant::Constant(TensorInfo output, int numberOfOutputs, void* dataPtr)
+ConstantUnit::ConstantUnit(TensorInfo output, int numberOfOutputs, void* dataPtr)
     : SourceUnit(std::vector<TensorInfo>(numberOfOutputs, output)),
-      m_dataPtr(std::move(dataPtr))
+      m_dataPtr(dataPtr)
 {
     const auto byteSize = output.ByteSize();
     assert(dataPtr != nullptr);

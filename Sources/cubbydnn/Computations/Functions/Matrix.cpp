@@ -25,7 +25,7 @@ void IdentityMatrix(const Shape& shape, NumberSystem numberSystem)
     }
 }
 
-void Multiply(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+void MultiplyOp(const Tensor& inputA, const Tensor& inputB, Tensor& output)
 {
     assert(inputA.Info.GetNumberSystem() == inputB.Info.GetNumberSystem() &&
         inputA.Info.GetNumberSystem() == output.Info.GetNumberSystem());

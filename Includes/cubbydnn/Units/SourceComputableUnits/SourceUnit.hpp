@@ -40,20 +40,20 @@ public:
     }
 };
 
-class Constant : public SourceUnit
+class ConstantUnit : public SourceUnit
 {
 public:
-    explicit Constant(TensorInfo output, int numberOfOutputs, void* dataPtr);
+    explicit ConstantUnit(TensorInfo output, int numberOfOutputs, void* dataPtr);
 
-    //! Constant is not copy-assignable
-    Constant(const Constant& sourceUnit) = delete;
+    //! ConstantUnit is not copy-assignable
+    ConstantUnit(const ConstantUnit& sourceUnit) = delete;
 
-    ~Constant()
+    ~ConstantUnit()
     {
         free(m_dataPtr);
     }
 
-    //! Constant is not copy-assignable
+    //! ConstantUnit is not copy-assignable
     SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
 private:
    void* m_dataPtr = nullptr;

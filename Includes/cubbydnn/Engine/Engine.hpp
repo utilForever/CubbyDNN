@@ -121,11 +121,11 @@ public:
     static void StartExecution(size_t epochs);
 
     //! Initializes thread pool
-    //! \param mainThreadNum : number of threads to assign to main operation
-    //! \param copyThreadNum : number of threads to assign to copy operation
+    //! \param mainThreadSize : number of threads to assign to main operation
+    //! \param copyThreadSize : number of threads to assign to copy operation
     //! \param epochs : number of epochs to execute the graph
     //! concurrency)
-    static void StartExecution(size_t mainThreadNum, size_t copyThreadNum,
+    static void StartExecution(size_t mainThreadSize, size_t copyThreadSize,
                                size_t epochs);
 
     //! Joins threads in the thread queue and terminates the execution
@@ -141,8 +141,8 @@ public:
     //! Adds constant to sourceUnitVector and assigns ID for the unit
     //! \param output : output tensor information of this constant
     //! \param numberOfOutputs : number of output tensors
-    //! \param dataPtr : ptr to data to set as constant this will be freed by destructor of Constant unit
-    static size_t AddConstant(const TensorInfo& output, void* dataPtr,
+    //! \param dataPtr : ptr to data to set as constant this will be freed by destructor of ConstantUnit unit
+    static size_t  Constant(const TensorInfo& output, void* dataPtr,
                               int numberOfOutputs = 1);
 
     //! Adds hiddenUnit to HiddenUnitVector
@@ -157,7 +157,7 @@ public:
     //! \param inputA : first input operand information
     //! \param inputB : second input operand information
     //! \param output : output information
-    static size_t AddMultiplyUnit(const TensorInfo& inputA,
+    static size_t Multiply(const TensorInfo& inputA,
                                   const TensorInfo& inputB, const TensorInfo& output);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit

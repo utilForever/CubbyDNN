@@ -65,7 +65,7 @@ MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
 
 void MatMul::Compute()
 {
-    Multiply(m_inputTensorVector.at(0), m_inputTensorVector.at(1),
+    MultiplyOp(m_inputTensorVector.at(0), m_inputTensorVector.at(1),
              m_outputTensorVector.at(0));
 }
 } // namespace CubbyDNN

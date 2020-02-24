@@ -29,7 +29,7 @@ void TestMatMul()
     Tensor output =
         AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
 
-    Multiply(tensorA, tensorB, output);
+    MultiplyOp(tensorA, tensorB, output);
 
     for (size_t i = 0; i < 3; i++)
     {
@@ -76,7 +76,7 @@ void TestMatMul2()
     Tensor output =
         AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
 
-    Multiply(tensorA, tensorB, output);
+    MultiplyOp(tensorA, tensorB, output);
 
     for (size_t i = 0; i < 3; i++)
     {
@@ -180,7 +180,7 @@ void TestMatMul3()
     Tensor output =
         AllocateTensor(TensorInfo({ 2, 2, 3, 3 }, NumberSystem::Float32));
 
-    Multiply(tensorA, tensorB, output);
+    MultiplyOp(tensorA, tensorB, output);
 
     for (size_t batchIdx = 0; batchIdx < 2; ++batchIdx)
         for (size_t channelIdx = 0; channelIdx < 2; ++channelIdx)

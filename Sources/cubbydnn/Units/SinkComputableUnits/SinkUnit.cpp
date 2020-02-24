@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
+#include <iostream>
 
 namespace CubbyDNN
 {
@@ -33,4 +34,10 @@ bool SinkUnit::IsReady()
     }
     return true;
 }
-}  // namespace CubbyDNN
+
+void SinkUnit::Compute()
+{
+
+    std::cout << "SinkUnit at epoch : " << m_unitState.StateNum << std::endl;
+}
+} // namespace CubbyDNN

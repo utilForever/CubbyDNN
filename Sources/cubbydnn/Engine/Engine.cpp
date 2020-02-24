@@ -50,6 +50,7 @@ void Engine::StartExecution(size_t epochs)
             {
                 sourceUnit->Compute();
                 sourceUnit->ReleaseUnit();
+                isFinished = false;
             }
             else if (sourceUnit->GetStateNum() < m_maxEpochs)
             {
@@ -64,6 +65,7 @@ void Engine::StartExecution(size_t epochs)
             {
                 hiddenUnit->Compute();
                 hiddenUnit->ReleaseUnit();
+                isFinished = false;
             }
             else if (hiddenUnit->GetStateNum() < m_maxEpochs)
             {
@@ -77,6 +79,7 @@ void Engine::StartExecution(size_t epochs)
             {
                 sinkUnit->Compute();
                 sinkUnit->ReleaseUnit();
+                isFinished = false;
             }
             else if (sinkUnit->GetStateNum() < m_maxEpochs)
             {
@@ -90,6 +93,7 @@ void Engine::StartExecution(size_t epochs)
             {
                 copyUnit->Compute();
                 copyUnit->ReleaseUnit();
+                isFinished = false;
             }
             else if (copyUnit->GetStateNum() < m_maxEpochs)
             {
@@ -99,27 +103,27 @@ void Engine::StartExecution(size_t epochs)
     }
 }
 
-void Engine::StartExecution(size_t mainThreadNum, size_t copyThreadNum,
+void Engine::StartExecution(size_t mainThreadSize, size_t copyThreadSize,
                             size_t epochs)
 {
-    if (mainThreadNum + copyThreadNum > std::thread::hardware_concurrency())
+    if (mainThreadSize + copyThreadSize > std::thread::hardware_concurrency())
     {
         const auto hardwareConcurrency = std::thread::hardware_concurrency();
         std::cout << "This computer has only " << hardwareConcurrency
             << " threads available, but total "
-            << mainThreadNum + copyThreadNum << " threads were requested"
+            << mainThreadSize + copyThreadSize << " threads were requested"
             << std::endl;
     }
     m_maxEpochs = epochs;
 
-    std::cout << "Creating " << mainThreadNum << " main threads" << std::endl;
-    m_mainThreadPool.reserve(mainThreadNum);
-    for (size_t count = 0; count < mainThreadNum; ++count)
+    std::cout << "Creating " << mainThreadSize << " main threads" << std::endl;
+    m_mainThreadPool.reserve(mainThreadSize);
+    for (size_t count = 0; count < mainThreadSize; ++count)
     {
         m_mainThreadPool.emplace_back(std::thread(m_runMain));
     }
-    std::cout << "Creating " << copyThreadNum << " copy threads" << std::endl;
-    for (size_t count = 0; count < copyThreadNum; count++)
+    std::cout << "Creating " << copyThreadSize << " copy threads" << std::endl;
+    for (size_t count = 0; count < copyThreadSize; count++)
     {
         m_copyThreadPool.emplace_back(std::thread(m_runCopy));
     }
@@ -136,12 +140,12 @@ size_t Engine::AddSourceUnit(
     return unitId;
 }
 
-size_t Engine::AddConstant(const TensorInfo& output, void* dataPtr,
+size_t Engine::Constant(const TensorInfo& output, void* dataPtr,
                            int numberOfOutputs)
 {
     const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
-        SharedPtr<Constant>::Make(output, numberOfOutputs, dataPtr));
+        SharedPtr<ConstantUnit>::Make(output, numberOfOutputs, dataPtr));
     return unitId;
 }
 
@@ -156,7 +160,7 @@ size_t Engine::AddHiddenUnit(
 }
 
 
-size_t Engine::AddMultiplyUnit(const TensorInfo& inputA,
+size_t Engine::Multiply(const TensorInfo& inputA,
                                const TensorInfo& inputB,
                                const TensorInfo& output)
 {
