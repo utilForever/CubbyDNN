@@ -136,21 +136,23 @@ public:
     //! Adds sourceUnit to sourceUnitVector and assigns ID for the unit
     //! \param outputTensorInfoVector:  vector of TensorInfo of outputs
     //! \return : assigned id of the unit
-    static size_t AddSourceUnit(const std::vector<TensorInfo>& outputTensorInfoVector);
+    static size_t AddSourceUnit(
+        const std::vector<TensorInfo>& outputTensorInfoVector);
 
     //! Adds constant to sourceUnitVector and assigns ID for the unit
     //! \param output : output tensor information of this constant
     //! \param numberOfOutputs : number of output tensors
     //! \param dataPtr : ptr to data to set as constant this will be freed by destructor of ConstantUnit unit
-    static size_t  Constant(const TensorInfo& output, void* dataPtr,
-                              int numberOfOutputs = 1);
+    static size_t Constant(const TensorInfo& output, void* dataPtr,
+                           int numberOfOutputs = 1);
 
     //! Adds hiddenUnit to HiddenUnitVector
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param outputTensorInfoVector : vector of TensorInfo of outputs
     //! \return : assigned id of the unit
-    static size_t AddHiddenUnit(const std::vector<TensorInfo>& inputTensorInfoVector,
-                                const std::vector<TensorInfo>& outputTensorInfoVector);
+    static size_t AddHiddenUnit(
+        const std::vector<TensorInfo>& inputTensorInfoVector,
+        const std::vector<TensorInfo>& outputTensorInfoVector);
 
     //! Adds MultiplyUnit to HiddenUnitVector and assigns ID
     //! MultiplyUnit performs multiplications between two tensors (matrices) C= A*B
@@ -158,12 +160,21 @@ public:
     //! \param inputB : second input operand information
     //! \param output : output information
     static size_t Multiply(const TensorInfo& inputA,
-                                  const TensorInfo& inputB, const TensorInfo& output);
+                           const TensorInfo& inputB, const TensorInfo& output);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //!  \return : assigned id of the unit
-    static size_t AddSinkUnit(const std::vector<TensorInfo>& inputTensorInfoVector);
+    static size_t AddSinkUnit(
+        const std::vector<TensorInfo>& inputTensorInfoVector);
+
+    //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
+    //! \param inputTensorInfoVector : vector of TensorInfo of inputs
+    //! \param testFunction : lambda used for testing the output
+    //!  \return : assigned id of the unit
+    static size_t AddSinkUnitWithTest(
+        const std::vector<TensorInfo>& inputTensorInfoVector,
+        const std::function<void(const Tensor& tensor)>& testFunction);
 
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
     //! between them
@@ -171,7 +182,7 @@ public:
     //! \param destID : intermediateUnit ID of destination
     //! \param destInputIndex : input index of this connection to destination
     static void ConnectSourceToHidden(size_t originID, size_t destID,
-                                            size_t destInputIndex = 0);
+                                      size_t destInputIndex = 0);
 
     //! Connects between intermediateUnit and intermediateUnit by assigning
     //! copyUnit between them
@@ -179,8 +190,8 @@ public:
     //! \param destID : unique ID of destination intermediateUnit
     //! \param destInputIndex : input index of this connection to destination
     static void ConnectHiddenToHidden(size_t originID,
-                                                  size_t destID,
-                                                  size_t destInputIndex = 0);
+                                      size_t destID,
+                                      size_t destInputIndex = 0);
 
     //! Connects between intermediateUnit and sinkUnit by assigning
     //! copyUnit between them
@@ -188,7 +199,7 @@ public:
     //! \param destID : unique ID of destination sinkUnit
     //! \param destInputIndex : input index of this connection to destination
     static void ConnectHiddenToSink(size_t originID, size_t destID,
-                                          size_t destInputIndex = 0);
+                                    size_t destInputIndex = 0);
 
 private:
     //! Routine for thread which executes mainUnits

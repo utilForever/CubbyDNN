@@ -6,7 +6,6 @@
 #define CUBBYDNN_SINKUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Units/CopyUnit.hpp>
 
 namespace CubbyDNN
 {
@@ -14,7 +13,7 @@ namespace CubbyDNN
 //! This type of unit plays role as sink of the computable graph
 class SinkUnit : public ComputableUnit
 {
- public:
+public:
     //! Constructor
     //! \param inputTensorInfoVector : vector of tensorInfo to accept
     explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
@@ -30,8 +29,30 @@ class SinkUnit : public ComputableUnit
     bool IsReady() final;
 
     void Compute() override;
-
 };
-}  // namespace CubbyDNN
+
+class SinkTestUnit : public SinkUnit
+{
+public:
+    //! Constructor
+    //! \param inputTensorInfoVector : vector of tensorInfo to accept
+    //! \param testFunction : lambda for testing the output
+    explicit SinkTestUnit(std::vector<TensorInfo> inputTensorInfoVector,
+                          std::function<void(const Tensor&)>
+                          testFunction);
+
+    //! SinkUnit is not copy-assignable
+    SinkTestUnit(const SinkTestUnit& sinkUnit) = delete;
+
+    //! SinkUnit is not copy-assignable
+    SinkTestUnit& operator=(const SinkTestUnit& sinkUnit) = delete;
+
+    void Compute() override;
+
+private:
+    //! Lambda used for testing
+    std::function<void(const Tensor&)> m_testFunction;
+};
+} // namespace CubbyDNN
 
 #endif  // CUBBYDNN_SINKUNIT_HPP

@@ -37,7 +37,20 @@ bool SinkUnit::IsReady()
 
 void SinkUnit::Compute()
 {
-
     std::cout << "SinkUnit at epoch : " << m_unitState.StateNum << std::endl;
+}
+
+SinkTestUnit::SinkTestUnit(
+    std::vector<TensorInfo> inputTensorInfoVector,
+    std::function<void(const Tensor&)> testFunction)
+    : SinkUnit(std::move(inputTensorInfoVector)),
+      m_testFunction(std::move(testFunction))
+{
+}
+
+void SinkTestUnit::Compute()
+{
+    std::cout << "SinkUnit at epoch : " << m_unitState.StateNum << std::endl;
+    m_testFunction(m_inputTensorVector.at(0));
 }
 } // namespace CubbyDNN

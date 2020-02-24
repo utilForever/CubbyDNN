@@ -4,17 +4,15 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include "GraphSynchronizationTest.hpp"
 #include <cubbydnn/Engine/Engine.hpp>
-#include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
+#include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
 #include "gtest/gtest.h"
 
-namespace GraphTest
+namespace CubbyDNN
 {
-using namespace CubbyDNN;
-
-void SimpleGraphTest(size_t epochs)
+void SimpleGraphTestParallel(int numMainThreads, int numCopyThreads,
+                             size_t epochs)
 {
     /**         hidden1 -- hidden3
      *        /                     \
@@ -74,12 +72,13 @@ void SimpleGraphTest(size_t epochs)
     Engine::ConnectHiddenToSink(intermediate2ID, sinkID, 0);
     Engine::ConnectHiddenToSink(intermediate4ID, sinkID, 1);
 
-    Engine::StartExecution(epochs);
+    Engine::StartExecution(numMainThreads, numCopyThreads, epochs);
     Engine::JoinThreads();
     std::cout << "Terminated" << std::endl;
 }
 
-void MultiplyGraphTestSerial(size_t epochs)
+void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
+                               size_t epochs)
 {
     const TensorInfo inputTensorInfo1 = TensorInfo({ 1, 1, 3, 3 });
     const TensorInfo inputTensorInfo2 = TensorInfo({ 1, 1, 3, 3 });
@@ -96,35 +95,44 @@ void MultiplyGraphTestSerial(size_t epochs)
     SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData2, 3);
     SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData2, 3);
 
+    const auto testfunction = [](const Tensor& tensor)
+    {
+        for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
+            for (size_t colIdx = 0; colIdx < 2; ++colIdx)
+            {
+                if (rowIdx == colIdx)
+                    EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
+                          9);
+                else
+                    EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
+                          0);
+            }
+    };
+
     const auto sourceId1 = Engine::Constant(inputTensorInfo1, constantData1);
     const auto sourceId2 = Engine::Constant(inputTensorInfo2, constantData2);
 
-    const auto hiddenId1 = Engine::Multiply(
-        inputTensorInfo1, inputTensorInfo2, outputTensorInfo);
-    const auto sinkId1 = Engine::AddSinkUnit({ outputTensorInfo });
+    const auto hiddenId1 =
+        Engine::Multiply(inputTensorInfo1, inputTensorInfo2, outputTensorInfo);
+    const auto sinkId1 = Engine::AddSinkUnitWithTest(
+        { outputTensorInfo }, testfunction);
 
     Engine::ConnectSourceToHidden(sourceId1, hiddenId1, 0);
     Engine::ConnectSourceToHidden(sourceId2, hiddenId1, 1);
     Engine::ConnectHiddenToSink(hiddenId1, sinkId1);
 
-    Engine::StartExecution(epochs);
+    Engine::StartExecution(numMainThreads, numCopyThreads, epochs);
     Engine::JoinThreads();
-    std::cout << "Terminated MultiplyGraphTestSerial" << std::endl;
+    std::cout << "Terminated MultiplyGraphTestParallel" << std::endl;
 }
 
-void SimpleGraph()
+TEST(SimpleGraphParallel, GraphTestParallel)
 {
-    std::vector<TensorInfo> sourceTensorInfoVector = { TensorInfo({}) };
+    SimpleGraphTestParallel(1, 1, 100);
 }
 
-TEST(SimpleGraph, GraphConstruction)
+TEST(MultiplyGraphParallel, GraphTestParallel)
 {
-    SimpleGraphTest(25);
+    MultiplyGraphTestParallel(1, 1, 100);
 }
-
-TEST(SimpleGraph, MultiplyGraphTestSerial)
-{
-    MultiplyGraphTestSerial(25);
-    EXPECT_EQ(0, 0);
-}
-} // namespace GraphTest
+} // namespace CubbyDNN

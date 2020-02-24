@@ -7,19 +7,10 @@
 #ifndef CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 #define CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 
-#include <cubbydnn/Engine/Engine.hpp>
-#include <cubbydnn/Units/CopyUnit.hpp>
-#include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
-#include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
-#include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
-#include "gtest/gtest.h"
-
-
-#include <vector>
 
 namespace GraphTest{
 
-    void SimpleGraphTest();
+    void SimpleGraphTest(size_t epochs);
 
 }
 
