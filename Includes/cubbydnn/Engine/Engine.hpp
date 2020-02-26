@@ -31,6 +31,12 @@ enum class TaskType
     None,
 };
 
+struct UnitIdentifier
+{
+    UnitType Type;
+    size_t ID;
+};
+
 //! Task wrapper for sending tasks to pending threads in the thread pool
 //! tasks are sent as function pointers and its type
 struct TaskWrapper
@@ -86,9 +92,7 @@ private:
     std::function<void(void)> m_updateState;
 };
 
-/**
- * Singleton class for maintaining threads that execute the program
- */
+//! Singleton class for maintaining threads that execute the program
 class Engine
 {
 protected:
@@ -136,21 +140,22 @@ public:
     //! Adds sourceUnit to sourceUnitVector and assigns ID for the unit
     //! \param outputTensorInfoVector:  vector of TensorInfo of outputs
     //! \return : assigned id of the unit
-    static size_t AddSourceUnit(
+    static UnitIdentifier Source(
         const std::vector<TensorInfo>& outputTensorInfoVector);
 
     //! Adds constant to sourceUnitVector and assigns ID for the unit
     //! \param output : output tensor information of this constant
     //! \param numberOfOutputs : number of output tensors
     //! \param dataPtr : ptr to data to set as constant this will be freed by destructor of ConstantUnit unit
-    static size_t Constant(const TensorInfo& output, void* dataPtr,
-                           int numberOfOutputs = 1);
+    static UnitIdentifier Constant(const TensorInfo& output, void* dataPtr,
+                                   int numberOfOutputs = 1);
 
     //! Adds hiddenUnit to HiddenUnitVector
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param outputTensorInfoVector : vector of TensorInfo of outputs
     //! \return : assigned id of the unit
-    static size_t AddHiddenUnit(
+    static UnitIdentifier Hidden(
+        const std::vector<UnitIdentifier>& previousUnit,
         const std::vector<TensorInfo>& inputTensorInfoVector,
         const std::vector<TensorInfo>& outputTensorInfoVector);
 
@@ -159,22 +164,25 @@ public:
     //! \param inputA : first input operand information
     //! \param inputB : second input operand information
     //! \param output : output information
-    static size_t Multiply(const TensorInfo& inputA,
-                           const TensorInfo& inputB, const TensorInfo& output);
+    static UnitIdentifier Multiply(
+        const std::vector<UnitIdentifier>& previousUnit,
+        const TensorInfo& inputA,
+        const TensorInfo& inputB, const TensorInfo& output);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //!  \return : assigned id of the unit
-    static size_t AddSinkUnit(
+    static void Sink(
+        const std::vector<UnitIdentifier>& previousUnit,
         const std::vector<TensorInfo>& inputTensorInfoVector);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param testFunction : lambda used for testing the output
     //!  \return : assigned id of the unit
-    static size_t AddSinkUnitWithTest(
-        const std::vector<TensorInfo>& inputTensorInfoVector,
-        const std::function<void(const Tensor& tensor)>& testFunction);
+    static UnitIdentifier SinkTest(
+        const std::vector<UnitIdentifier>& previousUnit,
+        const std::vector<TensorInfo>& inputTensorInfoVector, const std::function<void(const Tensor& tensor)>& testFunction);
 
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
     //! between them
@@ -202,6 +210,10 @@ public:
                                     size_t destInputIndex = 0);
 
 private:
+    //! Connects unit with previous units using ID
+    static void m_connectWithPreviousUnit(
+        const std::vector<UnitIdentifier>& previousUnitVector,
+        UnitIdentifier subjectUnitIdentifier);
     //! Routine for thread which executes mainUnits
     static void m_runMain();
     //! Routine for thread which executes copy operation

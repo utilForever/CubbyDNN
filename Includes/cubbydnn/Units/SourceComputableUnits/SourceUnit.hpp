@@ -36,7 +36,6 @@ public:
 
     void Compute() override
     {
-        //std::cout << "SourceUnit" << std::endl;
     }
 };
 

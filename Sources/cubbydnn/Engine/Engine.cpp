@@ -130,60 +130,75 @@ void Engine::StartExecution(size_t mainThreadSize, size_t copyThreadSize,
     m_scanMainThread = std::thread(ScanUnitTasks);
 }
 
-size_t Engine::AddSourceUnit(
+UnitIdentifier Engine::Source(
     const std::vector<TensorInfo>& outputTensorInfoVector)
 {
     const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
         SharedPtr<SourceUnit>::Make(outputTensorInfoVector));
-    return unitId;
+    return { UnitType::Source, unitId };
 }
 
-size_t Engine::Constant(const TensorInfo& output, void* dataPtr,
-                        int numberOfOutputs)
+UnitIdentifier Engine::Constant(const TensorInfo& output, void* dataPtr,
+                                int numberOfOutputs)
 {
     const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
         SharedPtr<ConstantUnit>::Make(output, numberOfOutputs, dataPtr));
-    return unitId;
+    return { UnitType::Source, unitId };
 }
 
-size_t Engine::AddHiddenUnit(
+UnitIdentifier Engine::Hidden(
+    const std::vector<UnitIdentifier>& previousUnit,
     const std::vector<TensorInfo>& inputTensorInfoVector,
     const std::vector<TensorInfo>& outputTensorInfoVector)
 {
     const auto unitId = m_hiddenUnitVector.size();
     m_hiddenUnitVector.emplace_back(SharedPtr<HiddenUnit>::Make(
         inputTensorInfoVector, outputTensorInfoVector));
-    return unitId;
+
+    const UnitIdentifier unitIdentifier = { UnitType::Hidden, unitId };
+    m_connectWithPreviousUnit(previousUnit, unitIdentifier);
+    return unitIdentifier;
 }
 
-size_t Engine::Multiply(const TensorInfo& inputA, const TensorInfo& inputB,
-                        const TensorInfo& output)
+UnitIdentifier Engine::Multiply(const std::vector<UnitIdentifier>& previousUnit,
+                                const TensorInfo& inputA,
+                                const TensorInfo& inputB,
+                                const TensorInfo& output)
 {
     const auto unitId = m_hiddenUnitVector.size();
     m_hiddenUnitVector.emplace_back(
         SharedPtr<MatMul>::Make(inputA, inputB, output));
-    return unitId;
+
+    const UnitIdentifier unitIdentifier = { UnitType::Hidden, unitId };
+    m_connectWithPreviousUnit(previousUnit, unitIdentifier);
+    return unitIdentifier;
 }
 
-size_t Engine::AddSinkUnit(const std::vector<TensorInfo>& inputTensorInfoVector)
+void Engine::Sink(
+    const std::vector<UnitIdentifier>& previousUnit,
+    const std::vector<TensorInfo>& inputTensorInfoVector)
 {
-    const auto id = m_sinkUnitVector.size();
+    const auto unitId = m_sinkUnitVector.size();
     m_sinkUnitVector.emplace_back(
         SharedPtr<SinkUnit>::Make(inputTensorInfoVector));
-    return id;
+    const UnitIdentifier unitIdentifier = { UnitType::Sink, unitId };
+    m_connectWithPreviousUnit(previousUnit, unitIdentifier);
 }
 
-size_t Engine::AddSinkUnitWithTest(
+UnitIdentifier Engine::SinkTest(
+    const std::vector<UnitIdentifier>& previousUnit,
     const std::vector<TensorInfo>& inputTensorInfoVector,
     const std::function<void(const Tensor& tensor)>& testFunction)
 {
-    const auto id = m_sinkUnitVector.size();
+    const auto unitId = m_sinkUnitVector.size();
     auto sinkUnitPtr =
         SharedPtr<SinkTestUnit>::Make(inputTensorInfoVector, testFunction);
     m_sinkUnitVector.emplace_back(sinkUnitPtr);
-    return id;
+    const UnitIdentifier unitIdentifier = { UnitType::Sink, unitId };
+    m_connectWithPreviousUnit(previousUnit, unitIdentifier);
+    return unitIdentifier;
 }
 
 void Engine::ConnectSourceToHidden(size_t originID, size_t destID,
@@ -225,16 +240,52 @@ void Engine::ConnectHiddenToSink(size_t originID, size_t destID,
 {
     assert(originID < m_hiddenUnitVector.size());
     assert(destID < m_sinkUnitVector.size());
-    auto intermediateUnit = m_hiddenUnitVector.at(originID);
+    auto hiddenUnit = m_hiddenUnitVector.at(originID);
     auto sinkUnit = m_sinkUnitVector.at(destID);
     m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
     auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
-    copyUnit->SetInputPtr(intermediateUnit);
+    copyUnit->SetInputPtr(hiddenUnit);
     copyUnit->SetOutputPtr(sinkUnit);
-    const auto inputIndex = intermediateUnit->AddOutputPtr(copyUnit);
+    const auto inputIndex = hiddenUnit->AddOutputPtr(copyUnit);
     sinkUnit->AddInputPtr(copyUnit, destInputIndex);
     copyUnit->SetInputTensorIndex(inputIndex);
     copyUnit->SetOutputTensorIndex(destInputIndex);
+}
+
+void Engine::m_connectWithPreviousUnit(
+    const std::vector<UnitIdentifier>& previousUnitVector,
+    UnitIdentifier subjectUnitIdentifier)
+{
+    size_t inputIdx = 0;
+    if (subjectUnitIdentifier.Type == UnitType::Hidden)
+        for (const auto& unit : previousUnitVector)
+        {
+            if (unit.Type == UnitType::Source)
+            {
+                ConnectSourceToHidden(unit.ID, subjectUnitIdentifier.ID,
+                                      inputIdx++);
+            }
+            else if (unit.Type == UnitType::Hidden)
+            {
+                ConnectHiddenToHidden(unit.ID, subjectUnitIdentifier.ID,
+                                      inputIdx++);
+            }
+            else
+                assert("Unsupported type of unit");
+        }
+    else if (subjectUnitIdentifier.Type == UnitType::Sink)
+        for (const auto& unit : previousUnitVector)
+        {
+            if (unit.Type == UnitType::Hidden)
+            {
+                ConnectHiddenToSink(unit.ID, subjectUnitIdentifier.ID,
+                                    inputIdx++);
+            }
+            else
+                assert("Unsupported type of unit");
+        }
+    else
+        assert("Unsupported type of unit");
 }
 
 void Engine::m_runMain()
@@ -242,7 +293,7 @@ void Engine::m_runMain()
     TaskWrapper taskWrapper = m_mainTaskQueue.Dequeue();
     while (taskWrapper.Type != TaskType::Join)
     {
-        //std::cout << "main execute" << std::endl;
+        // std::cout << "main execute" << std::endl;
         auto task = taskWrapper.GetTask();
         task();
         std::atomic_exchange_explicit(&m_dirty, true,
@@ -353,8 +404,8 @@ void Engine::ScanUnitTasks()
                     sourceUnit->ReleaseUnit();
                 };
                 sourceUnit->AcquireUnit();
-                TaskWrapper taskWrapper(TaskType::ComputeSource,
-                                        computeFunc, updateState);
+                TaskWrapper taskWrapper(TaskType::ComputeSource, computeFunc,
+                                        updateState);
                 m_mainTaskQueue.Enqueue(std::move(taskWrapper));
                 ++SourceEnqueueCount;
             }
@@ -369,7 +420,7 @@ void Engine::ScanUnitTasks()
             if (hiddenUnit->IsReady() &&
                 hiddenUnit->GetStateNum() < m_maxEpochs)
             {
-                //std::cout << "hidden ready" << std::endl;
+                // std::cout << "hidden ready" << std::endl;
                 const auto computeFunc = [&hiddenUnit]()
                 {
                     hiddenUnit->Compute();
@@ -392,14 +443,10 @@ void Engine::ScanUnitTasks()
 
         for (auto& sinkUnit : m_sinkUnitVector)
         {
-            if (sinkUnit->IsReady() &&
-                sinkUnit->GetStateNum() < m_maxEpochs)
+            if (sinkUnit->IsReady() && sinkUnit->GetStateNum() < m_maxEpochs)
             {
-                //std::cout << "sink ready" << std::endl;
-                const auto computeFunc = [&sinkUnit]()
-                {
-                    sinkUnit->Compute();
-                };
+                // std::cout << "sink ready" << std::endl;
+                const auto computeFunc = [&sinkUnit]() { sinkUnit->Compute(); };
                 const auto updateState = [&sinkUnit]()
                 {
                     sinkUnit->ReleaseUnit();
@@ -418,13 +465,9 @@ void Engine::ScanUnitTasks()
 
         for (auto& copyUnit : m_copyUnitVector)
         {
-            if (copyUnit->IsReady() &&
-                copyUnit->GetStateNum() < m_maxEpochs)
+            if (copyUnit->IsReady() && copyUnit->GetStateNum() < m_maxEpochs)
             {
-                const auto computeFunc = [&copyUnit]()
-                {
-                    copyUnit->Compute();
-                };
+                const auto computeFunc = [&copyUnit]() { copyUnit->Compute(); };
                 const auto updateState = [&copyUnit]()
                 {
                     copyUnit->ReleaseUnit();
@@ -442,6 +485,7 @@ void Engine::ScanUnitTasks()
                 isFinished = false;
             }
         }
+        std::this_thread::yield();
     }
 
     for (size_t count = 0; count < m_mainThreadPool.size(); ++count)

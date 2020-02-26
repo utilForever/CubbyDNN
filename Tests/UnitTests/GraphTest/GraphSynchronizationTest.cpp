@@ -56,23 +56,20 @@ void SimpleGraphTest(size_t epochs)
 
     SinkUnit sinkUnit = SinkUnit(sinkInputTensorInfoVector);
 
-    const auto sourceID = Engine::AddSourceUnit(sourceOutputTensorInfoVector);
-    const auto intermediate1ID =
-        Engine::AddHiddenUnit(inputTensorInfoVector1, inputTensorInfoVector2);
-    const auto intermediate2ID =
-        Engine::AddHiddenUnit(inputTensorInfoVector2, outputTensorInfoVector2);
-    const auto intermediate3ID =
-        Engine::AddHiddenUnit(inputTensorInfoVector3, outputTensorInfoVector3);
-    const auto intermediate4ID =
-        Engine::AddHiddenUnit(inputTensorInfoVector4, outputTensorInfoVector4);
-    const auto sinkID = Engine::AddSinkUnit(sinkInputTensorInfoVector);
-
-    Engine::ConnectSourceToHidden(sourceID, intermediate1ID);
-    Engine::ConnectSourceToHidden(sourceID, intermediate3ID);
-    Engine::ConnectHiddenToHidden(intermediate1ID, intermediate2ID);
-    Engine::ConnectHiddenToHidden(intermediate3ID, intermediate4ID);
-    Engine::ConnectHiddenToSink(intermediate2ID, sinkID, 0);
-    Engine::ConnectHiddenToSink(intermediate4ID, sinkID, 1);
+    const auto sourceID = Engine::Source(sourceOutputTensorInfoVector);
+    const auto intermediate1ID = Engine::Hidden(
+        { sourceID }, inputTensorInfoVector1, inputTensorInfoVector2);
+    const auto intermediate2ID = Engine::Hidden(
+        { intermediate1ID }, inputTensorInfoVector2,
+        outputTensorInfoVector2);
+    const auto intermediate3ID = Engine::Hidden(
+        { sourceID }, inputTensorInfoVector3,
+        outputTensorInfoVector3);
+    const auto intermediate4ID = Engine::Hidden(
+        { intermediate3ID }, inputTensorInfoVector4,
+        outputTensorInfoVector4);
+    Engine::Sink({ intermediate2ID, intermediate4ID },
+                 sinkInputTensorInfoVector);
 
     Engine::StartExecution(epochs);
     Engine::JoinThreads();
@@ -96,16 +93,27 @@ void MultiplyGraphTestSerial(size_t epochs)
     SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData2, 3);
     SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData2, 3);
 
+    const auto testFunction = [](const Tensor& tensor) {
+        for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
+            for (size_t colIdx = 0; colIdx < 2; ++colIdx)
+            {
+                if (rowIdx == colIdx)
+                    EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
+                              9);
+                else
+                    EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
+                              0);
+            }
+    };
+
     const auto sourceId1 = Engine::Constant(inputTensorInfo1, constantData1);
     const auto sourceId2 = Engine::Constant(inputTensorInfo2, constantData2);
 
-    const auto hiddenId1 = Engine::Multiply(
-        inputTensorInfo1, inputTensorInfo2, outputTensorInfo);
-    const auto sinkId1 = Engine::AddSinkUnit({ outputTensorInfo });
+    const auto hiddenId1 = Engine::Multiply({ sourceId1, sourceId2 }
+                                            , inputTensorInfo1,
+                                            inputTensorInfo2, outputTensorInfo);
 
-    Engine::ConnectSourceToHidden(sourceId1, hiddenId1, 0);
-    Engine::ConnectSourceToHidden(sourceId2, hiddenId1, 1);
-    Engine::ConnectHiddenToSink(hiddenId1, sinkId1);
+    Engine::SinkTest({ hiddenId1 }, { outputTensorInfo }, testFunction);
 
     Engine::StartExecution(epochs);
     Engine::JoinThreads();
