@@ -28,8 +28,6 @@ void GetIdentityMatrix(Tensor& tensor)
     const auto batchSize = tensor.Info.GetShape().Batch;
     const auto channelSize = tensor.Info.GetShape().Channel;
     const auto rowSize = tensor.Info.GetShape().Row;
-    const auto colSize = tensor.Info.GetShape().Col;
-    assert(rowSize == colSize);
 
     for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)

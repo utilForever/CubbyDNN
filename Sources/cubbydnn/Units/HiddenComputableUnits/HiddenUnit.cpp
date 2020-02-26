@@ -34,7 +34,7 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
 
 bool HiddenUnit::IsReady()
 {
-    if (m_unitState.IsBusy)
+    if (m_unitState.IsBusy.load(std::memory_order_acquire))
         return false;
 
     for (auto& elem : m_inputPtrVector)

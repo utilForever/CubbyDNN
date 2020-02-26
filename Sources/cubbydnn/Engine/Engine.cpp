@@ -5,7 +5,6 @@
 // property of any third parties.
 
 #include <cubbydnn/Engine/Engine.hpp>
-#include <iostream>
 
 namespace CubbyDNN
 {
@@ -243,6 +242,7 @@ void Engine::m_runMain()
     TaskWrapper taskWrapper = m_mainTaskQueue.Dequeue();
     while (taskWrapper.Type != TaskType::Join)
     {
+        //std::cout << "main execute" << std::endl;
         auto task = taskWrapper.GetTask();
         task();
         std::atomic_exchange_explicit(&m_dirty, true,
@@ -369,6 +369,7 @@ void Engine::ScanUnitTasks()
             if (hiddenUnit->IsReady() &&
                 hiddenUnit->GetStateNum() < m_maxEpochs)
             {
+                //std::cout << "hidden ready" << std::endl;
                 const auto computeFunc = [&hiddenUnit]()
                 {
                     hiddenUnit->Compute();
@@ -394,6 +395,7 @@ void Engine::ScanUnitTasks()
             if (sinkUnit->IsReady() &&
                 sinkUnit->GetStateNum() < m_maxEpochs)
             {
+                //std::cout << "sink ready" << std::endl;
                 const auto computeFunc = [&sinkUnit]()
                 {
                     sinkUnit->Compute();

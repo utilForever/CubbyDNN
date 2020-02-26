@@ -9,6 +9,7 @@
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
 #include <cubbydnn/Computations/Functions/Matrix.hpp>
+#include <iostream>
 
 namespace CubbyDNN
 {
@@ -32,6 +33,7 @@ public:
 
     void Compute() override
     {
+        //std::cout << "hiddenUnit" << std::endl;
     }
 };
 

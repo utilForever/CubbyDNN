@@ -36,12 +36,10 @@ size_t Tensor::GetElementOffset(Shape offsetInfo) const
 {
     const auto [batchIdx, channelIdx, rowIdx, colIdx] = offsetInfo;
     const auto& shape = Info.GetShape();
-    const auto batchSize = shape.Batch;
     const auto rowSize = shape.Row;
     const auto channelSize = shape.Channel;
     const auto colSize = shape.Col;
 
-    assert(batchIdx < batchSize);
     assert(rowIdx < rowSize);
     assert(channelIdx < channelSize);
     assert(colIdx < colSize);

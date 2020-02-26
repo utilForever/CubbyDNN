@@ -82,7 +82,7 @@ class ComputableUnit
     void AcquireUnit()
     {
         std::atomic_exchange_explicit(&m_unitState.IsBusy, true,
-                                      std::memory_order_seq_cst);
+                                      std::memory_order_release);
     }
 
     //! Called after computation for releasing the unit after computation
@@ -98,7 +98,7 @@ class ComputableUnit
     //! \return : reference of the state counter
     size_t GetStateNum() const
     {
-        return m_unitState.StateNum.load(std::memory_order_seq_cst);
+        return m_unitState.StateNum.load(std::memory_order_acquire);
     }
 
     virtual Tensor& GetInputTensor(size_t index)
@@ -116,7 +116,7 @@ class ComputableUnit
     //! increments state number after execution
     void incrementStateNum()
     {
-        m_unitState.StateNum.fetch_add(1, std::memory_order_seq_cst);
+        m_unitState.StateNum.fetch_add(1, std::memory_order_release);
         // std::cout << "Increment" << std::endl;
     }
 
@@ -124,7 +124,7 @@ class ComputableUnit
     void setReleased()
     {
         std::atomic_exchange_explicit(&m_unitState.IsBusy, false,
-                                      std::memory_order_seq_cst);
+                                      std::memory_order_release);
     }
 
     /// UnitState m_objectPtr indicates execution state of ComputableUnit

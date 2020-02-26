@@ -7,6 +7,7 @@
 #ifndef CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 #define CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 
+#include <cstdlib>
 
 namespace GraphTest{
 

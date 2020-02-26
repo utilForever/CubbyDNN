@@ -128,11 +128,11 @@ void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
 
 TEST(SimpleGraphParallel, GraphTestParallel)
 {
-    SimpleGraphTestParallel(1, 1, 100);
+    SimpleGraphTestParallel(2, 2, 300);
 }
 
 TEST(MultiplyGraphParallel, GraphTestParallel)
 {
-    MultiplyGraphTestParallel(1, 1, 100);
+    MultiplyGraphTestParallel(2, 2, 300);
 }
 } // namespace CubbyDNN

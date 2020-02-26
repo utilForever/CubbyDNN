@@ -34,6 +34,7 @@ void SpinLockQueue<T>::Enqueue(U &&elem)
 {
     static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value);
     while (!TryEnqueue(std::forward<U>(elem)))
+        std::this_thread::yield();
         ;
 }
 
@@ -67,6 +68,7 @@ template <typename T>
 T SpinLockQueue<T>::Dequeue()
 {
     while (m_empty)
+        std::this_thread::yield();
         ;
     auto rtn = TryDequeue();
     while (!std::get<1>(rtn))

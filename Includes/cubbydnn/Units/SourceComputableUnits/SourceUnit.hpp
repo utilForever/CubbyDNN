@@ -8,7 +8,6 @@
 #define CUBBYDNN_SOURCEUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Units/CopyUnit.hpp>
 
 namespace CubbyDNN
 {
@@ -37,6 +36,7 @@ public:
 
     void Compute() override
     {
+        //std::cout << "SourceUnit" << std::endl;
     }
 };
 
