@@ -110,7 +110,7 @@ void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
         Engine::Multiply({ sourceId1, sourceId2 }, inputTensorInfo1,
                          inputTensorInfo2, outputTensorInfo);
 
-    Engine::SinkTest({ hiddenId1 }, { outputTensorInfo }, testFunction);
+    Engine::OutputTest({ hiddenId1 }, { outputTensorInfo }, testFunction);
 
     Engine::StartExecution(numMainThreads, numCopyThreads, epochs);
     Engine::JoinThreads();

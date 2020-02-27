@@ -180,7 +180,7 @@ public:
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param testFunction : lambda used for testing the output
     //!  \return : assigned id of the unit
-    static UnitIdentifier SinkTest(
+    static UnitIdentifier OutputTest(
         const std::vector<UnitIdentifier>& previousUnit,
         const std::vector<TensorInfo>& inputTensorInfoVector, const std::function<void(const Tensor& tensor)>& testFunction);
 

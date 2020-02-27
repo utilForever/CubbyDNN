@@ -36,14 +36,14 @@ bool TensorInfo::operator!=(const TensorInfo& tensorInfo) const
     return !(*this == tensorInfo);
 }
 
-size_t TensorInfo::Size() const noexcept
+size_t TensorInfo::GetSize() const noexcept
 {
     return m_shape.GetTotalSize();
 }
 
-size_t TensorInfo::ByteSize() const noexcept
+size_t TensorInfo::GetByteSize() const noexcept
 {
-    return m_unitByteSize * Size();
+    return m_unitByteSize * GetSize();
 }
 
 const Shape& TensorInfo::GetShape() const noexcept

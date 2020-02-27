@@ -58,7 +58,7 @@ size_t Tensor::GetElementOffset(Shape offsetInfo) const
 
 Tensor AllocateTensor(const TensorInfo& info)
 {
-    const auto byteSize = info.ByteSize();
+    const auto byteSize = info.GetByteSize();
     void* dataPtr = static_cast<void*>(malloc(byteSize));
     std::memset(dataPtr, 0, byteSize);
     return Tensor(dataPtr, info);
@@ -67,8 +67,8 @@ Tensor AllocateTensor(const TensorInfo& info)
 void CopyTensor(Tensor& source, Tensor& destination)
 {
     assert(source.Info == destination.Info);
-    assert(source.Info.ByteSize() == destination.Info.ByteSize());
-    const size_t ByteSize = source.Info.ByteSize();
+    assert(source.Info.GetByteSize() == destination.Info.GetByteSize());
+    const size_t ByteSize = source.Info.GetByteSize();
 
     std::memcpy(destination.DataPtr, source.DataPtr, ByteSize);
 }

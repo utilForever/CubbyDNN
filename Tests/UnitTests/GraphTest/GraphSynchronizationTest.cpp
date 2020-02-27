@@ -72,7 +72,6 @@ void SimpleGraphTest(size_t epochs)
                  sinkInputTensorInfoVector);
 
     Engine::StartExecution(epochs);
-    Engine::JoinThreads();
     std::cout << "Terminated" << std::endl;
 }
 
@@ -93,16 +92,17 @@ void MultiplyGraphTestSerial(size_t epochs)
     SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData2, 3);
     SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData2, 3);
 
-    const auto testFunction = [](const Tensor& tensor) {
+    const auto testFunction = [](const Tensor& tensor)
+    {
         for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
             for (size_t colIdx = 0; colIdx < 2; ++colIdx)
             {
                 if (rowIdx == colIdx)
                     EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
-                              9);
+                          9);
                 else
                     EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
-                              0);
+                          0);
             }
     };
 
@@ -113,10 +113,9 @@ void MultiplyGraphTestSerial(size_t epochs)
                                             , inputTensorInfo1,
                                             inputTensorInfo2, outputTensorInfo);
 
-    Engine::SinkTest({ hiddenId1 }, { outputTensorInfo }, testFunction);
+    Engine::OutputTest({ hiddenId1 }, { outputTensorInfo }, testFunction);
 
     Engine::StartExecution(epochs);
-    Engine::JoinThreads();
     std::cout << "Terminated MultiplyGraphTestSerial" << std::endl;
 }
 

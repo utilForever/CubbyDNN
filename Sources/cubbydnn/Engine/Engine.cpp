@@ -187,7 +187,7 @@ void Engine::Sink(
     m_connectWithPreviousUnit(previousUnit, unitIdentifier);
 }
 
-UnitIdentifier Engine::SinkTest(
+UnitIdentifier Engine::OutputTest(
     const std::vector<UnitIdentifier>& previousUnit,
     const std::vector<TensorInfo>& inputTensorInfoVector,
     const std::function<void(const Tensor& tensor)>& testFunction)

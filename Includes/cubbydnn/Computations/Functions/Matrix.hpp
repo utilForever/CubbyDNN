@@ -12,13 +12,14 @@ namespace CubbyDNN
 {
 void IdentityMatrix(const Shape& shape, NumberSystem numberSystem);
 
-void MultiplyOp(const Tensor& inputA, const Tensor& inputB,
-                     Tensor& output);
-void Add();
+void MultiplyOp(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
-void Transpose();
+void AddOp(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
-void dot();
-}
+void TransposeOp(const Tensor& input, Tensor& output);
+
+void ReshapeOp(const Tensor& input, Tensor& output);
+
+}  // namespace CubbyDNN
 
 #endif

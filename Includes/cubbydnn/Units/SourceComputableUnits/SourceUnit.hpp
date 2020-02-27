@@ -42,7 +42,8 @@ public:
 class ConstantUnit : public SourceUnit
 {
 public:
-    explicit ConstantUnit(TensorInfo output, int numberOfOutputs, void* dataPtr);
+    explicit ConstantUnit(TensorInfo output, int numberOfOutputs,
+                          void* dataPtr);
 
     //! ConstantUnit is not copy-assignable
     ConstantUnit(const ConstantUnit& sourceUnit) = delete;
@@ -54,10 +55,43 @@ public:
 
     //! ConstantUnit is not copy-assignable
     SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
+
 private:
-   void* m_dataPtr = nullptr;
-   size_t m_byteSize = 0;
+    void* m_dataPtr = nullptr;
+    size_t m_byteSize = 0;
 };
+
+//! Initializes constant with given data
+template <typename T>
+void InitializeConstant(TensorInfo tensorInfo, void* dataPtr,
+                        const std::vector<std::vector<T>>& initializer)
+{
+    const auto shape = tensorInfo.GetShape();
+    assert(initializer.size() > 0);
+    assert(initializer.at(0).size() > 0);
+    assert(initializer.size() == shape.Row);
+    assert(initializer.at(0).size() == shape.Col);
+
+    void* data = AllocateData<float>(tensorInfo.GetShape());
+
+    for (size_t batchIdx = 0; batchIdx < shape.Batch; ++batchIdx)
+        for (size_t channelIdx = 0; channelIdx < shape.Channel; ++channelIdx)
+            for (size_t rowIdx = 0; rowIdx < shape.Row; ++rowIdx)
+                for (size_t colIdx = 0; colIdx < shape.Col; ++colIdx)
+                {
+                    size_t offset = 0;
+                    offset += colIdx;
+                    size_t multiplier = shape.Col;
+                    offset += multiplier * rowIdx;
+                    multiplier *= shape.Row;
+                    offset += multiplier * channelIdx;
+                    multiplier *= shape.Channel;
+                    offset += multiplier * batchIdx;
+                    *(static_cast<T*>(dataPtr) + offset) = initializer
+                                                           .at(rowIdx).at(
+                                                               colIdx);
+                }
+}
 } // namespace CubbyDNN
 
 #endif  // CUBBYDNN_SOURCEUNIT_HPP

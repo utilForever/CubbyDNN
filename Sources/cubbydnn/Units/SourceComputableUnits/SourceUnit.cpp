@@ -42,7 +42,7 @@ ConstantUnit::ConstantUnit(TensorInfo output, int numberOfOutputs, void* dataPtr
     : SourceUnit(std::vector<TensorInfo>(numberOfOutputs, output)),
       m_dataPtr(dataPtr)
 {
-    const auto byteSize = output.ByteSize();
+    const auto byteSize = output.GetByteSize();
     assert(dataPtr != nullptr);
     m_byteSize = byteSize;
     for (auto& outputTensor : m_outputTensorVector)

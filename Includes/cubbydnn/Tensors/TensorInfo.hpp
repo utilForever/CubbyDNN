@@ -82,13 +82,13 @@ public:
     bool operator==(const TensorInfo& tensorInfo) const;
     bool operator!=(const TensorInfo& tensorInfo) const;
 
-    //! Size (Number of elements) of The TensorData
+    //! GetSize (Number of elements) of The TensorData
     //! \return : Total element size of the tensor
-    [[nodiscard]] size_t Size() const noexcept;
+    [[nodiscard]] size_t GetSize() const noexcept;
 
     //! Gets total byte size of the tensor
     //! \return : total byte size of the tensor
-    [[nodiscard]] size_t ByteSize() const noexcept;
+    [[nodiscard]] size_t GetByteSize() const noexcept;
 
     //! Gets number system of this tensor
     //! \return : NumberSystem of this tensor
