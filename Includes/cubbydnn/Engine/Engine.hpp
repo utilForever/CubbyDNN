@@ -7,35 +7,19 @@
 #ifndef CUBBYDNN_ENGINE_HPP
 #define CUBBYDNN_ENGINE_HPP
 
-#include <cubbydnn/Engine/SpinLockQueue.hpp>
+#include <cubbydnn/Utils/SpinLockQueue.hpp>
 #include <cubbydnn/Units/CopyUnit.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 #include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
 #include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 #include <cubbydnn/Utils/SharedPtr.hpp>
 
-#include <condition_variable>
 #include <functional>
 #include <thread>
 #include <vector>
 
 namespace CubbyDNN
 {
-enum class TaskType
-{
-    ComputeSource,
-    ComputeSink,
-    ComputeIntermediate,
-    Copy,
-    Join,
-    None,
-};
-
-struct UnitIdentifier
-{
-    UnitType Type;
-    size_t ID;
-};
 
 //! Task wrapper for sending tasks to pending threads in the thread pool
 //! tasks are sent as function pointers and its type
@@ -138,10 +122,10 @@ public:
     static void Abort();
 
     //! Adds sourceUnit to sourceUnitVector and assigns ID for the unit
-    //! \param outputTensorInfoVector:  vector of TensorInfo of outputs
+    //! \param outputTensorInfo:  vector of TensorInfo of outputs
     //! \return : assigned id of the unit
     static UnitIdentifier Source(
-        const std::vector<TensorInfo>& outputTensorInfoVector);
+        const TensorInfo& outputTensorInfo, size_t numberOfOutputs = 1);
 
     //! Adds constant to sourceUnitVector and assigns ID for the unit
     //! \param output : output tensor information of this constant
@@ -152,12 +136,12 @@ public:
 
     //! Adds hiddenUnit to HiddenUnitVector
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
-    //! \param outputTensorInfoVector : vector of TensorInfo of outputs
+    //! \param outputTensorInfo : vector of TensorInfo of outputs
     //! \return : assigned id of the unit
     static UnitIdentifier Hidden(
         const std::vector<UnitIdentifier>& previousUnit,
         const std::vector<TensorInfo>& inputTensorInfoVector,
-        const std::vector<TensorInfo>& outputTensorInfoVector);
+        TensorInfo outputTensorInfo, size_t numberOfOutputs = 1);
 
     //! Adds MultiplyUnit to HiddenUnitVector and assigns ID
     //! MultiplyUnit performs multiplications between two tensors (matrices) C= A*B
@@ -166,8 +150,7 @@ public:
     //! \param output : output information
     static UnitIdentifier Multiply(
         const std::vector<UnitIdentifier>& previousUnit,
-        const TensorInfo& inputA,
-        const TensorInfo& inputB, const TensorInfo& output);
+        const TensorInfo& inputA, const TensorInfo& inputB, const TensorInfo& output);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs

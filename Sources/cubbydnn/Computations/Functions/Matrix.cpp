@@ -26,7 +26,7 @@ void IdentityMatrix(const Shape& shape, NumberSystem numberSystem)
         case NumberSystem::Int32:
             GetIdentityMatrix<int>(tensor);
             break;
-
+            //TODO : Short type not working
         default:
             assert(false && "UnsupportedNumberSystemError");
     }
@@ -78,7 +78,6 @@ void AddOp(const Tensor& inputA, const Tensor& inputB, Tensor& output)
         case NumberSystem::Int32:
             TensorAdd<int>(inputA, inputB, output);
             break;
-  
         default:
             assert(false && "UnsupportedNumberSystemError");
     }

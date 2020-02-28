@@ -1,11 +1,15 @@
-//
-// Created by jwkim98 on 8/13/19.
-//
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
+
 
 #ifndef CUBBYDNN_SINKUNIT_HPP
 #define CUBBYDNN_SINKUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <functional>
 
 namespace CubbyDNN
 {

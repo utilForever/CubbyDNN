@@ -18,9 +18,9 @@ class SourceUnit : public ComputableUnit
 {
 public:
     //! Constructor
-    //! \param outputTensorInfoVector : TensorInfo of the output m_tensor(Which
-    //! is always less than 1)
-    explicit SourceUnit(std::vector<TensorInfo> outputTensorInfoVector);
+    //! \param output : TensorInfo of the output
+    //! \param numberOfOutputs : number of connections to this source unit
+    explicit SourceUnit(TensorInfo output, size_t numberOfOutputs = 1);
 
     //! SourceUnit is not copy-assignable
     SourceUnit(const SourceUnit& sourceUnit) = delete;

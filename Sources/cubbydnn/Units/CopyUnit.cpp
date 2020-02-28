@@ -8,7 +8,7 @@
 
 namespace CubbyDNN
 {
-CopyUnit::CopyUnit() : ComputableUnit({},{},UnitType::Copy)
+CopyUnit::CopyUnit() : ComputableUnit(UnitType::Copy)
 {
 }
 

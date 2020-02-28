@@ -8,16 +8,16 @@
 
 namespace CubbyDNN
 {
-SourceUnit::SourceUnit(std::vector<TensorInfo> outputTensorInfoVector)
-    : ComputableUnit({}, std::move(outputTensorInfoVector), UnitType::Source)
+SourceUnit::SourceUnit(TensorInfo output, size_t numberOfOutputs)
+    : ComputableUnit({},output , UnitType::Source)
 {
     m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(
-        m_outputTensorInfoVector.size(), SharedPtr<ComputableUnit>());
+         numberOfOutputs, SharedPtr<ComputableUnit>());
 
-    m_outputTensorVector.reserve(outputTensorInfoVector.size());
-    for (const auto& tensorInfo : m_outputTensorInfoVector)
+    m_outputTensorVector.reserve(numberOfOutputs);
+    for (size_t idx = 0; idx < numberOfOutputs; ++idx)
     {
-        m_outputTensorVector.emplace_back(AllocateTensor(tensorInfo));
+        m_outputTensorVector.emplace_back(AllocateTensor(m_outputTensorInfo));
     }
 }
 
@@ -39,7 +39,7 @@ bool SourceUnit::IsReady()
 }
 
 ConstantUnit::ConstantUnit(TensorInfo output, int numberOfOutputs, void* dataPtr)
-    : SourceUnit(std::vector<TensorInfo>(numberOfOutputs, output)),
+    : SourceUnit(output, numberOfOutputs),
       m_dataPtr(dataPtr)
 {
     const auto byteSize = output.GetByteSize();

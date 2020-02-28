@@ -18,9 +18,10 @@ class HiddenUnit : public ComputableUnit
 public:
     //! Constructor
     //! \param inputTensorInfoVector : vector of TensorInfo
-    //! \param outputTensorInfoVector : TensorInfo of the output m_tensor
+    //! \param outputTensorInfo : TensorInfo of the output m_tensor
+    //! \param numberOfOutputs : number of outputs that this unit is connected
     HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
-               std::vector<TensorInfo> outputTensorInfoVector);
+               TensorInfo outputTensorInfo, size_t numberOfOutputs = 1);
 
     ~HiddenUnit() = default;
 

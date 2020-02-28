@@ -75,6 +75,6 @@ Unit Model::Dense(const Unit& previous, size_t units, bool use_bias,
                   Initializer kernelInitializer,
                   Initializer biasInitializer)
 {
-
+    
 }
 } // namespace CubbyDNN

@@ -22,54 +22,22 @@ void SimpleGraphTest(size_t epochs)
      *        \ hidden2 -- hidden4  /
      */
 
-    const std::vector<TensorInfo> sourceOutputTensorInfoVector = {
-        TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 })
-    };
-
-    const std::vector<TensorInfo> inputTensorInfoVector1 = { TensorInfo(
-        { 1, 1, 1, 1 }) };
-    const std::vector<TensorInfo> outputTensorInfoVector1 = { TensorInfo(
-        { 1, 1, 1, 1 }) };
-
-    const std::vector<TensorInfo> inputTensorInfoVector2 = { TensorInfo(
-        { 1, 1, 1, 1 }) };
-    const std::vector<TensorInfo> outputTensorInfoVector2 = { TensorInfo({
-        1,
-        1,
-        1,
-        1,
-    }) };
-
-    const std::vector<TensorInfo> inputTensorInfoVector3 = { TensorInfo(
-        { 1, 1, 1, 1 }) };
-    const std::vector<TensorInfo> outputTensorInfoVector3 = { TensorInfo(
-        { 1, 1, 1, 1 }) };
-
-    const std::vector<TensorInfo> inputTensorInfoVector4 = { TensorInfo(
-        { 1, 1, 1, 1 }) };
-    const std::vector<TensorInfo> outputTensorInfoVector4 = { TensorInfo(
-        { 1, 1, 1, 1 }) };
-
-    const std::vector<TensorInfo> sinkInputTensorInfoVector = {
-        TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 })
-    };
-
-    SinkUnit sinkUnit = SinkUnit(sinkInputTensorInfoVector);
-
-    const auto sourceID = Engine::Source(sourceOutputTensorInfoVector);
-    const auto intermediate1ID = Engine::Hidden(
-        { sourceID }, inputTensorInfoVector1, inputTensorInfoVector2);
-    const auto intermediate2ID = Engine::Hidden(
-        { intermediate1ID }, inputTensorInfoVector2,
-        outputTensorInfoVector2);
-    const auto intermediate3ID = Engine::Hidden(
-        { sourceID }, inputTensorInfoVector3,
-        outputTensorInfoVector3);
-    const auto intermediate4ID = Engine::Hidden(
-        { intermediate3ID }, inputTensorInfoVector4,
-        outputTensorInfoVector4);
-    Engine::Sink({ intermediate2ID, intermediate4ID },
-                 sinkInputTensorInfoVector);
+    const auto source = Engine::Source(TensorInfo({ 1, 1, 1, 1 }), 2);
+    const auto hidden1 = Engine::Hidden(
+        { source }, { TensorInfo({ 1, 1, 1, 1 }) },
+        TensorInfo({ 1, 1, 1, 1 }),
+        1);
+    const auto hidden2 = Engine::Hidden(
+        { hidden1 }, { TensorInfo({ 1, 1, 1, 1 }) },
+        TensorInfo({ 1, 1, 1, 1 }));
+    const auto hidden3 = Engine::Hidden(
+        { source }, {
+            TensorInfo({ 1, 1, 1, 1 }) }, TensorInfo({ 1, 1, 1, 1 }));
+    const auto hidden4 = Engine::Hidden(
+        { hidden3 }, { TensorInfo({ 1, 1, 1, 1 }) },
+        TensorInfo({ 1, 1, 1, 1 }));
+    Engine::Sink({ hidden2, hidden4 },
+                 { TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 }) });
 
     Engine::StartExecution(epochs);
     std::cout << "Terminated" << std::endl;
@@ -109,19 +77,14 @@ void MultiplyGraphTestSerial(size_t epochs)
     const auto sourceId1 = Engine::Constant(inputTensorInfo1, constantData1);
     const auto sourceId2 = Engine::Constant(inputTensorInfo2, constantData2);
 
-    const auto hiddenId1 = Engine::Multiply({ sourceId1, sourceId2 }
-                                            , inputTensorInfo1,
-                                            inputTensorInfo2, outputTensorInfo);
+    const auto hiddenId1 =
+        Engine::Multiply({ sourceId1, sourceId2 }, inputTensorInfo1,
+                         inputTensorInfo2, outputTensorInfo);
 
     Engine::OutputTest({ hiddenId1 }, { outputTensorInfo }, testFunction);
 
     Engine::StartExecution(epochs);
     std::cout << "Terminated MultiplyGraphTestSerial" << std::endl;
-}
-
-void SimpleGraph()
-{
-    std::vector<TensorInfo> sourceTensorInfoVector = { TensorInfo({}) };
 }
 
 TEST(SimpleGraph, GraphConstruction)

@@ -131,11 +131,11 @@ void Engine::StartExecution(size_t mainThreadSize, size_t copyThreadSize,
 }
 
 UnitIdentifier Engine::Source(
-    const std::vector<TensorInfo>& outputTensorInfoVector)
+    const TensorInfo& outputTensorInfo, size_t numberOfOutputs)
 {
     const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
-        SharedPtr<SourceUnit>::Make(outputTensorInfoVector));
+        SharedPtr<SourceUnit>::Make(outputTensorInfo, numberOfOutputs));
     return { UnitType::Source, unitId };
 }
 
@@ -151,11 +151,11 @@ UnitIdentifier Engine::Constant(const TensorInfo& output, void* dataPtr,
 UnitIdentifier Engine::Hidden(
     const std::vector<UnitIdentifier>& previousUnit,
     const std::vector<TensorInfo>& inputTensorInfoVector,
-    const std::vector<TensorInfo>& outputTensorInfoVector)
+    TensorInfo outputTensorInfo, size_t numberOfOutputs)
 {
     const auto unitId = m_hiddenUnitVector.size();
     m_hiddenUnitVector.emplace_back(SharedPtr<HiddenUnit>::Make(
-        inputTensorInfoVector, outputTensorInfoVector));
+        inputTensorInfoVector, outputTensorInfo, numberOfOutputs));
 
     const UnitIdentifier unitIdentifier = { UnitType::Hidden, unitId };
     m_connectWithPreviousUnit(previousUnit, unitIdentifier);
@@ -176,9 +176,8 @@ UnitIdentifier Engine::Multiply(const std::vector<UnitIdentifier>& previousUnit,
     return unitIdentifier;
 }
 
-void Engine::Sink(
-    const std::vector<UnitIdentifier>& previousUnit,
-    const std::vector<TensorInfo>& inputTensorInfoVector)
+void Engine::Sink(const std::vector<UnitIdentifier>& previousUnit,
+                  const std::vector<TensorInfo>& inputTensorInfoVector)
 {
     const auto unitId = m_sinkUnitVector.size();
     m_sinkUnitVector.emplace_back(

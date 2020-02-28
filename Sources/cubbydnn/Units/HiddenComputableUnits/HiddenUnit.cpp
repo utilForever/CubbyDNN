@@ -10,12 +10,12 @@
 namespace CubbyDNN
 {
 HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                       std::vector<TensorInfo> outputTensorInfoVector)
+                      TensorInfo outputTensorInfo, size_t numberOfOutputs)
     : ComputableUnit(std::move(inputTensorInfoVector),
-                     std::move(outputTensorInfoVector), UnitType::Hidden)
+                     outputTensorInfo, UnitType::Hidden)
 {
     m_outputPtrVector =
-        std::vector<SharedPtr<ComputableUnit>>(m_outputTensorInfoVector.size());
+        std::vector<SharedPtr<ComputableUnit>>(numberOfOutputs);
     m_inputPtrVector =
         std::vector<SharedPtr<ComputableUnit>>(m_inputTensorInfoVector.size());
 
@@ -25,10 +25,10 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
         m_inputTensorVector.emplace_back(AllocateTensor(inputTensorInfo));
     }
 
-    m_outputTensorVector.reserve(m_outputTensorInfoVector.size());
-    for (auto& outputTensorInfo : m_outputTensorInfoVector)
+    m_outputTensorVector.reserve(numberOfOutputs);
+    for (size_t idx = 0; idx < numberOfOutputs; ++ idx)
     {
-        m_outputTensorVector.emplace_back(AllocateTensor(outputTensorInfo));
+        m_outputTensorVector.emplace_back(AllocateTensor(m_outputTensorInfo));
     }
 }
 
@@ -54,7 +54,7 @@ bool HiddenUnit::IsReady()
 
 MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
                const TensorInfo& output)
-    : HiddenUnit({ inputA, inputB }, { output })
+    : HiddenUnit({ inputA, inputB },  output)
 {
     assert(inputA.GetShape().Col == inputB.GetShape().Row);
     assert(inputA.GetShape().Batch == inputB.GetShape().Batch &&

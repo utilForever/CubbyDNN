@@ -17,37 +17,19 @@
 
 namespace CubbyDNN
 {
-enum class UnitType
-{
-    Source,
-    Hidden,
-    Sink,
-    Copy,
-    Undefined,
-};
-
-//! UnitState
-//! Wrapper class containing the state and StateNum
-//! This represents the execution state of computable Unit
-struct UnitState
-{
-    explicit UnitState();
-    /// State number of current
-    std::atomic<std::size_t> StateNum = 0;
-    /// True if unit is already in the task queue
-    std::atomic<bool> IsBusy = false;
-};
 
 class ComputableUnit
 {
  public:
 
+     ComputableUnit(UnitType unitType);
+
     //! Constructor
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
-    //! \param outputTensorInfoVector : vector of TensorInfo of outputs
+    //! \param outputTensorInfo : vector of TensorInfo of outputs
     //! \param unitType : type of the unit
     ComputableUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                   std::vector<TensorInfo> outputTensorInfoVector,
+                  TensorInfo outputTensorInfo,
                    UnitType unitType);
 
     virtual ~ComputableUnit() = default;
@@ -137,7 +119,7 @@ class ComputableUnit
     std::vector<std::string> m_logVector;
 
     std::vector<TensorInfo> m_inputTensorInfoVector;
-    std::vector<TensorInfo> m_outputTensorInfoVector;
+    TensorInfo m_outputTensorInfo;
 
     std::vector<Tensor> m_inputTensorVector;
     std::vector<Tensor> m_outputTensorVector;
