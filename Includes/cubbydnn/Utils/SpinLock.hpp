@@ -4,7 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Engine/SpinLock-Decl.hpp>
+#include <cubbydnn/Utils/SpinLock-Decl.hpp>
+#include <thread>
 
 namespace CubbyDNN {
 

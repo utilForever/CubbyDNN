@@ -7,7 +7,9 @@
 #ifndef CUBBYDNN_SPINLOCKQUEUE_HPP
 #define CUBBYDNN_SPINLOCKQUEUE_HPP
 
-#include <cubbydnn/Engine/SpinLockQueue-Decl.hpp>
+#include <cubbydnn/Utils/SpinLockQueue-Decl.hpp>
+#include <type_traits>
+
 
 namespace CubbyDNN
 {
@@ -30,17 +32,17 @@ SpinLockQueue<T>::SpinLockQueue(SpinLockQueue<T> &&spinLockQueue) noexcept
 
 template <typename T>
 template <typename U>
-void SpinLockQueue<T>::Enqueue(U &&elem)
+void SpinLockQueue<T>::Enqueue(U &&object)
 {
     static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value);
-    while (!TryEnqueue(std::forward<U>(elem)))
+    while (!TryEnqueue(std::forward<U>(object)))
         std::this_thread::yield();
         ;
 }
 
 template <typename T>
 template <typename U>
-bool SpinLockQueue<T>::TryEnqueue(U &&elem)
+bool SpinLockQueue<T>::TryEnqueue(U &&object)
 {
     /// Check if type of class and argument is identical
     static_assert(std::is_same<std::decay_t<T>, std::decay_t<U>>::value);
@@ -54,7 +56,7 @@ bool SpinLockQueue<T>::TryEnqueue(U &&elem)
         else
             incrementBack();
 
-        m_container.at(m_backIndex) = std::forward<U>(elem);
+        m_container.at(m_backIndex) = std::forward<U>(object);
         isAvailable = true;
     }
     else
