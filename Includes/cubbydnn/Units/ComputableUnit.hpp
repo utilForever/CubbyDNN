@@ -19,7 +19,6 @@ namespace CubbyDNN
 class ComputableUnit
 {
 public:
-
     ComputableUnit(UnitType unitType);
 
     //! Constructor
@@ -27,8 +26,7 @@ public:
     //! \param outputTensorInfo : vector of TensorInfo of outputs
     //! \param unitType : type of the unit
     ComputableUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                   TensorInfo outputTensorInfo,
-                   UnitType unitType);
+                   TensorInfo outputTensorInfo, UnitType unitType);
 
     virtual ~ComputableUnit() = default;
 
@@ -96,6 +94,16 @@ public:
         return m_outputTensorInfo;
     }
 
+    int GetDepth() const
+    {
+        return m_depth;
+    }
+
+    void SetDepth(int depth)
+    {
+        m_depth = depth;
+    }
+
     const UnitType Type = UnitType::Undefined;
 
 protected:
@@ -132,6 +140,8 @@ protected:
 
 private:
     size_t m_outputVectorIndex = 0;
+    //! Indicates distance from the first input
+    int m_depth = 0;
 };
 }; // namespace CubbyDNN
 

@@ -53,8 +53,8 @@ bool HiddenUnit::IsReady()
 }
 
 MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
-               const TensorInfo& output)
-    : HiddenUnit({ inputA, inputB },  output)
+               const TensorInfo& output, size_t numberOfOutputs)
+    : HiddenUnit({ inputA, inputB },  output, numberOfOutputs)
 {
     assert(inputA.GetShape().Col == inputB.GetShape().Row);
     assert(inputA.GetShape().Batch == inputB.GetShape().Batch &&

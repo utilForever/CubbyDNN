@@ -10,7 +10,7 @@
 
 namespace CubbyDNN
 {
-void SimpleGraphTestParallel(int numMainThreads, int numCopyThreads,
+void SimpleGraphTestParallel(int workers,
                              size_t epochs)
 {
     /**         hidden1 -- hidden3
@@ -32,16 +32,16 @@ void SimpleGraphTestParallel(int numMainThreads, int numCopyThreads,
     Engine::Sink({ hidden2, hidden4 },
                  { TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 }) });
 
-    Engine::StartExecution(numMainThreads, numCopyThreads, epochs);
+    Engine::ExecuteParallel(workers, epochs);
     Engine::JoinThreads();
     std::cout << "Terminated" << std::endl;
 }
 
-void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
-                               size_t epochs)
+void MultiplyGraphTestParallel(size_t workers, size_t epochs)
 {
     void* constantData1 = AllocateData<float>({ 1, 1, 3, 3 });
     void* constantData2 = AllocateData<float>({ 1, 1, 3, 3 });
+    void* constantData3 = AllocateData<float>({ 1, 1, 3, 3 });
 
     SetData<float>({ 0, 0, 0, 0 }, { 1, 1, 3, 3 }, constantData1, 3);
     SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData1, 3);
@@ -51,6 +51,10 @@ void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
     SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData2, 3);
     SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData2, 3);
 
+    SetData<float>({ 0, 0, 0, 0 }, { 1, 1, 3, 3 }, constantData3, 3);
+    SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData3, 3);
+    SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData3, 3);
+
     const auto testFunction = [](const Tensor& tensor)
     {
         for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
@@ -58,7 +62,7 @@ void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
             {
                 if (rowIdx == colIdx)
                     EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
-                          9);
+                          27);
                 else
                     EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
                           0);
@@ -69,23 +73,31 @@ void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
                                             constantData1);
     const auto constant2 = Engine::Constant(TensorInfo({ 1, 1, 3, 3, }),
                                             constantData2);
+    const auto constant3 = Engine::Constant(TensorInfo({
+                                                1,
+                                                1,
+                                                3,
+                                                3,
+                                            }),
+                                            constantData3);
 
     const auto multiply1 = Engine::Multiply(constant1, constant2);
+    const auto multiply2 = Engine::Multiply(multiply1, constant3);
 
-    Engine::OutputTest(multiply1, testFunction);
+    Engine::OutputTest(multiply2, testFunction);
 
-    Engine::StartExecution(numMainThreads, numCopyThreads, epochs);
+    Engine::ExecuteParallel(workers, epochs);
     Engine::JoinThreads();
     std::cout << "Terminated MultiplyGraphTestParallel" << std::endl;
 }
 
 TEST(SimpleGraphParallel, GraphTestParallel)
 {
-    SimpleGraphTestParallel(2, 2, 300);
+    SimpleGraphTestParallel(2, 300);
 }
 
 TEST(MultiplyGraphParallel, GraphTestParallel)
 {
-    MultiplyGraphTestParallel(2, 2, 300);
+    MultiplyGraphTestParallel(2, 10);
 }
 } // namespace CubbyDNN

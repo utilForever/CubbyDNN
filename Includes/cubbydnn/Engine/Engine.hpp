@@ -112,6 +112,8 @@ public:
     static void StartExecution(size_t mainThreadSize, size_t copyThreadSize,
                                size_t epochs);
 
+    static void ExecuteParallel(size_t workers, size_t epochs);
+
     //! Joins threads in the thread queue and terminates the execution
     static void JoinThreads();
 
@@ -146,7 +148,7 @@ public:
     //! \param output : output information
     static UnitIdentifier Multiply(
         const
-        UnitIdentifier& unitA, const UnitIdentifier& unitB);
+        UnitIdentifier& unitA, const UnitIdentifier& unitB, size_t numberOfOutputs = 1);
 
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
@@ -195,9 +197,13 @@ private:
         const std::vector<UnitIdentifier>& previousUnitVector,
         UnitIdentifier subjectUnitIdentifier);
     //! Routine for thread which executes mainUnits
-    static void m_runMain();
+    static void m_run();
     //! Routine for thread which executes copy operation
     static void m_runCopy();
+
+    static void m_executeComputeUnits();
+
+    static void m_executeCopyUnits();
 
     static std::thread m_scanMainThread;
 

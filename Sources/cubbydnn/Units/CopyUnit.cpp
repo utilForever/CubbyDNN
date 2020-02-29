@@ -22,13 +22,13 @@ void CopyUnit::Compute()
 
 bool CopyUnit::IsReady()
 {
-    if (m_unitState.IsBusy.load(std::memory_order_seq_cst))
+    if (m_unitState.IsBusy.load(std::memory_order_acquire))
         return false;
 
     const bool ready =  m_inputUnitPtr->GetStateNum() ==
-               m_unitState.StateNum.load(std::memory_order_seq_cst) + 1 &&
+               m_unitState.StateNum.load(std::memory_order_acquire) + 1 &&
            m_outputUnitPtr->GetStateNum() ==
-               m_unitState.StateNum.load(std::memory_order_seq_cst);
+               m_unitState.StateNum.load(std::memory_order_acquire);
     return ready;
 }
 }  // namespace CubbyDNN

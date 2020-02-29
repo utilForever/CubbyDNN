@@ -42,7 +42,7 @@ class MatMul : public HiddenUnit
 {
 public:
     MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
-           const TensorInfo& output);
+           const TensorInfo& output, size_t numberOfOutputs);
 
     ~MatMul() = default;
 
