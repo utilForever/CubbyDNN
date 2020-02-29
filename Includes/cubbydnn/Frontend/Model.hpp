@@ -34,7 +34,7 @@ public:
 
     Unit Constant(Shape shape, void* data);
 
-    Unit Variable(Shape shape, Initializer initializer);
+    Unit Variable(Shape shape);
 
     Unit Variable(Shape shape, void* data);
 

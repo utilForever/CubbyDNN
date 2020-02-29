@@ -39,9 +39,9 @@ class SinkTestUnit : public SinkUnit
 {
 public:
     //! Constructor
-    //! \param inputTensorInfoVector : vector of tensorInfo to accept
+    //! \param inputTensorInfo : tensorInfo of the input to be tested
     //! \param testFunction : lambda for testing the output
-    explicit SinkTestUnit(std::vector<TensorInfo> inputTensorInfoVector,
+    explicit SinkTestUnit(TensorInfo inputTensorInfo,
                           std::function<void(const Tensor&)>
                           testFunction);
 

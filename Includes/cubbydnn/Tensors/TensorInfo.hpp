@@ -12,7 +12,7 @@
 
 namespace CubbyDNN
 {
-//! \brief TensorShape class.
+//! \brief:  TensorShape class.
 //! This class contains information about the shape of tensor.
 class TensorInfo
 {
@@ -26,6 +26,10 @@ public:
     /// Constructs TensorShape with given parameters
     TensorInfo(const Shape& shape,
                NumberSystem numberSystem = NumberSystem::Float32);
+
+    TensorInfo(const TensorInfo& tensorInfo) = default;
+
+    TensorInfo& operator=(const  TensorInfo& tensorInfo) = default;
 
     bool operator==(const TensorInfo& tensorInfo) const;
     bool operator!=(const TensorInfo& tensorInfo) const;

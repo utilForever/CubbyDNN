@@ -8,7 +8,6 @@
 #define CUBBYDNN_COMPUTABLEUNIT_HPP
 
 #include <atomic>
-#include <utility>
 #include <vector>
 
 #include <cubbydnn/Tensors/Tensor.hpp>
@@ -17,19 +16,18 @@
 
 namespace CubbyDNN
 {
-
 class ComputableUnit
 {
- public:
+public:
 
-     ComputableUnit(UnitType unitType);
+    ComputableUnit(UnitType unitType);
 
     //! Constructor
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param outputTensorInfo : vector of TensorInfo of outputs
     //! \param unitType : type of the unit
     ComputableUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                  TensorInfo outputTensorInfo,
+                   TensorInfo outputTensorInfo,
                    UnitType unitType);
 
     virtual ~ComputableUnit() = default;
@@ -87,14 +85,20 @@ class ComputableUnit
     {
         return m_inputTensorVector.at(index);
     }
+
     virtual Tensor& GetOutputTensor(size_t index)
     {
         return m_outputTensorVector.at(index);
     }
 
+    TensorInfo GetOutputTensorInfo() const
+    {
+        return m_outputTensorInfo;
+    }
+
     const UnitType Type = UnitType::Undefined;
 
- protected:
+protected:
     //! increments state number after execution
     void incrementStateNum()
     {
@@ -126,9 +130,9 @@ class ComputableUnit
 
     Tensor m_tensor = Tensor(nullptr, TensorInfo({ 1, 1, 1, 1 }));
 
- private:
+private:
     size_t m_outputVectorIndex = 0;
 };
-};  // namespace CubbyDNN
+}; // namespace CubbyDNN
 
 #endif  // CUBBYDNN_COMPUTABLEUNIT_HPP

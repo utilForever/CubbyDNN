@@ -20,7 +20,6 @@
 
 namespace CubbyDNN
 {
-
 //! Task wrapper for sending tasks to pending threads in the thread pool
 //! tasks are sent as function pointers and its type
 struct TaskWrapper
@@ -99,9 +98,6 @@ protected:
     //! and pushes units ready to be executed in the mainTaskQueue
     static void ScanUnitTasks();
 
-    //! Scans CopyUnitVector and pushes units ready to be executed in the
-    //! copyTaskQueue
-    static void ScanCopyTasks();
 
 public:
 
@@ -135,12 +131,12 @@ public:
                                    int numberOfOutputs = 1);
 
     //! Adds hiddenUnit to HiddenUnitVector
+    //! \param previousUnitVector : vector of previous units
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param outputTensorInfo : vector of TensorInfo of outputs
     //! \return : assigned id of the unit
     static UnitIdentifier Hidden(
-        const std::vector<UnitIdentifier>& previousUnit,
-        const std::vector<TensorInfo>& inputTensorInfoVector,
+        const std::vector<UnitIdentifier>& previousUnitVector,
         TensorInfo outputTensorInfo, size_t numberOfOutputs = 1);
 
     //! Adds MultiplyUnit to HiddenUnitVector and assigns ID
@@ -149,8 +145,9 @@ public:
     //! \param inputB : second input operand information
     //! \param output : output information
     static UnitIdentifier Multiply(
-        const std::vector<UnitIdentifier>& previousUnit,
-        const TensorInfo& inputA, const TensorInfo& inputB, const TensorInfo& output);
+        const
+        UnitIdentifier& unitA, const UnitIdentifier& unitB);
+
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
     //! \param inputTensorInfoVector : vector of TensorInfo of inputs
@@ -164,35 +161,35 @@ public:
     //! \param testFunction : lambda used for testing the output
     //!  \return : assigned id of the unit
     static UnitIdentifier OutputTest(
-        const std::vector<UnitIdentifier>& previousUnit,
-        const std::vector<TensorInfo>& inputTensorInfoVector, const std::function<void(const Tensor& tensor)>& testFunction);
+        const UnitIdentifier& previousUnit,
+        const std::function<void(const Tensor& tensor)>& testFunction);
 
+private:
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
     //! between them
     //! \param originID : sourceUnit ID to connect
     //! \param destID : intermediateUnit ID of destination
     //! \param destInputIndex : input index of this connection to destination
-    static void ConnectSourceToHidden(size_t originID, size_t destID,
-                                      size_t destInputIndex = 0);
+    static void m_connectSourceToHidden(size_t originID, size_t destID,
+                                        size_t destInputIndex = 0);
 
     //! Connects between intermediateUnit and intermediateUnit by assigning
     //! copyUnit between them
     //! \param originID : unique ID of origin intermediateUnit
     //! \param destID : unique ID of destination intermediateUnit
     //! \param destInputIndex : input index of this connection to destination
-    static void ConnectHiddenToHidden(size_t originID,
-                                      size_t destID,
-                                      size_t destInputIndex = 0);
+    static void m_connectHiddenToHidden(size_t originID,
+                                        size_t destID,
+                                        size_t destInputIndex = 0);
 
     //! Connects between intermediateUnit and sinkUnit by assigning
     //! copyUnit between them
     //! \param originID : unique ID of origin intermediateUnit
     //! \param destID : unique ID of destination sinkUnit
     //! \param destInputIndex : input index of this connection to destination
-    static void ConnectHiddenToSink(size_t originID, size_t destID,
-                                    size_t destInputIndex = 0);
+    static void m_connectHiddenToSink(size_t originID, size_t destID,
+                                      size_t destInputIndex = 0);
 
-private:
     //! Connects unit with previous units using ID
     static void m_connectWithPreviousUnit(
         const std::vector<UnitIdentifier>& previousUnitVector,

@@ -130,8 +130,8 @@ void Engine::StartExecution(size_t mainThreadSize, size_t copyThreadSize,
     m_scanMainThread = std::thread(ScanUnitTasks);
 }
 
-UnitIdentifier Engine::Source(
-    const TensorInfo& outputTensorInfo, size_t numberOfOutputs)
+UnitIdentifier Engine::Source(const TensorInfo& outputTensorInfo,
+                              size_t numberOfOutputs)
 {
     const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
@@ -149,30 +149,65 @@ UnitIdentifier Engine::Constant(const TensorInfo& output, void* dataPtr,
 }
 
 UnitIdentifier Engine::Hidden(
-    const std::vector<UnitIdentifier>& previousUnit,
-    const std::vector<TensorInfo>& inputTensorInfoVector,
+    const std::vector<UnitIdentifier>& previousUnitVector,
     TensorInfo outputTensorInfo, size_t numberOfOutputs)
 {
+    std::vector<TensorInfo> inputTensorInfoVector;
+    inputTensorInfoVector.reserve(previousUnitVector.size());
+    for (const auto& unitIdentifier : previousUnitVector)
+    {
+        if (unitIdentifier.Type == UnitType::Hidden)
+            inputTensorInfoVector.emplace_back(
+                m_hiddenUnitVector.at(unitIdentifier.ID)
+                                  ->GetOutputTensorInfo());
+        if (unitIdentifier.Type == UnitType::Source)
+            inputTensorInfoVector.emplace_back(
+                m_sourceUnitVector
+                .at(unitIdentifier.ID)->GetOutputTensorInfo());
+    }
+
     const auto unitId = m_hiddenUnitVector.size();
     m_hiddenUnitVector.emplace_back(SharedPtr<HiddenUnit>::Make(
         inputTensorInfoVector, outputTensorInfo, numberOfOutputs));
-
     const UnitIdentifier unitIdentifier = { UnitType::Hidden, unitId };
-    m_connectWithPreviousUnit(previousUnit, unitIdentifier);
+    m_connectWithPreviousUnit(previousUnitVector, unitIdentifier);
     return unitIdentifier;
 }
 
-UnitIdentifier Engine::Multiply(const std::vector<UnitIdentifier>& previousUnit,
-                                const TensorInfo& inputA,
-                                const TensorInfo& inputB,
-                                const TensorInfo& output)
+UnitIdentifier Engine::Multiply(const UnitIdentifier& unitA,
+                                const UnitIdentifier& unitB)
 {
     const auto unitId = m_hiddenUnitVector.size();
+
+    TensorInfo tensorInfoA;
+    TensorInfo tensorInfoB;
+
+    if (unitA.Type == UnitType::Hidden)
+        tensorInfoA = m_hiddenUnitVector.at(unitA.ID)->GetOutputTensorInfo();
+    if (unitA.Type == UnitType::Source)
+        tensorInfoA = m_sourceUnitVector.at(unitA.ID)->GetOutputTensorInfo();
+
+    if (unitB.Type == UnitType::Hidden)
+        tensorInfoB = m_hiddenUnitVector.at(unitB.ID)->GetOutputTensorInfo();
+    if (unitB.Type == UnitType::Source)
+        tensorInfoB =
+            m_sourceUnitVector.at(unitB.ID)->GetOutputTensorInfo();
+
+    const auto shapeA = tensorInfoA.GetShape();
+    const auto shapeB = tensorInfoB.GetShape();
+
+    assert(shapeA.Batch == shapeB.Batch);
+    assert(shapeA.Channel == shapeB.Channel);
+    assert(shapeA.Col == shapeB.Row);
+
+    TensorInfo outputTensorInfo(
+        Shape(shapeA.Batch, shapeA.Channel, shapeA.Row, shapeB.Col));
+
     m_hiddenUnitVector.emplace_back(
-        SharedPtr<MatMul>::Make(inputA, inputB, output));
+        SharedPtr<MatMul>::Make(tensorInfoA, tensorInfoB, outputTensorInfo));
 
     const UnitIdentifier unitIdentifier = { UnitType::Hidden, unitId };
-    m_connectWithPreviousUnit(previousUnit, unitIdentifier);
+    m_connectWithPreviousUnit({ unitA, unitB }, unitIdentifier);
     return unitIdentifier;
 }
 
@@ -187,21 +222,29 @@ void Engine::Sink(const std::vector<UnitIdentifier>& previousUnit,
 }
 
 UnitIdentifier Engine::OutputTest(
-    const std::vector<UnitIdentifier>& previousUnit,
-    const std::vector<TensorInfo>& inputTensorInfoVector,
+    const UnitIdentifier& previousUnit,
     const std::function<void(const Tensor& tensor)>& testFunction)
 {
     const auto unitId = m_sinkUnitVector.size();
-    auto sinkUnitPtr =
-        SharedPtr<SinkTestUnit>::Make(inputTensorInfoVector, testFunction);
+    TensorInfo previousTensorInfo;
+
+    if (previousUnit.Type == UnitType::Hidden)
+        previousTensorInfo =
+            m_hiddenUnitVector.at(previousUnit.ID)->GetOutputTensorInfo();
+    else
+        previousTensorInfo =
+            m_sourceUnitVector.at(previousUnit.ID)->GetOutputTensorInfo();
+
+    const auto sinkUnitPtr =
+        SharedPtr<SinkTestUnit>::Make(previousTensorInfo, testFunction);
     m_sinkUnitVector.emplace_back(sinkUnitPtr);
     const UnitIdentifier unitIdentifier = { UnitType::Sink, unitId };
-    m_connectWithPreviousUnit(previousUnit, unitIdentifier);
+    m_connectWithPreviousUnit({ previousUnit }, unitIdentifier);
     return unitIdentifier;
 }
 
-void Engine::ConnectSourceToHidden(size_t originID, size_t destID,
-                                   size_t destInputIndex)
+void Engine::m_connectSourceToHidden(size_t originID, size_t destID,
+                                     size_t destInputIndex)
 {
     assert(originID < m_sourceUnitVector.size());
     assert(destID < m_hiddenUnitVector.size());
@@ -217,8 +260,8 @@ void Engine::ConnectSourceToHidden(size_t originID, size_t destID,
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::ConnectHiddenToHidden(size_t originID, size_t destID,
-                                   size_t destInputIndex)
+void Engine::m_connectHiddenToHidden(size_t originID, size_t destID,
+                                     size_t destInputIndex)
 {
     assert(originID < m_hiddenUnitVector.size());
     assert(destID < m_hiddenUnitVector.size());
@@ -234,8 +277,8 @@ void Engine::ConnectHiddenToHidden(size_t originID, size_t destID,
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::ConnectHiddenToSink(size_t originID, size_t destID,
-                                 size_t destInputIndex)
+void Engine::m_connectHiddenToSink(size_t originID, size_t destID,
+                                   size_t destInputIndex)
 {
     assert(originID < m_hiddenUnitVector.size());
     assert(destID < m_sinkUnitVector.size());
@@ -261,13 +304,13 @@ void Engine::m_connectWithPreviousUnit(
         {
             if (unit.Type == UnitType::Source)
             {
-                ConnectSourceToHidden(unit.ID, subjectUnitIdentifier.ID,
-                                      inputIdx++);
+                m_connectSourceToHidden(unit.ID, subjectUnitIdentifier.ID,
+                                        inputIdx++);
             }
             else if (unit.Type == UnitType::Hidden)
             {
-                ConnectHiddenToHidden(unit.ID, subjectUnitIdentifier.ID,
-                                      inputIdx++);
+                m_connectHiddenToHidden(unit.ID, subjectUnitIdentifier.ID,
+                                        inputIdx++);
             }
             else
                 assert("Unsupported type of unit");
@@ -277,8 +320,8 @@ void Engine::m_connectWithPreviousUnit(
         {
             if (unit.Type == UnitType::Hidden)
             {
-                ConnectHiddenToSink(unit.ID, subjectUnitIdentifier.ID,
-                                    inputIdx++);
+                m_connectHiddenToSink(unit.ID, subjectUnitIdentifier.ID,
+                                      inputIdx++);
             }
             else
                 assert("Unsupported type of unit");
@@ -503,47 +546,5 @@ void Engine::ScanUnitTasks()
             }, []()
             {
             }));
-}
-
-void Engine::ScanCopyTasks()
-{
-    bool isFinished = false;
-    while (m_active && !isFinished)
-    {
-        if (m_dirty)
-        {
-            isFinished = true;
-            for (auto& copyUnit : m_copyUnitVector)
-            {
-                if (copyUnit->IsReady() &&
-                    copyUnit->GetStateNum() < m_maxEpochs)
-                {
-                    const auto computeFunc = [&copyUnit]()
-                    {
-                        copyUnit->Compute();
-                    };
-                    const auto updateState = [&copyUnit]()
-                    {
-                        copyUnit->ReleaseUnit();
-                    };
-                    copyUnit->AcquireUnit();
-                    TaskWrapper taskWrapper(TaskType::Copy, computeFunc,
-                                            updateState);
-
-                    // TODO : Do not put same task into the queue again
-                    m_copyTaskQueue.Enqueue(std::move(taskWrapper));
-                }
-                if (copyUnit->GetStateNum() < m_maxEpochs)
-                {
-                    isFinished = false;
-                }
-            }
-            m_dirty.exchange(false, std::memory_order_seq_cst);
-        }
-        else
-        {
-            std::this_thread::yield();
-        }
-    }
 }
 } // namespace CubbyDNN

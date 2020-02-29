@@ -19,18 +19,16 @@ void SimpleGraphTestParallel(int numMainThreads, int numCopyThreads,
      *        \ hidden2 -- hidden4  /
      */
 
- const auto source = Engine::Source(TensorInfo({ 1, 1, 1, 1 }), 2);
+    const auto source = Engine::Source(TensorInfo({ 1, 1, 1, 1 }), 2);
     const auto hidden1 =
-        Engine::Hidden({ source }, { TensorInfo({ 1, 1, 1, 1 }) },
-                       TensorInfo({ 1, 1, 1, 1 }), 1);
+        Engine::Hidden({ source }, TensorInfo({ 1, 1, 1, 1 }),
+                       1);
     const auto hidden2 =
-        Engine::Hidden({ hidden1 }, { TensorInfo({ 1, 1, 1, 1 }) },
-                       TensorInfo({ 1, 1, 1, 1 }));
+        Engine::Hidden({ hidden1 }, TensorInfo({ 1, 1, 1, 1 }));
     const auto hidden3 = Engine::Hidden(
-        { source }, { TensorInfo({ 1, 1, 1, 1 }) }, TensorInfo({ 1, 1, 1, 1 }));
+        { source }, TensorInfo({ 1, 1, 1, 1 }));
     const auto hidden4 =
-        Engine::Hidden({ hidden3 }, { TensorInfo({ 1, 1, 1, 1 }) },
-                       TensorInfo({ 1, 1, 1, 1 }));
+        Engine::Hidden({ hidden3 }, TensorInfo({ 1, 1, 1, 1 }));
     Engine::Sink({ hidden2, hidden4 },
                  { TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 }) });
 
@@ -42,10 +40,6 @@ void SimpleGraphTestParallel(int numMainThreads, int numCopyThreads,
 void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
                                size_t epochs)
 {
-    const TensorInfo inputTensorInfo1 = TensorInfo({ 1, 1, 3, 3 });
-    const TensorInfo inputTensorInfo2 = TensorInfo({ 1, 1, 3, 3 });
-    const TensorInfo outputTensorInfo = TensorInfo({ 1, 1, 3, 3 });
-
     void* constantData1 = AllocateData<float>({ 1, 1, 3, 3 });
     void* constantData2 = AllocateData<float>({ 1, 1, 3, 3 });
 
@@ -71,14 +65,14 @@ void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
             }
     };
 
-    const auto sourceId1 = Engine::Constant(inputTensorInfo1, constantData1);
-    const auto sourceId2 = Engine::Constant(inputTensorInfo2, constantData2);
+    const auto constant1 = Engine::Constant(TensorInfo({ 1, 1, 3, 3 }),
+                                            constantData1);
+    const auto constant2 = Engine::Constant(TensorInfo({ 1, 1, 3, 3, }),
+                                            constantData2);
 
-    const auto hiddenId1 =
-        Engine::Multiply({ sourceId1, sourceId2 }, inputTensorInfo1,
-                         inputTensorInfo2, outputTensorInfo);
+    const auto multiply1 = Engine::Multiply(constant1, constant2);
 
-    Engine::OutputTest({ hiddenId1 }, { outputTensorInfo }, testFunction);
+    Engine::OutputTest(multiply1, testFunction);
 
     Engine::StartExecution(numMainThreads, numCopyThreads, epochs);
     Engine::JoinThreads();

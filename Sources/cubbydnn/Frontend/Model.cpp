@@ -19,7 +19,8 @@ Unit Model::Constant(Shape shape, void* data)
     return unit;
 }
 
-Unit Model::Variable(Shape shape, Initializer initializer)
+// TODO : add initializer
+Unit Model::Variable(Shape shape)
 {
     Unit unit(UnitType::Variable);
     unit.OutputTensorInfo = { shape, m_numberSystem };
@@ -71,10 +72,4 @@ Unit Model::Mul(const Unit& inputA, const Unit& inputB)
     return unit;
 }
 
-Unit Model::Dense(const Unit& previous, size_t units, bool use_bias,
-                  Initializer kernelInitializer,
-                  Initializer biasInitializer)
-{
-    
-}
 } // namespace CubbyDNN

@@ -40,9 +40,9 @@ void SinkUnit::Compute()
 }
 
 SinkTestUnit::SinkTestUnit(
-    std::vector<TensorInfo> inputTensorInfoVector,
+    TensorInfo inputTensorInfo,
     std::function<void(const Tensor&)> testFunction)
-    : SinkUnit(std::move(inputTensorInfoVector)),
+    : SinkUnit({inputTensorInfo}),
       m_testFunction(std::move(testFunction))
 {
 }
