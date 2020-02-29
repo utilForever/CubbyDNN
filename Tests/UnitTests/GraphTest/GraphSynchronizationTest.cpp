@@ -34,7 +34,7 @@ void SimpleGraphTest(size_t epochs)
     Engine::Sink({ hidden2, hidden4 },
                  { TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 }) });
 
-    Engine::StartExecution(epochs);
+    Engine::Execute(epochs);
     std::cout << "Terminated" << std::endl;
 }
 
@@ -51,8 +51,9 @@ void MultiplyGraphTestSerial(size_t epochs)
     SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData2, 3);
     SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData2, 3);
 
-    const auto testFunction = [](const Tensor& tensor)
+    const auto testFunction = [](const Tensor& tensor, size_t epoch)
     {
+        std::cout << "epoch: " << epoch << std::endl;
         for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
             for (size_t colIdx = 0; colIdx < 2; ++colIdx)
             {
@@ -67,14 +68,14 @@ void MultiplyGraphTestSerial(size_t epochs)
 
     const auto constant1 =
         Engine::Constant(TensorInfo({ 1, 1, 3, 3 }), constantData1);
-    const auto constant2 = Engine::Constant(TensorInfo({1,1,3,3}),
+    const auto constant2 = Engine::Constant(TensorInfo({ 1, 1, 3, 3 }),
                                             constantData2);
 
     const auto multiply1 = Engine::Multiply(constant1, constant2);
 
     Engine::OutputTest(multiply1, testFunction);
 
-    Engine::StartExecution(epochs);
+    Engine::Execute(epochs);
     std::cout << "Terminated MultiplyGraphTestSerial" << std::endl;
 }
 

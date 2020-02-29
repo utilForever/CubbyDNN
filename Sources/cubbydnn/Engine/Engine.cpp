@@ -30,7 +30,7 @@ std::vector<SharedPtr<CopyUnit>> Engine::m_copyUnitVector;
 
 size_t Engine::m_maxEpochs = 0;
 
-void Engine::StartExecution(size_t epochs)
+void Engine::Execute(size_t epochs)
 {
     bool isFinished = false;
     m_maxEpochs = epochs;
@@ -204,7 +204,8 @@ void Engine::Sink(const std::vector<UnitIdentifier>& previousUnit,
 
 UnitIdentifier Engine::OutputTest(
     const UnitIdentifier& previousUnit,
-    const std::function<void(const Tensor& tensor)>& testFunction)
+    const std::function<void(const Tensor&, size_t)>&
+    testFunction)
 {
     const auto unitId = m_sinkUnitVector.size();
     TensorInfo previousTensorInfo;

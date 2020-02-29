@@ -102,7 +102,7 @@ protected:
 public:
 
     //! Execute the graph using single thread
-    static void StartExecution(size_t epochs);
+    static void Execute(size_t epochs);
 
     //! Execute the graph using multiple workers
     static void ExecuteParallel(size_t workers, size_t epochs);
@@ -158,7 +158,8 @@ public:
     //!  \return : assigned id of the unit
     static UnitIdentifier OutputTest(
         const UnitIdentifier& previousUnit,
-        const std::function<void(const Tensor& tensor)>& testFunction);
+        const std::function<void(const Tensor&, size_t)>&
+        testFunction);
 
 private:
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
