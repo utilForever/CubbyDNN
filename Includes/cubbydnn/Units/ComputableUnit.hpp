@@ -54,21 +54,11 @@ public:
     //! This method must be called after checking computation is ready
     virtual void Compute() = 0;
 
-    //! Called before computation for acquiring the unit in order to compute
-    //! Marks IsBusy as True in order to prevent same tasks being enqueued
-    //! multiple times
-    void AcquireUnit()
-    {
-        std::atomic_exchange_explicit(&m_unitState.IsBusy, true,
-                                      std::memory_order_release);
-    }
-
     //! Called after computation for releasing the unit after computation
     //! Increments the stateNum and marks IsBusy as false
     void ReleaseUnit()
     {
         incrementStateNum();
-        setReleased();
     }
 
     //! Gets reference of the atomic state counter for atomic comparison
@@ -94,15 +84,6 @@ public:
         return m_outputTensorInfo;
     }
 
-    int GetDepth() const
-    {
-        return m_depth;
-    }
-
-    void SetDepth(int depth)
-    {
-        m_depth = depth;
-    }
 
     const UnitType Type = UnitType::Undefined;
 
@@ -112,13 +93,6 @@ protected:
     {
         m_unitState.StateNum.fetch_add(1, std::memory_order_release);
         // std::cout << "Increment" << std::endl;
-    }
-
-    //! Atomically sets operation state to pending state (false)
-    void setReleased()
-    {
-        std::atomic_exchange_explicit(&m_unitState.IsBusy, false,
-                                      std::memory_order_release);
     }
 
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
@@ -140,8 +114,6 @@ protected:
 
 private:
     size_t m_outputVectorIndex = 0;
-    //! Indicates distance from the first input
-    int m_depth = 0;
 };
 }; // namespace CubbyDNN
 

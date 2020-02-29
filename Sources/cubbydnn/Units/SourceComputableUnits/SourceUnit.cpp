@@ -9,10 +9,10 @@
 namespace CubbyDNN
 {
 SourceUnit::SourceUnit(TensorInfo output, size_t numberOfOutputs)
-    : ComputableUnit({},output , UnitType::Source)
+    : ComputableUnit({}, output, UnitType::Source)
 {
     m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(
-         numberOfOutputs, SharedPtr<ComputableUnit>());
+        numberOfOutputs, SharedPtr<ComputableUnit>());
 
     m_outputTensorVector.reserve(numberOfOutputs);
     for (size_t idx = 0; idx < numberOfOutputs; ++idx)
@@ -23,9 +23,6 @@ SourceUnit::SourceUnit(TensorInfo output, size_t numberOfOutputs)
 
 bool SourceUnit::IsReady()
 {
-    if (m_unitState.IsBusy)
-        return false;
-
     auto isReady = true;
     for (const auto& nextPtr : m_outputPtrVector)
     {
@@ -38,7 +35,8 @@ bool SourceUnit::IsReady()
     return isReady;
 }
 
-ConstantUnit::ConstantUnit(TensorInfo output, int numberOfOutputs, void* dataPtr)
+ConstantUnit::ConstantUnit(TensorInfo output, int numberOfOutputs,
+                           void* dataPtr)
     : SourceUnit(output, numberOfOutputs),
       m_dataPtr(dataPtr)
 {

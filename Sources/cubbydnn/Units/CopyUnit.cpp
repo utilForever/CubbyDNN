@@ -22,9 +22,6 @@ void CopyUnit::Compute()
 
 bool CopyUnit::IsReady()
 {
-    if (m_unitState.IsBusy.load(std::memory_order_acquire))
-        return false;
-
     const bool ready =  m_inputUnitPtr->GetStateNum() ==
                m_unitState.StateNum.load(std::memory_order_acquire) + 1 &&
            m_outputUnitPtr->GetStateNum() ==

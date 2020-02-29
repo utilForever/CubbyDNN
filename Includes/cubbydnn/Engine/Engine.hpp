@@ -29,6 +29,11 @@ struct TaskWrapper
     {
     }
 
+    TaskWrapper(TaskType type)
+        : Type(type)
+    {
+    }
+
     //! Constructor
     //! \param type : type of this task
     //! \param compute : function to execute the computation
@@ -91,27 +96,15 @@ protected:
     //! \return : size of task queue
     static size_t TaskQueueSize()
     {
-        return m_mainTaskQueue.Size();
+        return m_taskQueue.Size();
     }
-
-    //! Scans sourceUnitVector, sinkUnitVector, intermediateUnitUnitVector
-    //! and pushes units ready to be executed in the mainTaskQueue
-    static void ScanUnitTasks();
-
 
 public:
 
     //! Execute the graph using single thread
     static void StartExecution(size_t epochs);
 
-    //! Initializes thread pool
-    //! \param mainThreadSize : number of threads to assign to main operation
-    //! \param copyThreadSize : number of threads to assign to copy operation
-    //! \param epochs : number of epochs to execute the graph
-    //! concurrency)
-    static void StartExecution(size_t mainThreadSize, size_t copyThreadSize,
-                               size_t epochs);
-
+    //! Execute the graph using multiple workers
     static void ExecuteParallel(size_t workers, size_t epochs);
 
     //! Joins threads in the thread queue and terminates the execution
@@ -148,7 +141,8 @@ public:
     //! \param output : output information
     static UnitIdentifier Multiply(
         const
-        UnitIdentifier& unitA, const UnitIdentifier& unitB, size_t numberOfOutputs = 1);
+        UnitIdentifier& unitA, const UnitIdentifier& unitB,
+        size_t numberOfOutputs = 1);
 
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
@@ -196,14 +190,15 @@ private:
     static void m_connectWithPreviousUnit(
         const std::vector<UnitIdentifier>& previousUnitVector,
         UnitIdentifier subjectUnitIdentifier);
+
     //! Routine for thread which executes mainUnits
     static void m_run();
-    //! Routine for thread which executes copy operation
-    static void m_runCopy();
 
     static void m_executeComputeUnits();
 
     static void m_executeCopyUnits();
+
+    static bool m_IsComplete(size_t epochs);
 
     static std::thread m_scanMainThread;
 
@@ -213,12 +208,7 @@ private:
     /// Stores active threads assigned for executing copyTasks
     static std::vector<std::thread> m_copyThreadPool;
     /// TaskQueue storing tasks from SourceUnit, IntermediateUnit and SinkUnit
-    static SpinLockQueue<TaskWrapper> m_mainTaskQueue;
-    /// TaskQueue storing tasks from copyUnit
-    static SpinLockQueue<TaskWrapper> m_copyTaskQueue;
-    /// True if there are any possible nodes that hasn't been queued into
-    /// taskQueue False if not
-    static std::atomic<bool> m_dirty;
+    static SpinLockQueue<TaskWrapper> m_taskQueue;
     /// True if this engine is active false otherwise
     static bool m_active;
 

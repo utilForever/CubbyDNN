@@ -24,8 +24,6 @@ SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
 
 bool SinkUnit::IsReady()
 {
-    if (m_unitState.IsBusy)
-        return false;
 
     for (const auto& previousPtr : m_inputPtrVector)
     {

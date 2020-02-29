@@ -39,9 +39,11 @@ void SimpleGraphTestParallel(int workers,
 
 void MultiplyGraphTestParallel(size_t workers, size_t epochs)
 {
+
     void* constantData1 = AllocateData<float>({ 1, 1, 3, 3 });
     void* constantData2 = AllocateData<float>({ 1, 1, 3, 3 });
     void* constantData3 = AllocateData<float>({ 1, 1, 3, 3 });
+
 
     SetData<float>({ 0, 0, 0, 0 }, { 1, 1, 3, 3 }, constantData1, 3);
     SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData1, 3);
@@ -98,6 +100,6 @@ TEST(SimpleGraphParallel, GraphTestParallel)
 
 TEST(MultiplyGraphParallel, GraphTestParallel)
 {
-    MultiplyGraphTestParallel(2, 10);
+    MultiplyGraphTestParallel(2, 10000);
 }
 } // namespace CubbyDNN

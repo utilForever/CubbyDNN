@@ -117,8 +117,6 @@ struct UnitState
     explicit UnitState();
     /// State number of current
     std::atomic<std::size_t> StateNum = 0;
-    /// True if unit is already in the task queue
-    std::atomic<bool> IsBusy = false;
 };
 
 enum class TaskType
