@@ -19,8 +19,19 @@ class NodeType
 
     bool operator==(const NodeType& rhs) const;
 
+    bool IsBaseOf(const NodeType* _derivedType) const;
+    bool IsDerivedFrom(const NodeType* _baseType) const;
+    bool IsExactlyBaseOf(const NodeType* _derivedType) const;
+    bool IsExactlyDerivedFrom(const NodeType* _baseType) const;
+
     const NodeType* baseType;
     const std::string typeName;
+
+ private:
+    static bool IsBaseOf(const NodeType* _baseType,
+                         const NodeType* _derivedType);
+    static bool IsExactlyBaseOf(const NodeType* _baseType,
+                                const NodeType* _derivedType);
 };
 }  // namespace CubbyDNN
 
