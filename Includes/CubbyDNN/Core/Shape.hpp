@@ -32,6 +32,14 @@ class Shape
     std::size_t& operator[](std::size_t numAxis);
     std::size_t operator[](std::size_t numAxis) const;
 
+    std::size_t Rank() const noexcept;
+    std::size_t Size() const noexcept;
+    Shape Expand() const;
+    Shape Expand(std::size_t numRank) const;
+    Shape Shrink() const;
+    Shape Squeeze() const;
+    static Shape Broadcast(const Shape& left, const Shape& right);
+
     template <typename T>
     void Assign(T begin, T end)
     {
@@ -69,6 +77,11 @@ class Shape
         }
 
         return true;
+    }
+
+    friend void Swap(Shape& left, Shape& right) noexcept
+    {
+        std::swap(left.m_dimension, right.m_dimension);
     }
 
  private:
