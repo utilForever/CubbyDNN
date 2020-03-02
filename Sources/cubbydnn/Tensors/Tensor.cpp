@@ -32,7 +32,7 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     return *this;
 }
 
-size_t Tensor::GetElementOffset(Shape offsetInfo) const
+std::size_t Tensor::GetElementOffset(Shape offsetInfo) const
 {
     const auto [batchIdx, channelIdx, rowIdx, colIdx] = offsetInfo;
     const auto& shape = Info.GetShape();
@@ -44,9 +44,9 @@ size_t Tensor::GetElementOffset(Shape offsetInfo) const
     assert(channelIdx < channelSize);
     assert(colIdx < colSize);
 
-    size_t offset = 0;
+    std::size_t offset = 0;
     offset += colIdx;
-    size_t multiplier = colSize;
+    std::size_t multiplier = colSize;
     offset += multiplier * rowIdx;
     multiplier *= rowSize;
     offset += multiplier * channelIdx;
@@ -68,7 +68,7 @@ void CopyTensor(Tensor& source, Tensor& destination)
 {
     assert(source.Info == destination.Info);
     assert(source.Info.GetByteSize() == destination.Info.GetByteSize());
-    const size_t ByteSize = source.Info.GetByteSize();
+    const std::size_t ByteSize = source.Info.GetByteSize();
 
     std::memcpy(destination.DataPtr, source.DataPtr, ByteSize);
 }

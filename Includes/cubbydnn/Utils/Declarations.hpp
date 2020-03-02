@@ -67,8 +67,10 @@ enum class UnitType
 
 struct Shape
 {
-public:
-    Shape(size_t batch, size_t channel, size_t row, size_t col)
+    Shape() = default;
+
+    Shape(std::size_t batch, std::size_t channel, std::size_t row,
+          std::size_t col)
         : Batch(batch),
           Channel(channel),
           Row(row),
@@ -76,26 +78,23 @@ public:
     {
     }
 
-    Shape(size_t channel, size_t row, size_t col)
-        : Batch(0),
-          Channel(channel),
+    Shape(std::size_t channel, std::size_t row, std::size_t col)
+        : Channel(channel),
           Row(row),
           Col(col)
     {
     }
 
-    Shape(size_t row, size_t col)
-        : Batch(0),
-          Channel(0),
-          Row(row),
+    Shape(std::size_t row, std::size_t col)
+        : Row(row),
           Col(col)
     {
     }
 
-    size_t Batch = 0;
-    size_t Channel = 0;
-    size_t Row = 0;
-    size_t Col = 0;
+    std::size_t Batch = 0;
+    std::size_t Channel = 0;
+    std::size_t Row = 0;
+    std::size_t Col = 0;
 
     friend bool operator==(const Shape& lhs, const Shape& rhs)
     {
@@ -108,7 +107,7 @@ public:
         return !(lhs == rhs);
     }
 
-    size_t GetTotalSize() const
+    [[nodiscard]] std::size_t GetTotalSize() const
     {
         return Batch * Row * Channel * Col;
     }
@@ -137,7 +136,7 @@ enum class TaskType
 struct UnitIdentifier
 {
     UnitType Type;
-    size_t ID;
+    std::size_t ID;
 };
 
 enum class Activation

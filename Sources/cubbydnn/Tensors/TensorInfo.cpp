@@ -9,7 +9,7 @@
 
 namespace CubbyDNN
 {
-std::map<NumberSystem, size_t> TensorInfo::UnitByteSizeMap = {
+std::map<NumberSystem, std::size_t> TensorInfo::UnitByteSizeMap = {
     { NumberSystem::Float16, 16 }, { NumberSystem::Float32, 32 },
     { NumberSystem::Float64, 64 }, { NumberSystem::Int8, 8 },
     { NumberSystem::Int16, 16 }, { NumberSystem::Int32, 32 },
@@ -36,12 +36,12 @@ bool TensorInfo::operator!=(const TensorInfo& tensorInfo) const
     return !(*this == tensorInfo);
 }
 
-size_t TensorInfo::GetSize() const noexcept
+std::size_t TensorInfo::GetSize() const noexcept
 {
     return m_shape.GetTotalSize();
 }
 
-size_t TensorInfo::GetByteSize() const noexcept
+std::size_t TensorInfo::GetByteSize() const noexcept
 {
     return m_unitByteSize * GetSize();
 }

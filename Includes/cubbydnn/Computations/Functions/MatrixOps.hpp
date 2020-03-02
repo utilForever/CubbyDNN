@@ -26,9 +26,9 @@ void GetIdentityMatrix(Tensor& tensor)
     const auto channelSize = tensor.Info.GetShape().Channel;
     const auto rowSize = tensor.Info.GetShape().Row;
 
-    for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
-            for (size_t idx = 0; idx < rowSize; ++idx)
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+            for (std::size_t idx = 0; idx < rowSize; ++idx)
             {
                 const auto offset =
                     tensor.GetElementOffset({ batchIdx, idx, channelIdx, idx });
@@ -53,8 +53,8 @@ void TensorMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
     const auto channelSize = inputShapeA.Channel;
     const auto batchSize = inputShapeA.Batch;
 
-    for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
         {
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
                 static_cast<T*>(inputA.DataPtr) +
@@ -94,8 +94,8 @@ void TensorAdd(const Tensor& inputA, const Tensor& inputB, Tensor& output)
     const auto channelSize = inputShapeA.Channel;
     const auto batchSize = inputShapeA.Batch;
 
-    for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
         {
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
                 static_cast<T*>(inputA.DataPtr) +
@@ -130,8 +130,8 @@ void TensorTranspose(const Tensor& input, Tensor& output)
     const auto channelSize = inputShape.Channel;
     const auto batchSize = inputShape.Batch;
 
-    for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
         {
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
                 static_cast<T*>(input.DataPtr) +

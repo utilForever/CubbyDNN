@@ -14,7 +14,7 @@
 namespace CubbyDNN
 {
 template <typename T>
-SpinLockQueue<T>::SpinLockQueue(size_t maxCapacity)
+SpinLockQueue<T>::SpinLockQueue(std::size_t maxCapacity)
     : m_maxCapacity(maxCapacity), m_container(maxCapacity)
 {
 }
@@ -101,11 +101,11 @@ std::tuple<T, bool> SpinLockQueue<T>::TryDequeue()
 }
 
 template <typename T>
-T &SpinLockQueue<T>::At(size_t index)
+T &SpinLockQueue<T>::At(std::size_t index)
 {
     // assert(index > size());
     m_spinLock.SharedLock();
-    size_t vectorIndex = m_frontIndex + index;
+    std::size_t vectorIndex = m_frontIndex + index;
     if (vectorIndex >= m_maxCapacity)
     {
         vectorIndex -= m_maxCapacity;
@@ -116,10 +116,10 @@ T &SpinLockQueue<T>::At(size_t index)
 }
 
 template <typename T>
-size_t SpinLockQueue<T>::Size()
+std::size_t SpinLockQueue<T>::Size()
 {
     m_spinLock.SharedLock();
-    const size_t currentSize = size();
+    const std::size_t currentSize = size();
     m_spinLock.SharedRelease();
     return currentSize;
 }
@@ -147,7 +147,7 @@ void SpinLockQueue<T>::incrementFront()
 }
 
 template <typename T>
-size_t SpinLockQueue<T>::size()
+std::size_t SpinLockQueue<T>::size()
 {
     if (m_empty)
         return 0;

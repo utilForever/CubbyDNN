@@ -9,8 +9,6 @@
 
 #include <cassert>
 #include <chrono>
-#include <cubbydnn/Computations/Functions/ComputeTensor.hpp>
-#include <iostream>
 #include "gtest/gtest.h"
 
 namespace UtilTest

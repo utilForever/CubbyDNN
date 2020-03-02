@@ -1,7 +1,11 @@
-//
-// Created by jwkim98 on 8/25/19.
-//
+// Copyright(c) 2019 Chris Ohk, Justin Kim
 
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
+
+#include <cubbydnn/Computations/Functions/ComputeTensor.hpp>
+#include <iostream>
 #include "MatrixTest.hpp"
 
 namespace UtilTest
@@ -12,9 +16,9 @@ void MatrixTransposeTest()
     {
         const size_t rowSize = 150;
         const size_t colSize = 150;
-        float* sourcePtr = CreateMatrix<float>(rowSize, colSize);
-        float* destPtr = CreateMatrix<float>(colSize, rowSize);
-        float* checkPtr = CreateMatrix<float>(colSize, rowSize);
+        auto* sourcePtr = CreateMatrix<float>(rowSize, colSize);
+        auto* destPtr = CreateMatrix<float>(colSize, rowSize);
+        auto* checkPtr = CreateMatrix<float>(colSize, rowSize);
 
         auto t1 = std::chrono::high_resolution_clock::now();
         ComputeTensor::NaiveTranspose<float>(checkPtr, sourcePtr, rowSize,

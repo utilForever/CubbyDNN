@@ -28,11 +28,11 @@ std::vector<SharedPtr<HiddenUnit>> Engine::m_hiddenUnitVector;
 
 std::vector<SharedPtr<CopyUnit>> Engine::m_copyUnitVector;
 
-size_t Engine::m_maxEpochs = 0;
+std::size_t Engine::m_maxEpochs = 0;
 
 std::atomic_bool Engine::m_ready = false;
 
-void Engine::Execute(size_t epochs)
+void Engine::Execute(std::size_t epochs)
 {
     bool isFinished = false;
     m_maxEpochs = epochs;
@@ -82,7 +82,7 @@ void Engine::Execute(size_t epochs)
     }
 }
 
-void Engine::ExecuteParallel(size_t workers, size_t epochs)
+void Engine::ExecuteParallel(std::size_t workers, std::size_t epochs)
 {
     const auto hardwareConcurrency = std::thread::hardware_concurrency();
     if (workers + 1 > hardwareConcurrency)
@@ -97,7 +97,7 @@ void Engine::ExecuteParallel(size_t workers, size_t epochs)
 
     std::cout << "Creating " << workers << " workers" << std::endl;
 
-    for (size_t count = 0; count < workers; ++count)
+    for (std::size_t count = 0; count < workers; ++count)
         m_mainThreadPool.emplace_back(std::thread(m_run));
 
     while (!m_IsComplete(epochs))
@@ -106,7 +106,7 @@ void Engine::ExecuteParallel(size_t workers, size_t epochs)
         m_executeCopyUnits();
     }
 
-    for (size_t count = 0; count < m_mainThreadPool.size(); ++count)
+    for (std::size_t count = 0; count < m_mainThreadPool.size(); ++count)
     {
         TaskWrapper taskWrapper(TaskType::Join);
         m_taskQueue.Enqueue(std::move(taskWrapper));
@@ -114,7 +114,7 @@ void Engine::ExecuteParallel(size_t workers, size_t epochs)
 }
 
 UnitIdentifier Engine::Source(const TensorInfo& outputTensorInfo,
-                              size_t numberOfOutputs)
+                              std::size_t numberOfOutputs)
 {
     const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
@@ -133,7 +133,7 @@ UnitIdentifier Engine::Constant(const TensorInfo& output, void* dataPtr,
 
 UnitIdentifier Engine::Hidden(
     const std::vector<UnitIdentifier>& previousUnitVector,
-    TensorInfo outputTensorInfo, size_t numberOfOutputs)
+    TensorInfo outputTensorInfo, std::size_t numberOfOutputs)
 {
     std::vector<TensorInfo> inputTensorInfoVector;
     inputTensorInfoVector.reserve(previousUnitVector.size());
@@ -159,7 +159,7 @@ UnitIdentifier Engine::Hidden(
 
 UnitIdentifier Engine::Multiply(const UnitIdentifier& unitA,
                                 const UnitIdentifier& unitB,
-                                size_t numberOfOutputs)
+                                std::size_t numberOfOutputs)
 {
     const auto unitId = m_hiddenUnitVector.size();
 
@@ -206,7 +206,7 @@ void Engine::Sink(const std::vector<UnitIdentifier>& previousUnit,
 
 UnitIdentifier Engine::OutputTest(
     const UnitIdentifier& previousUnit,
-    const std::function<void(const Tensor&, size_t)>& testFunction)
+    const std::function<void(const Tensor&, std::size_t)>& testFunction)
 {
     const auto unitId = m_sinkUnitVector.size();
     TensorInfo previousTensorInfo;
@@ -226,8 +226,8 @@ UnitIdentifier Engine::OutputTest(
     return unitIdentifier;
 }
 
-void Engine::m_connectSourceToHidden(size_t originID, size_t destID,
-                                     size_t destInputIndex)
+void Engine::m_connectSourceToHidden(std::size_t originID, std::size_t destID,
+                                     std::size_t destInputIndex)
 {
     assert(originID < m_sourceUnitVector.size());
     assert(destID < m_hiddenUnitVector.size());
@@ -243,8 +243,8 @@ void Engine::m_connectSourceToHidden(size_t originID, size_t destID,
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::m_connectHiddenToHidden(size_t originID, size_t destID,
-                                     size_t destInputIndex)
+void Engine::m_connectHiddenToHidden(std::size_t originID, std::size_t destID,
+                                     std::size_t destInputIndex)
 {
     assert(originID < m_hiddenUnitVector.size());
     assert(destID < m_hiddenUnitVector.size());
@@ -260,8 +260,8 @@ void Engine::m_connectHiddenToHidden(size_t originID, size_t destID,
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::m_connectHiddenToSink(size_t originID, size_t destID,
-                                   size_t destInputIndex)
+void Engine::m_connectHiddenToSink(std::size_t originID, std::size_t destID,
+                                   std::size_t destInputIndex)
 {
     assert(originID < m_hiddenUnitVector.size());
     assert(destID < m_sinkUnitVector.size());
@@ -281,7 +281,7 @@ void Engine::m_connectWithPreviousUnit(
     const std::vector<UnitIdentifier>& previousUnitVector,
     UnitIdentifier subjectUnitIdentifier)
 {
-    size_t inputIdx = 0;
+    std::size_t inputIdx = 0;
     if (subjectUnitIdentifier.Type == UnitType::Hidden)
         for (const auto& unit : previousUnitVector)
         {
@@ -360,7 +360,7 @@ void Engine::JoinThreads()
 
 void Engine::Abort()
 {
-    for (size_t count = 0; count < m_mainThreadPool.size(); ++count)
+    for (std::size_t count = 0; count < m_mainThreadPool.size(); ++count)
         m_taskQueue.Enqueue(TaskWrapper(
             TaskType::Join, []()
             {
@@ -471,7 +471,7 @@ void Engine::m_executeCopyUnits()
     m_ready.exchange(false);
 }
 
-bool Engine::m_IsComplete(size_t epochs)
+bool Engine::m_IsComplete(std::size_t epochs)
 {
     bool isComplete = true;
     for (auto& sourceUnit : m_sourceUnitVector)

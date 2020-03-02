@@ -10,7 +10,7 @@
 namespace CubbyDNN
 {
 HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                      TensorInfo outputTensorInfo, size_t numberOfOutputs)
+                      TensorInfo outputTensorInfo, std::size_t numberOfOutputs)
     : ComputableUnit(std::move(inputTensorInfoVector),
                      outputTensorInfo, UnitType::Hidden)
 {
@@ -26,7 +26,7 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
     }
 
     m_outputTensorVector.reserve(numberOfOutputs);
-    for (size_t idx = 0; idx < numberOfOutputs; ++ idx)
+    for (std::size_t idx = 0; idx < numberOfOutputs; ++ idx)
     {
         m_outputTensorVector.emplace_back(AllocateTensor(m_outputTensorInfo));
     }
@@ -50,7 +50,7 @@ bool HiddenUnit::IsReady()
 }
 
 MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
-               const TensorInfo& output, size_t numberOfOutputs)
+               const TensorInfo& output, std::size_t numberOfOutputs)
     : HiddenUnit({ inputA, inputB },  output, numberOfOutputs)
 {
     assert(inputA.GetShape().Col == inputB.GetShape().Row);

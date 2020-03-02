@@ -13,7 +13,7 @@ namespace GraphTest
 {
 using namespace CubbyDNN;
 
-void SimpleGraphTest(size_t epochs)
+void SimpleGraphTest(std::size_t epochs)
 {
     /**         hidden1 -- hidden3
      *        /                     \
@@ -37,7 +37,7 @@ void SimpleGraphTest(size_t epochs)
     std::cout << "Terminated" << std::endl;
 }
 
-void MultiplyGraphTestSerial(size_t epochs)
+void MultiplyGraphTestSerial(std::size_t epochs)
 {
     void* constantData1 = AllocateData<float>({ 1, 1, 3, 3 });
     void* constantData2 = AllocateData<float>({ 1, 1, 3, 3 });
@@ -50,11 +50,11 @@ void MultiplyGraphTestSerial(size_t epochs)
     SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData2, 3);
     SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData2, 3);
 
-    const auto testFunction = [](const Tensor& tensor, size_t epoch)
+    const auto testFunction = [](const Tensor& tensor, std::size_t epoch)
     {
         std::cout << "epoch: " << epoch << std::endl;
-        for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
-            for (size_t colIdx = 0; colIdx < 2; ++colIdx)
+        for (std::size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
+            for (std::size_t colIdx = 0; colIdx < 2; ++colIdx)
             {
                 if (rowIdx == colIdx)
                     EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),

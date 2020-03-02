@@ -39,7 +39,7 @@ void SinkUnit::Compute()
 
 SinkTestUnit::SinkTestUnit(
     TensorInfo inputTensorInfo,
-    std::function<void(const Tensor&, size_t)> testFunction)
+    std::function<void(const Tensor&, std::size_t)> testFunction)
     : SinkUnit({inputTensorInfo}),
       m_testFunction(std::move(testFunction))
 {

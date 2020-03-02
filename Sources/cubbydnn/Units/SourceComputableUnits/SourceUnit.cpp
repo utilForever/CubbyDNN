@@ -8,14 +8,14 @@
 
 namespace CubbyDNN
 {
-SourceUnit::SourceUnit(TensorInfo output, size_t numberOfOutputs)
+SourceUnit::SourceUnit(TensorInfo output, std::size_t numberOfOutputs)
     : ComputableUnit({}, output, UnitType::Source)
 {
     m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(
         numberOfOutputs, SharedPtr<ComputableUnit>());
 
     m_outputTensorVector.reserve(numberOfOutputs);
-    for (size_t idx = 0; idx < numberOfOutputs; ++idx)
+    for (std::size_t idx = 0; idx < numberOfOutputs; ++idx)
     {
         m_outputTensorVector.emplace_back(AllocateTensor(m_outputTensorInfo));
     }

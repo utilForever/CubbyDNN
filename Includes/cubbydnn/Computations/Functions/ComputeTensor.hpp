@@ -9,7 +9,7 @@
 
 #include <cstdio>
 #include <functional>
-#include <iostream>
+#include <cassert>
 
 namespace CubbyDNN
 {

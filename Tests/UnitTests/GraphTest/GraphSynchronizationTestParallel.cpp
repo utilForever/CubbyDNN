@@ -12,7 +12,7 @@
 
 namespace CubbyDNN
 {
-void SimpleGraphTestParallel(int workers, size_t epochs)
+void SimpleGraphTestParallel(int workers, std::size_t epochs)
 {
     /**         hidden1 -- hidden3
      *        /                     \
@@ -36,8 +36,8 @@ void SimpleGraphTestParallel(int workers, size_t epochs)
     std::cout << "Terminated" << std::endl;
 }
 
-void MultiplyGraphTestParallel(size_t batchSize, size_t channelSize,
-                               size_t workers, size_t epochs)
+void MultiplyGraphTestParallel(std::size_t batchSize, std::size_t channelSize,
+                               std::size_t workers, std::size_t epochs)
 {
     void* constantData1 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
     void* constantData2 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
@@ -46,8 +46,8 @@ void MultiplyGraphTestParallel(size_t batchSize, size_t channelSize,
     blaze::setNumThreads(1);
     std::cout << "numThreads:" << blaze::getNumThreads() << std::endl;
 
-    for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
         {
             SetData<float>({ batchIdx, channelIdx, 0, 0 },
                            { batchSize, channelSize, 3, 3 },
@@ -81,13 +81,13 @@ void MultiplyGraphTestParallel(size_t batchSize, size_t channelSize,
         }
 
     const auto testFunction = [batchSize, channelSize](
-        const Tensor& tensor, size_t epoch)
+        const Tensor& tensor, std::size_t epoch)
     {
-        //std::cout << "epoch: " << epoch << std::endl;
-        for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
-                for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
-                    for (size_t colIdx = 0; colIdx < 2; ++colIdx)
+        epoch;
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+                for (std::size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
+                    for (std::size_t colIdx = 0; colIdx < 2; ++colIdx)
                     {
                         if (rowIdx == colIdx)
                             EXPECT_EQ(GetData<float>({ batchIdx, channelIdx,

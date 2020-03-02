@@ -22,8 +22,8 @@ void StressTask()
     
    std::uniform_int_distribution<> rand(0, 10000);
     volatile auto num = 10;
-    const auto size = static_cast<size_t>(rand(gen));
-    for (size_t i = 0; i < size; ++i)
+    const auto size = static_cast<std::size_t>(rand(gen));
+    for (std::size_t i = 0; i < size; ++i)
         if (i % 2 == 0)
             num *= 2;
         else
@@ -45,7 +45,6 @@ void TaskQueueTest(int workers)
     {
         auto run = [&taskQueue]()
         {
-            //std::cout << "Increment" << std::endl;
             auto func = taskQueue.Dequeue();
             while (func())
             {
@@ -73,7 +72,7 @@ void TaskQueueTest(int workers)
 
     EXPECT_EQ(count, desired);
 
-    for (size_t i = 0; i < threadVector.size(); ++i)
+    for (std::size_t i = 0; i < threadVector.size(); ++i)
     {
         auto stop = []() { return false; };
         taskQueue.Enqueue(stop);
@@ -87,6 +86,6 @@ void TaskQueueTest(int workers)
 
 TEST(TaskQueueTest, UtilTest)
 {
-    //TaskQueueTest(12);
+    TaskQueueTest(12);
 }
 } // namespace CubbyDNN
