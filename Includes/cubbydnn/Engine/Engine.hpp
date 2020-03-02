@@ -162,7 +162,7 @@ public:
     //!  \return : assigned id of the unit
     static UnitIdentifier OutputTest(
         const UnitIdentifier& previousUnit,
-        const std::function<void(const Tensor& tensor)>& testFunction);
+        const std::function<void(const Tensor& tensor, size_t)>& testFunction);
 
 private:
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit

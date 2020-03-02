@@ -38,54 +38,85 @@ void SimpleGraphTest(size_t epochs)
     std::cout << "Terminated" << std::endl;
 }
 
-void MultiplyGraphTestSerial(size_t epochs)
+void MultiplyGraphTestSerial(size_t batchSize,
+                             size_t channelSize, size_t epochs)
 {
-    void* constantData1 = AllocateData<float>({ 1, 1, 3, 3 });
-    void* constantData2 = AllocateData<float>({ 1, 1, 3, 3 });
+    void* constantData1 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
+    void* constantData2 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
+    void* constantData3 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
 
-    SetData<float>({ 0, 0, 0, 0 }, { 1, 1, 3, 3 }, constantData1, 3);
-    SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData1, 3);
-    SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData1, 3);
+    for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+        {
+            SetData<float>({ batchIdx, channelIdx, 0, 0 },
+                           { batchSize, channelSize, 3, 3 }, constantData1, 3);
+            SetData<float>({ batchIdx, channelIdx, 1, 1 },
+                           { batchSize, channelSize, 3, 3 }, constantData1, 3);
+            SetData<float>({ batchIdx, channelIdx, 2, 2 },
+                           { batchSize, channelSize, 3, 3 }, constantData1, 3);
 
-    SetData<float>({ 0, 0, 0, 0 }, { 1, 1, 3, 3 }, constantData2, 3);
-    SetData<float>({ 0, 0, 1, 1 }, { 1, 1, 3, 3 }, constantData2, 3);
-    SetData<float>({ 0, 0, 2, 2 }, { 1, 1, 3, 3 }, constantData2, 3);
+            SetData<float>({ batchIdx, channelIdx, 0, 0 },
+                           { batchSize, channelSize, 3, 3 }, constantData2, 3);
+            SetData<float>({ batchIdx, channelIdx, 1, 1 },
+                           { batchSize, channelSize, 3, 3 }, constantData2, 3);
+            SetData<float>({ batchIdx, channelIdx, 2, 2 },
+                           { batchSize, channelSize, 3, 3 }, constantData2, 3);
 
-    const auto testFunction = [](const Tensor& tensor)
+            SetData<float>({ batchIdx, channelIdx, 0, 0 },
+                           { batchSize, channelSize, 3, 3 }, constantData3, 3);
+            SetData<float>({ batchIdx, channelIdx, 1, 1 },
+                           { batchSize, channelSize, 3, 3 }, constantData3, 3);
+            SetData<float>({ batchIdx, channelIdx, 2, 2 },
+                           { batchSize, channelSize, 3, 3 }, constantData3, 3);
+        }
+
+    const auto testFunction = [batchSize, channelSize](const Tensor& tensor,
+                                                       size_t epoch)
     {
-        for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
-            for (size_t colIdx = 0; colIdx < 2; ++colIdx)
-            {
-                if (rowIdx == colIdx)
-                    EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
-                          9);
-                else
-                    EXPECT_EQ(GetData<float>({ 0, 0, rowIdx, colIdx }, tensor),
-                          0);
-            }
+        std::cout << "epoch: " << epoch << std::endl;
+        for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+                for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
+                    for (size_t colIdx = 0; colIdx < 2; ++colIdx)
+                    {
+                        if (rowIdx == colIdx)
+                            EXPECT_EQ(GetData<float>({ batchIdx, channelIdx,
+                                      rowIdx, colIdx },
+                                      tensor),
+                                  27);
+                        else
+                            EXPECT_EQ(GetData<float>({ batchIdx, channelIdx,
+                                      rowIdx, colIdx },
+                                      tensor),
+                                  0);
+                    }
     };
 
-    const auto constant1 =
-        Engine::Constant(TensorInfo({ 1, 1, 3, 3 }), constantData1);
-    const auto constant2 = Engine::Constant(TensorInfo({1,1,3,3}),
-                                            constantData2);
+    const auto constant1 = Engine::Constant(
+        TensorInfo({ batchSize, channelSize, 3, 3 }), constantData1);
+    const auto constant2 = Engine::Constant(
+        TensorInfo({ batchSize, channelSize, 3, 3 }), constantData2);
+    const auto constant3 = Engine::Constant(
+        TensorInfo({ batchSize, channelSize, 3, 3 }), constantData3);
 
     const auto multiply1 = Engine::Multiply(constant1, constant2);
+    const auto multiply2 = Engine::Multiply(multiply1, constant3);
 
-    Engine::OutputTest(multiply1, testFunction);
+    Engine::OutputTest(multiply2, testFunction);
 
     Engine::StartExecution(epochs);
-    std::cout << "Terminated MultiplyGraphTestSerial" << std::endl;
+    Engine::JoinThreads();
+    std::cout << "Terminated MultiplyGraphTestParallel" << std::endl;
 }
 
 TEST(SimpleGraph, GraphConstruction)
 {
-    SimpleGraphTest(25);
+   // SimpleGraphTest(25);
 }
 
 TEST(SimpleGraph, MultiplyGraphTestSerial)
 {
-    MultiplyGraphTestSerial(25);
+   // MultiplyGraphTestSerial(100, 100, 25);
     EXPECT_EQ(0, 0);
 }
 } // namespace GraphTest

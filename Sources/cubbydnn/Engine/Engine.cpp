@@ -223,7 +223,7 @@ void Engine::Sink(const std::vector<UnitIdentifier>& previousUnit,
 
 UnitIdentifier Engine::OutputTest(
     const UnitIdentifier& previousUnit,
-    const std::function<void(const Tensor& tensor)>& testFunction)
+    const std::function<void(const Tensor& tensor, size_t)>& testFunction)
 {
     const auto unitId = m_sinkUnitVector.size();
     TensorInfo previousTensorInfo;
@@ -335,7 +335,8 @@ void Engine::m_runMain()
     TaskWrapper taskWrapper = m_mainTaskQueue.Dequeue();
     while (taskWrapper.Type != TaskType::Join)
     {
-        // std::cout << "main execute" << std::endl;
+        std::cout << "main execute" << std::endl;
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1));
         auto task = taskWrapper.GetTask();
         task();
         std::atomic_exchange_explicit(&m_dirty, true,
@@ -349,6 +350,8 @@ void Engine::m_runCopy()
     TaskWrapper taskWrapper = m_copyTaskQueue.Dequeue();
     while (taskWrapper.Type != TaskType::Join)
     {
+        //std::cout << "copy execute" << std::endl;
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1));
         auto task = taskWrapper.GetTask();
         task();
         std::atomic_exchange_explicit(&m_dirty, true,
@@ -472,7 +475,7 @@ void Engine::ScanUnitTasks()
                     hiddenUnit->ReleaseUnit();
                 };
                 hiddenUnit->AcquireUnit();
-                TaskWrapper taskWrapper(TaskType::ComputeIntermediate,
+                TaskWrapper taskWrapper(TaskType::ComputeHidden,
                                         computeFunc, updateState);
                 m_mainTaskQueue.Enqueue(std::move(taskWrapper));
                 ++HiddenEnqueueCount;

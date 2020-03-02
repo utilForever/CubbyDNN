@@ -41,14 +41,14 @@ void SinkUnit::Compute()
 
 SinkTestUnit::SinkTestUnit(
     TensorInfo inputTensorInfo,
-    std::function<void(const Tensor&)> testFunction)
-    : SinkUnit({inputTensorInfo}),
+    std::function<void(const Tensor&, size_t)> testFunction)
+    : SinkUnit({ inputTensorInfo }),
       m_testFunction(std::move(testFunction))
 {
 }
 
 void SinkTestUnit::Compute()
 {
-    m_testFunction(m_inputTensorVector.at(0));
+    m_testFunction(m_inputTensorVector.at(0), m_unitState.StateNum);
 }
 } // namespace CubbyDNN

@@ -42,7 +42,7 @@ public:
     //! \param inputTensorInfo : tensorInfo of the input to be tested
     //! \param testFunction : lambda for testing the output
     explicit SinkTestUnit(TensorInfo inputTensorInfo,
-                          std::function<void(const Tensor&)>
+                          std::function<void(const Tensor&, size_t)>
                           testFunction);
 
     //! SinkUnit is not copy-assignable
@@ -55,7 +55,7 @@ public:
 
 private:
     //! Lambda used for testing
-    std::function<void(const Tensor&)> m_testFunction;
+    std::function<void(const Tensor&, size_t)> m_testFunction;
 };
 } // namespace CubbyDNN
 

@@ -125,7 +125,7 @@ enum class TaskType
 {
     ComputeSource,
     ComputeSink,
-    ComputeIntermediate,
+    ComputeHidden,
     Copy,
     Join,
     None,
