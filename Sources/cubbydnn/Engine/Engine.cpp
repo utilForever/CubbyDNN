@@ -298,6 +298,7 @@ void Engine::m_connectWithPreviousUnit(
             else
                 assert("Unsupported type of unit");
         }
+
     else if (subjectUnitIdentifier.Type == UnitType::Sink)
         for (const auto& unit : previousUnitVector)
         {
@@ -324,7 +325,7 @@ void Engine::m_run()
         //{
         auto task = taskWrapper.GetTask();
         task();
-        std::cout << "Execute" << std::endl;
+        //std::cout << "Execute" << std::endl;
         taskWrapper = m_taskQueue.Dequeue();
         // }
     }
@@ -396,7 +397,7 @@ void Engine::m_executeComputeUnits()
             };
             TaskWrapper taskWrapper(TaskType::ComputeSource, computeFunc,
                                     updateState);
-            std::cout << "Enqueue source" << std::endl;
+            //std::cout << "Enqueue source" << std::endl;
             m_taskQueue.Enqueue(std::move(taskWrapper));
             ++desired;
         }
@@ -413,7 +414,7 @@ void Engine::m_executeComputeUnits()
             };
             TaskWrapper taskWrapper(TaskType::ComputeHidden, computeFunc,
                                     updateState);
-            std::cout << "Enqueue hidden" << std::endl;
+            //std::cout << "Enqueue hidden" << std::endl;
             m_taskQueue.Enqueue(std::move(taskWrapper));
             ++desired;
         }
@@ -430,7 +431,7 @@ void Engine::m_executeComputeUnits()
             };
             TaskWrapper taskWrapper(TaskType::ComputeSink, computeFunc,
                                     updateState);
-            std::cout << "Enqueue sink" << std::endl;
+            //std::cout << "Enqueue sink" << std::endl;
             m_taskQueue.Enqueue(std::move(taskWrapper));
             ++desired;
         }
@@ -458,7 +459,7 @@ void Engine::m_executeCopyUnits()
             };
 
             TaskWrapper taskWrapper(TaskType::Copy, computeFunc, updateState);
-            std::cout << "Enqueue Copy" << std::endl;
+            //std::cout << "Enqueue Copy" << std::endl;
             m_taskQueue.Enqueue(std::move(taskWrapper));
             ++desired;
         }

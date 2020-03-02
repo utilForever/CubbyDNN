@@ -6,7 +6,6 @@
 
 #include "GraphSynchronizationTest.hpp"
 #include <cubbydnn/Engine/Engine.hpp>
-#include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 #include "gtest/gtest.h"
 

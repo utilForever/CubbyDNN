@@ -18,9 +18,9 @@ namespace CubbyDNN
 void StressTask()
 {
     std::random_device rn;
-    std::mt19937_64 gen(rn());
-
-    const std::uniform_int rand(0, 1000000);
+    std::mt19937 gen(rn());
+    
+   std::uniform_int_distribution<> rand(0, 10000);
     volatile auto num = 10;
     const auto size = static_cast<size_t>(rand(gen));
     for (size_t i = 0; i < size; ++i)

@@ -26,7 +26,7 @@ Unit Model::Variable(Shape shape)
     unit.OutputTensorInfo = { shape, m_numberSystem };
     // TODO : run Initializer here
     unit.Data = nullptr;
-    const auto id = m_unitVector.size();
+    //const auto id = m_unitVector.size();
     m_unitVector.emplace_back(unit);
     return unit;
 }

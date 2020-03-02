@@ -7,6 +7,7 @@
 #ifndef CUBBYDNN_STRUCTS_HPP
 #define CUBBYDNN_STRUCTS_HPP
 #include <atomic>
+#include <cstdlib>
 
 namespace CubbyDNN
 {
@@ -66,6 +67,7 @@ enum class UnitType
 
 struct Shape
 {
+public:
     Shape(size_t batch, size_t channel, size_t row, size_t col)
         : Batch(batch),
           Channel(channel),
@@ -75,14 +77,17 @@ struct Shape
     }
 
     Shape(size_t channel, size_t row, size_t col)
-        : Channel(channel),
+        : Batch(0),
+          Channel(channel),
           Row(row),
           Col(col)
     {
     }
 
     Shape(size_t row, size_t col)
-        : Row(row),
+        : Batch(0),
+          Channel(0),
+          Row(row),
           Col(col)
     {
     }

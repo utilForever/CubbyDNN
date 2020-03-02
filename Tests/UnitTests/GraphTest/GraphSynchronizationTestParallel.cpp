@@ -7,6 +7,8 @@
 #include <cubbydnn/Engine/Engine.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 #include "gtest/gtest.h"
+#include <cstdlib>
+#include <blaze/Blaze.h>
 
 namespace CubbyDNN
 {
@@ -40,6 +42,9 @@ void MultiplyGraphTestParallel(size_t batchSize, size_t channelSize,
     void* constantData1 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
     void* constantData2 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
     void* constantData3 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
+
+    blaze::setNumThreads(1);
+    std::cout << "numThreads:" << blaze::getNumThreads() << std::endl;
 
     for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
@@ -75,9 +80,10 @@ void MultiplyGraphTestParallel(size_t batchSize, size_t channelSize,
                            constantData3, 3);
         }
 
-    const auto testFunction = [batchSize, channelSize](const Tensor& tensor, size_t epoch)
+    const auto testFunction = [batchSize, channelSize](
+        const Tensor& tensor, size_t epoch)
     {
-        std::cout << "epoch: " << epoch << std::endl;
+        //std::cout << "epoch: " << epoch << std::endl;
         for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
                 for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
@@ -85,14 +91,14 @@ void MultiplyGraphTestParallel(size_t batchSize, size_t channelSize,
                     {
                         if (rowIdx == colIdx)
                             EXPECT_EQ(GetData<float>({ batchIdx, channelIdx,
-                                                       rowIdx, colIdx },
-                                                     tensor),
-                                      27);
+                                      rowIdx, colIdx },
+                                      tensor),
+                                  27);
                         else
                             EXPECT_EQ(GetData<float>({ batchIdx, channelIdx,
-                                                       rowIdx, colIdx },
-                                                     tensor),
-                                      0);
+                                      rowIdx, colIdx },
+                                      tensor),
+                                  0);
                     }
     };
 
@@ -118,11 +124,11 @@ void MultiplyGraphTestParallel(size_t batchSize, size_t channelSize,
 
 TEST(SimpleGraphParallel, GraphTestParallel)
 {
-   // SimpleGraphTestParallel(2, 300);
+    // SimpleGraphTestParallel(2, 300);
 }
 
 TEST(MultiplyGraphParallel, GraphTestParallel)
 {
-   MultiplyGraphTestParallel(10, 10, 2, 3000);
+    MultiplyGraphTestParallel(0,10, 10, 30000);
 }
 } // namespace CubbyDNN
