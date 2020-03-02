@@ -118,11 +118,11 @@ void MultiplyGraphTestParallel(size_t batchSize, size_t channelSize,
 
 TEST(SimpleGraphParallel, GraphTestParallel)
 {
-    SimpleGraphTestParallel(2, 300);
+   // SimpleGraphTestParallel(2, 300);
 }
 
 TEST(MultiplyGraphParallel, GraphTestParallel)
 {
-    MultiplyGraphTestParallel(10, 10, 2, 10);
+   MultiplyGraphTestParallel(10, 10, 2, 3000);
 }
 } // namespace CubbyDNN

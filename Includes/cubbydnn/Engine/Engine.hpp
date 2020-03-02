@@ -221,6 +221,7 @@ private:
     /// number of epochs to run the graph
     /// If stateNum reaches this, that unit will be no longer computed
     static size_t m_maxEpochs;
+    static std::atomic_bool m_ready;
 };
 } // namespace CubbyDNN
 
