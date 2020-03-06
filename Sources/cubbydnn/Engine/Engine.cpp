@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Engine/Engine.hpp>
+#include <cassert>
 
 namespace CubbyDNN
 {

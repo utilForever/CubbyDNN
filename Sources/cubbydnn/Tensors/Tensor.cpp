@@ -1,12 +1,13 @@
-/** Copyright (c) 2019 Chris Ohk, Justin Kim
- *
- * We are making my contributions/submissions to this project solely in our
- * personal capacity and are not conveying any rights to any intellectual
- * property of any third parties.
- */
+// Copyright (c) 2019 Chris Ohk, Justin Kim
+
+// We are making my contributions/submissions to this project solely in our
+// personal capacity and are not conveying any rights to any intellectual
+// property of any third parties.
+
 
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <iostream>
+#include <cassert>
 
 namespace CubbyDNN
 {
@@ -15,6 +16,11 @@ Tensor::Tensor(void* Data, TensorInfo info)
       Info(info)
 {
     Data = nullptr;
+}
+
+Tensor::~Tensor()
+{
+    free(DataPtr);
 }
 
 Tensor::Tensor(Tensor&& tensor) noexcept
@@ -64,9 +70,10 @@ Tensor AllocateTensor(const TensorInfo& info)
     return Tensor(dataPtr, info);
 }
 
-void CopyTensor(Tensor& source, Tensor& destination)
+void Tensor::CopyTensor(Tensor& source, Tensor& destination)
 {
-    assert(source.Info == destination.Info);
+    if (source.Info != destination.Info)
+        throw std::runtime_error("Information of each tensor should be same");
     assert(source.Info.GetByteSize() == destination.Info.GetByteSize());
     const std::size_t ByteSize = source.Info.GetByteSize();
 

@@ -9,12 +9,9 @@
 
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
-#include <atomic>
-#include <bitset>
-#include <cassert>
+
 #include <cstring>
 #include <memory>
-#include <vector>
 
 namespace CubbyDNN
 {
@@ -24,24 +21,23 @@ namespace CubbyDNN
 struct Tensor
 {
     Tensor(void* Data, TensorInfo info);
+    ~Tensor();
 
-    ~Tensor()
-    {
-        free(DataPtr);
-    }
-
+    Tensor(const Tensor& tensor) = delete;
     Tensor(Tensor&& tensor) noexcept;
     /// move assignment operator
+    Tensor& operator=(const Tensor& tensor) = delete;
     Tensor& operator=(Tensor&& tensor) noexcept;
 
-    [[nodiscard]] size_t GetElementOffset(Shape offsetInfo) const;
+    static void CopyTensor(Tensor& source, Tensor& destination);
+
+    [[nodiscard]] std::size_t GetElementOffset(Shape offsetInfo) const;
     /// Data vector which possesses actual data
     void* DataPtr;
     /// Shape of this tensorData
     TensorInfo Info;
 };
 
-void CopyTensor(Tensor& source, Tensor& destination);
 
 //! Builds empty Tensor so data can be put potentially
 //! \param info : information of tensor to allocate
@@ -70,9 +66,9 @@ void SetData(const Shape& index, Tensor& tensor, T value)
 template <typename T>
 void SetData(const Shape& index, const Shape& shape, void* dataPtr, T data)
 {
-    size_t offset = 0;
+    std::size_t offset = 0;
     offset += index.Col;
-    size_t multiplier = shape.Col;
+    std::size_t multiplier = shape.Col;
     offset += multiplier * index.Row;
     multiplier *= shape.Row;
     offset += multiplier * index.Channel;
@@ -88,6 +84,6 @@ T GetData(const Shape& index, const Tensor& tensor)
     const auto offset = tensor.GetElementOffset(index);
     return *(static_cast<T*>(tensor.DataPtr) + offset);
 }
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_DATA_HPP

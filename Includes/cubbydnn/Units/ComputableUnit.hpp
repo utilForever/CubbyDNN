@@ -7,12 +7,12 @@
 #ifndef CUBBYDNN_COMPUTABLEUNIT_HPP
 #define CUBBYDNN_COMPUTABLEUNIT_HPP
 
-#include <atomic>
-#include <vector>
-
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Utils/SharedPtr.hpp>
+#include <atomic>
+#include <vector>
+#include <string>
 
 namespace CubbyDNN
 {

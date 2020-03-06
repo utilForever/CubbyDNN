@@ -53,7 +53,7 @@ public:
         return size;
     }
 
-    [[nodiscard]] std::size_t GetOffset(std::initializer_list index);
+    [[nodiscard]] std::size_t GetOffset(std::vector<std::size_t> index);
 
     void Reshape(std::initializer_list<std::size_t> newShape);
 

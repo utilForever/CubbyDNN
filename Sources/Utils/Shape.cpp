@@ -81,4 +81,20 @@ void Shape::Reshape(std::initializer_list<std::size_t> newShape)
 
     m_dimension = newShape;
 }
+
+std::size_t Shape::GetOffset(std::vector<std::size_t> index)
+{
+    std::size_t shapeIdx = 0;
+    std::size_t idx = 0;
+    std::size_t multiplier = 1;
+    std::size_t offset = 0;
+    for (; shapeIdx != m_dimension.size() && idx != index.size();
+           ++shapeIdx, ++idx)
+    {
+        offset += multiplier * index.at(idx);
+        multiplier *= m_dimension.at(shapeIdx);
+    }
+
+    return offset;
+}
 } // namespace CubbyDNN

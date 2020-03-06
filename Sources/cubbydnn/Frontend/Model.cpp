@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Frontend/Model.hpp>
+#include <cassert>
 
 namespace CubbyDNN
 {

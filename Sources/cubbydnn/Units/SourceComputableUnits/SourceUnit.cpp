@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
+#include <cassert>
 
 namespace CubbyDNN
 {

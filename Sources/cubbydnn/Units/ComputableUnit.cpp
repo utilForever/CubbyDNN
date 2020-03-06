@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <stdexcept>
 
 namespace CubbyDNN
 {
@@ -58,8 +59,9 @@ ComputableUnit::ComputableUnit(std::vector<TensorInfo> inputTensorInfoVector,
 std::size_t ComputableUnit::AddOutputPtr(
     const SharedPtr<ComputableUnit>& computableUnitPtr)
 {
-    assert(m_outputVectorIndex < m_outputPtrVector.size() &&
-        "Number of outputs exceeds number given from decleration");
+    if (m_outputVectorIndex >= m_outputPtrVector.size())
+        throw std::runtime_error(
+            "Number of outputs exceeds number given from declaration");
 
     m_outputPtrVector.at(m_outputVectorIndex) = computableUnitPtr;
     return m_outputVectorIndex++;
@@ -68,8 +70,10 @@ std::size_t ComputableUnit::AddOutputPtr(
 void ComputableUnit::AddInputPtr(
     const SharedPtr<ComputableUnit>& computableUnitPtr, std::size_t index)
 {
-    assert(index < m_inputPtrVector.size() &&
-        "Number of inputs exceeds number given from decleration");
+    if (index >= m_inputPtrVector.size())
+        throw std::runtime_error(
+            "Number of inputs exceeds number given from declaration");
+
     m_inputPtrVector.at(index) = computableUnitPtr;
 }
 

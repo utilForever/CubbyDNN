@@ -6,6 +6,7 @@
 
 #include <cubbydnn/Computations/Functions/Matrix.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
+#include <cassert>
 
 namespace CubbyDNN
 {
