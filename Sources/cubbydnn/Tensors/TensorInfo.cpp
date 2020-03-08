@@ -16,9 +16,9 @@ std::map<NumberSystem, std::size_t> TensorInfo::UnitByteSizeMap = {
     { NumberSystem::Int64, 64 },
 };
 
-TensorInfo::TensorInfo(const Shape& shape,
+TensorInfo::TensorInfo(Shape shape,
                        NumberSystem numberSystem)
-    : m_shape(shape),
+    : m_shape(std::move(shape)),
       m_unitByteSize(UnitByteSizeMap.at(numberSystem)),
       m_numberSystem(numberSystem)
 {
@@ -38,7 +38,7 @@ bool TensorInfo::operator!=(const TensorInfo& tensorInfo) const
 
 std::size_t TensorInfo::GetSize() const noexcept
 {
-    return m_shape.GetTotalSize();
+    return m_shape.TotalSize();
 }
 
 std::size_t TensorInfo::GetByteSize() const noexcept

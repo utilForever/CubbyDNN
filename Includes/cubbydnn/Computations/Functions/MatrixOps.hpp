@@ -12,136 +12,171 @@
 
 namespace CubbyDNN
 {
-using blaze::aligned;
 using blaze::columnMajor;
 using blaze::CustomMatrix;
+using blaze::aligned;
 using blaze::padded;
 using blaze::unaligned;
 using blaze::unpadded;
 
-template <typename T>
-void GetIdentityMatrix(Tensor& tensor)
-{
-    const auto batchSize = tensor.Info.GetShape().Batch;
-    const auto channelSize = tensor.Info.GetShape().Channel;
-    const auto rowSize = tensor.Info.GetShape().Row;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
-            for (std::size_t idx = 0; idx < rowSize; ++idx)
-            {
-                const auto offset =
-                    tensor.GetElementOffset({ batchIdx, idx, channelIdx, idx });
-                *(static_cast<T*>(tensor.DataPtr) + offset) =
-                    static_cast<T>(1.0f);
-            }
-}
-
-template <typename T>
-void TensorMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+template <typename T, bool IsAligned = false>
+void TensorMul(const Tensor& inputA, const Tensor& inputB,
+               Tensor& output)
 {
     const auto inputShapeA = inputA.Info.GetShape();
     const auto inputShapeB = inputB.Info.GetShape();
     const auto outputShape = output.Info.GetShape();
 
-    assert(inputShapeA.Batch == inputShapeB.Batch &&
-           inputShapeA.Batch == outputShape.Batch);
-    assert(inputShapeA.Channel == inputShapeB.Channel &&
-           inputShapeA.Channel == outputShape.Channel);
-    assert(inputShapeA.Col == inputShapeB.Row);
+    if (inputShapeA.BatchSize() != inputShapeB.BatchSize() ||
+        inputShapeA.BatchSize() != outputShape.BatchSize())
+        throw std::runtime_error("TensorMul - batch size mismatch");
 
-    const auto channelSize = inputShapeA.Channel;
-    const auto batchSize = inputShapeA.Batch;
+    const auto batchSize = inputShapeA.BatchSize();
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+    const auto matrixSizeA = inputShapeA.PaddedMatrixSize();
+    const auto matrixSizeB = inputShapeB.PaddedMatrixSize();
+    const auto matrixSizeOut = outputShape.PaddedMatrixSize();
+
+    if constexpr (IsAligned)
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
-            const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
-                static_cast<T*>(inputA.DataPtr) +
-                    output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
-                inputShapeA.Row, inputShapeB.Col);
+            const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
+                static_cast<T*>(inputA.DataPtr) + batchIdx * matrixSizeA,
+                inputShapeA.Row(), inputShapeA.Col(),
+                inputShapeA.PaddingSize());
 
-            const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> B(
-                static_cast<T*>(inputB.DataPtr) +
-                    output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
-                inputShapeB.Row, inputShapeB.Col);
+            const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
+                static_cast<T*>(inputB.DataPtr) + batchIdx * matrixSizeB,
+                inputShapeB.Row(), inputShapeB.Col(),
+                inputShapeB.PaddingSize());
 
-            CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> Out(
-                static_cast<T*>(output.DataPtr) +
-                    output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
-                outputShape.Row, outputShape.Col);
+            CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
+                static_cast<T*>(output.DataPtr) + batchIdx * matrixSizeOut,
+                outputShape.Row(), outputShape.Col(),
+                outputShape.PaddingSize());
 
             Out = A * B;
         }
+    else
+    {
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        {
+            const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
+                static_cast<T*>(inputA.DataPtr) + batchIdx * matrixSizeA,
+                inputShapeA.Row(), inputShapeA.Col());
+
+            const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> B(
+                static_cast<T*>(inputB.DataPtr) + batchIdx * matrixSizeB,
+                inputShapeB.Row(), inputShapeB.Col());
+
+            CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> Out(
+                static_cast<T*>(output.DataPtr) + batchIdx * matrixSizeOut,
+                outputShape.Row(), outputShape.Col());
+
+            Out = A * B;
+        }
+    }
 }
 
-template <typename T>
+template <typename T, bool IsAligned = false>
 void TensorAdd(const Tensor& inputA, const Tensor& inputB, Tensor& output)
 {
     const auto inputShapeA = inputA.Info.GetShape();
     const auto inputShapeB = inputB.Info.GetShape();
     const auto outputShape = output.Info.GetShape();
 
-    assert(inputShapeA.Row == inputShapeB.Row &&
-           inputShapeA.Row == outputShape.Row);
-    assert(inputShapeA.Col == inputShapeB.Col &&
-           inputShapeA.Col == outputShape.Col);
-    assert(inputShapeA.Row == inputShapeB.Row &&
-           inputShapeA.Batch == outputShape.Batch);
-    assert(inputShapeA.Channel == inputShapeB.Channel &&
-           inputShapeA.Channel == outputShape.Channel);
+    if (inputShapeA.BatchSize() != inputShapeB.BatchSize() ||
+        inputShapeA.BatchSize() != outputShape.BatchSize())
+        throw std::runtime_error("TensorAdd - batch size mismatch");
 
-    const auto channelSize = inputShapeA.Channel;
-    const auto batchSize = inputShapeA.Batch;
+    const auto batchSize = inputShapeA.BatchSize();
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+    const auto matrixSizeA = inputShapeA.PaddedMatrixSize();
+    const auto matrixSizeB = inputShapeB.PaddedMatrixSize();
+    const auto matrixSizeOut = outputShape.PaddedMatrixSize();
+
+    if constexpr (IsAligned)
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        {
+            const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
+                static_cast<T*>(inputA.DataPtr) + batchIdx * matrixSizeA,
+                inputShapeA.Row(), inputShapeB.Col(),
+                inputShapeA.PaddingSize());
+
+            const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
+                static_cast<T*>(inputB.DataPtr) + batchIdx * matrixSizeB,
+                inputShapeB.Row(), inputShapeB.Col(),
+                inputShapeB.PaddingSize());
+
+            CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
+                static_cast<T*>(output.DataPtr) + batchIdx * matrixSizeOut,
+                outputShape.Row(), outputShape.Col(),
+                outputShape.PaddingSize());
+
+            Out = A + B;
+        }
+    else
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
-                static_cast<T*>(inputA.DataPtr) +
-                    output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
-                inputShapeA.Row, inputShapeB.Col);
+                static_cast<T*>(inputA.DataPtr) + batchIdx * matrixSizeA,
+                inputShapeA.Row(), inputShapeB.Col());
 
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> B(
-                static_cast<T*>(inputB.DataPtr) +
-                    output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
-                inputShapeB.Row, inputShapeB.Col);
+                static_cast<T*>(inputB.DataPtr) + batchIdx * matrixSizeB,
+                inputShapeB.Row(), inputShapeB.Col());
 
             CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> Out(
-                static_cast<T*>(output.DataPtr) +
-                    output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
-                outputShape.Row, outputShape.Col);
+                static_cast<T*>(output.DataPtr) + batchIdx * matrixSizeOut,
+                outputShape.Row(), outputShape.Col());
 
             Out = A + B;
         }
 }
 
-template <typename T>
+template <typename T, bool IsAligned = false>
 void TensorTranspose(const Tensor& input, Tensor& output)
 {
     const auto inputShape = input.Info.GetShape();
     const auto outputShape = output.Info.GetShape();
 
-    assert(inputShape.Batch == outputShape.Batch);
-    assert(inputShape.Channel == outputShape.Channel);
-    assert(inputShape.Row == outputShape.Col);
-    assert(inputShape.Col == outputShape.Row);
+    if (inputShape.BatchSize() != outputShape.BatchSize())
+        throw std::runtime_error("TensorTranspose - Batch size mismatch");
 
-    const auto channelSize = inputShape.Channel;
-    const auto batchSize = inputShape.Batch;
+    const auto batchSize = inputShape.BatchSize();
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+    if (IsAligned)
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        {
+            const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
+                static_cast<T*>(input.DataPtr) +
+                batchIdx * inputShape.PaddedMatrixSize(),
+                inputShape.Row(), inputShape.Col(),
+                inputShape.PaddingSize());
+
+            CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
+                static_cast<T*>(output.DataPtr) +
+                batchIdx * outputShape.PaddedMatrixSize(),
+                outputShape.Row(), outputShape.Col(),
+                outputShape.PaddingSize());
+
+            Out = blaze::trans(A);
+        }
+    else
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
                 static_cast<T*>(input.DataPtr) +
-                    output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
-                inputShape.Row, inputShape.Col);
+                batchIdx * inputShape.PaddedMatrixSize(),
+                inputShape.Row(), inputShape.Col(),
+                inputShape.PaddingSize());
 
             CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> Out(
                 static_cast<T*>(output.DataPtr) +
-                    output.GetElementOffset({ batchIdx, channelIdx, 0, 0 }),
-                outputShape.Row, outputShape.Col);
+                batchIdx * outputShape.PaddedMatrixSize(),
+                outputShape.Row(), outputShape.Col(),
+                outputShape.PaddingSize());
 
             Out = blaze::trans(A);
         }
@@ -150,8 +185,7 @@ void TensorTranspose(const Tensor& input, Tensor& output)
 template <typename T>
 void TensorReshape(const Tensor& input, Tensor& output)
 {
-
 }
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif

@@ -37,10 +37,6 @@ Unit Model::Add(const Unit& inputA, const Unit& inputB)
     const auto inputShapeA = inputA.OutputTensorInfo.GetShape();
     const auto inputShapeB = inputB.OutputTensorInfo.GetShape();
 
-    assert(inputShapeA.Row == inputShapeB.Row);
-    assert(inputShapeA.Col == inputShapeB.Col);
-    assert(inputShapeA.Channel == inputShapeB.Channel);
-    assert(inputShapeA.Batch == inputShapeB.Batch);
 
     const TensorInfo outputTensorInfo{ inputShapeA, m_numberSystem };
     Unit unit(UnitType::Add);
@@ -58,10 +54,6 @@ Unit Model::Mul(const Unit& inputA, const Unit& inputB)
     const auto inputShapeA = inputA.OutputTensorInfo.GetShape();
     const auto inputShapeB = inputB.OutputTensorInfo.GetShape();
 
-    assert(inputShapeA.Row == inputShapeB.Row);
-    assert(inputShapeA.Col == inputShapeB.Col);
-    assert(inputShapeA.Channel == inputShapeB.Channel);
-    assert(inputShapeA.Batch == inputShapeB.Batch);
 
     const TensorInfo outputTensorInfo{ inputShapeA, m_numberSystem };
     Unit unit(UnitType::Add);

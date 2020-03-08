@@ -21,8 +21,6 @@
 
 namespace CubbyDNN
 {
-
-
 //! Singleton class for maintaining threads that execute the program
 class Engine
 {
@@ -57,6 +55,7 @@ public:
 
     //! Adds sourceUnit to sourceUnitVector and assigns ID for the unit
     //! \param outputTensorInfo:  vector of TensorInfo of outputs
+    //! \param numberOfOutputs: number of output tensors
     //! \return : assigned id of the unit
     static UnitIdentifier Source(
         const TensorInfo& outputTensorInfo, size_t numberOfOutputs = 1);
@@ -70,8 +69,8 @@ public:
 
     //! Adds hiddenUnit to HiddenUnitVector
     //! \param previousUnitVector : vector of previous units
-    //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param outputTensorInfo : vector of TensorInfo of outputs
+    //! \param numberOfOutputs : number of outputs from this unit
     //! \return : assigned id of the unit
     static UnitIdentifier Hidden(
         const std::vector<UnitIdentifier>& previousUnitVector,
@@ -79,9 +78,9 @@ public:
 
     //! Adds MultiplyUnit to HiddenUnitVector and assigns ID
     //! MultiplyUnit performs multiplications between two tensors (matrices) C= A*B
-    //! \param inputA : first input operand information
-    //! \param inputB : second input operand information
-    //! \param output : output information
+    //! \param unitA : first input operand information
+    //! \param unitB : second input operand information
+    //! \param numberOfOutputs : number of outputs from this unit
     static UnitIdentifier Multiply(
         const
         UnitIdentifier& unitA, const UnitIdentifier& unitB,
@@ -96,7 +95,7 @@ public:
         const std::vector<TensorInfo>& inputTensorInfoVector);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
-    //! \param inputTensorInfoVector : vector of TensorInfo of inputs
+    //! \param previousUnit : vector of TensorInfo of inputs
     //! \param testFunction : lambda used for testing the output
     //!  \return : assigned id of the unit
     static UnitIdentifier OutputTest(

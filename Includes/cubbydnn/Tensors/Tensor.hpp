@@ -30,8 +30,6 @@ struct Tensor
     Tensor& operator=(Tensor&& tensor) noexcept;
 
     static void CopyTensor(Tensor& source, Tensor& destination);
-
-    [[nodiscard]] std::size_t GetElementOffset(Shape offsetInfo) const;
     /// Data vector which possesses actual data
     void* DataPtr;
     /// Shape of this tensorData
@@ -47,41 +45,37 @@ Tensor AllocateTensor(const TensorInfo& info);
 template <typename T>
 void* AllocateData(const Shape& shape)
 {
-    const auto byteSize =
-        shape.Batch * shape.Channel * shape.Row * shape.Col * sizeof(T);
+    const auto byteSize = shape.TotalSize() * sizeof(T);
     void* dataPtr = malloc(byteSize);
-    std::memset(dataPtr, 0, byteSize);
+    if (dataPtr != nullptr)
+        std::memset(dataPtr, 0, byteSize);
+    else
+        std::runtime_error("Data allocation has failed");
     return dataPtr;
 }
 
 //! Used only for testing
 template <typename T>
-void SetData(const Shape& index, Tensor& tensor, T value)
+void SetData(std::initializer_list<std::size_t> index, Tensor& tensor, T value)
 {
-    const auto offset = tensor.GetElementOffset(index);
+    const auto offset = tensor.Info.GetShape().Offset(index);
     *(static_cast<T*>(tensor.DataPtr) + offset) = value;
 }
 
 //! Used only for testing
 template <typename T>
-void SetData(const Shape& index, const Shape& shape, void* dataPtr, T data)
+void SetData(std::initializer_list<std::size_t> index, const Shape& shape, void* dataPtr,
+             T data)
 {
-    std::size_t offset = 0;
-    offset += index.Col;
-    std::size_t multiplier = shape.Col;
-    offset += multiplier * index.Row;
-    multiplier *= shape.Row;
-    offset += multiplier * index.Channel;
-    multiplier *= shape.Channel;
-    offset += multiplier * index.Batch;
-
+    std::size_t offset = shape.Offset(index);
     *(static_cast<T*>(dataPtr) + offset) = data;
 }
 
+//! Used only for testing
 template <typename T>
-T GetData(const Shape& index, const Tensor& tensor)
+T GetData(std::initializer_list<std::size_t> index, const Tensor& tensor)
 {
-    const auto offset = tensor.GetElementOffset(index);
+    const auto offset = tensor.Info.GetShape().Offset(index);
     return *(static_cast<T*>(tensor.DataPtr) + offset);
 }
 } // namespace CubbyDNN

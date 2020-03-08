@@ -21,12 +21,15 @@ public:
     //! Constructor
     //! \param inputTensorInfoVector : vector of tensorInfo to accept
     explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
+   ~SinkUnit() = default;
 
     //! SinkUnit is not copy-assignable
     SinkUnit(const SinkUnit& sinkUnit) = delete;
+   SinkUnit(SinkUnit&& sinkUnit) noexcept;
 
     //! SinkUnit is not copy-assignable
     SinkUnit& operator=(const SinkUnit& sinkUnit) = delete;
+   SinkUnit& operator=(SinkUnit&& sinkUnit) noexcept;
 
     //! Brings back if executableUnit is ready to be executed
     //! \return : whether corresponding unit is ready to be executed
@@ -44,12 +47,15 @@ public:
     explicit SinkTestUnit(TensorInfo inputTensorInfo,
                           std::function<void(const Tensor&, size_t)>
                           testFunction);
+   ~SinkTestUnit() = default;
 
     //! SinkUnit is not copy-assignable
-    SinkTestUnit(const SinkTestUnit& sinkUnit) = delete;
+    SinkTestUnit(const SinkTestUnit& sinkTestUnit) = delete;
+   SinkTestUnit(SinkTestUnit&& sinkTestUnit) noexcept;
 
     //! SinkUnit is not copy-assignable
-    SinkTestUnit& operator=(const SinkTestUnit& sinkUnit) = delete;
+    SinkTestUnit& operator=(const SinkTestUnit& sinkTestUnit) = delete;
+   SinkTestUnit& operator=(SinkTestUnit&& sinkTestUnit) noexcept;
 
     void Compute() override;
 

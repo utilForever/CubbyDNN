@@ -16,23 +16,24 @@ namespace CubbyDNN
 //! or generator
 class SourceUnit : public ComputableUnit
 {
-public:
+ public:
     //! Constructor
     //! \param output : TensorInfo of the output
     //! \param numberOfOutputs : number of connections to this source unit
     explicit SourceUnit(TensorInfo output, size_t numberOfOutputs = 1);
-
-    //! SourceUnit is not copy-assignable
-    SourceUnit(const SourceUnit& sourceUnit) = delete;
-
     ~SourceUnit() = default;
 
     //! SourceUnit is not copy-assignable
-    SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
+    SourceUnit(const SourceUnit& sourceUnit) = delete;
+    SourceUnit(SourceUnit&& sourceUnit) noexcept;
 
-    //! Checks if source is ready
-    //! \return : true if ready to be computed false otherwise
-    bool IsReady() final;
+    //! SourceUnit is not copy-assignable
+    SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
+    SourceUnit& operator=(SourceUnit&& sourceUnit) noexcept;
+
+        //! Checks if source is ready
+        //! \return : true if ready to be computed false otherwise
+        bool IsReady() final;
 
     void Compute() override
     {
@@ -41,57 +42,23 @@ public:
 
 class ConstantUnit : public SourceUnit
 {
-public:
+ public:
     explicit ConstantUnit(TensorInfo output, int numberOfOutputs,
                           void* dataPtr);
+    ~ConstantUnit();
 
     //! ConstantUnit is not copy-assignable
-    ConstantUnit(const ConstantUnit& sourceUnit) = delete;
-
-    ~ConstantUnit()
-    {
-        free(m_dataPtr);
-    }
+    ConstantUnit(const ConstantUnit& constantUnit) = delete;
+    ConstantUnit(ConstantUnit&& constantUnit) noexcept;
 
     //! ConstantUnit is not copy-assignable
-    SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
+    ConstantUnit& operator=(const ConstantUnit& sourceUnit) = delete;
+    ConstantUnit& operator=(ConstantUnit&& constantUnit) noexcept;
 
-private:
+ private:
     void* m_dataPtr = nullptr;
     size_t m_byteSize = 0;
 };
-
-//! Initializes constant with given data
-template <typename T>
-void InitializeConstant(TensorInfo tensorInfo, void* dataPtr,
-                        const std::vector<std::vector<T>>& initializer)
-{
-    const auto shape = tensorInfo.GetShape();
-    assert(initializer.size() > 0);
-    assert(initializer.at(0).size() > 0);
-    assert(initializer.size() == shape.Row);
-    assert(initializer.at(0).size() == shape.Col);
-
-    void* data = AllocateData<float>(tensorInfo.GetShape());
-
-    for (size_t batchIdx = 0; batchIdx < shape.Batch; ++batchIdx)
-        for (size_t channelIdx = 0; channelIdx < shape.Channel; ++channelIdx)
-            for (size_t rowIdx = 0; rowIdx < shape.Row; ++rowIdx)
-                for (size_t colIdx = 0; colIdx < shape.Col; ++colIdx)
-                {
-                    size_t offset = 0;
-                    offset += colIdx;
-                    size_t multiplier = shape.Col;
-                    offset += multiplier * rowIdx;
-                    multiplier *= shape.Row;
-                    offset += multiplier * channelIdx;
-                    multiplier *= shape.Channel;
-                    offset += multiplier * batchIdx;
-                    *(static_cast<T*>(dataPtr) + offset) = initializer
-                                                           .at(rowIdx).at(
-                                                               colIdx);
-                }
-}
-} // namespace CubbyDNN
+}  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_SOURCEUNIT_HPP

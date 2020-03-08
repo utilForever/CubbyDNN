@@ -65,54 +65,6 @@ enum class UnitType
     Undefined,
 };
 
-struct Shape
-{
-    Shape() = default;
-
-    Shape(std::size_t batch, std::size_t channel, std::size_t row,
-          std::size_t col)
-        : Batch(batch),
-          Channel(channel),
-          Row(row),
-          Col(col)
-    {
-    }
-
-    Shape(std::size_t channel, std::size_t row, std::size_t col)
-        : Channel(channel),
-          Row(row),
-          Col(col)
-    {
-    }
-
-    Shape(std::size_t row, std::size_t col)
-        : Row(row),
-          Col(col)
-    {
-    }
-
-    std::size_t Batch = 0;
-    std::size_t Channel = 0;
-    std::size_t Row = 0;
-    std::size_t Col = 0;
-
-    friend bool operator==(const Shape& lhs, const Shape& rhs)
-    {
-        return lhs.Batch == rhs.Batch && lhs.Row == rhs.Row &&
-               lhs.Channel == rhs.Channel && lhs.Col == rhs.Col;
-    }
-
-    friend bool operator!=(const Shape& lhs, const Shape& rhs)
-    {
-        return !(lhs == rhs);
-    }
-
-    [[nodiscard]] std::size_t GetTotalSize() const
-    {
-        return Batch * Row * Channel * Col;
-    }
-};
-
 //! UnitState
 //! Wrapper class containing the state and StateNum
 //! This represents the execution state of computable Unit

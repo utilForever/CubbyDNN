@@ -38,30 +38,6 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     return *this;
 }
 
-std::size_t Tensor::GetElementOffset(Shape offsetInfo) const
-{
-    const auto [batchIdx, channelIdx, rowIdx, colIdx] = offsetInfo;
-    const auto& shape = Info.GetShape();
-    const auto rowSize = shape.Row;
-    const auto channelSize = shape.Channel;
-    const auto colSize = shape.Col;
-
-    assert(rowIdx < rowSize);
-    assert(channelIdx < channelSize);
-    assert(colIdx < colSize);
-
-    std::size_t offset = 0;
-    offset += colIdx;
-    std::size_t multiplier = colSize;
-    offset += multiplier * rowIdx;
-    multiplier *= rowSize;
-    offset += multiplier * channelIdx;
-    multiplier *= channelSize;
-    offset += multiplier * batchIdx;
-
-    return offset;
-}
-
 Tensor AllocateTensor(const TensorInfo& info)
 {
     const auto byteSize = info.GetByteSize();

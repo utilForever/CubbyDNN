@@ -52,7 +52,7 @@ ComputableUnit::ComputableUnit(std::vector<TensorInfo> inputTensorInfoVector,
                                UnitType unitType)
     : Type(unitType),
       m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
-      m_outputTensorInfo(outputTensorInfo)
+      m_outputTensorInfo(std::move(outputTensorInfo))
 {
 }
 

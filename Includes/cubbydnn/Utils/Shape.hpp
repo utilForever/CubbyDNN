@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_SHAPE_HPP
-#define CUBBYDNN_SHAPE_HPP
+#ifndef CUBBYDNN_SHAPER_HPP
+#define CUBBYDNN_SHAPER_HPP
 
 #include <stdexcept>
 #include <vector>
@@ -16,7 +16,7 @@ class Shape
 {
 public:
     Shape() = default;
-   ~Shape() = default;
+    ~Shape() = default;
 
     Shape(std::initializer_list<std::size_t> shape);
 
@@ -26,17 +26,19 @@ public:
     Shape& operator=(const Shape& shape);
     Shape& operator=(Shape&& shape) noexcept;
 
-    std::size_t
-    operator[](std::size_t index) const;
+    std::size_t operator[](std::size_t index) const;
+
+    Shape operator*(const Shape& shape) const;
 
     void Expand(std::size_t rank);
     void Shrink();
     void Squeeze();
 
-    friend bool
-    operator==(const Shape& lhs, const Shape& rhs)
+    [[nodiscard]] std::size_t Dim() const;
+
+    friend bool operator==(const Shape& lhs, const Shape& rhs)
     {
-        return lhs.m_dimension == rhs.m_dimension;
+        return lhs.m_shapeVector == rhs.m_shapeVector;
     }
 
     friend bool operator!=(const Shape& lhs, const Shape& rhs)
@@ -44,21 +46,39 @@ public:
         return !(lhs == rhs);
     }
 
-    [[nodiscard]] std::size_t GetTotalSize() const
-    {
-        std::size_t size = 1;
-        for (auto i : m_dimension)
-            size *= i;
+    [[nodiscard]] std::size_t TotalSize() const;
 
-        return size;
+    [[nodiscard]] std::size_t Offset(std::vector<std::size_t> index) const
+    noexcept;
+
+    [[nodiscard]] std::size_t BatchSize() const;
+
+    [[nodiscard]] std::size_t MatrixSize() const;
+
+    [[nodiscard]] std::size_t PaddingSize() const
+    {
+        return m_padding;
     }
 
-    [[nodiscard]] std::size_t GetOffset(std::vector<std::size_t> index);
+    [[nodiscard]] std::size_t PaddedMatrixSize() const;
+
+    [[nodiscard]] bool IsAligned() const;
+
+    [[nodiscard]] std::size_t Row() const
+    {
+        return m_shapeVector.at(0);
+    }
+
+    [[nodiscard]] std::size_t Col() const
+    {
+        return m_shapeVector.at(1);
+    }
 
     void Reshape(std::initializer_list<std::size_t> newShape);
 
 private:
-    std::vector<std::size_t> m_dimension;
+    std::vector<std::size_t> m_shapeVector;
+    std::size_t m_padding = 0;
 };
 } // namespace CubbyDNN
 

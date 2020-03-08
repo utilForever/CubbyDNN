@@ -22,6 +22,20 @@ SourceUnit::SourceUnit(TensorInfo output, std::size_t numberOfOutputs)
     }
 }
 
+SourceUnit::SourceUnit(SourceUnit&& sourceUnit) noexcept
+    : ComputableUnit(std::move(sourceUnit))
+{
+}
+
+SourceUnit& SourceUnit::operator=(SourceUnit&& sourceUnit) noexcept
+{
+    if (this == &sourceUnit)
+        return *this;
+    ComputableUnit::operator=(std::move(sourceUnit));
+    return *this;
+}
+
+
 bool SourceUnit::IsReady()
 {
     auto isReady = true;
@@ -50,4 +64,28 @@ ConstantUnit::ConstantUnit(TensorInfo output, int numberOfOutputs,
                     m_byteSize);
     }
 }
+
+ConstantUnit::~ConstantUnit()
+{
+    free(m_dataPtr);
+}
+
+ConstantUnit::ConstantUnit(ConstantUnit&& constantUnit) noexcept
+    : SourceUnit(std::move(constantUnit)),
+      m_dataPtr(constantUnit.m_dataPtr),
+      m_byteSize(constantUnit.m_byteSize)
+{
+}
+
+ConstantUnit& ConstantUnit::operator=(ConstantUnit&& constantUnit) noexcept
+{
+    if (this != &constantUnit)
+    {
+        m_dataPtr = constantUnit.m_dataPtr;
+        m_byteSize = constantUnit.m_byteSize;
+        SourceUnit::operator=(std::move(constantUnit));
+    }
+    return *this;
+}
+
 } // namespace CubbyDNN

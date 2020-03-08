@@ -10,8 +10,6 @@
 
 namespace CubbyDNN
 {
-void IdentityMatrix(const Shape& shape, NumberSystem numberSystem);
-
 void MultiplyOp(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
 void AddOp(const Tensor& inputA, const Tensor& inputB, Tensor& output);

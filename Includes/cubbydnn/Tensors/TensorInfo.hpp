@@ -8,6 +8,7 @@
 #define CUBBYDNN_TENSOR_SHAPE_HPP
 
 #include <cubbydnn/Utils/Declarations.hpp>
+#include <cubbydnn/Utils/Shape.hpp>
 #include <map>
 
 namespace CubbyDNN
@@ -20,13 +21,11 @@ public:
     static std::map<NumberSystem, size_t> UnitByteSizeMap;
 
     TensorInfo() = default;
+    TensorInfo(Shape shape, NumberSystem numberSystem = NumberSystem::Float32);
     ~TensorInfo() = default;
 
     TensorInfo(const TensorInfo& tensorInfo) = default;
     TensorInfo(TensorInfo&&) noexcept = default;
-
-    TensorInfo(const Shape& shape,
-               NumberSystem numberSystem = NumberSystem::Float32);
 
     TensorInfo& operator=(const TensorInfo& tensorInfo) = default;
     TensorInfo& operator=(TensorInfo&& tensorInfo) = default;

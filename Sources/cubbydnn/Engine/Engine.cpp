@@ -180,15 +180,15 @@ UnitIdentifier Engine::Multiply(const UnitIdentifier& unitA,
     const auto shapeA = tensorInfoA.GetShape();
     const auto shapeB = tensorInfoB.GetShape();
 
-    assert(shapeA.Batch == shapeB.Batch);
-    assert(shapeA.Channel == shapeB.Channel);
-    assert(shapeA.Col == shapeB.Row);
+    if (shapeA.Col() != shapeB.Row())
+        throw std::runtime_error("Multiply-shape mismatch");
+    if (shapeA.BatchSize() != shapeB.BatchSize())
+        throw std::runtime_error("Batch size mismatch");
 
-    TensorInfo outputTensorInfo(
-        Shape(shapeA.Batch, shapeA.Channel, shapeA.Row, shapeB.Col));
+    const Shape outputShape = shapeA * shapeB;
 
     m_hiddenUnitVector.emplace_back(SharedPtr<MatMul>::Make(
-        tensorInfoA, tensorInfoB, outputTensorInfo, numberOfOutputs));
+        tensorInfoA, tensorInfoB,TensorInfo(outputShape) , numberOfOutputs));
 
     const UnitIdentifier unitIdentifier = { UnitType::Hidden, unitId };
     m_connectWithPreviousUnit({ unitA, unitB }, unitIdentifier);
