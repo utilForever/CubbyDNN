@@ -13,7 +13,7 @@ namespace CubbyDNN
 {
 Tensor::Tensor(void* Data, TensorInfo info)
     : DataPtr(Data),
-      Info(info)
+      Info(std::move(info))
 {
     Data = nullptr;
 }
@@ -25,7 +25,7 @@ Tensor::~Tensor()
 
 Tensor::Tensor(Tensor&& tensor) noexcept
     : DataPtr(tensor.DataPtr),
-      Info(tensor.Info)
+      Info(std::move(tensor.Info))
 {
     tensor.DataPtr = nullptr;
 }

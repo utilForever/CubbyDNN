@@ -18,12 +18,12 @@ class ComputeTensor
  public:
     template <typename T>
     static void BasicLoop(T* destPtr, T* sourcePtr,
-                          const std::function<T(T&)>& function, size_t size)
+                          const std::function<T(T&)>& function, std::size_t size)
     {
 #ifdef USE_OPENMP
 #pragma omp parallel default(none)
 #endif
-        for (size_t idx = 0; idx < size; ++idx)
+        for (std::size_t idx = 0; idx < size; ++idx)
         {
             destPtr[idx] = function(sourcePtr[idx]);
         }
@@ -31,16 +31,16 @@ class ComputeTensor
 
     template <typename T>
     static void Matmul(T* destPtr, const T* sourceA, const T* sourceB,
-                       size_t rowSizeA, size_t colSizeA, size_t rowSizeB,
-                       size_t colSizeB)
+                       std::size_t rowSizeA, std::size_t colSizeA, std::size_t rowSizeB,
+                       std::size_t colSizeB)
     {
         assert(colSizeA == rowSizeB);
-        constexpr size_t blockSize = 32;
-        for (size_t rowIdx = 0; rowIdx * blockSize < rowSizeA; ++rowIdx)
+        constexpr std::size_t blockSize = 32;
+        for (std::size_t rowIdx = 0; rowIdx * blockSize < rowSizeA; ++rowIdx)
         {
-            for (size_t colIdx = 0; colIdx * blockSize < colSizeB; ++colIdx)
+            for (std::size_t colIdx = 0; colIdx * blockSize < colSizeB; ++colIdx)
             {
-                for (size_t temp = 0; temp * blockSize < colSizeA; ++temp)
+                for (std::size_t temp = 0; temp * blockSize < colSizeA; ++temp)
                 {
                     m_matMulBlock<T>(destPtr, sourceA, sourceB, rowSizeA,
                                      colSizeA, rowSizeB, colSizeB, rowIdx,
@@ -52,15 +52,15 @@ class ComputeTensor
 
     template <typename T>
     static void NaiveMatmul(T* destPtr, const T* sourceA, const T* sourceB,
-                            size_t rowSizeA, size_t colSizeA, size_t rowSizeB,
-                            size_t colSizeB)
+                            std::size_t rowSizeA, std::size_t colSizeA, std::size_t rowSizeB,
+                            std::size_t colSizeB)
     {
         assert(colSizeA == rowSizeB);
-        for (size_t rowIdx = 0; rowIdx < rowSizeA; ++rowIdx)
+        for (std::size_t rowIdx = 0; rowIdx < rowSizeA; ++rowIdx)
         {
-            for (size_t colIdx = 0; colIdx < colSizeB; ++colIdx)
+            for (std::size_t colIdx = 0; colIdx < colSizeB; ++colIdx)
             {
-                for (size_t tempIdx = 0; tempIdx < colSizeA; ++tempIdx)
+                for (std::size_t tempIdx = 0; tempIdx < colSizeA; ++tempIdx)
                 {
                     *(destPtr + rowIdx * rowSizeA + colIdx) +=
                         *(sourceA + rowIdx * rowSizeA + tempIdx) *
@@ -72,12 +72,12 @@ class ComputeTensor
 
     template <typename T>
     static void NaiveTranspose(T* destPtr, const T* sourcePtr,
-                               size_t matrixSizeRow,
-                               size_t matrixSizeCol) noexcept
+                               std::size_t matrixSizeRow,
+                               std::size_t matrixSizeCol) noexcept
     {
-        for (size_t rowIdx = 0; rowIdx < matrixSizeRow; ++rowIdx)
+        for (std::size_t rowIdx = 0; rowIdx < matrixSizeRow; ++rowIdx)
         {
-            for (size_t colIdx = 0; colIdx < matrixSizeCol; ++colIdx)
+            for (std::size_t colIdx = 0; colIdx < matrixSizeCol; ++colIdx)
             {
                 *(destPtr + colIdx * matrixSizeCol + rowIdx) =
                     *(sourcePtr + rowIdx * matrixSizeRow + colIdx);
@@ -95,14 +95,14 @@ class ComputeTensor
      * @param matrixSizeCol : column size of source matrix
      */
     template <typename T>
-    static void Transpose(T* destPtr, const T* sourcePtr, size_t matrixSizeRow,
-                          size_t matrixSizeCol) noexcept
+    static void Transpose(T* destPtr, const T* sourcePtr, std::size_t matrixSizeRow,
+                          std::size_t matrixSizeCol) noexcept
     {
         /// optimized to intel skylake architecture
-        constexpr size_t blockSize = 32;
-        for (size_t rowIdx = 0; rowIdx * blockSize < matrixSizeRow; ++rowIdx)
+        constexpr std::size_t blockSize = 32;
+        for (std::size_t rowIdx = 0; rowIdx * blockSize < matrixSizeRow; ++rowIdx)
         {
-            for (size_t colIdx = 0; colIdx * blockSize < matrixSizeCol;
+            for (std::size_t colIdx = 0; colIdx * blockSize < matrixSizeCol;
                  ++colIdx)
             {
                 m_transPoseBlock<T>(destPtr, sourcePtr, matrixSizeRow,
@@ -120,14 +120,14 @@ class ComputeTensor
      * @param p
      */
     template <typename T>
-    static void Transpose2(T* dst, const T* src, size_t n, size_t p) noexcept
+    static void Transpose2(T* dst, const T* src, std::size_t n, std::size_t p) noexcept
     {
-        size_t block = 32;
-        for (size_t i = 0; i < n; i += block)
+        std::size_t block = 32;
+        for (std::size_t i = 0; i < n; i += block)
         {
-            for (size_t j = 0; j < p; ++j)
+            for (std::size_t j = 0; j < p; ++j)
             {
-                for (size_t b = 0; b < block && i + b < n; ++b)
+                for (std::size_t b = 0; b < block && i + b < n; ++b)
                 {
                     dst[j * n + i + b] = src[(i + b) * p + j];
                 }
@@ -149,22 +149,22 @@ class ComputeTensor
      */
     template <typename T>
     static void inline m_transPoseBlock(T* destPtr, const T* sourcePtr,
-                                        size_t matrixSizeRow,
-                                        size_t matrixSizeCol, size_t blockSize,
-                                        size_t blockIdxRow,
-                                        size_t blockIdxCol) noexcept
+                                        std::size_t matrixSizeRow,
+                                        std::size_t matrixSizeCol, std::size_t blockSize,
+                                        std::size_t blockIdxRow,
+                                        std::size_t blockIdxCol) noexcept
     {
-        size_t rowSize = (matrixSizeRow < (blockIdxRow + 1) * blockSize)
+        std::size_t rowSize = (matrixSizeRow < (blockIdxRow + 1) * blockSize)
                              ? matrixSizeRow - blockIdxRow * blockSize
                              : blockSize;
 
-        size_t colSize = (matrixSizeCol < (blockIdxCol + 1) * blockSize)
+        std::size_t colSize = (matrixSizeCol < (blockIdxCol + 1) * blockSize)
                              ? matrixSizeCol - blockIdxCol * blockSize
                              : blockSize;
 
-        for (size_t blockRowIdx = 0; blockRowIdx < rowSize; ++blockRowIdx)
+        for (std::size_t blockRowIdx = 0; blockRowIdx < rowSize; ++blockRowIdx)
         {
-            for (size_t blockColIdx = 0; blockColIdx < colSize; ++blockColIdx)
+            for (std::size_t blockColIdx = 0; blockColIdx < colSize; ++blockColIdx)
             {
                 *(destPtr +
                   (blockIdxCol * blockSize + blockColIdx) * matrixSizeCol +
@@ -178,32 +178,32 @@ class ComputeTensor
 
     template <typename T>
     static void inline m_matMulBlock(T* destPtr, const T* sourcePtr1,
-                                     const T* sourcePtr2, size_t rowSizeA,
-                                     size_t colSizeA, size_t rowSizeB,
-                                     size_t colSizeB, size_t blockIdxRow,
-                                     size_t blockIdxCol, size_t blockIdxTemp,
-                                     size_t blockSize) noexcept
+                                     const T* sourcePtr2, std::size_t rowSizeA,
+                                     std::size_t colSizeA, std::size_t rowSizeB,
+                                     std::size_t colSizeB, std::size_t blockIdxRow,
+                                     std::size_t blockIdxCol, std::size_t blockIdxTemp,
+                                     std::size_t blockSize) noexcept
     {
-        size_t rowSize = (rowSizeA < (blockIdxRow + 1) * blockSize)
+        std::size_t rowSize = (rowSizeA < (blockIdxRow + 1) * blockSize)
                              ? rowSizeA - blockIdxRow * blockSize
                              : blockSize;
 
-        size_t colSize = (colSizeB < (blockIdxCol + 1) * blockSize)
+        std::size_t colSize = (colSizeB < (blockIdxCol + 1) * blockSize)
                              ? colSizeB - blockIdxCol * blockSize
                              : blockSize;
 
-        size_t tempSize = (colSizeA < (blockIdxTemp + 1) * blockSize)
+        std::size_t tempSize = (colSizeA < (blockIdxTemp + 1) * blockSize)
                               ? colSizeA - blockIdxTemp * blockSize
                               : blockSize;
 
-        for (size_t blockRowIdx = 0; blockRowIdx < rowSize; ++blockRowIdx)
+        for (std::size_t blockRowIdx = 0; blockRowIdx < rowSize; ++blockRowIdx)
         {
-            for (size_t blockColIdx = 0; blockColIdx < colSize; ++blockColIdx)
+            for (std::size_t blockColIdx = 0; blockColIdx < colSize; ++blockColIdx)
             {
                 T* dest = (destPtr +
                            (blockIdxRow * blockSize + blockRowIdx) * rowSizeA +
                            (blockIdxCol * blockSize + blockColIdx));
-                for (size_t tempIdx = 0; tempIdx < tempSize; ++tempIdx)
+                for (std::size_t tempIdx = 0; tempIdx < tempSize; ++tempIdx)
                 {
                     *dest +=
                         *(sourcePtr1 +
@@ -218,7 +218,7 @@ class ComputeTensor
     }
 
     template <typename T>
-    static constexpr T m_pow(T num, size_t pow)
+    static constexpr T m_pow(T num, std::size_t pow)
     {
         return (pow >= sizeof(unsigned int) * 8)
                    ? 0

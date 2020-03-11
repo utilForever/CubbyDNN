@@ -46,9 +46,9 @@ public:
 
     ~MatMul() = default;
 
-    MatMul(const MatMul& matmul) = delete;
+    MatMul(const MatMul& matMul) = delete;
 
-    MatMul& operator=(const MatMul& matmul) = delete;
+    MatMul& operator=(const MatMul& matMul) = delete;
 
     void Compute() override;
 };

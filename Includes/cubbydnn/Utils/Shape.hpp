@@ -15,7 +15,7 @@ namespace CubbyDNN
 class Shape
 {
 public:
-    Shape() = default;
+    Shape();
     ~Shape() = default;
 
     Shape(std::initializer_list<std::size_t> shape);
@@ -31,7 +31,9 @@ public:
     Shape operator*(const Shape& shape) const;
 
     void Expand(std::size_t rank);
+
     void Shrink();
+
     void Squeeze();
 
     [[nodiscard]] std::size_t Dim() const;
@@ -46,7 +48,7 @@ public:
         return !(lhs == rhs);
     }
 
-    [[nodiscard]] std::size_t TotalSize() const;
+    [[nodiscard]] std::size_t TotalSize() const noexcept;
 
     [[nodiscard]] std::size_t Offset(std::vector<std::size_t> index) const
     noexcept;
@@ -55,7 +57,7 @@ public:
 
     [[nodiscard]] std::size_t MatrixSize() const;
 
-    [[nodiscard]] std::size_t PaddingSize() const
+    [[nodiscard]] std::size_t PadSize() const
     {
         return m_padding;
     }
@@ -66,12 +68,12 @@ public:
 
     [[nodiscard]] std::size_t Row() const
     {
-        return m_shapeVector.at(0);
+        return m_shapeVector.at(1);
     }
 
     [[nodiscard]] std::size_t Col() const
     {
-        return m_shapeVector.at(1);
+        return m_shapeVector.at(0);
     }
 
     void Reshape(std::initializer_list<std::size_t> newShape);

@@ -44,17 +44,17 @@ void TensorMul(const Tensor& inputA, const Tensor& inputB,
             const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
                 static_cast<T*>(inputA.DataPtr) + batchIdx * matrixSizeA,
                 inputShapeA.Row(), inputShapeA.Col(),
-                inputShapeA.PaddingSize());
+                inputShapeA.PadSize());
 
             const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
                 static_cast<T*>(inputB.DataPtr) + batchIdx * matrixSizeB,
                 inputShapeB.Row(), inputShapeB.Col(),
-                inputShapeB.PaddingSize());
+                inputShapeB.PadSize());
 
             CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
                 static_cast<T*>(output.DataPtr) + batchIdx * matrixSizeOut,
                 outputShape.Row(), outputShape.Col(),
-                outputShape.PaddingSize());
+                outputShape.PadSize());
 
             Out = A * B;
         }
@@ -102,17 +102,17 @@ void TensorAdd(const Tensor& inputA, const Tensor& inputB, Tensor& output)
             const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
                 static_cast<T*>(inputA.DataPtr) + batchIdx * matrixSizeA,
                 inputShapeA.Row(), inputShapeB.Col(),
-                inputShapeA.PaddingSize());
+                inputShapeA.PadSize());
 
             const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
                 static_cast<T*>(inputB.DataPtr) + batchIdx * matrixSizeB,
                 inputShapeB.Row(), inputShapeB.Col(),
-                inputShapeB.PaddingSize());
+                inputShapeB.PadSize());
 
             CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
                 static_cast<T*>(output.DataPtr) + batchIdx * matrixSizeOut,
                 outputShape.Row(), outputShape.Col(),
-                outputShape.PaddingSize());
+                outputShape.PadSize());
 
             Out = A + B;
         }
@@ -153,13 +153,13 @@ void TensorTranspose(const Tensor& input, Tensor& output)
                 static_cast<T*>(input.DataPtr) +
                 batchIdx * inputShape.PaddedMatrixSize(),
                 inputShape.Row(), inputShape.Col(),
-                inputShape.PaddingSize());
+                inputShape.PadSize());
 
             CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
                 static_cast<T*>(output.DataPtr) +
                 batchIdx * outputShape.PaddedMatrixSize(),
                 outputShape.Row(), outputShape.Col(),
-                outputShape.PaddingSize());
+                outputShape.PadSize());
 
             Out = blaze::trans(A);
         }
@@ -170,21 +170,16 @@ void TensorTranspose(const Tensor& input, Tensor& output)
                 static_cast<T*>(input.DataPtr) +
                 batchIdx * inputShape.PaddedMatrixSize(),
                 inputShape.Row(), inputShape.Col(),
-                inputShape.PaddingSize());
+                inputShape.PadSize());
 
             CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> Out(
                 static_cast<T*>(output.DataPtr) +
                 batchIdx * outputShape.PaddedMatrixSize(),
                 outputShape.Row(), outputShape.Col(),
-                outputShape.PaddingSize());
+                outputShape.PadSize());
 
             Out = blaze::trans(A);
         }
-}
-
-template <typename T>
-void TensorReshape(const Tensor& input, Tensor& output)
-{
 }
 } // namespace CubbyDNN
 

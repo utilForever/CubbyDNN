@@ -83,7 +83,7 @@ void MultiplyGraphTestParallel(std::size_t batchSize, std::size_t channelSize,
     const auto testFunction = [batchSize, channelSize](
         const Tensor& tensor, std::size_t epoch)
     {
-        epoch;
+        std::cout << "epoch: " << epoch << std::endl;
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
                 for (std::size_t rowIdx = 0; rowIdx < 2; ++rowIdx)

@@ -4,7 +4,6 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cassert>
 #include <cubbydnn/Computations/Functions/Matrix.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 

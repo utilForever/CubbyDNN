@@ -8,6 +8,12 @@
 
 namespace CubbyDNN
 {
+Shape::Shape()
+    : m_shapeVector({1,1}),
+      m_padding(0)
+{
+}
+
 Shape::Shape(std::initializer_list<std::size_t> shape)
     : m_shapeVector(shape)
 {
@@ -25,8 +31,9 @@ Shape::Shape(Shape&& shape) noexcept
 
 Shape& Shape::operator=(const Shape& shape)
 {
-    if (this != &shape)
-        m_shapeVector = shape.m_shapeVector;
+    if (this == &shape)
+        return *this;
+    m_shapeVector = shape.m_shapeVector;
     return *this;
 }
 
@@ -49,7 +56,7 @@ Shape Shape::operator*(const Shape& shape) const
         throw std::runtime_error("Multiply-shape mismatch");
     if (this->BatchSize() != shape.BatchSize())
         throw std::runtime_error("Batch size mismatch");
-    if (this->PaddingSize() != shape.PaddingSize())
+    if (this->PadSize() != shape.PadSize())
         throw std::runtime_error("Padding size mismatch");
 
     std::vector<std::size_t> shapeVector;
@@ -65,7 +72,7 @@ Shape Shape::operator*(const Shape& shape) const
 
     Shape derivedShape;
     derivedShape.m_shapeVector = shapeVector;
-    derivedShape.m_padding = shape.PaddingSize();
+    derivedShape.m_padding = shape.PadSize();
     return derivedShape;
 }
 
@@ -91,11 +98,13 @@ void Shape::Squeeze()
     for (auto i : m_shapeVector)
         if (i != 1)
             newDim.emplace_back(i);
+    while (newDim.size() < 2)
+        newDim.emplace_back(1);
 
     m_shapeVector = newDim;
 }
 
-std::size_t Shape::TotalSize() const
+std::size_t Shape::TotalSize() const noexcept
 {
     std::size_t size = 1;
     for (auto i : m_shapeVector)
@@ -159,7 +168,7 @@ std::size_t Shape::MatrixSize() const
 std::size_t Shape::PaddedMatrixSize() const
 {
     if (m_padding > 0)
-        return m_shapeVector.at(0) * m_padding;
+        return m_shapeVector.at(1) * m_padding;
     return m_shapeVector.at(0) * m_shapeVector.at(1);
 }
 
