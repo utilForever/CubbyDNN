@@ -4,6 +4,9 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+#ifndef CUBBYDNN_INITIALIZER_HPP
+#define CUBBYDNN_INITIALIZER_HPP
+
 #include <cmath>
 #include <cubbydnn/Utils/Shape.hpp>
 #include <random>
@@ -131,3 +134,4 @@ void Ones(const Shape& shape, T* data)
             }
 }
 } // namespace CubbyDNN
+#endif

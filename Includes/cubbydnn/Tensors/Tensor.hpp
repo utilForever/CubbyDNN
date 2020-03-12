@@ -8,8 +8,6 @@
 #define CUBBYDNN_TENSOR_DATA_HPP
 
 #include <cubbydnn/Tensors/TensorInfo.hpp>
-
-
 #include <cstring>
 #include <memory>
 

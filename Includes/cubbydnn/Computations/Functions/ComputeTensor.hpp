@@ -20,9 +20,6 @@ class ComputeTensor
     static void BasicLoop(T* destPtr, T* sourcePtr,
                           const std::function<T(T&)>& function, std::size_t size)
     {
-#ifdef USE_OPENMP
-#pragma omp parallel default(none)
-#endif
         for (std::size_t idx = 0; idx < size; ++idx)
         {
             destPtr[idx] = function(sourcePtr[idx]);

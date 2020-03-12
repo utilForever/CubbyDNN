@@ -24,14 +24,19 @@ void MultiplyOp(const Tensor& inputA, const Tensor& inputB, Tensor& output)
             TensorMul<float>(inputA, inputB, output);
             break;
         case NumberSystem::Int64:
-            TensorMul<long>(inputA, inputB, output);
+            TensorMul<std::int64_t>(inputA, inputB, output);
             break;
         case NumberSystem::Int32:
-            TensorMul<int>(inputA, inputB, output);
+            TensorMul<std::int32_t>(inputA, inputB, output);
             break;
-
+        case NumberSystem::Int16:
+            TensorMul<std::int16_t>(inputA, inputB, output);
+            break;
+        case NumberSystem::Int8:
+            TensorMul<std::int8_t>(inputA, inputB, output);
+            break;
         default:
-            assert(false && "UnsupportedNumberSystemError");
+            throw std::runtime_error("UnsupportedNumberSystemError");
     }
 }
 
@@ -50,13 +55,19 @@ void AddOp(const Tensor& inputA, const Tensor& inputB, Tensor& output)
             TensorAdd<float>(inputA, inputB, output);
             break;
         case NumberSystem::Int64:
-            TensorAdd<long>(inputA, inputB, output);
+            TensorAdd<std::int64_t>(inputA, inputB, output);
             break;
         case NumberSystem::Int32:
-            TensorAdd<int>(inputA, inputB, output);
+            TensorAdd<std::int32_t>(inputA, inputB, output);
+            break;
+        case NumberSystem::Int16:
+            TensorAdd<std::int16_t>(inputA, inputB, output);
+            break;
+        case NumberSystem::Int8:
+            TensorAdd<std::int8_t>(inputA, inputB, output);
             break;
         default:
-            assert(false && "UnsupportedNumberSystemError");
+            throw std::runtime_error("UnsupportedNumberSystemError");
     }
 }
 
