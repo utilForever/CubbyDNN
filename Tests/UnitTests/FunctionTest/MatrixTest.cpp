@@ -6,17 +6,18 @@
 
 #include "MatrixTest.hpp"
 #include "gtest/gtest.h"
-#include <cubbydnn/Computations/Functions/Matrix.hpp>
+#include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
 #include <iostream>
+#include "cubbydnn/Tensors/Tensor.hpp"
 
 namespace CubbyDNN
 {
 void TestMatMul()
 {
     Tensor tensorA =
-        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float));
     Tensor tensorB =
-        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float));
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 4.0f);
     SetData<float>({ 0, 0, 1, 1 }, tensorA, 4.0f);
@@ -27,9 +28,11 @@ void TestMatMul()
     SetData<float>({ 0, 0, 2, 2 }, tensorB, 4.0f);
 
     Tensor output =
-        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float));
 
-    MultiplyOp(tensorA, tensorB, output);
+    NaiveOperation naiveOperation;
+
+    naiveOperation.Multiply(tensorA, tensorB, output);
 
     for (size_t i = 0; i < 3; i++)
     {
@@ -49,9 +52,9 @@ void TestMatMul()
 void TestMatMul2()
 {
     Tensor tensorA =
-        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float));
     Tensor tensorB =
-        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float));
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 2.0f);
     SetData<float>({ 0, 0, 0, 1 }, tensorA, 2.0f);
@@ -74,9 +77,11 @@ void TestMatMul2()
     SetData<float>({ 0, 0, 2, 2 }, tensorB, 2.0f);
 
     Tensor output =
-        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 1, 1, 3, 3 }, NumberSystem::Float));
 
-    MultiplyOp(tensorA, tensorB, output);
+    NaiveOperation naiveOperation;
+
+    naiveOperation.Multiply(tensorA, tensorB, output);
 
     for (size_t i = 0; i < 3; i++)
     {
@@ -93,9 +98,9 @@ void TestMatMul2()
 void TestMatMul3()
 {
     Tensor tensorA =
-        AllocateTensor(TensorInfo({ 2, 2, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 2, 2, 3, 3 }, NumberSystem::Float));
     Tensor tensorB =
-        AllocateTensor(TensorInfo({ 2, 2, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 2, 2, 3, 3 }, NumberSystem::Float));
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 3.0f);
     SetData<float>({ 0, 0, 0, 1 }, tensorA, 3.0f);
@@ -178,9 +183,11 @@ void TestMatMul3()
     SetData<float>({ 1, 1, 2, 2 }, tensorB, 3.0f);
 
     Tensor output =
-        AllocateTensor(TensorInfo({ 2, 2, 3, 3 }, NumberSystem::Float32));
+        AllocateTensor(TensorInfo({ 2, 2, 3, 3 }, NumberSystem::Float));
 
-    MultiplyOp(tensorA, tensorB, output);
+    NaiveOperation naiveOperation;
+
+    naiveOperation.Multiply(tensorA, tensorB, output);
 
     for (size_t batchIdx = 0; batchIdx < 2; ++batchIdx)
         for (size_t channelIdx = 0; channelIdx < 2; ++channelIdx)

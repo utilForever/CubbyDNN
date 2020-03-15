@@ -7,7 +7,6 @@
 #include <cubbydnn/Engine/Engine.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 #include "gtest/gtest.h"
-#include <cstdlib>
 #include <blaze/Blaze.h>
 
 namespace CubbyDNN

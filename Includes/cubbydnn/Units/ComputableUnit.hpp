@@ -106,8 +106,6 @@ protected:
     std::vector<Tensor> m_inputTensorVector;
     std::vector<Tensor> m_outputTensorVector;
 
-    Tensor m_tensor = Tensor(nullptr, TensorInfo({ 1, 1, 1, 1 }));
-
 private:
     std::size_t m_outputVectorIndex = 0;
 };

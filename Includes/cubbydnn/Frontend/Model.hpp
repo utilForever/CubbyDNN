@@ -23,14 +23,14 @@ struct Unit
     TensorInfo OutputTensorInfo;
     std::vector<size_t> InputIdVector;
     size_t ID = 0;
-    Initializer Init = Initializer::None;
+    InitializerType Init = InitializerType::None;
     void* Data = nullptr;
 };
 
 class Model
 {
 public:
-    Model(NumberSystem numberSystem = NumberSystem::Float32);
+    Model(NumberSystem numberSystem = NumberSystem::Float);
 
     Unit Constant(Shape shape, void* data);
 
@@ -47,10 +47,10 @@ public:
     Unit Mul(const Unit& inputA, const Unit& inputB);
 
     Unit Dense(const Unit& previous, size_t units, bool use_bias = true,
-               Initializer kernelInitializer = Initializer::Xavier,
-               Initializer biasInitializer = Initializer::Zeros);
+               InitializerType kernelInitializer = InitializerType::Xavier,
+               InitializerType biasInitializer = InitializerType::Zeros);
 
-    Unit Activate(const Unit& previous, Activation activation);
+    Unit Activate(const Unit& previous, ActivationType activation);
 
     Unit Dropout(Unit previous, float rate);
 
@@ -60,8 +60,8 @@ public:
 
     Unit Conv(Unit previous, size_t filters, Shape kernelSize, Shape strides,
                 Padding padding, size_t dilationRate = 1, bool use_bias = true,
-                Initializer kernelInitializer = Initializer::Xavier,
-                Initializer biasInitializer = Initializer::Zeros);
+                InitializerType kernelInitializer = InitializerType::Xavier,
+                InitializerType biasInitializer = InitializerType::Zeros);
 
     Unit MaxPooling(Shape poolSize, Shape strides, Padding padding);
 

@@ -26,9 +26,14 @@ public:
     Shape& operator=(const Shape& shape);
     Shape& operator=(Shape&& shape) noexcept;
 
-    std::size_t operator[](std::size_t index) const;
+    std::size_t& operator[](std::size_t index);
 
     Shape operator*(const Shape& shape) const;
+
+    [[nodiscard]] std::size_t At(std::size_t index) const
+    {
+        return m_shapeVector.at(index);
+    }
 
     void Expand(std::size_t rank);
 
@@ -74,6 +79,16 @@ public:
     [[nodiscard]] std::size_t Col() const
     {
         return m_shapeVector.at(0);
+    }
+
+    void SetRow(std::size_t row)
+    {
+        m_shapeVector.at(1) = row;
+    }
+
+    void SetCol(std::size_t col)
+    {
+        m_shapeVector.at(0) = col;
     }
 
     void Reshape(std::initializer_list<std::size_t> newShape);

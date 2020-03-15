@@ -14,9 +14,9 @@ namespace CubbyDNN
 {
 class Initializer
 {
-    static void RandomNormal(Tensor& tensor, double mean, double stddev);
+    static void RandomNormal(Tensor& tensor, float mean, float stddev);
 
-    static void RandomUniform(Tensor& tensor, double min, double max);
+    static void RandomUniform(Tensor& tensor, float min, float max);
 
     static void XavierNormal(Tensor& tensor);
 

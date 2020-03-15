@@ -22,10 +22,9 @@ ComputableUnit::ComputableUnit(ComputableUnit&& other) noexcept
       m_outputPtrVector(std::move(other.m_outputPtrVector)),
       m_logVector(std::move(other.m_logVector)),
       m_inputTensorInfoVector(std::move(other.m_inputTensorInfoVector)),
-      m_outputTensorInfo(other.m_outputTensorInfo),
+      m_outputTensorInfo(std::move(other.m_outputTensorInfo)),
       m_inputTensorVector(std::move(other.m_inputTensorVector)),
       m_outputTensorVector(std::move(other.m_outputTensorVector)),
-      m_tensor(std::move(other.m_tensor)),
       m_outputVectorIndex(other.m_outputVectorIndex)
 {
 }
@@ -42,7 +41,6 @@ ComputableUnit& ComputableUnit::operator=(ComputableUnit&& other) noexcept
     m_outputTensorInfo = other.m_outputTensorInfo;
     m_inputTensorVector = std::move(other.m_inputTensorVector);
     m_outputTensorVector = std::move(other.m_outputTensorVector);
-    m_tensor = std::move(other.m_tensor);
     m_outputVectorIndex = other.m_outputVectorIndex;
     return *this;
 }

@@ -43,10 +43,12 @@ Shape& Shape::operator=(Shape&& shape) noexcept
     return *this;
 }
 
-std::size_t Shape::operator[](std::size_t index) const
+std::size_t& Shape::operator[](std::size_t index)
 {
     return m_shapeVector.at(index);
 }
+
+
 
 Shape Shape::operator*(const Shape& shape) const
 {

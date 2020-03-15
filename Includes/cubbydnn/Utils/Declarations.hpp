@@ -15,33 +15,9 @@ namespace CubbyDNN
 
 enum class NumberSystem
 {
-    Float16,
-    Float32,
-    Float64,
-    Int8,
-    Int16,
-    Int32,
-    Int64,
+    Float,
+    Int,
 };
-
-enum class ShapeAlignment
-{
-    // Batch, Channel, height, Width
-    NCHW,
-    // Batch, Height Channel, Width
-    NHCW,
-    // Batch, Row, Column
-    NRC,
-    // Batch, Column, Row
-    NCR,
-    // Batch, Row
-    NR,
-    // Batch, Column
-    NC,
-    // Not specified
-    None,
-};
-
 enum class UnitType
 {
     None,
@@ -91,7 +67,7 @@ struct UnitIdentifier
     std::size_t ID;
 };
 
-enum class Activation
+enum class ActivationType
 {
     Sigmoid,
     Relu,
@@ -105,7 +81,7 @@ enum class Activation
     Linear,
 };
 
-enum class Initializer
+enum class InitializerType
 {
     None,
     Zeros,

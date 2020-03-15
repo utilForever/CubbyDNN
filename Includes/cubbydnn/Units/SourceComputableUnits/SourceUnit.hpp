@@ -16,7 +16,7 @@ namespace CubbyDNN
 //! or generator
 class SourceUnit : public ComputableUnit
 {
- public:
+public:
     //! Constructor
     //! \param output : TensorInfo of the output
     //! \param numberOfOutputs : number of connections to this source unit
@@ -31,9 +31,9 @@ class SourceUnit : public ComputableUnit
     SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
     SourceUnit& operator=(SourceUnit&& sourceUnit) noexcept;
 
-        //! Checks if source is ready
-        //! \return : true if ready to be computed false otherwise
-        bool IsReady() final;
+    //! Checks if source is ready
+    //! \return : true if ready to be computed false otherwise
+    bool IsReady() final;
 
     void Compute() override
     {
@@ -42,7 +42,7 @@ class SourceUnit : public ComputableUnit
 
 class ConstantUnit : public SourceUnit
 {
- public:
+public:
     explicit ConstantUnit(TensorInfo output, int numberOfOutputs,
                           void* dataPtr);
     ~ConstantUnit();
@@ -55,10 +55,10 @@ class ConstantUnit : public SourceUnit
     ConstantUnit& operator=(const ConstantUnit& sourceUnit) = delete;
     ConstantUnit& operator=(ConstantUnit&& constantUnit) noexcept;
 
- private:
+private:
     void* m_dataPtr = nullptr;
     size_t m_byteSize = 0;
 };
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif  // CUBBYDNN_SOURCEUNIT_HPP

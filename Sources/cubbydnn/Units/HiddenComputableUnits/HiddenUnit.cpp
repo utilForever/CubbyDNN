@@ -4,14 +4,14 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Computations/Functions/Matrix.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 
 namespace CubbyDNN
 {
 HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                        TensorInfo outputTensorInfo, std::size_t numberOfOutputs)
-    : ComputableUnit(std::move(inputTensorInfoVector), outputTensorInfo,
+    : ComputableUnit(std::move(inputTensorInfoVector),
+                     std::move(outputTensorInfo),
                      UnitType::Hidden)
 {
     m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(numberOfOutputs);
@@ -29,6 +29,19 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
     {
         m_outputTensorVector.emplace_back(AllocateTensor(m_outputTensorInfo));
     }
+}
+
+HiddenUnit::HiddenUnit(HiddenUnit&& hiddenUnit) noexcept
+    : ComputableUnit(std::move(hiddenUnit))
+{
+    m_tensorOperation = std::move(hiddenUnit.m_tensorOperation);
+}
+
+HiddenUnit& HiddenUnit::operator=(HiddenUnit&& hiddenUnit) noexcept
+{
+    m_tensorOperation = std::move(hiddenUnit.m_tensorOperation);
+    ComputableUnit::operator=(std::move(hiddenUnit));
+    return *this;
 }
 
 bool HiddenUnit::IsReady()
@@ -52,22 +65,22 @@ MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
                const TensorInfo& output, std::size_t numberOfOutputs)
     : HiddenUnit({ inputA, inputB }, output, numberOfOutputs)
 {
-    const auto& shapeA = inputA.GetShape();
-    const auto& shapeB = inputB.GetShape();
+    auto& shapeA = inputA.GetShape();
+    auto& shapeB = inputB.GetShape();
 
     if (shapeA.Dim() != shapeB.Dim())
         throw std::runtime_error("Multiply - dimension mismatch");
 
     if (shapeA.Dim() > 1)
     {
-        if (shapeA[shapeA.Dim()] != shapeB[shapeB.Dim() - 1])
+        if (shapeA.Col() != shapeB.Row())
             throw std::runtime_error(
                 "Multiply- number of columns of A and number of rows of B must "
                 "be "
                 "identical");
 
         for (std::size_t i = 0; i < shapeA.Dim() - 2; ++i)
-            if (shapeA[i] != shapeB[i])
+            if (shapeA.At(i) != shapeB.At(i))
                 throw std::runtime_error("Multiply -shape mismatch");
     }
     else
@@ -77,7 +90,8 @@ MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
 
 void MatMul::Compute()
 {
-    MultiplyOp(m_inputTensorVector.at(0), m_inputTensorVector.at(1),
-               m_outputTensorVector.at(0));
+    m_tensorOperation->Multiply(m_inputTensorVector.at(0),
+                                m_inputTensorVector.at(1),
+                                m_outputTensorVector.at(0));
 }
 } // namespace CubbyDNN

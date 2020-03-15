@@ -21,7 +21,7 @@ public:
     static std::map<NumberSystem, size_t> UnitByteSizeMap;
 
     TensorInfo() = default;
-    TensorInfo(Shape shape, NumberSystem numberSystem = NumberSystem::Float32);
+    TensorInfo(Shape shape, NumberSystem numberSystem = NumberSystem::Float);
     ~TensorInfo() = default;
 
     TensorInfo(const TensorInfo& tensorInfo) = default;
@@ -55,7 +55,7 @@ public:
 private:
     Shape m_shape;
     size_t m_unitByteSize = 0;
-    NumberSystem m_numberSystem = NumberSystem::Float32;
+    NumberSystem m_numberSystem = NumberSystem::Float;
 };
 } // namespace CubbyDNN
 

@@ -4,16 +4,13 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cstdio>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
 namespace CubbyDNN
 {
 std::map<NumberSystem, std::size_t> TensorInfo::UnitByteSizeMap = {
-    { NumberSystem::Float16, 16 }, { NumberSystem::Float32, 32 },
-    { NumberSystem::Float64, 64 }, { NumberSystem::Int8, 8 },
-    { NumberSystem::Int16, 16 }, { NumberSystem::Int32, 32 },
-    { NumberSystem::Int64, 64 },
+    { NumberSystem::Float, sizeof(float) },
+    { NumberSystem::Int, sizeof(int) },
 };
 
 TensorInfo::TensorInfo(Shape shape,

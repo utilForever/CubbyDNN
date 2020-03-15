@@ -15,6 +15,7 @@ namespace CubbyDNN
 {
 class InitializerOperations
 {
+public:
     template <typename T>
     static void RandomNormal(const Shape& shape, T mean, T stddev, T* data)
     {
@@ -40,7 +41,7 @@ class InitializerOperations
                 }
     }
 
-     template <typename T>
+    template <typename T>
     static void RandomUniform(const Shape& shape, T min, T max, T* data)
     {
         std::random_device rd;
@@ -86,7 +87,7 @@ class InitializerOperations
         std::random_device rd;
         std::mt19937 engine(rd());
         const auto fanIn = shape.Row();
-        const auto stddev = 1 / sqrt(static_cast<T>(fanIn));
+        const auto stddev = static_cast<T>(1 / sqrt(static_cast<T>(fanIn)));
         std::normal_distribution<T> normal(0, stddev);
 
         const auto matrixSize = shape.PaddedMatrixSize();
@@ -113,7 +114,7 @@ class InitializerOperations
         std::random_device rd;
         std::mt19937 engine(rd());
         const auto fanIn = shape.Row();
-        const auto range = sqrt(3 / static_cast<T>(fanIn));
+        const auto range = static_cast<T>(sqrt(3 / static_cast<T>(fanIn)));
 
         const auto matrixSize = shape.PaddedMatrixSize();
         const auto batchSize = shape.BatchSize();
@@ -157,7 +158,8 @@ class InitializerOperations
 
         const auto fanIn = shape.Row();
         const auto fanOut = shape.Col();
-        const auto stddev = sqrt(2 / static_cast<T>(fanIn + fanOut));
+        const auto stddev = static_cast<T>(sqrt(
+            2 / static_cast<T>(fanIn + fanOut)));
 
         std::normal_distribution<T> normal(0, stddev);
         const auto matrixSize = shape.PaddedMatrixSize();
@@ -186,7 +188,8 @@ class InitializerOperations
 
         const auto fanIn = shape.Row();
         const auto fanOut = shape.Col();
-        const auto range = sqrt(6 / static_cast<T>(fanIn + fanOut));
+        const auto range =
+            static_cast<T>(sqrt(6 / static_cast<T>(fanIn + fanOut)));
 
         const auto matrixSize = shape.PaddedMatrixSize();
         const auto batchSize = shape.BatchSize();
@@ -229,7 +232,7 @@ class InitializerOperations
         std::mt19937 engine(rd());
 
         const auto fanIn = shape.Row();
-        const auto stddev = sqrt(2 / static_cast<T>(fanIn));
+        const auto stddev = static_cast<T>(sqrt(2 / static_cast<T>(fanIn)));
 
         std::normal_distribution<T> normal(0, stddev);
         const auto matrixSize = shape.PaddedMatrixSize();
@@ -257,7 +260,7 @@ class InitializerOperations
         std::mt19937 engine(rd());
 
         const auto fanIn = shape.Row();
-        const auto range = sqrt(6 / static_cast<T>(fanIn));
+        const auto range = static_cast<T>(sqrt(6 / static_cast<T>(fanIn)));
 
         const auto matrixSize = shape.PaddedMatrixSize();
         const auto batchSize = shape.BatchSize();
@@ -335,5 +338,5 @@ class InitializerOperations
                 }
     }
 };
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 #endif
