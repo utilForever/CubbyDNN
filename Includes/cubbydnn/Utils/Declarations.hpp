@@ -11,8 +11,6 @@
 
 namespace CubbyDNN
 {
-//! Type and Shape declrations
-
 enum class NumberSystem
 {
     Float,

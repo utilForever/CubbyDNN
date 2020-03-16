@@ -39,6 +39,16 @@ public:
         //std::cout << "hiddenUnit" << std::endl;
     }
 
+    //! Forward propagation
+    virtual void Forward()
+    {
+    }
+
+    //! Backward propagation
+    virtual void Backward()
+    {
+    }
+
 protected:
     std::unique_ptr<TensorOperation> m_tensorOperation = std::unique_ptr<
         NaiveOperation>();

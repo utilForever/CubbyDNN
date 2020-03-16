@@ -23,9 +23,9 @@ class DenseUnit : HiddenUnit
     DenseUnit& operator=(const DenseUnit& dens) = delete;
     DenseUnit& operator=(DenseUnit&& dense) noexcept;
 
-    void Forward();
+    void Forward() override;
 
-    void Backward();
+    void Backward() override;
 
  private:
     std::size_t m_numUnits;
