@@ -25,9 +25,9 @@ CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
 
 void CopyUnit::Compute()
 {
-    auto& inputTensor = m_inputUnitPtr->GetOutputTensor(m_inputTensorIndex);
+    auto& inputTensor = m_inputUnitPtr->GetOutputForwardTensor();
 
-    auto& outputTensor = m_outputUnitPtr->GetInputTensor(m_outputTensorIndex);
+    auto& outputTensor = m_outputUnitPtr->GetInputForwardTensor(m_outputTensorIndex);
     Tensor::CopyTensor(inputTensor, outputTensor);
 }
 

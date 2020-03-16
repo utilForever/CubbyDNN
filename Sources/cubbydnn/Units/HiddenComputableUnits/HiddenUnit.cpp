@@ -5,30 +5,24 @@
 // property of any third parties.
 
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
+#include <cubbydnn/Utils/SharedPtr.hpp>
 
 namespace CubbyDNN
 {
 HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
                        TensorInfo outputTensorInfo, std::size_t numberOfOutputs)
-    : ComputableUnit(std::move(inputTensorInfoVector),
-                     std::move(outputTensorInfo),
-                     UnitType::Hidden)
+    : ComputableUnit(UnitType::Hidden),
+      m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
+      m_outputTensorInfo(std::move(outputTensorInfo))
 {
-    m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(numberOfOutputs);
-    m_inputPtrVector =
-        std::vector<SharedPtr<ComputableUnit>>(m_inputTensorInfoVector.size());
-
-    m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
+    m_inputForwardTensorVector.reserve(m_inputTensorInfoVector.size());
     for (auto& inputTensorInfo : m_inputTensorInfoVector)
     {
-        m_inputTensorVector.emplace_back(AllocateTensor(inputTensorInfo));
+        m_inputForwardTensorVector.
+            emplace_back(AllocateTensor(inputTensorInfo));
     }
 
-    m_outputTensorVector.reserve(numberOfOutputs);
-    for (std::size_t idx = 0; idx < numberOfOutputs; ++idx)
-    {
-        m_outputTensorVector.emplace_back(AllocateTensor(m_outputTensorInfo));
-    }
+    m_outputForwardTensor = AllocateTensor(m_outputTensorInfo);
 }
 
 HiddenUnit::HiddenUnit(HiddenUnit&& hiddenUnit) noexcept
@@ -61,37 +55,20 @@ bool HiddenUnit::IsReady()
     return true;
 }
 
-MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
-               const TensorInfo& output, std::size_t numberOfOutputs)
-    : HiddenUnit({ inputA, inputB }, output, numberOfOutputs)
+std::size_t HiddenUnit::AddOutputPtr(
+    const SharedPtr<ComputableUnit>& computableUnitPtr)
 {
-    auto& shapeA = inputA.GetShape();
-    auto& shapeB = inputB.GetShape();
-
-    if (shapeA.Dim() != shapeB.Dim())
-        throw std::runtime_error("Multiply - dimension mismatch");
-
-    if (shapeA.Dim() > 1)
-    {
-        if (shapeA.Col() != shapeB.Row())
-            throw std::runtime_error(
-                "Multiply- number of columns of A and number of rows of B must "
-                "be "
-                "identical");
-
-        for (std::size_t i = 0; i < shapeA.Dim() - 2; ++i)
-            if (shapeA.At(i) != shapeB.At(i))
-                throw std::runtime_error("Multiply -shape mismatch");
-    }
-    else
-        throw std::runtime_error(
-            "Multiply - Dimension must be equal or greater than 2");
+    m_outputPtrVector.emplace_back(computableUnitPtr);
+    return m_outputVectorIndex++;
 }
 
-void MatMul::Compute()
+void HiddenUnit::AddInputPtr(
+    const SharedPtr<ComputableUnit>& computableUnitPtr, std::size_t index)
 {
-    m_tensorOperation->Multiply(m_inputTensorVector.at(0),
-                                m_inputTensorVector.at(1),
-                                m_outputTensorVector.at(0));
+    if (index >= m_inputPtrVector.size())
+        throw std::runtime_error(
+            "Number of inputs exceeds number given from declaration");
+
+    m_inputPtrVector.at(index) = computableUnitPtr;
 }
 } // namespace CubbyDNN

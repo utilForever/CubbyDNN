@@ -10,6 +10,7 @@
 #include <cubbydnn/Units/ComputableUnit.hpp>
 #include <cubbydnn/Computations/TensorOperations/TensorOperations.hpp>
 #include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
+#include <cubbydnn/Utils/SharedPtr.hpp>
 #include <iostream>
 
 namespace CubbyDNN
@@ -31,13 +32,44 @@ public:
     HiddenUnit& operator=(const HiddenUnit& hiddenUnit) = delete;
     HiddenUnit& operator=(HiddenUnit&& hiddenUnit) noexcept;
 
+    //! Adds output computable unit ptr to ComputableUnit
+    //! \param computableUnitPtr : ptr to output computable unit
+    std::size_t AddOutputPtr(
+        const SharedPtr<ComputableUnit>& computableUnitPtr);
+
+    //! Adds input computable unit ptr to this ComputableUnit
+    //! \param computableUnitPtr : ptr to input computable unit
+    //! \param index : indicates order of input argument.
+    void AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr,
+                     std::size_t index);
+
+    virtual Tensor& GetInputForwardTensor(std::size_t index)
+    {
+        return m_inputForwardTensorVector.at(index);
+    }
+
+    virtual Tensor& GetOutputForwardTensor()
+    {
+        return m_outputForwardTensor;
+    }
+
+    virtual Tensor& GetInputBackwardTensor()
+    {
+        return m_inputBackwardTensor;
+    }
+
+    virtual Tensor& GetOutputBackwardTensor(std::size_t index)
+    {
+        return m_outputBackwardTensorVector.at(index);
+    }
+
+    TensorInfo GetOutputTensorInfo() const
+    {
+        return m_outputTensorInfo;
+    }
+
     //! Determines whether system is ready to compute
     bool IsReady() final;
-
-    void Compute() override
-    {
-        //std::cout << "hiddenUnit" << std::endl;
-    }
 
     //! Forward propagation
     virtual void Forward()
@@ -52,21 +84,28 @@ public:
 protected:
     std::unique_ptr<TensorOperation> m_tensorOperation = std::unique_ptr<
         NaiveOperation>();
-};
 
-class MatMul : public HiddenUnit
-{
-public:
-    MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
-           const TensorInfo& output, std::size_t numberOfOutputs);
-
-    ~MatMul() = default;
-
-    MatMul(const MatMul& matMul) = delete;
-
-    MatMul& operator=(const MatMul& matMul) = delete;
-
-    void Compute() override;
+private:
+    
+    /// ptr to units to receive result from
+    std::vector<SharedPtr<ComputableUnit>> m_inputPtrVector;
+    /// ptr to units to write result
+    std::vector<SharedPtr<ComputableUnit>> m_outputPtrVector;
+    /// vector to log states for debugging purpose
+    std::vector<std::string> m_logVector;
+    //! vector of tensor information for input in forward propagation
+    std::vector<TensorInfo> m_inputTensorInfoVector;
+    //! tensor information for output in forward propagation
+    TensorInfo m_outputTensorInfo;
+    //! vector of input tensors used to compute forward propagation
+    std::vector<Tensor> m_inputForwardTensorVector;
+    //! single output tensor of forward propagation
+    Tensor m_outputForwardTensor;
+    //! vector of output tensors used to compute back propagation
+    Tensor m_inputBackwardTensor;
+    //! single output tensor of back propagation
+    std::vector<Tensor> m_outputBackwardTensorVector;
+    std::size_t m_outputVectorIndex = 0;
 };
 } // namespace CubbyDNN
 

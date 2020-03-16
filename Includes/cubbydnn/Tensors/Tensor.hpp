@@ -18,6 +18,7 @@ namespace CubbyDNN
 //! \tparam T : type of data this tensorData contains
 struct Tensor
 {
+    Tensor() = default;
     Tensor(void* Data, TensorInfo info);
     ~Tensor();
 
@@ -29,7 +30,7 @@ struct Tensor
 
     static void CopyTensor(Tensor& source, Tensor& destination);
     /// Data vector which possesses actual data
-    void* DataPtr;
+    void* DataPtr = nullptr;
     /// Shape of this tensorData
     TensorInfo Info;
 };
