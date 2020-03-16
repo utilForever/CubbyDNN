@@ -4,17 +4,13 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+#ifndef CUBBYDNN_TASKQUEUETEST_HPP
+#define CUBBYDNN_TASKQUEUETEST_HPP
 
-#ifndef CUBBYDNN_FUNCTIONS_HPP
-#define CUBBYDNN_FUNCTIONS_HPP
 
-#include <functional>
-
-namespace CubbyDNN{
-    class Functions{
-
-        
-    };
+namespace CubbyDNN
+{
+void TaskQueueTest(int workers);
 }
 
-#endif //CUBBYDNN_FUNCTIONS_HPP
+#endif

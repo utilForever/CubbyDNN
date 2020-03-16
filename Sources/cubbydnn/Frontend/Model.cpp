@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Frontend/Model.hpp>
+#include <cassert>
 
 namespace CubbyDNN
 {
@@ -26,7 +27,7 @@ Unit Model::Variable(Shape shape)
     unit.OutputTensorInfo = { shape, m_numberSystem };
     // TODO : run Initializer here
     unit.Data = nullptr;
-    const auto id = m_unitVector.size();
+    //const auto id = m_unitVector.size();
     m_unitVector.emplace_back(unit);
     return unit;
 }
@@ -36,10 +37,6 @@ Unit Model::Add(const Unit& inputA, const Unit& inputB)
     const auto inputShapeA = inputA.OutputTensorInfo.GetShape();
     const auto inputShapeB = inputB.OutputTensorInfo.GetShape();
 
-    assert(inputShapeA.Row == inputShapeB.Row);
-    assert(inputShapeA.Col == inputShapeB.Col);
-    assert(inputShapeA.Channel == inputShapeB.Channel);
-    assert(inputShapeA.Batch == inputShapeB.Batch);
 
     const TensorInfo outputTensorInfo{ inputShapeA, m_numberSystem };
     Unit unit(UnitType::Add);
@@ -57,10 +54,6 @@ Unit Model::Mul(const Unit& inputA, const Unit& inputB)
     const auto inputShapeA = inputA.OutputTensorInfo.GetShape();
     const auto inputShapeB = inputB.OutputTensorInfo.GetShape();
 
-    assert(inputShapeA.Row == inputShapeB.Row);
-    assert(inputShapeA.Col == inputShapeB.Col);
-    assert(inputShapeA.Channel == inputShapeB.Channel);
-    assert(inputShapeA.Batch == inputShapeB.Batch);
 
     const TensorInfo outputTensorInfo{ inputShapeA, m_numberSystem };
     Unit unit(UnitType::Add);

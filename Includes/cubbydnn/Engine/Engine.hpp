@@ -13,6 +13,7 @@
 #include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
 #include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 #include <cubbydnn/Utils/SharedPtr.hpp>
+#include <cubbydnn/Engine/TaskWrapper.hpp>
 
 #include <functional>
 #include <thread>
@@ -20,61 +21,6 @@
 
 namespace CubbyDNN
 {
-//! Task wrapper for sending tasks to pending threads in the thread pool
-//! tasks are sent as function pointers and its type
-struct TaskWrapper
-{
-    TaskWrapper()
-        : Type(TaskType::None)
-    {
-    }
-
-    //! Constructor
-    //! \param type : type of this task
-    //! \param compute : function to execute the computation
-    //! \param updateState : function m_objectPtr that updates the unit states
-    //! next unit
-    //! TODO : Remove updateState if it can be unified to one function
-    TaskWrapper(TaskType type, std::function<void()> compute,
-                std::function<void()> updateState)
-        : Type(type),
-          m_compute(std::move(compute)),
-          m_updateState(std::move(updateState))
-    {
-    }
-
-    //! Automatically builds function that will execute main operation and
-    //! update its state
-    //! \return : lambda including main function and state updater
-    std::function<void()> GetTask()
-    {
-        auto& mainFunc = m_compute;
-        auto& updateState = m_updateState;
-        const auto combinedFunc = [mainFunc, updateState]()
-        {
-            mainFunc();
-            updateState();
-        };
-        return combinedFunc;
-    }
-
-    //! Gets lambda executing main function
-    //! \return : lambda including main function
-    std::function<void()> GetPureTask()
-    {
-        auto& mainFunc = m_compute;
-        return [mainFunc]() { mainFunc(); };
-    }
-
-    TaskType Type;
-
-private:
-    /// Function to execute in the thread queue
-    std::function<void(void)> m_compute;
-    /// Function used to update state of the ComputableUnit
-    std::function<void(void)> m_updateState;
-};
-
 //! Singleton class for maintaining threads that execute the program
 class Engine
 {
@@ -91,26 +37,16 @@ protected:
     //! \return : size of task queue
     static size_t TaskQueueSize()
     {
-        return m_mainTaskQueue.Size();
+        return m_taskQueue.Size();
     }
-
-    //! Scans sourceUnitVector, sinkUnitVector, intermediateUnitUnitVector
-    //! and pushes units ready to be executed in the mainTaskQueue
-    static void ScanUnitTasks();
-
 
 public:
 
     //! Execute the graph using single thread
-    static void StartExecution(size_t epochs);
+    static void Execute(size_t epochs);
 
-    //! Initializes thread pool
-    //! \param mainThreadSize : number of threads to assign to main operation
-    //! \param copyThreadSize : number of threads to assign to copy operation
-    //! \param epochs : number of epochs to execute the graph
-    //! concurrency)
-    static void StartExecution(size_t mainThreadSize, size_t copyThreadSize,
-                               size_t epochs);
+    //! Execute the graph using multiple workers
+    static void ExecuteParallel(size_t workers, size_t epochs);
 
     //! Joins threads in the thread queue and terminates the execution
     static void JoinThreads();
@@ -119,6 +55,7 @@ public:
 
     //! Adds sourceUnit to sourceUnitVector and assigns ID for the unit
     //! \param outputTensorInfo:  vector of TensorInfo of outputs
+    //! \param numberOfOutputs: number of output tensors
     //! \return : assigned id of the unit
     static UnitIdentifier Source(
         const TensorInfo& outputTensorInfo, size_t numberOfOutputs = 1);
@@ -132,8 +69,8 @@ public:
 
     //! Adds hiddenUnit to HiddenUnitVector
     //! \param previousUnitVector : vector of previous units
-    //! \param inputTensorInfoVector : vector of TensorInfo of inputs
     //! \param outputTensorInfo : vector of TensorInfo of outputs
+    //! \param numberOfOutputs : number of outputs from this unit
     //! \return : assigned id of the unit
     static UnitIdentifier Hidden(
         const std::vector<UnitIdentifier>& previousUnitVector,
@@ -141,12 +78,13 @@ public:
 
     //! Adds MultiplyUnit to HiddenUnitVector and assigns ID
     //! MultiplyUnit performs multiplications between two tensors (matrices) C= A*B
-    //! \param inputA : first input operand information
-    //! \param inputB : second input operand information
-    //! \param output : output information
+    //! \param unitA : first input operand information
+    //! \param unitB : second input operand information
+    //! \param numberOfOutputs : number of outputs from this unit
     static UnitIdentifier Multiply(
         const
-        UnitIdentifier& unitA, const UnitIdentifier& unitB);
+        UnitIdentifier& unitA, const UnitIdentifier& unitB,
+        size_t numberOfOutputs = 1);
 
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
@@ -157,12 +95,13 @@ public:
         const std::vector<TensorInfo>& inputTensorInfoVector);
 
     //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
-    //! \param inputTensorInfoVector : vector of TensorInfo of inputs
+    //! \param previousUnit : vector of TensorInfo of inputs
     //! \param testFunction : lambda used for testing the output
     //!  \return : assigned id of the unit
     static UnitIdentifier OutputTest(
         const UnitIdentifier& previousUnit,
-        const std::function<void(const Tensor& tensor, size_t)>& testFunction);
+        const std::function<void(const Tensor&, size_t)>&
+        testFunction);
 
 private:
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
@@ -194,10 +133,15 @@ private:
     static void m_connectWithPreviousUnit(
         const std::vector<UnitIdentifier>& previousUnitVector,
         UnitIdentifier subjectUnitIdentifier);
+
     //! Routine for thread which executes mainUnits
-    static void m_runMain();
-    //! Routine for thread which executes copy operation
-    static void m_runCopy();
+    static void m_run();
+
+    static void m_executeComputeUnits();
+
+    static void m_executeCopyUnits();
+
+    static bool m_IsComplete(size_t epochs);
 
     static std::thread m_scanMainThread;
 
@@ -207,12 +151,7 @@ private:
     /// Stores active threads assigned for executing copyTasks
     static std::vector<std::thread> m_copyThreadPool;
     /// TaskQueue storing tasks from SourceUnit, IntermediateUnit and SinkUnit
-    static SpinLockQueue<TaskWrapper> m_mainTaskQueue;
-    /// TaskQueue storing tasks from copyUnit
-    static SpinLockQueue<TaskWrapper> m_copyTaskQueue;
-    /// True if there are any possible nodes that hasn't been queued into
-    /// taskQueue False if not
-    static std::atomic<bool> m_dirty;
+    static SpinLockQueue<TaskWrapper> m_taskQueue;
     /// True if this engine is active false otherwise
     static bool m_active;
 
@@ -224,6 +163,7 @@ private:
     /// number of epochs to run the graph
     /// If stateNum reaches this, that unit will be no longer computed
     static size_t m_maxEpochs;
+    static std::atomic_bool m_ready;
 };
 } // namespace CubbyDNN
 

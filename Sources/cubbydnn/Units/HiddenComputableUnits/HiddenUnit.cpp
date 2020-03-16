@@ -4,18 +4,17 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Computations/Functions/Matrix.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 
 namespace CubbyDNN
 {
 HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
-                      TensorInfo outputTensorInfo, size_t numberOfOutputs)
+                       TensorInfo outputTensorInfo, std::size_t numberOfOutputs)
     : ComputableUnit(std::move(inputTensorInfoVector),
-                     outputTensorInfo, UnitType::Hidden)
+                     std::move(outputTensorInfo),
+                     UnitType::Hidden)
 {
-    m_outputPtrVector =
-        std::vector<SharedPtr<ComputableUnit>>(numberOfOutputs);
+    m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(numberOfOutputs);
     m_inputPtrVector =
         std::vector<SharedPtr<ComputableUnit>>(m_inputTensorInfoVector.size());
 
@@ -26,17 +25,27 @@ HiddenUnit::HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
     }
 
     m_outputTensorVector.reserve(numberOfOutputs);
-    for (size_t idx = 0; idx < numberOfOutputs; ++ idx)
+    for (std::size_t idx = 0; idx < numberOfOutputs; ++idx)
     {
         m_outputTensorVector.emplace_back(AllocateTensor(m_outputTensorInfo));
     }
 }
 
+HiddenUnit::HiddenUnit(HiddenUnit&& hiddenUnit) noexcept
+    : ComputableUnit(std::move(hiddenUnit))
+{
+    m_tensorOperation = std::move(hiddenUnit.m_tensorOperation);
+}
+
+HiddenUnit& HiddenUnit::operator=(HiddenUnit&& hiddenUnit) noexcept
+{
+    m_tensorOperation = std::move(hiddenUnit.m_tensorOperation);
+    ComputableUnit::operator=(std::move(hiddenUnit));
+    return *this;
+}
+
 bool HiddenUnit::IsReady()
 {
-    if (m_unitState.IsBusy.load(std::memory_order_acquire))
-        return false;
-
     for (auto& elem : m_inputPtrVector)
     {
         if (elem->GetStateNum() != this->GetStateNum() + 1)
@@ -53,19 +62,36 @@ bool HiddenUnit::IsReady()
 }
 
 MatMul::MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
-               const TensorInfo& output)
-    : HiddenUnit({ inputA, inputB },  output)
+               const TensorInfo& output, std::size_t numberOfOutputs)
+    : HiddenUnit({ inputA, inputB }, output, numberOfOutputs)
 {
-    assert(inputA.GetShape().Col == inputB.GetShape().Row);
-    assert(inputA.GetShape().Batch == inputB.GetShape().Batch &&
-        inputA.GetShape().Batch == output.GetShape().Batch);;
-    assert(inputA.GetShape().Channel == inputB.GetShape().Channel &&
-        inputA.GetShape().Channel == output.GetShape().Channel);
+    auto& shapeA = inputA.GetShape();
+    auto& shapeB = inputB.GetShape();
+
+    if (shapeA.Dim() != shapeB.Dim())
+        throw std::runtime_error("Multiply - dimension mismatch");
+
+    if (shapeA.Dim() > 1)
+    {
+        if (shapeA.Col() != shapeB.Row())
+            throw std::runtime_error(
+                "Multiply- number of columns of A and number of rows of B must "
+                "be "
+                "identical");
+
+        for (std::size_t i = 0; i < shapeA.Dim() - 2; ++i)
+            if (shapeA.At(i) != shapeB.At(i))
+                throw std::runtime_error("Multiply -shape mismatch");
+    }
+    else
+        throw std::runtime_error(
+            "Multiply - Dimension must be equal or greater than 2");
 }
 
 void MatMul::Compute()
 {
-    MultiplyOp(m_inputTensorVector.at(0), m_inputTensorVector.at(1),
-             m_outputTensorVector.at(0));
+    m_tensorOperation->Multiply(m_inputTensorVector.at(0),
+                                m_inputTensorVector.at(1),
+                                m_outputTensorVector.at(0));
 }
 } // namespace CubbyDNN

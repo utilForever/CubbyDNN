@@ -19,13 +19,12 @@ class CopyUnit : public ComputableUnit
 {
 public:
     CopyUnit();
-
     ~CopyUnit() = default;
 
     CopyUnit(CopyUnit& copyUnit) = delete;
+    CopyUnit(CopyUnit&& copyUnit) noexcept;
 
     CopyUnit& operator=(CopyUnit& copyUnit) = delete;
-
     CopyUnit& operator=(CopyUnit&& copyUnit) = delete;
 
     //! Sets ComputableUnitPtr of previous unit to copy from

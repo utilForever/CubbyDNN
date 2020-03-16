@@ -8,7 +8,8 @@
 #define CUBBYDNN_HIDDENUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Computations/Functions/Matrix.hpp>
+#include <cubbydnn/Computations/TensorOperations/TensorOperations.hpp>
+#include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
 #include <iostream>
 
 namespace CubbyDNN
@@ -21,13 +22,14 @@ public:
     //! \param outputTensorInfo : TensorInfo of the output m_tensor
     //! \param numberOfOutputs : number of outputs that this unit is connected
     HiddenUnit(std::vector<TensorInfo> inputTensorInfoVector,
-               TensorInfo outputTensorInfo, size_t numberOfOutputs = 1);
-
+               TensorInfo outputTensorInfo, std::size_t numberOfOutputs = 1);
     ~HiddenUnit() = default;
 
     HiddenUnit(const HiddenUnit& hiddenUnit) = delete;
+    HiddenUnit(HiddenUnit&& hiddenUnit) noexcept;
 
     HiddenUnit& operator=(const HiddenUnit& hiddenUnit) = delete;
+    HiddenUnit& operator=(HiddenUnit&& hiddenUnit) noexcept;
 
     //! Determines whether system is ready to compute
     bool IsReady() final;
@@ -36,19 +38,33 @@ public:
     {
         //std::cout << "hiddenUnit" << std::endl;
     }
+
+    //! Forward propagation
+    virtual void Forward()
+    {
+    }
+
+    //! Backward propagation
+    virtual void Backward()
+    {
+    }
+
+protected:
+    std::unique_ptr<TensorOperation> m_tensorOperation = std::unique_ptr<
+        NaiveOperation>();
 };
 
 class MatMul : public HiddenUnit
 {
 public:
     MatMul(const TensorInfo& inputA, const TensorInfo& inputB,
-           const TensorInfo& output);
+           const TensorInfo& output, std::size_t numberOfOutputs);
 
     ~MatMul() = default;
 
-    MatMul(const MatMul& matmul) = delete;
+    MatMul(const MatMul& matMul) = delete;
 
-    MatMul& operator=(const MatMul& matmul) = delete;
+    MatMul& operator=(const MatMul& matMul) = delete;
 
     void Compute() override;
 };

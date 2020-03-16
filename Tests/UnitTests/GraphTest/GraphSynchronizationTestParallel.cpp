@@ -7,11 +7,11 @@
 #include <cubbydnn/Engine/Engine.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 #include "gtest/gtest.h"
+#include <blaze/Blaze.h>
 
 namespace CubbyDNN
 {
-void SimpleGraphTestParallel(int numMainThreads, int numCopyThreads,
-                             size_t epochs)
+void SimpleGraphTestParallel(int workers, std::size_t epochs)
 {
     /**         hidden1 -- hidden3
      *        /                     \
@@ -21,63 +21,72 @@ void SimpleGraphTestParallel(int numMainThreads, int numCopyThreads,
 
     const auto source = Engine::Source(TensorInfo({ 1, 1, 1, 1 }), 2);
     const auto hidden1 =
-        Engine::Hidden({ source }, TensorInfo({ 1, 1, 1, 1 }),
-                       1);
+        Engine::Hidden({ source }, TensorInfo({ 1, 1, 1, 1 }), 1);
     const auto hidden2 =
         Engine::Hidden({ hidden1 }, TensorInfo({ 1, 1, 1, 1 }));
-    const auto hidden3 = Engine::Hidden(
-        { source }, TensorInfo({ 1, 1, 1, 1 }));
+    const auto hidden3 = Engine::Hidden({ source }, TensorInfo({ 1, 1, 1, 1 }));
     const auto hidden4 =
         Engine::Hidden({ hidden3 }, TensorInfo({ 1, 1, 1, 1 }));
     Engine::Sink({ hidden2, hidden4 },
                  { TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 }) });
 
-    Engine::StartExecution(numMainThreads, numCopyThreads, epochs);
+    Engine::ExecuteParallel(workers, epochs);
     Engine::JoinThreads();
     std::cout << "Terminated" << std::endl;
 }
 
-void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
-                               size_t batchSize, size_t channelSize,
-                               size_t epochs)
+void MultiplyGraphTestParallel(std::size_t batchSize, std::size_t channelSize,
+                               std::size_t workers, std::size_t epochs)
 {
     void* constantData1 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
     void* constantData2 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
     void* constantData3 = AllocateData<float>({ batchSize, channelSize, 3, 3 });
 
-    for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+    blaze::setNumThreads(1);
+    std::cout << "numThreads:" << blaze::getNumThreads() << std::endl;
+
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
         {
             SetData<float>({ batchIdx, channelIdx, 0, 0 },
-                           { batchSize, channelSize, 3, 3 }, constantData1, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData1, 3);
             SetData<float>({ batchIdx, channelIdx, 1, 1 },
-                           { batchSize, channelSize, 3, 3 }, constantData1, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData1, 3);
             SetData<float>({ batchIdx, channelIdx, 2, 2 },
-                           { batchSize, channelSize, 3, 3 }, constantData1, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData1, 3);
 
             SetData<float>({ batchIdx, channelIdx, 0, 0 },
-                           { batchSize, channelSize, 3, 3 }, constantData2, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData2, 3);
             SetData<float>({ batchIdx, channelIdx, 1, 1 },
-                           { batchSize, channelSize, 3, 3 }, constantData2, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData2, 3);
             SetData<float>({ batchIdx, channelIdx, 2, 2 },
-                           { batchSize, channelSize, 3, 3 }, constantData2, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData2, 3);
 
             SetData<float>({ batchIdx, channelIdx, 0, 0 },
-                           { batchSize, channelSize, 3, 3 }, constantData3, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData3, 3);
             SetData<float>({ batchIdx, channelIdx, 1, 1 },
-                           { batchSize, channelSize, 3, 3 }, constantData3, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData3, 3);
             SetData<float>({ batchIdx, channelIdx, 2, 2 },
-                           { batchSize, channelSize, 3, 3 }, constantData3, 3);
+                           { batchSize, channelSize, 3, 3 },
+                           constantData3, 3);
         }
 
-    const auto testFunction = [batchSize, channelSize](const Tensor& tensor,
-                                                       size_t epoch)
+    const auto testFunction = [batchSize, channelSize](
+        const Tensor& tensor, std::size_t epoch)
     {
         std::cout << "epoch: " << epoch << std::endl;
-        for (size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
-                for (size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
-                    for (size_t colIdx = 0; colIdx < 2; ++colIdx)
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            for (std::size_t channelIdx = 0; channelIdx < channelSize; ++channelIdx)
+                for (std::size_t rowIdx = 0; rowIdx < 2; ++rowIdx)
+                    for (std::size_t colIdx = 0; colIdx < 2; ++colIdx)
                     {
                         if (rowIdx == colIdx)
                             EXPECT_EQ(GetData<float>({ batchIdx, channelIdx,
@@ -92,30 +101,33 @@ void MultiplyGraphTestParallel(int numMainThreads, int numCopyThreads,
                     }
     };
 
-    const auto constant1 = Engine::Constant(
-        TensorInfo({ batchSize, channelSize, 3, 3 }), constantData1);
-    const auto constant2 = Engine::Constant(
-        TensorInfo({ batchSize, channelSize, 3, 3 }), constantData2);
-    const auto constant3 = Engine::Constant(
-        TensorInfo({ batchSize, channelSize, 3, 3 }), constantData3);
+    const auto constant1 =
+        Engine::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
+                         constantData1);
+    const auto constant2 =
+        Engine::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
+                         constantData2);
+    const auto constant3 =
+        Engine::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
+                         constantData3);
 
     const auto multiply1 = Engine::Multiply(constant1, constant2);
     const auto multiply2 = Engine::Multiply(multiply1, constant3);
 
     Engine::OutputTest(multiply2, testFunction);
 
-    Engine::StartExecution(numMainThreads, numCopyThreads, epochs);
+    Engine::ExecuteParallel(workers, epochs);
     Engine::JoinThreads();
     std::cout << "Terminated MultiplyGraphTestParallel" << std::endl;
 }
 
 TEST(SimpleGraphParallel, GraphTestParallel)
 {
-   // SimpleGraphTestParallel(2, 2, 300);
+    // SimpleGraphTestParallel(2, 300);
 }
 
 TEST(MultiplyGraphParallel, GraphTestParallel)
 {
-    MultiplyGraphTestParallel(2, 2, 10, 10, 3000);
+    MultiplyGraphTestParallel(0,10, 10, 30000);
 }
 } // namespace CubbyDNN

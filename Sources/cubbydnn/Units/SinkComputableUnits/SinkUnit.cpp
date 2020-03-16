@@ -22,11 +22,20 @@ SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
     }
 }
 
+SinkUnit::SinkUnit(SinkUnit&& sinkUnit) noexcept
+    : ComputableUnit(std::move(sinkUnit))
+{
+}
+
+SinkUnit& SinkUnit::operator=(SinkUnit&& sinkUnit) noexcept
+{
+    if (this != &sinkUnit)
+        ComputableUnit::operator=(std::move(sinkUnit));
+    return *this;
+}
+
 bool SinkUnit::IsReady()
 {
-    if (m_unitState.IsBusy)
-        return false;
-
     for (const auto& previousPtr : m_inputPtrVector)
     {
         if (previousPtr->GetStateNum() != GetStateNum() + 1)
@@ -41,11 +50,25 @@ void SinkUnit::Compute()
 
 SinkTestUnit::SinkTestUnit(
     TensorInfo inputTensorInfo,
-    std::function<void(const Tensor&, size_t)> testFunction)
+    std::function<void(const Tensor&, std::size_t)> testFunction)
     : SinkUnit({ inputTensorInfo }),
       m_testFunction(std::move(testFunction))
 {
 }
+
+SinkTestUnit::SinkTestUnit(SinkTestUnit&& sinkTestUnit) noexcept
+    : SinkUnit(std::move(sinkTestUnit)),
+      m_testFunction(std::move(sinkTestUnit.m_testFunction))
+{
+}
+
+SinkTestUnit& SinkTestUnit::operator=(SinkTestUnit&& sinkTestUnit) noexcept
+{
+    if (this != &sinkTestUnit)
+        SinkUnit::operator=(std::move(sinkTestUnit));
+    return *this;
+}
+
 
 void SinkTestUnit::Compute()
 {

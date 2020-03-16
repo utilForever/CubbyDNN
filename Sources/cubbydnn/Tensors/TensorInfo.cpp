@@ -4,21 +4,18 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cstdio>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
 namespace CubbyDNN
 {
-std::map<NumberSystem, size_t> TensorInfo::UnitByteSizeMap = {
-    { NumberSystem::Float16, 16 }, { NumberSystem::Float32, 32 },
-    { NumberSystem::Float64, 64 }, { NumberSystem::Int8, 8 },
-    { NumberSystem::Int16, 16 }, { NumberSystem::Int32, 32 },
-    { NumberSystem::Int64, 64 },
+std::map<NumberSystem, std::size_t> TensorInfo::UnitByteSizeMap = {
+    { NumberSystem::Float, sizeof(float) },
+    { NumberSystem::Int, sizeof(int) },
 };
 
-TensorInfo::TensorInfo(const Shape& shape,
+TensorInfo::TensorInfo(Shape shape,
                        NumberSystem numberSystem)
-    : m_shape(shape),
+    : m_shape(std::move(shape)),
       m_unitByteSize(UnitByteSizeMap.at(numberSystem)),
       m_numberSystem(numberSystem)
 {
@@ -36,12 +33,12 @@ bool TensorInfo::operator!=(const TensorInfo& tensorInfo) const
     return !(*this == tensorInfo);
 }
 
-size_t TensorInfo::GetSize() const noexcept
+std::size_t TensorInfo::GetSize() const noexcept
 {
-    return m_shape.GetTotalSize();
+    return m_shape.TotalSize();
 }
 
-size_t TensorInfo::GetByteSize() const noexcept
+std::size_t TensorInfo::GetByteSize() const noexcept
 {
     return m_unitByteSize * GetSize();
 }
