@@ -4,36 +4,37 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Engine/Engine.hpp>
 #include <cassert>
+#include <cubbydnn/Engine/Engine.hpp>
+#include "cubbyDnn/Units/HiddenComputableUnits/Dense.hpp"
 
 namespace CubbyDNN
 {
-std::thread Engine::m_scanMainThread;
+std::thread Graph::m_scanMainThread;
 
-std::thread Engine::m_scanCopyThread;
+std::thread Graph::m_scanCopyThread;
 
-std::vector<std::thread> Engine::m_mainThreadPool = std::vector<std::thread>();
+std::vector<std::thread> Graph::m_mainThreadPool = std::vector<std::thread>();
 
-std::vector<std::thread> Engine::m_copyThreadPool;
+std::vector<std::thread> Graph::m_copyThreadPool;
 
-SpinLockQueue<TaskWrapper> Engine::m_taskQueue(20);
+SpinLockQueue<TaskWrapper> Graph::m_taskQueue(20);
 
-bool Engine::m_active = true;
+bool Graph::m_active = true;
 
-std::vector<SharedPtr<SourceUnit>> Engine::m_sourceUnitVector;
+std::vector<SharedPtr<SourceUnit>> Graph::m_sourceUnitVector;
 
-std::vector<SharedPtr<SinkUnit>> Engine::m_sinkUnitVector;
+std::vector<SharedPtr<SinkUnit>> Graph::m_sinkUnitVector;
 
-std::vector<SharedPtr<HiddenUnit>> Engine::m_hiddenUnitVector;
+std::vector<SharedPtr<HiddenUnit>> Graph::m_hiddenUnitVector;
 
-std::vector<SharedPtr<CopyUnit>> Engine::m_copyUnitVector;
+std::vector<SharedPtr<CopyUnit>> Graph::m_copyUnitVector;
 
-std::size_t Engine::m_maxEpochs = 0;
+std::size_t Graph::m_maxEpochs = 0;
 
-std::atomic_bool Engine::m_ready = false;
+std::atomic_bool Graph::m_ready = false;
 
-void Engine::Execute(std::size_t epochs)
+void Graph::ExecuteForward(std::size_t epochs)
 {
     bool isFinished = false;
     m_maxEpochs = epochs;
@@ -45,7 +46,7 @@ void Engine::Execute(std::size_t epochs)
         {
             if (sourceUnit->IsReady() && sourceUnit->GetStateNum() < epochs)
             {
-                sourceUnit->Compute();
+                sourceUnit->Forward();
                 sourceUnit->ReleaseUnit();
                 isFinished = false;
             }
@@ -55,7 +56,7 @@ void Engine::Execute(std::size_t epochs)
         {
             if (hiddenUnit->IsReady() && hiddenUnit->GetStateNum() < epochs)
             {
-                hiddenUnit->Compute();
+                hiddenUnit->Forward();
                 hiddenUnit->ReleaseUnit();
                 isFinished = false;
             }
@@ -65,7 +66,7 @@ void Engine::Execute(std::size_t epochs)
         {
             if (sinkUnit->IsReady() && sinkUnit->GetStateNum() < epochs)
             {
-                sinkUnit->Compute();
+                sinkUnit->Forward();
                 sinkUnit->ReleaseUnit();
                 isFinished = false;
             }
@@ -75,7 +76,7 @@ void Engine::Execute(std::size_t epochs)
         {
             if (copyUnit->IsReady() && copyUnit->GetStateNum() < epochs)
             {
-                copyUnit->Compute();
+                copyUnit->Forward();
                 copyUnit->ReleaseUnit();
                 isFinished = false;
             }
@@ -83,7 +84,57 @@ void Engine::Execute(std::size_t epochs)
     }
 }
 
-void Engine::ExecuteParallel(std::size_t workers, std::size_t epochs)
+void Graph::ExecuteBackward(size_t epochs)
+{
+    bool isFinished = false;
+    m_maxEpochs = epochs;
+
+    while (m_active && !isFinished)
+    {
+        isFinished = true;
+        for (auto& sourceUnit : m_sourceUnitVector)
+        {
+            if (sourceUnit->IsReady() && sourceUnit->GetStateNum() < epochs)
+            {
+                sourceUnit->Backward();
+                sourceUnit->ReleaseUnit();
+                isFinished = false;
+            }
+        }
+
+        for (auto& hiddenUnit : m_hiddenUnitVector)
+        {
+            if (hiddenUnit->IsReady() && hiddenUnit->GetStateNum() < epochs)
+            {
+                hiddenUnit->Backward();
+                hiddenUnit->ReleaseUnit();
+                isFinished = false;
+            }
+        }
+
+        for (auto& sinkUnit : m_sinkUnitVector)
+        {
+            if (sinkUnit->IsReady() && sinkUnit->GetStateNum() < epochs)
+            {
+                sinkUnit->Backward();
+                sinkUnit->ReleaseUnit();
+                isFinished = false;
+            }
+        }
+
+        for (auto& copyUnit : m_copyUnitVector)
+        {
+            if (copyUnit->IsReady() && copyUnit->GetStateNum() < epochs)
+            {
+                copyUnit->Backward();
+                copyUnit->ReleaseUnit();
+                isFinished = false;
+            }
+        }
+    }
+}
+
+void Graph::ExecuteForwardParallel(std::size_t workers, std::size_t epochs)
 {
     const auto hardwareConcurrency = std::thread::hardware_concurrency();
     if (workers + 1 > hardwareConcurrency)
@@ -103,7 +154,7 @@ void Engine::ExecuteParallel(std::size_t workers, std::size_t epochs)
 
     while (!m_IsComplete(epochs))
     {
-        m_executeComputeUnits();
+        m_executeForwardUnits();
         m_executeCopyUnits();
     }
 
@@ -114,8 +165,8 @@ void Engine::ExecuteParallel(std::size_t workers, std::size_t epochs)
     }
 }
 
-UnitIdentifier Engine::Source(const TensorInfo& outputTensorInfo,
-                              std::size_t numberOfOutputs)
+UnitIdentifier Graph::Source(const TensorInfo& outputTensorInfo,
+                             std::size_t numberOfOutputs)
 {
     const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
@@ -123,8 +174,8 @@ UnitIdentifier Engine::Source(const TensorInfo& outputTensorInfo,
     return { UnitType::Source, unitId };
 }
 
-UnitIdentifier Engine::Constant(const TensorInfo& output, void* dataPtr,
-                                int numberOfOutputs)
+UnitIdentifier Graph::Constant(const TensorInfo& output, void* dataPtr,
+                               int numberOfOutputs)
 {
     const auto unitId = m_sourceUnitVector.size();
     m_sourceUnitVector.emplace_back(
@@ -132,7 +183,7 @@ UnitIdentifier Engine::Constant(const TensorInfo& output, void* dataPtr,
     return { UnitType::Source, unitId };
 }
 
-UnitIdentifier Engine::Hidden(
+UnitIdentifier Graph::Hidden(
     const std::vector<UnitIdentifier>& previousUnitVector,
     TensorInfo outputTensorInfo, std::size_t numberOfOutputs)
 {
@@ -158,77 +209,60 @@ UnitIdentifier Engine::Hidden(
     return unitIdentifier;
 }
 
-UnitIdentifier Engine::Multiply(const UnitIdentifier& unitA,
-                                const UnitIdentifier& unitB,
-                                std::size_t numberOfOutputs)
+// TODO : put activation, initializing methods, etc.
+UnitIdentifier Graph::Dense(const UnitIdentifier& input, std::size_t units)
 {
-    const auto unitId = m_hiddenUnitVector.size();
-
-    TensorInfo tensorInfoA;
-    TensorInfo tensorInfoB;
-
-    if (unitA.Type == UnitType::Hidden)
-        tensorInfoA = m_hiddenUnitVector.at(unitA.ID)->GetOutputTensorInfo();
-    if (unitA.Type == UnitType::Source)
-        tensorInfoA = m_sourceUnitVector.at(unitA.ID)->GetOutputTensorInfo();
-
-    if (unitB.Type == UnitType::Hidden)
-        tensorInfoB = m_hiddenUnitVector.at(unitB.ID)->GetOutputTensorInfo();
-    if (unitB.Type == UnitType::Source)
-        tensorInfoB = m_sourceUnitVector.at(unitB.ID)->GetOutputTensorInfo();
-
-    const auto shapeA = tensorInfoA.GetShape();
-    const auto shapeB = tensorInfoB.GetShape();
-
-    if (shapeA.Col() != shapeB.Row())
-        throw std::runtime_error("Multiply-shape mismatch");
-    if (shapeA.BatchSize() != shapeB.BatchSize())
-        throw std::runtime_error("Batch size mismatch");
-
-    const Shape outputShape = shapeA * shapeB;
-
-    m_hiddenUnitVector.emplace_back(SharedPtr<MatMul>::Make(
-        tensorInfoA, tensorInfoB,TensorInfo(outputShape) , numberOfOutputs));
-
-    const UnitIdentifier unitIdentifier = { UnitType::Hidden, unitId };
-    m_connectWithPreviousUnit({ unitA, unitB }, unitIdentifier);
-    return unitIdentifier;
-}
-
-void Engine::Sink(const std::vector<UnitIdentifier>& previousUnit,
-                  const std::vector<TensorInfo>& inputTensorInfoVector)
-{
-    const auto unitId = m_sinkUnitVector.size();
-    m_sinkUnitVector.emplace_back(
-        SharedPtr<SinkUnit>::Make(inputTensorInfoVector));
-    const UnitIdentifier unitIdentifier = { UnitType::Sink, unitId };
-    m_connectWithPreviousUnit(previousUnit, unitIdentifier);
-}
-
-UnitIdentifier Engine::OutputTest(
-    const UnitIdentifier& previousUnit,
-    const std::function<void(const Tensor&, std::size_t)>& testFunction)
-{
-    const auto unitId = m_sinkUnitVector.size();
-    TensorInfo previousTensorInfo;
-
-    if (previousUnit.Type == UnitType::Hidden)
-        previousTensorInfo =
-            m_hiddenUnitVector.at(previousUnit.ID)->GetOutputTensorInfo();
+    TensorInfo inputTensorInfo;
+    TensorInfo weightTensorInfo;
+    TensorInfo biasTensorInfo;
+    if (input.Type == UnitType::Hidden)
+    {
+        inputTensorInfo =
+            m_hiddenUnitVector.at(input.ID)->GetOutputTensorInfo();
+    }
+    else if (input.Type == UnitType::Source)
+    {
+        inputTensorInfo =
+            m_hiddenUnitVector.at(input.ID)->GetOutputTensorInfo();
+    }
     else
-        previousTensorInfo =
-            m_sourceUnitVector.at(previousUnit.ID)->GetOutputTensorInfo();
+        throw std::runtime_error("input unit must be source or hidden");
 
-    const auto sinkUnitPtr =
-        SharedPtr<SinkTestUnit>::Make(previousTensorInfo, testFunction);
-    m_sinkUnitVector.emplace_back(sinkUnitPtr);
-    const UnitIdentifier unitIdentifier = { UnitType::Sink, unitId };
-    m_connectWithPreviousUnit({ previousUnit }, unitIdentifier);
+    Shape weightShape = { inputTensorInfo.GetShape().Row(), units };
+    Shape biasShape = { 1, inputTensorInfo.GetShape().Row() };
+
+    //TODO : specify number system other than float
+    TensorInfo weightInfo(weightShape);
+    TensorInfo biasInfo(biasShape);
+
+    SharedPtr<ConstantUnit> weightPtr =
+        SharedPtr<ConstantUnit>::Make(weightInfo, AllocateData<float>(weightShape));
+    SharedPtr<ConstantUnit> biasPtr = SharedPtr<ConstantUnit>::Make(
+        weightInfo, AllocateData<float>(biasShape));
+
+    const auto weightUnitID = m_sourceUnitVector.size();
+    m_sourceUnitVector.emplace_back(std::move(weightPtr));
+    const auto biasUnitID = m_sourceUnitVector.size();
+    m_sourceUnitVector.emplace_back(std::move(biasPtr));
+
+    const UnitIdentifier weightUnit = { UnitType::Source, weightUnitID };
+    const UnitIdentifier biasUnit = { UnitType::Source, biasUnitID };
+
+    const auto denseUnitID = m_hiddenUnitVector.size();
+    SharedPtr<DenseUnit> densePtr = SharedPtr<DenseUnit>::Make(
+        inputTensorInfo, weightTensorInfo, biasTensorInfo);
+
+    densePtr->SetInputUnitVector({ input, weightUnit, biasUnit });
+
+    m_hiddenUnitVector.emplace_back(SharedPtr<DenseUnit>::Make(
+        inputTensorInfo, weightTensorInfo, biasTensorInfo));
+
+    const UnitIdentifier unitIdentifier = { UnitType::Hidden, denseUnitID };
     return unitIdentifier;
 }
 
-void Engine::m_connectSourceToHidden(std::size_t originID, std::size_t destID,
-                                     std::size_t destInputIndex)
+void Graph::m_connectSourceToHidden(std::size_t originID, std::size_t destID,
+                                    std::size_t destInputIndex)
 {
     assert(originID < m_sourceUnitVector.size());
     assert(destID < m_hiddenUnitVector.size());
@@ -237,15 +271,15 @@ void Engine::m_connectSourceToHidden(std::size_t originID, std::size_t destID,
     m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
     auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(sourceUnit);
-    copyUnit->SetOutputPtr(intermediateUnit);
+    copyUnit->AddOutputPtr(intermediateUnit);
     const auto inputIndex = sourceUnit->AddOutputPtr(copyUnit);
     intermediateUnit->AddInputPtr(copyUnit, destInputIndex);
     copyUnit->SetInputTensorIndex(inputIndex);
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::m_connectHiddenToHidden(std::size_t originID, std::size_t destID,
-                                     std::size_t destInputIndex)
+void Graph::m_connectHiddenToHidden(std::size_t originID, std::size_t destID,
+                                    std::size_t destInputIndex)
 {
     assert(originID < m_hiddenUnitVector.size());
     assert(destID < m_hiddenUnitVector.size());
@@ -254,15 +288,15 @@ void Engine::m_connectHiddenToHidden(std::size_t originID, std::size_t destID,
     m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
     auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(originIntermediateUnit);
-    copyUnit->SetOutputPtr(destIntermediateUnit);
+    copyUnit->AddOutputPtr(destIntermediateUnit);
     const auto inputIndex = originIntermediateUnit->AddOutputPtr(copyUnit);
     destIntermediateUnit->AddInputPtr(copyUnit, destInputIndex);
     copyUnit->SetInputTensorIndex(inputIndex);
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::m_connectHiddenToSink(std::size_t originID, std::size_t destID,
-                                   std::size_t destInputIndex)
+void Graph::m_connectHiddenToSink(std::size_t originID, std::size_t destID,
+                                  std::size_t destInputIndex)
 {
     assert(originID < m_hiddenUnitVector.size());
     assert(destID < m_sinkUnitVector.size());
@@ -271,14 +305,14 @@ void Engine::m_connectHiddenToSink(std::size_t originID, std::size_t destID,
     m_copyUnitVector.emplace_back(SharedPtr<CopyUnit>::Make());
     auto copyUnit = m_copyUnitVector.at(m_copyUnitVector.size() - 1);
     copyUnit->SetInputPtr(hiddenUnit);
-    copyUnit->SetOutputPtr(sinkUnit);
+    copyUnit->AddOutputPtr(sinkUnit);
     const auto inputIndex = hiddenUnit->AddOutputPtr(copyUnit);
     sinkUnit->AddInputPtr(copyUnit, destInputIndex);
     copyUnit->SetInputTensorIndex(inputIndex);
     copyUnit->SetOutputTensorIndex(destInputIndex);
 }
 
-void Engine::m_connectWithPreviousUnit(
+void Graph::m_connectWithPreviousUnit(
     const std::vector<UnitIdentifier>& previousUnitVector,
     UnitIdentifier subjectUnitIdentifier)
 {
@@ -315,34 +349,28 @@ void Engine::m_connectWithPreviousUnit(
         assert("Unsupported type of unit");
 }
 
-void Engine::m_run()
+void Graph::m_run()
 {
-    // while (!m_ready)
-    //    ;
     TaskWrapper taskWrapper = m_taskQueue.Dequeue();
     while (taskWrapper.Type != TaskType::Join)
     {
-        //if (m_ready)
-        //{
         auto task = taskWrapper.GetTask();
         task();
-        //std::cout << "Execute" << std::endl;
         taskWrapper = m_taskQueue.Dequeue();
-        // }
     }
 }
 
-void Engine::EnqueueTask(TaskWrapper&& task)
+void Graph::EnqueueTask(TaskWrapper&& task)
 {
     m_taskQueue.Enqueue(std::move(task));
 }
 
-TaskWrapper Engine::DequeueTask()
+TaskWrapper Graph::DequeueTask()
 {
     return m_taskQueue.Dequeue();
 }
 
-void Engine::JoinThreads()
+void Graph::JoinThreads()
 {
     for (auto& thread : m_mainThreadPool)
     {
@@ -359,7 +387,7 @@ void Engine::JoinThreads()
         m_scanCopyThread.join();
 }
 
-void Engine::Abort()
+void Graph::Abort()
 {
     for (std::size_t count = 0; count < m_mainThreadPool.size(); ++count)
         m_taskQueue.Enqueue(TaskWrapper(
@@ -381,7 +409,7 @@ void Engine::Abort()
         m_scanCopyThread.join();
 }
 
-void Engine::m_executeComputeUnits()
+void Graph::m_executeForwardUnits()
 {
     int desired = 0;
     std::atomic_int count = 0;
@@ -390,7 +418,7 @@ void Engine::m_executeComputeUnits()
     {
         if (sourceUnit->IsReady())
         {
-            const auto computeFunc = [&sourceUnit]() { sourceUnit->Compute(); };
+            const auto computeFunc = [&sourceUnit]() { sourceUnit->Forward(); };
             const auto updateState = [&sourceUnit, &count]()
             {
                 count.fetch_add(1);
@@ -398,7 +426,6 @@ void Engine::m_executeComputeUnits()
             };
             TaskWrapper taskWrapper(TaskType::ComputeSource, computeFunc,
                                     updateState);
-            //std::cout << "Enqueue source" << std::endl;
             m_taskQueue.Enqueue(std::move(taskWrapper));
             ++desired;
         }
@@ -407,7 +434,7 @@ void Engine::m_executeComputeUnits()
     {
         if (hiddenUnit->IsReady())
         {
-            const auto computeFunc = [&hiddenUnit]() { hiddenUnit->Compute(); };
+            const auto computeFunc = [&hiddenUnit]() { hiddenUnit->Forward(); };
             const auto updateState = [&hiddenUnit, &count]()
             {
                 count.fetch_add(1);
@@ -415,7 +442,6 @@ void Engine::m_executeComputeUnits()
             };
             TaskWrapper taskWrapper(TaskType::ComputeHidden, computeFunc,
                                     updateState);
-            //std::cout << "Enqueue hidden" << std::endl;
             m_taskQueue.Enqueue(std::move(taskWrapper));
             ++desired;
         }
@@ -424,7 +450,7 @@ void Engine::m_executeComputeUnits()
     {
         if (sinkUnit->IsReady())
         {
-            const auto computeFunc = [&sinkUnit]() { sinkUnit->Compute(); };
+            const auto computeFunc = [&sinkUnit]() { sinkUnit->Forward(); };
             const auto updateState = [&sinkUnit, &count]()
             {
                 count.fetch_add(1);
@@ -432,7 +458,6 @@ void Engine::m_executeComputeUnits()
             };
             TaskWrapper taskWrapper(TaskType::ComputeSink, computeFunc,
                                     updateState);
-            //std::cout << "Enqueue sink" << std::endl;
             m_taskQueue.Enqueue(std::move(taskWrapper));
             ++desired;
         }
@@ -444,7 +469,7 @@ void Engine::m_executeComputeUnits()
     m_ready.exchange(false);
 }
 
-void Engine::m_executeCopyUnits()
+void Graph::m_executeCopyUnits()
 {
     int desired = 0;
     std::atomic_int count = 0;
@@ -452,7 +477,7 @@ void Engine::m_executeCopyUnits()
     {
         if (copyUnit->IsReady())
         {
-            const auto computeFunc = [&copyUnit]() { copyUnit->Compute(); };
+            const auto computeFunc = [&copyUnit]() { copyUnit->Forward(); };
             const auto updateState = [&copyUnit, &count]()
             {
                 count.fetch_add(1);
@@ -460,7 +485,7 @@ void Engine::m_executeCopyUnits()
             };
 
             TaskWrapper taskWrapper(TaskType::Copy, computeFunc, updateState);
-            //std::cout << "Enqueue Copy" << std::endl;
+            // std::cout << "Enqueue Copy" << std::endl;
             m_taskQueue.Enqueue(std::move(taskWrapper));
             ++desired;
         }
@@ -472,7 +497,7 @@ void Engine::m_executeCopyUnits()
     m_ready.exchange(false);
 }
 
-bool Engine::m_IsComplete(std::size_t epochs)
+bool Graph::m_IsComplete(std::size_t epochs)
 {
     bool isComplete = true;
     for (auto& sourceUnit : m_sourceUnitVector)

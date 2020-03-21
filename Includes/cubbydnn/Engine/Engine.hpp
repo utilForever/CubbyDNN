@@ -22,10 +22,10 @@
 namespace CubbyDNN
 {
 //! Singleton class for maintaining threads that execute the program
-class Engine
+class Graph
 {
 protected:
-    //! Enqueues tasks into task queue
+    //! Enqueue tasks into task queue
     //! \param task
     static void EnqueueTask(TaskWrapper&& task);
 
@@ -43,10 +43,14 @@ protected:
 public:
 
     //! Execute the graph using single thread
-    static void Execute(size_t epochs);
+    static void ExecuteForward(size_t epochs);
+
+    //! Execute the graph backwards using single thread
+
+    static void ExecuteBackward(size_t epochs);
 
     //! Execute the graph using multiple workers
-    static void ExecuteParallel(size_t workers, size_t epochs);
+    static void ExecuteForwardParallel(size_t workers, size_t epochs);
 
     //! Joins threads in the thread queue and terminates the execution
     static void JoinThreads();
@@ -76,6 +80,9 @@ public:
         const std::vector<UnitIdentifier>& previousUnitVector,
         TensorInfo outputTensorInfo, size_t numberOfOutputs = 1);
 
+    static UnitIdentifier Dense(const UnitIdentifier& input,
+                                std::size_t units);
+
     //! Adds MultiplyUnit to HiddenUnitVector and assigns ID
     //! MultiplyUnit performs multiplications between two tensors (matrices) C= A*B
     //! \param unitA : first input operand information
@@ -93,15 +100,6 @@ public:
     static void Sink(
         const std::vector<UnitIdentifier>& previousUnit,
         const std::vector<TensorInfo>& inputTensorInfoVector);
-
-    //! Adds sinkUnit to intermediateUnitVector and assigns ID for the unit
-    //! \param previousUnit : vector of TensorInfo of inputs
-    //! \param testFunction : lambda used for testing the output
-    //!  \return : assigned id of the unit
-    static UnitIdentifier OutputTest(
-        const UnitIdentifier& previousUnit,
-        const std::function<void(const Tensor&, size_t)>&
-        testFunction);
 
 private:
     //! Connects between sourceUnit and intermediateUnit by assigning copyUnit
@@ -137,7 +135,7 @@ private:
     //! Routine for thread which executes mainUnits
     static void m_run();
 
-    static void m_executeComputeUnits();
+    static void m_executeForwardUnits();
 
     static void m_executeCopyUnits();
 
@@ -155,6 +153,7 @@ private:
     /// True if this engine is active false otherwise
     static bool m_active;
 
+    //TODO : find way to specify execution orderings
     static std::vector<SharedPtr<SourceUnit>> m_sourceUnitVector;
     static std::vector<SharedPtr<SinkUnit>> m_sinkUnitVector;
     static std::vector<SharedPtr<HiddenUnit>> m_hiddenUnitVector;
