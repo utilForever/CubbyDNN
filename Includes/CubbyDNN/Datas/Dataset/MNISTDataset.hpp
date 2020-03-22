@@ -1,22 +1,22 @@
 #ifndef CUBBYDNN_MNIST_DATASET_HPP
 #define CUBBYDNN_MNIST_DATASET_HPP
 
+#include <CubbyDNN/Datas/Dataset.hpp>
 #include <CubbyDNN/Datas/Image.hpp>
 
-#include <optional>
 #include <string>
 #include <tuple>
 
 namespace CubbyDNN
 {
-class MNISTDataset
+class MNISTDataset final : public Dataset<std::tuple<Image, std::uint32_t>>
 {
  public:
     MNISTDataset(const std::string& root, bool train);
 
     bool IsTrain() const;
-    std::tuple<Image, std::uint32_t> Get(std::size_t index) const;
-    std::optional<std::size_t> Size() const;
+    OutputType Get(std::size_t index) const override;
+    std::size_t Size() const override;
 
  private:
     void loadImages(const std::string& filename);

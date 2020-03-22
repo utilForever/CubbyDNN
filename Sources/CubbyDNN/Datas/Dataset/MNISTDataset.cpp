@@ -51,17 +51,14 @@ bool MNISTDataset::IsTrain() const
     return m_isTrain;
 }
 
-std::tuple<Image, std::uint32_t> MNISTDataset::Get(std::size_t index) const
+MNISTDataset::OutputType MNISTDataset::Get(std::size_t index) const
 {
     return { m_images[index], m_labels[index] };
 }
 
-std::optional<std::size_t> MNISTDataset::Size() const
+std::size_t MNISTDataset::Size() const
 {
-    if (m_loaded)
-        return m_images.size();
-
-    return std::nullopt;
+    return m_images.size();
 }
 
 void MNISTDataset::loadImages(const std::string& filename)
