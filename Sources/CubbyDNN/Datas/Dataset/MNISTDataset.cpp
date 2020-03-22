@@ -56,7 +56,7 @@ MNISTDataset::OutputType MNISTDataset::Get(std::size_t index) const
     return { m_images[index], m_labels[index] };
 }
 
-std::size_t MNISTDataset::Size() const
+std::size_t MNISTDataset::GetSize() const
 {
     return m_images.size();
 }

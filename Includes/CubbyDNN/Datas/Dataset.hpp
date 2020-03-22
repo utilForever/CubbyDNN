@@ -2,6 +2,7 @@
 #define CUBBYDNN_DATASET_HPP
 
 #include <tuple>
+#include <vector>
 
 namespace CubbyDNN
 {
@@ -14,7 +15,17 @@ class Dataset
     virtual ~Dataset() = default;
 
     virtual OutputType Get(std::size_t index) const = 0;
-    virtual std::size_t Size() const = 0;
+    std::vector<OutputType> Get(const std::vector<std::size_t> indicies)
+    {
+        std::vector<OutputType> batch;
+
+        for (const std::size_t i : indicies)
+            batch.push_back(Get(i));
+
+        return batch;
+    }
+
+    virtual std::size_t GetSize() const = 0;
 };
 }  // namespace CubbyDNN
 

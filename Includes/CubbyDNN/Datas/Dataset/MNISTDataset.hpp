@@ -16,7 +16,7 @@ class MNISTDataset final : public Dataset<std::tuple<Image, std::uint32_t>>
 
     bool IsTrain() const;
     OutputType Get(std::size_t index) const override;
-    std::size_t Size() const override;
+    std::size_t GetSize() const override;
 
  private:
     void loadImages(const std::string& filename);
