@@ -22,7 +22,7 @@ class CenterCrop : public Transform<Image, Image>
  public:
     CenterCrop(std::size_t size);
 
-    Image operator()(const Image& input) override;
+    OutputType operator()(const InputType& input) override;
 
  private:
     std::size_t m_cropSize_;
@@ -31,13 +31,13 @@ class CenterCrop : public Transform<Image, Image>
 class FlipHorizontal : public Transform<Image, Image>
 {
  public:
-    Image operator()(const Image& input) override;
+    OutputType operator()(const InputType& input) override;
 };
 
 class FlipVertical : public Transform<Image, Image>
 {
  public:
-    Image operator()(const Image& input) override;
+    OutputType operator()(const Image& input) override;
 };
 
 class Rotation : public Transform<Image, Image>
@@ -45,7 +45,7 @@ class Rotation : public Transform<Image, Image>
  public:
     Rotation(double degree);
 
-    Image operator()(const Image& input) override;
+    OutputType operator()(const InputType& input) override;
 
  private:
     double m_rotationDegree_;
@@ -54,7 +54,7 @@ class Rotation : public Transform<Image, Image>
 class GrayScale : public Transform<Image, Image>
 {
 public:
-    Image operator()(const Image& input) override;
+    OutputType operator()(const InputType& input) override;
 };
 }  // namespace CubbyDNN::Transforms
 

@@ -14,7 +14,7 @@ CenterCrop::CenterCrop(std::size_t size) : m_cropSize_(size)
 {
 }
 
-Image CenterCrop::operator()(const Image& origin)
+CenterCrop::OutputType CenterCrop::operator()(const InputType& origin)
 {
     if (origin.GetWidth() < m_cropSize_ || origin.GetHeight())
     {
@@ -38,7 +38,7 @@ Image CenterCrop::operator()(const Image& origin)
     return result;
 }
 
-Image FlipHorizontal::operator()(const Image& origin)
+FlipHorizontal::OutputType FlipHorizontal::operator()(const InputType& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
@@ -53,7 +53,7 @@ Image FlipHorizontal::operator()(const Image& origin)
     return result;
 }
 
-Image FlipVertical::operator()(const Image& origin)
+FlipVertical::OutputType FlipVertical::operator()(const InputType& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
@@ -72,7 +72,7 @@ Rotation::Rotation(double degree) : m_rotationDegree_(degree)
 {    
 }
 
-Image Rotation::operator()(const Image& origin)
+Rotation::OutputType Rotation::operator()(const InputType& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
@@ -102,7 +102,7 @@ Image Rotation::operator()(const Image& origin)
     return result;
 }
 
-Image GrayScale::operator()(const Image& origin)
+GrayScale::OutputType GrayScale::operator()(const InputType& origin)
 {
     Image result(origin.GetWidth(), origin.GetHeight(), false, true);
 
