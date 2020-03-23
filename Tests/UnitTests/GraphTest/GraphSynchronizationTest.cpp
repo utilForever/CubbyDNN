@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #include "GraphSynchronizationTest.hpp"
-#include <cubbydnn/Engine/Engine.hpp>
+#include <cubbydnn/Engine/Graph.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
 #include "gtest/gtest.h"
 
@@ -21,19 +21,19 @@ void SimpleGraphTest(std::size_t epochs)
      *        \ hidden2 -- hidden4  /
      */
 
-    const auto source = Engine::Source(TensorInfo({ 1, 1, 1, 1 }), 2);
-    const auto hidden1 = Engine::Hidden(
+    const auto source = Graph::Source(TensorInfo({ 1, 1, 1, 1 }), 2);
+    const auto hidden1 = Graph::Hidden(
         { source }, TensorInfo({ 1, 1, 1, 1 }));
-    const auto hidden2 = Engine::Hidden(
+    const auto hidden2 = Graph::Hidden(
         { hidden1 }, TensorInfo({ 1, 1, 1, 1 }));
-    const auto hidden3 = Engine::Hidden(
+    const auto hidden3 = Graph::Hidden(
         { source }, TensorInfo({ 1, 1, 1, 1 }));
-    const auto hidden4 = Engine::Hidden(
+    const auto hidden4 = Graph::Hidden(
         { hidden3 }, TensorInfo({ 1, 1, 1, 1 }));
-    Engine::Sink({ hidden2, hidden4 },
+    Graph::Sink({ hidden2, hidden4 },
                  { TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 }) });
 
-    Engine::Execute(epochs);
+    Graph::ExecuteForward(epochs);
     std::cout << "Terminated" << std::endl;
 }
 
@@ -70,16 +70,16 @@ void MultiplyGraphTestSerial(std::size_t epochs)
     };
 
     const auto constant1 =
-        Engine::Constant(TensorInfo({ 1, 1, 3, 3 }), constantData1);
-    const auto constant2 = Engine::Constant(TensorInfo({ 1, 1, 3, 3 }),
+        Graph::Constant(TensorInfo({ 1, 1, 3, 3 }), constantData1);
+    const auto constant2 = Graph::Constant(TensorInfo({ 1, 1, 3, 3 }),
                                             constantData2);
 
-    const auto multiply1 = Engine::Multiply(constant1, constant2);
-    const auto multiply2 = Engine::Multiply(multiply1, constant3);
+    const auto multiply1 = Graph::Multiply(constant1, constant2);
+    const auto multiply2 = Graph::Multiply(multiply1, constant3);
 
-    Engine::OutputTest(multiply2, testFunction);
+    Graph::OutputTest(multiply2, testFunction);
 
-    Engine::Execute(epochs);
+    Graph::ExecuteForward(epochs);
     std::cout << "Terminated MultiplyGraphTestSerial" << std::endl;
 }
 

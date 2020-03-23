@@ -4,11 +4,12 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-
 #ifndef CUBBYDNN_SINKUNIT_HPP
 #define CUBBYDNN_SINKUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Utils/SharedPtr.hpp>
+
 #include <functional>
 
 namespace CubbyDNN
@@ -21,47 +22,40 @@ public:
     //! Constructor
     //! \param inputTensorInfoVector : vector of tensorInfo to accept
     explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
-   ~SinkUnit() = default;
+    ~SinkUnit() = default;
 
     //! SinkUnit is not copy-assignable
     SinkUnit(const SinkUnit& sinkUnit) = delete;
-   SinkUnit(SinkUnit&& sinkUnit) noexcept;
+    SinkUnit(SinkUnit&& sinkUnit) noexcept;
 
     //! SinkUnit is not copy-assignable
     SinkUnit& operator=(const SinkUnit& sinkUnit) = delete;
-   SinkUnit& operator=(SinkUnit&& sinkUnit) noexcept;
+    SinkUnit& operator=(SinkUnit&& sinkUnit) noexcept;
 
     //! Brings back if executableUnit is ready to be executed
     //! \return : whether corresponding unit is ready to be executed
     bool IsReady() final;
 
-    void Compute() override;
-};
+    std::size_t AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr,
+                            std::size_t index);
 
-class SinkTestUnit : public SinkUnit
-{
-public:
-    //! Constructor
-    //! \param inputTensorInfo : tensorInfo of the input to be tested
-    //! \param testFunction : lambda for testing the output
-    explicit SinkTestUnit(TensorInfo inputTensorInfo,
-                          std::function<void(const Tensor&, size_t)>
-                          testFunction);
-   ~SinkTestUnit() = default;
+    virtual void Forward()
+    {
+    }
 
-    //! SinkUnit is not copy-assignable
-    SinkTestUnit(const SinkTestUnit& sinkTestUnit) = delete;
-   SinkTestUnit(SinkTestUnit&& sinkTestUnit) noexcept;
-
-    //! SinkUnit is not copy-assignable
-    SinkTestUnit& operator=(const SinkTestUnit& sinkTestUnit) = delete;
-   SinkTestUnit& operator=(SinkTestUnit&& sinkTestUnit) noexcept;
-
-    void Compute() override;
+    virtual void Backward()
+    {
+    }
 
 private:
-    //! Lambda used for testing
-    std::function<void(const Tensor&, size_t)> m_testFunction;
+    /// ptr to units to receive result from
+    std::vector<SharedPtr<ComputableUnit>> m_inputPtrVector;
+    //! vector of tensor information for input in forward propagation
+    std::vector<TensorInfo> m_inputTensorInfoVector;
+    //! vector of input tensors used to compute forward propagation
+    std::vector<Tensor> m_inputForwardTensorVector;
+    //! single output tensor of back propagation
+    std::vector<Tensor> m_outputBackwardTensorVector;
 };
 } // namespace CubbyDNN
 

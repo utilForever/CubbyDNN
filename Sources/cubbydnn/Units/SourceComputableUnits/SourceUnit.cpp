@@ -4,22 +4,15 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 #include <cassert>
+#include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 
 namespace CubbyDNN
 {
-SourceUnit::SourceUnit(TensorInfo output, std::size_t numberOfOutputs)
-    : ComputableUnit({}, output, UnitType::Source)
+SourceUnit::SourceUnit(TensorInfo output)
+    : ComputableUnit(UnitType::Source, {}, std::move(output))
 {
-    m_outputPtrVector = std::vector<SharedPtr<ComputableUnit>>(
-        numberOfOutputs, SharedPtr<ComputableUnit>());
-
-    m_outputTensorVector.reserve(numberOfOutputs);
-    for (std::size_t idx = 0; idx < numberOfOutputs; ++idx)
-    {
-        m_outputTensorVector.emplace_back(AllocateTensor(m_outputTensorInfo));
-    }
+    m_outputForwardTensor = AllocateTensor(m_outputTensorInfo);
 }
 
 SourceUnit::SourceUnit(SourceUnit&& sourceUnit) noexcept
@@ -35,7 +28,6 @@ SourceUnit& SourceUnit::operator=(SourceUnit&& sourceUnit) noexcept
     return *this;
 }
 
-
 bool SourceUnit::IsReady()
 {
     auto isReady = true;
@@ -50,19 +42,22 @@ bool SourceUnit::IsReady()
     return isReady;
 }
 
-ConstantUnit::ConstantUnit(TensorInfo output, int numberOfOutputs,
-                           void* dataPtr)
-    : SourceUnit(output, numberOfOutputs),
-      m_dataPtr(dataPtr)
+std::size_t SourceUnit::AddOutputPtr(
+    const SharedPtr<ComputableUnit>& computableUnitPtr)
+{
+    m_outputPtrVector.emplace_back(computableUnitPtr);
+    return m_outputPtrVector.size();
+}
+
+ConstantUnit::ConstantUnit(TensorInfo output, void* dataPtr)
+    : SourceUnit(std::move(output)), m_dataPtr(dataPtr)
 {
     const auto byteSize = output.GetByteSize();
     assert(dataPtr != nullptr);
     m_byteSize = byteSize;
-    for (auto& outputTensor : m_outputTensorVector)
-    {
-        std::memcpy(outputTensor.DataPtr, static_cast<void*>(m_dataPtr),
-                    m_byteSize);
-    }
+
+    std::memcpy(m_outputForwardTensor.DataPtr, static_cast<void*>(m_dataPtr),
+                m_byteSize);
 }
 
 ConstantUnit::~ConstantUnit()
@@ -88,4 +83,9 @@ ConstantUnit& ConstantUnit::operator=(ConstantUnit&& constantUnit) noexcept
     return *this;
 }
 
-} // namespace CubbyDNN
+void ConstantUnit::Forward()
+{
+    m_outputForwardTensor = AllocateTensor(m_outputTensorInfo);
+    m_outputForwardTensor.DataPtr = m_dataPtr;
+}
+}  // namespace CubbyDNN

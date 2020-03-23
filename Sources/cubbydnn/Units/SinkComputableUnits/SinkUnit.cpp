@@ -9,16 +9,16 @@
 namespace CubbyDNN
 {
 SinkUnit::SinkUnit(std::vector<TensorInfo> inputTensorInfoVector)
-    : ComputableUnit(std::move(inputTensorInfoVector), TensorInfo(),
-                     UnitType::Sink)
+    : ComputableUnit(UnitType::Sink, std::move(inputTensorInfoVector),
+                     TensorInfo())
 {
     m_inputPtrVector =
         std::vector<SharedPtr<ComputableUnit>>(m_inputTensorInfoVector.size());
 
-    m_inputTensorVector.reserve(m_inputTensorInfoVector.size());
+    m_inputForwardTensorVector.reserve(m_inputTensorInfoVector.size());
     for (const auto& tensorInfo : m_inputTensorInfoVector)
     {
-        m_inputTensorVector.emplace_back(AllocateTensor(tensorInfo));
+        m_inputForwardTensorVector.emplace_back(AllocateTensor(tensorInfo));
     }
 }
 
@@ -44,34 +44,10 @@ bool SinkUnit::IsReady()
     return true;
 }
 
-void SinkUnit::Compute()
+std::size_t SinkUnit::AddInputPtr(
+    const SharedPtr<ComputableUnit>& computableUnitPtr, std::size_t index)
 {
-}
-
-SinkTestUnit::SinkTestUnit(
-    TensorInfo inputTensorInfo,
-    std::function<void(const Tensor&, std::size_t)> testFunction)
-    : SinkUnit({ inputTensorInfo }),
-      m_testFunction(std::move(testFunction))
-{
-}
-
-SinkTestUnit::SinkTestUnit(SinkTestUnit&& sinkTestUnit) noexcept
-    : SinkUnit(std::move(sinkTestUnit)),
-      m_testFunction(std::move(sinkTestUnit.m_testFunction))
-{
-}
-
-SinkTestUnit& SinkTestUnit::operator=(SinkTestUnit&& sinkTestUnit) noexcept
-{
-    if (this != &sinkTestUnit)
-        SinkUnit::operator=(std::move(sinkTestUnit));
-    return *this;
-}
-
-
-void SinkTestUnit::Compute()
-{
-    m_testFunction(m_inputTensorVector.at(0), m_unitState.StateNum);
+    m_inputPtrVector.emplace_back(computableUnitPtr);
+    return m_inputPtrVector.size();
 }
 } // namespace CubbyDNN

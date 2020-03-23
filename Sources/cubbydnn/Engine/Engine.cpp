@@ -10,30 +10,6 @@
 
 namespace CubbyDNN
 {
-std::thread Graph::m_scanMainThread;
-
-std::thread Graph::m_scanCopyThread;
-
-std::vector<std::thread> Graph::m_mainThreadPool = std::vector<std::thread>();
-
-std::vector<std::thread> Graph::m_copyThreadPool;
-
-SpinLockQueue<TaskWrapper> Graph::m_taskQueue(20);
-
-bool Graph::m_active = true;
-
-std::vector<SharedPtr<SourceUnit>> Graph::m_sourceUnitVector;
-
-std::vector<SharedPtr<SinkUnit>> Graph::m_sinkUnitVector;
-
-std::vector<SharedPtr<HiddenUnit>> Graph::m_hiddenUnitVector;
-
-std::vector<SharedPtr<CopyUnit>> Graph::m_copyUnitVector;
-
-std::size_t Graph::m_maxEpochs = 0;
-
-std::atomic_bool Graph::m_ready = false;
-
 void Graph::ExecuteForward(std::size_t epochs)
 {
     bool isFinished = false;
@@ -62,14 +38,11 @@ void Graph::ExecuteForward(std::size_t epochs)
             }
         }
 
-        for (auto& sinkUnit : m_sinkUnitVector)
+        if (m_sinkUnit->IsReady() && m_sinkUnit->GetStateNum() < epochs)
         {
-            if (sinkUnit->IsReady() && sinkUnit->GetStateNum() < epochs)
-            {
-                sinkUnit->Forward();
-                sinkUnit->ReleaseUnit();
-                isFinished = false;
-            }
+            m_sinkUnit->Forward();
+            m_sinkUnit->ReleaseUnit();
+            isFinished = false;
         }
 
         for (auto& copyUnit : m_copyUnitVector)
@@ -165,22 +138,14 @@ void Graph::ExecuteForwardParallel(std::size_t workers, std::size_t epochs)
     }
 }
 
-UnitIdentifier Graph::Source(const TensorInfo& outputTensorInfo,
-                             std::size_t numberOfOutputs)
+UnitIdentifier Graph::PlaceHolder(const Shape& shape)
 {
-    const auto unitId = m_sourceUnitVector.size();
-    m_sourceUnitVector.emplace_back(
-        SharedPtr<SourceUnit>::Make(outputTensorInfo, numberOfOutputs));
-    return { UnitType::Source, unitId };
-}
+    SharedPtr<PlaceHolderUnit> ptr =
+        SharedPtr<PlaceHolderUnit>::Make(TensorInfo(shape, m_numberSystem));
 
-UnitIdentifier Graph::Constant(const TensorInfo& output, void* dataPtr,
-                               int numberOfOutputs)
-{
-    const auto unitId = m_sourceUnitVector.size();
-    m_sourceUnitVector.emplace_back(
-        SharedPtr<ConstantUnit>::Make(output, numberOfOutputs, dataPtr));
-    return { UnitType::Source, unitId };
+    const auto id = m_sourceUnitVector.size();
+    m_sourceUnitVector.emplace_back(std::move(ptr));
+    return { UnitType::Source, id };
 }
 
 UnitIdentifier Graph::Hidden(
@@ -228,15 +193,15 @@ UnitIdentifier Graph::Dense(const UnitIdentifier& input, std::size_t units)
     else
         throw std::runtime_error("input unit must be source or hidden");
 
-    Shape weightShape = { inputTensorInfo.GetShape().Row(), units };
-    Shape biasShape = { 1, inputTensorInfo.GetShape().Row() };
+    const Shape weightShape = { inputTensorInfo.GetShape().Row(), units };
+    const Shape biasShape = { 1, inputTensorInfo.GetShape().Row() };
 
-    //TODO : specify number system other than float
+    // TODO : specify number system other than float
     TensorInfo weightInfo(weightShape);
     TensorInfo biasInfo(biasShape);
 
-    SharedPtr<ConstantUnit> weightPtr =
-        SharedPtr<ConstantUnit>::Make(weightInfo, AllocateData<float>(weightShape));
+    SharedPtr<ConstantUnit> weightPtr = SharedPtr<ConstantUnit>::Make(
+        weightInfo, AllocateData<float>(weightShape));
     SharedPtr<ConstantUnit> biasPtr = SharedPtr<ConstantUnit>::Make(
         weightInfo, AllocateData<float>(biasShape));
 
@@ -259,6 +224,18 @@ UnitIdentifier Graph::Dense(const UnitIdentifier& input, std::size_t units)
 
     const UnitIdentifier unitIdentifier = { UnitType::Hidden, denseUnitID };
     return unitIdentifier;
+}
+
+//! TODO : Do dfs search to seek and connect units together
+void Graph::Compile()
+{
+    auto identifier = m_sinkUnit.GetIdentifier();
+    auto inputUnitVector = m_sinkUnit.GetInputUnitVector();
+    m_executionOrder.emplace_front(identifier);
+    for (auto unit : inputUnitVector)
+    {
+        m_getExecutionOrder(unit, m_executionOrder);
+    }
 }
 
 void Graph::m_connectSourceToHidden(std::size_t originID, std::size_t destID,

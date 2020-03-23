@@ -19,19 +19,19 @@ void SimpleGraphTestParallel(int workers, std::size_t epochs)
      *        \ hidden2 -- hidden4  /
      */
 
-    const auto source = Engine::Source(TensorInfo({ 1, 1, 1, 1 }), 2);
+    const auto source = Graph::Source(TensorInfo({ 1, 1, 1, 1 }), 2);
     const auto hidden1 =
-        Engine::Hidden({ source }, TensorInfo({ 1, 1, 1, 1 }), 1);
+        Graph::Hidden({ source }, TensorInfo({ 1, 1, 1, 1 }), 1);
     const auto hidden2 =
-        Engine::Hidden({ hidden1 }, TensorInfo({ 1, 1, 1, 1 }));
-    const auto hidden3 = Engine::Hidden({ source }, TensorInfo({ 1, 1, 1, 1 }));
+        Graph::Hidden({ hidden1 }, TensorInfo({ 1, 1, 1, 1 }));
+    const auto hidden3 = Graph::Hidden({ source }, TensorInfo({ 1, 1, 1, 1 }));
     const auto hidden4 =
-        Engine::Hidden({ hidden3 }, TensorInfo({ 1, 1, 1, 1 }));
-    Engine::Sink({ hidden2, hidden4 },
+        Graph::Hidden({ hidden3 }, TensorInfo({ 1, 1, 1, 1 }));
+    Graph::Sink({ hidden2, hidden4 },
                  { TensorInfo({ 1, 1, 1, 1 }), TensorInfo({ 1, 1, 1, 1 }) });
 
-    Engine::ExecuteParallel(workers, epochs);
-    Engine::JoinThreads();
+    Graph::ExecuteForwardParallel(workers, epochs);
+    Graph::JoinThreads();
     std::cout << "Terminated" << std::endl;
 }
 
@@ -102,22 +102,22 @@ void MultiplyGraphTestParallel(std::size_t batchSize, std::size_t channelSize,
     };
 
     const auto constant1 =
-        Engine::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
-                         constantData1);
+        Graph::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
+                        constantData1);
     const auto constant2 =
-        Engine::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
-                         constantData2);
+        Graph::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
+                        constantData2);
     const auto constant3 =
-        Engine::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
-                         constantData3);
+        Graph::Constant(TensorInfo({ batchSize, channelSize, 3, 3 }),
+                        constantData3);
 
-    const auto multiply1 = Engine::Multiply(constant1, constant2);
-    const auto multiply2 = Engine::Multiply(multiply1, constant3);
+    const auto multiply1 = Graph::Multiply(constant1, constant2);
+    const auto multiply2 = Graph::Multiply(multiply1, constant3);
 
-    Engine::OutputTest(multiply2, testFunction);
+    Graph::OutputTest(multiply2, testFunction);
 
-    Engine::ExecuteParallel(workers, epochs);
-    Engine::JoinThreads();
+    Graph::ExecuteForwardParallel(workers, epochs);
+    Graph::JoinThreads();
     std::cout << "Terminated MultiplyGraphTestParallel" << std::endl;
 }
 

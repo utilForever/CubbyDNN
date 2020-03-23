@@ -25,7 +25,7 @@ public:
     //! Initializes queue with given capacity (type must support default
     //! constructor
     //! \param maxCapacity : size of the queue
-    explicit SpinLockQueue(size_t maxCapacity);
+    explicit SpinLockQueue(size_t maxCapacity = 20);
 
     ~SpinLockQueue() = default;
 

@@ -9,11 +9,10 @@
 namespace CubbyDNN
 {
 DenseUnit::DenseUnit(TensorInfo input, TensorInfo weight, TensorInfo bias,
-                     TensorInfo output, std::size_t numUnits,
-                     std::size_t numberOfOutputs)
-    : HiddenUnit({ std::move(input), std::move(weight), std::move(bias) },
-                 std::move(output), numberOfOutputs),
-      m_numUnits(numUnits)
+                     TensorInfo output)
+    : HiddenUnit(
+          { input, weight, bias }, std::move(output))
+
 {
     Shape tempShape(weight.GetShape());
     tempShape.SetCol(1);
@@ -21,23 +20,23 @@ DenseUnit::DenseUnit(TensorInfo input, TensorInfo weight, TensorInfo bias,
 }
 
 DenseUnit::DenseUnit(DenseUnit&& dense) noexcept
-    : HiddenUnit(std::move(dense)),
-      m_numUnits(dense.m_numUnits)
+    : HiddenUnit(std::move(dense))
 {
 }
 
 DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
 {
-    m_numUnits = dense.m_numUnits;
+    m_temp = std::move(dense.m_temp);
+    HiddenUnit::operator=(std::move(dense));
     return *this;
 }
 
 void DenseUnit::Forward()
 {
-    Tensor& input = m_inputTensorVector.at(0);
-    Tensor& weight = m_inputTensorVector.at(1);
-    Tensor& bias = m_inputTensorVector.at(2);
-    Tensor& output = m_outputTensorVector.at(0);
+    Tensor& input = m_inputForwardTensorVector.at(0);
+    Tensor& weight = m_inputForwardTensorVector.at(1);
+    Tensor& bias = m_inputForwardTensorVector.at(2);
+    Tensor& output = m_outputForwardTensor;
 
     m_tensorOperation->Multiply(weight, input, m_temp);
     m_tensorOperation->Add(m_temp, bias, output);

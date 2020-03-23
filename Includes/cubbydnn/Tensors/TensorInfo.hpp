@@ -54,7 +54,7 @@ public:
 
 private:
     Shape m_shape;
-    size_t m_unitByteSize = 0;
+    std::size_t m_unitByteSize = 0;
     NumberSystem m_numberSystem = NumberSystem::Float;
 };
 } // namespace CubbyDNN

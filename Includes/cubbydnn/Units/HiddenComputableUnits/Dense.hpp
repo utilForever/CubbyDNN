@@ -11,11 +11,10 @@
 
 namespace CubbyDNN
 {
-class DenseUnit : HiddenUnit
+class DenseUnit : public HiddenUnit
 {
  public:
-    DenseUnit(TensorInfo input, TensorInfo weight, TensorInfo bias,
-                 TensorInfo output,  std::size_t numUnits, std::size_t numberOfOutputs);
+    DenseUnit(TensorInfo input, TensorInfo weight, TensorInfo bias, TensorInfo output);
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& dense) = delete;
@@ -28,7 +27,6 @@ class DenseUnit : HiddenUnit
     void Backward() override;
 
  private:
-    std::size_t m_numUnits;
     Tensor m_temp = Tensor(nullptr, TensorInfo());
 };
 }  // namespace CubbyDNN

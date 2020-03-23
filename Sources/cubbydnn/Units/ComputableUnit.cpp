@@ -10,8 +10,12 @@ namespace CubbyDNN
 {
 UnitState::UnitState() = default;
 
-ComputableUnit::ComputableUnit(UnitType unitType)
-    : Type(unitType)
+ComputableUnit::ComputableUnit(
+    UnitType unitType, std::vector<TensorInfo> inputTensorInfoVector,
+    TensorInfo outputTensorInfo)
+    : Type(unitType),
+      m_inputTensorInfoVector(std::move(inputTensorInfoVector)),
+      m_outputTensorInfo(std::move(outputTensorInfo))
 {
 }
 
@@ -27,7 +31,6 @@ ComputableUnit& ComputableUnit::operator=(ComputableUnit&& other) noexcept
     Type = other.Type;
     return *this;
 }
-
 
 void ComputableUnit::ReleaseUnit()
 {

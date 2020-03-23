@@ -8,6 +8,7 @@
 #define CUBBYDNN_SOURCEUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Utils/SharedPtr.hpp>
 
 namespace CubbyDNN
 {
@@ -16,11 +17,10 @@ namespace CubbyDNN
 //! or generator
 class SourceUnit : public ComputableUnit
 {
-public:
+ public:
     //! Constructor
     //! \param output : TensorInfo of the output
-    //! \param numberOfOutputs : number of connections to this source unit
-    explicit SourceUnit(TensorInfo output, size_t numberOfOutputs = 1);
+    explicit SourceUnit(TensorInfo output);
     ~SourceUnit() = default;
 
     //! SourceUnit is not copy-assignable
@@ -35,16 +35,32 @@ public:
     //! \return : true if ready to be computed false otherwise
     bool IsReady() final;
 
-    void Compute() override
+    std::size_t AddOutputPtr(
+        const SharedPtr<ComputableUnit>& computableUnitPtr);
+
+    virtual void Forward()
     {
     }
+
+    virtual void Backward()
+    {
+        //! No default action required for back propagation for source unit
+    }
+
+ protected:
+    /// ptr to units to write result
+    std::vector<SharedPtr<ComputableUnit>> m_outputPtrVector;
+};
+
+class PlaceHolderUnit : public SourceUnit
+{
+    explicit PlaceHolderUnit(TensorInfo shape);
 };
 
 class ConstantUnit : public SourceUnit
 {
-public:
-    explicit ConstantUnit(TensorInfo output, int numberOfOutputs,
-                          void* dataPtr);
+ public:
+    explicit ConstantUnit(TensorInfo output, void* dataPtr);
     ~ConstantUnit();
 
     //! ConstantUnit is not copy-assignable
@@ -55,10 +71,12 @@ public:
     ConstantUnit& operator=(const ConstantUnit& sourceUnit) = delete;
     ConstantUnit& operator=(ConstantUnit&& constantUnit) noexcept;
 
-private:
+    void Forward() final;
+
+ private:
     void* m_dataPtr = nullptr;
-    size_t m_byteSize = 0;
+    std::size_t m_byteSize = 0;
 };
-} // namespace CubbyDNN
+}  // namespace CubbyDNN
 
 #endif  // CUBBYDNN_SOURCEUNIT_HPP
