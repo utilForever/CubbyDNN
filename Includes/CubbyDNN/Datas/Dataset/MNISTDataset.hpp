@@ -9,7 +9,7 @@
 
 namespace CubbyDNN
 {
-class MNISTDataset final : public Dataset<std::tuple<Image, std::uint32_t>>
+class MNISTDataset final : public Dataset<MNISTDataset, std::tuple<Image, std::size_t>>
 {
  public:
     MNISTDataset(const std::string& root, bool train);

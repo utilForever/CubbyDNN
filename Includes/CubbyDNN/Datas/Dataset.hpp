@@ -6,7 +6,10 @@
 
 namespace CubbyDNN
 {
-template <class OutputT>
+template <class DT, class TT>
+class TransformedDataset;
+
+template <class Self, class OutputT>
 class Dataset
 {
  public:
@@ -26,6 +29,12 @@ class Dataset
     }
 
     virtual std::size_t GetSize() const = 0;
+
+    template <class TransformT>
+    TransformedDataset<Self, TransformT> Transform(TransformT transform)
+    {
+        return TransformedDataset<Self, TransformT>(std::move(*this), std::move(transform));
+    }
 };
 }  // namespace CubbyDNN
 
