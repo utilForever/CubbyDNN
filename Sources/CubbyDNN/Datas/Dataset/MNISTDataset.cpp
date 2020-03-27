@@ -40,7 +40,7 @@ MNISTDataset::MNISTDataset(const std::string& root, bool train)
     else
     {
         loadImages(root + "/t10k-images.idx3-ubyte");
-        loadLabels(root + "/t1ok-labels.idx1-ubyte");
+        loadLabels(root + "/t10k-labels.idx1-ubyte");
     }
 
     m_loaded = true;
@@ -63,8 +63,7 @@ std::size_t MNISTDataset::GetSize() const
 
 void MNISTDataset::loadImages(const std::string& filename)
 {
-    std::ifstream file(filename,
-                       std::ios::in | std::ios::binary | std::ios::ate);
+    std::ifstream file(filename, std::ios::binary);
 
     if (!file.is_open())
     {
@@ -103,8 +102,7 @@ void MNISTDataset::loadImages(const std::string& filename)
 
 void MNISTDataset::loadLabels(const std::string& filename)
 {
-    std::ifstream file(filename,
-                       std::ios::in | std::ios::binary | std::ios::ate);
+    std::ifstream file(filename, std::ios::binary);
 
     if (!file.is_open())
     {
