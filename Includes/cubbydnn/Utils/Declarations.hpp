@@ -18,25 +18,10 @@ enum class NumberSystem
 };
 enum class UnitType
 {
-    None,
     Source,
     Hidden,
     Sink,
     Copy,
-    Constant,
-    Variable,
-    PlaceHolder,
-    Add,
-    Mul,
-    Dense,
-    Activate,
-    Dropout,
-    Regularize,
-    Reshape,
-    Conv,
-    MaxPool,
-    AveragePool,
-    Undefined,
 };
 
 //! UnitState
@@ -59,10 +44,20 @@ enum class TaskType
     None,
 };
 
-struct UnitIdentifier
+struct UnitId
 {
     UnitType Type;
     std::size_t ID;
+
+    friend bool operator==(const UnitId& lhs, const UnitId& rhs)
+    {
+        return lhs.Type == rhs.Type && lhs.ID == rhs.ID;
+    }
+
+    friend bool operator!=(const UnitId& lhs, const UnitId& rhs)
+    {
+        return !(lhs == rhs);
+    }
 };
 
 enum class ActivationType
@@ -104,11 +99,27 @@ enum class Padding
     Same,
 };
 
+enum class Optimizer
+{
+    Adam,
+    Adagrad,
+    SGD,
+    Momentum,
+};
+
+enum class Loss
+{
+    CrossEntropy,
+    MeanSquaredError,
+    MeanAbsoluteError,
+    MeanSquaredLogarithmicError,
+};
+
 enum class Regularization
 {
     L1,
     L2,
 };
-} // namespace CubbyDNN
+}  // namespace CubbyDNN
 
 #endif

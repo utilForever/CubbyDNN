@@ -19,16 +19,16 @@ ComputableUnit::ComputableUnit(
 {
 }
 
-ComputableUnit::ComputableUnit(ComputableUnit&& other) noexcept
-    : Type(other.Type)
+ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
+    : Type(computableUnit.Type), m_id(computableUnit.m_id)
 {
 }
 
-ComputableUnit& ComputableUnit::operator=(ComputableUnit&& other) noexcept
+ComputableUnit& ComputableUnit::operator=(ComputableUnit&& computableUnit) noexcept
 {
-    if (this == &other)
+    if (this == &computableUnit)
         return *this;
-    Type = other.Type;
+    Type = computableUnit.Type;
     return *this;
 }
 

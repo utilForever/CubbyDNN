@@ -28,27 +28,6 @@ SourceUnit& SourceUnit::operator=(SourceUnit&& sourceUnit) noexcept
     return *this;
 }
 
-bool SourceUnit::IsReady()
-{
-    auto isReady = true;
-    for (const auto& nextPtr : m_outputPtrVector)
-    {
-        if (nextPtr->GetStateNum() != GetStateNum())
-        {
-            isReady = false;
-            break;
-        }
-    }
-    return isReady;
-}
-
-std::size_t SourceUnit::AddOutputPtr(
-    const SharedPtr<ComputableUnit>& computableUnitPtr)
-{
-    m_outputPtrVector.emplace_back(computableUnitPtr);
-    return m_outputPtrVector.size();
-}
-
 ConstantUnit::ConstantUnit(TensorInfo output, void* dataPtr)
     : SourceUnit(std::move(output)), m_dataPtr(dataPtr)
 {

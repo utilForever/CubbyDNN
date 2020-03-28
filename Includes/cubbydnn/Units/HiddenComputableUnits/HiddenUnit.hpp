@@ -7,10 +7,9 @@
 #ifndef CUBBYDNN_HIDDENUNIT_HPP
 #define CUBBYDNN_HIDDENUNIT_HPP
 
-#include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Computations/TensorOperations/TensorOperations.hpp>
 #include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
-#include <cubbydnn/Utils/SharedPtr.hpp>
+#include <cubbydnn/Computations/TensorOperations/TensorOperations.hpp>
+#include <cubbydnn/Units/ComputableUnit.hpp>
 #include <iostream>
 
 namespace CubbyDNN
@@ -31,40 +30,16 @@ public:
     HiddenUnit& operator=(const HiddenUnit& hiddenUnit) = delete;
     HiddenUnit& operator=(HiddenUnit&& hiddenUnit) noexcept;
 
-    //! Adds output computable unit ptr to ComputableUnit
-    //! \param computableUnitPtr : ptr to output computable unit
-    std::size_t AddOutputPtr(
-        const SharedPtr<ComputableUnit>& computableUnitPtr);
-
-    //! Adds input computable unit ptr to this ComputableUnit
-    //! \param computableUnitPtr : ptr to input computable unit
-    //! \param index : indicates order of input argument.
-    void AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr,
-                     std::size_t index);
-
-
-    //! Determines whether system is ready to compute
-    bool IsReady() final;
 
     //! Forward propagation
-    virtual void Forward()
-    {
-    }
+    virtual void Forward() = 0;
 
     //! Backward propagation
-    virtual void Backward()
-    {
-    }
+    virtual void Backward() = 0;
 
 protected:
-    std::unique_ptr<TensorOperation> m_tensorOperation = std::unique_ptr<
-        NaiveOperation>();
-
-private:
-    /// ptr to units to receive result from
-    std::vector<SharedPtr<ComputableUnit>> m_inputPtrVector;
-    /// ptr to units to write result
-    std::vector<SharedPtr<ComputableUnit>> m_outputPtrVector;
+    std::unique_ptr<TensorOperation> m_tensorOperation =
+        std::unique_ptr<NaiveOperation>();
 };
 } // namespace CubbyDNN
 

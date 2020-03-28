@@ -20,7 +20,6 @@ class CopyUnit
 public:
     CopyUnit() = default;
     ~CopyUnit() = default;
-
     CopyUnit(CopyUnit& copyUnit) = delete;
     CopyUnit(CopyUnit&& copyUnit) noexcept;
 
@@ -42,9 +41,12 @@ public:
     //! previously assigned computableUnitPtr, computableUnitPtr is replaced by
     //! given parameter
     //! \param computableUnitPtr : computableUnitPtr to add or replace
-    void AddOutputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr)
+    //! \param index : input index from the target unit
+    void AddOutputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr,
+                      std::size_t index)
     {
-        m_outputUnitPtrVector.emplace_back(computableUnitPtr);
+        PtrIndexPair pair{ computableUnitPtr, index };
+        m_outputUnitPtrVector.emplace_back(pair);
     }
 
     //! Sets index of previous m_tensor to copy
@@ -61,11 +63,6 @@ public:
         m_outputTensorIndex = index;
     }
 
-    //! Checks if this copyUnit is ready to be executed
-    bool IsReady();
-
-    void ReleaseUnit();
-
     std::size_t GetStateNum() const;
     //! Implements copy operation between input and output
     void Forward();
@@ -73,21 +70,25 @@ public:
     void Backward();
 
 private:
+    struct PtrIndexPair
+    {
+        SharedPtr<ComputableUnit> ptr;
+        std::size_t index;
+    };
+
     UnitState m_unitState;
 
     std::size_t m_inputTensorIndex = 0;
     std::size_t m_outputTensorIndex = 0;
 
     Tensor m_inputForwardTensor;
-    std::vector<Tensor> m_outputForwardTensorVector;
-
-    std::vector<Tensor> m_inputBackwardTensorVector;
-    std::vector<Tensor> m_outputBackwardTensorVector;
 
     /// ptr to source of the copy
     WeakPtr<ComputableUnit> m_inputUnitPtr;
     /// ptr to destination of the copy
-    std::vector<WeakPtr<ComputableUnit>> m_outputUnitPtrVector;
+    std::vector<
+        PtrIndexPair>
+    m_outputUnitPtrVector;
 };
 } // namespace CubbyDNN
 

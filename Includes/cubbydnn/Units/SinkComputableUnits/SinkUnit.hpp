@@ -32,20 +32,9 @@ public:
     SinkUnit& operator=(const SinkUnit& sinkUnit) = delete;
     SinkUnit& operator=(SinkUnit&& sinkUnit) noexcept;
 
-    //! Brings back if executableUnit is ready to be executed
-    //! \return : whether corresponding unit is ready to be executed
-    bool IsReady() final;
+    virtual void Forward() = 0;
 
-    std::size_t AddInputPtr(const SharedPtr<ComputableUnit>& computableUnitPtr,
-                            std::size_t index);
-
-    virtual void Forward()
-    {
-    }
-
-    virtual void Backward()
-    {
-    }
+    virtual void Backward() = 0;
 
 private:
     /// ptr to units to receive result from

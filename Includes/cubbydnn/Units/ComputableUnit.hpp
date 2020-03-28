@@ -27,34 +27,34 @@ public:
     virtual ~ComputableUnit() = default;
 
     ComputableUnit(const ComputableUnit& computableUnit) = delete;
-    ComputableUnit(ComputableUnit&& other) noexcept;
+    ComputableUnit(ComputableUnit&& computableUnit) noexcept;
 
-    ComputableUnit& operator=(ComputableUnit&& other) noexcept;
+    ComputableUnit& operator=(ComputableUnit&& computableUnit) noexcept;
     ComputableUnit& operator=(const ComputableUnit& computableUnit) = delete;
 
-    UnitIdentifier GetIdentifier()
+    UnitId GetId() const
     {
-        return m_identifier;
+        return m_id;
     }
 
-    virtual Tensor& GetInputForwardTensor(std::size_t index)
+    Tensor& GetInputForwardTensor(std::size_t index)
     {
         return m_inputForwardTensorVector.at(index);
     }
 
-    virtual Tensor& GetOutputForwardTensor()
+    Tensor& GetOutputForwardTensor()
     {
         return m_outputForwardTensor;
     }
 
-    virtual Tensor& GetInputBackwardTensor(std::size_t index)
+    Tensor& GetInputBackwardTensor()
     {
-        return m_outputBackwardTensorVector.at(index);
+        return m_inputBackwardTensor;
     }
 
-    virtual Tensor& GetOutputBackwardTensor(std::size_t index)
+    Tensor& GetOutputBackwardTensor(std::size_t index)
     {
-        return m_inputBackwardTensorVector.at(index);
+        return m_outputBackwardTensorVector.at(index);
     }
 
     TensorInfo GetOutputTensorInfo() const
@@ -62,29 +62,27 @@ public:
         return m_outputTensorInfo;
     }
 
-    const std::vector<UnitIdentifier>& GetInputUnitVector() const
+    const std::vector<UnitId>& GetInputUnitVector() const
     {
-        return m_inputUnitVector;
+        return m_inputUnitIdVector;
     }
 
-    const std::vector<UnitIdentifier>& GetOutputUnitVector() const
+    const std::vector<std::pair<UnitId, std::size_t>>&
+    GetOutputUnitVector() const
     {
-        return m_outputUnitVector;
+        return m_outputUnitIdVector;
     }
 
-    void SetInputUnitVector(std::vector<UnitIdentifier> inputUnitVector)
+    void SetInputUnitVector(std::vector<UnitId> inputUnitVector)
     {
-        m_inputUnitVector = inputUnitVector;
+        m_inputUnitIdVector = inputUnitVector;
     }
 
-    void AddOutputUnitVector(UnitIdentifier outputUnit)
+    void AddOutputUnitVector(UnitId outputUnit, std::size_t inputIndex)
     {
-        m_outputUnitVector.emplace_back(outputUnit);
+        m_outputUnitIdVector.emplace_back(
+            std::make_pair(outputUnit, inputIndex));
     }
-
-    //! Gets whether if executableUnit is ready to be executed
-    //! \return : whether corresponding unit is ready to be executed
-    virtual bool IsReady() = 0;
 
     //! Called after computation for releasing the unit after computation
     //! Increments the stateNum and marks IsBusy as false
@@ -98,24 +96,25 @@ public:
         return m_unitState.StateNum.load(std::memory_order_acquire);
     }
 
-    UnitType Type = UnitType::Undefined;
+    UnitType Type;
 
 protected:
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
     UnitState m_unitState;
-   UnitIdentifier m_identifier;
-    std::vector<UnitIdentifier> m_inputUnitVector;
-    std::vector<UnitIdentifier> m_outputUnitVector;
+    UnitId m_id;
+    std::vector<UnitId> m_inputUnitIdVector;
+    std::vector<std::pair<UnitId, std::size_t>> m_outputUnitIdVector;
     //! vector of tensor information for input in forward propagation
     std::vector<TensorInfo> m_inputTensorInfoVector;
     //! tensor information for output in forward propagation
     TensorInfo m_outputTensorInfo;
-    //! vector of input tensors used to compute forward propagation
-    std::vector<Tensor> m_inputForwardTensorVector;
+
     //! single output tensor of forward propagation
     Tensor m_outputForwardTensor;
     //! single output tensor of back propagation
-    std::vector<Tensor> m_inputBackwardTensorVector;
+    Tensor m_inputBackwardTensor;
+    //! vector of input tensors used to compute forward propagation
+    std::vector<Tensor> m_inputForwardTensorVector;
     //! vector of output tensors used to compute back propagation
     std::vector<Tensor> m_outputBackwardTensorVector;
 };

@@ -8,6 +8,7 @@
 #define CUBBYDNN_SOURCEUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Units/CopyUnit.hpp>
 #include <cubbydnn/Utils/SharedPtr.hpp>
 
 namespace CubbyDNN
@@ -31,13 +32,6 @@ class SourceUnit : public ComputableUnit
     SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
     SourceUnit& operator=(SourceUnit&& sourceUnit) noexcept;
 
-    //! Checks if source is ready
-    //! \return : true if ready to be computed false otherwise
-    bool IsReady() final;
-
-    std::size_t AddOutputPtr(
-        const SharedPtr<ComputableUnit>& computableUnitPtr);
-
     virtual void Forward()
     {
     }
@@ -48,8 +42,8 @@ class SourceUnit : public ComputableUnit
     }
 
  protected:
-    /// ptr to units to write result
-    std::vector<SharedPtr<ComputableUnit>> m_outputPtrVector;
+    Tensor m_outputForwardTensor;
+    Tensor m_inputBackwardTensor;
 };
 
 class PlaceHolderUnit : public SourceUnit

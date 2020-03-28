@@ -34,20 +34,4 @@ SinkUnit& SinkUnit::operator=(SinkUnit&& sinkUnit) noexcept
     return *this;
 }
 
-bool SinkUnit::IsReady()
-{
-    for (const auto& previousPtr : m_inputPtrVector)
-    {
-        if (previousPtr->GetStateNum() != GetStateNum() + 1)
-            return false;
-    }
-    return true;
-}
-
-std::size_t SinkUnit::AddInputPtr(
-    const SharedPtr<ComputableUnit>& computableUnitPtr, std::size_t index)
-{
-    m_inputPtrVector.emplace_back(computableUnitPtr);
-    return m_inputPtrVector.size();
-}
 } // namespace CubbyDNN
