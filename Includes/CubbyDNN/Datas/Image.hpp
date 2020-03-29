@@ -54,6 +54,8 @@ class Image final
     Pixel& At(std::size_t x, std::size_t y);
     const Pixel& At(std::size_t x, std::size_t y) const;
 
+    Image ToGrayScale() const;
+
  private:
     std::size_t m_width{ 0 }, m_height{ 0 };
     bool m_hasAlpha{ true };

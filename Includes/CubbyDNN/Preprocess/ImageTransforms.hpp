@@ -18,16 +18,26 @@ class CenterCrop : public Transform<Image, Image>
     std::size_t m_cropSize_;
 };
 
-class FlipHorizontal : public Transform<Image, Image>
+class RandomFlipHorizontal : public Transform<Image, Image>
 {
  public:
+    RandomFlipHorizontal(double p = 0.5);
+
     OutputType operator()(const InputType& input) override;
+
+ private:
+    double p_;
 };
 
-class FlipVertical : public Transform<Image, Image>
+class RandomFlipVertical : public Transform<Image, Image>
 {
  public:
+    RandomFlipVertical(double p = 0.5);
+
     OutputType operator()(const Image& input) override;
+
+ private:
+    double p_;
 };
 
 class Rotation : public Transform<Image, Image>
@@ -45,6 +55,17 @@ class GrayScale : public Transform<Image, Image>
 {
  public:
     OutputType operator()(const InputType& input) override;
+};
+
+class RandomGrayScale : public Transform<Image, Image>
+{
+public:
+    RandomGrayScale(double p = 0.5);
+
+    OutputType operator()(const InputType& input) override;
+
+private:
+    double p_;
 };
 
 class ToTensor : public Transform<Image, FloatTensor>

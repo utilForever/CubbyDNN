@@ -1,6 +1,7 @@
 #include <CubbyDNN/Preprocess/ImageTransforms.hpp>
 
 #include <cmath>
+#include <effolkronium/random.hpp>
 #include <stdexcept>
 
 namespace
@@ -39,8 +40,18 @@ CenterCrop::OutputType CenterCrop::operator()(const InputType& origin)
     return result;
 }
 
-FlipHorizontal::OutputType FlipHorizontal::operator()(const InputType& origin)
+RandomFlipHorizontal::RandomFlipHorizontal(double p) : p_(p)
 {
+}
+
+RandomFlipHorizontal::OutputType RandomFlipHorizontal::operator()(
+    const InputType& origin)
+{
+    if (effolkronium::random_static::get<bool>(p_))
+    {
+        return origin;
+    }
+
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
     for (std::size_t y = 0; y < origin.GetHeight(); ++y)
@@ -54,8 +65,18 @@ FlipHorizontal::OutputType FlipHorizontal::operator()(const InputType& origin)
     return result;
 }
 
-FlipVertical::OutputType FlipVertical::operator()(const InputType& origin)
+RandomFlipVertical::RandomFlipVertical(double p) : p_(p)
 {
+}
+
+RandomFlipVertical::OutputType RandomFlipVertical::operator()(
+    const InputType& origin)
+{
+    if (effolkronium::random_static::get<bool>(p_))
+    {
+        return origin;
+    }
+
     Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
 
     for (std::size_t y = 0; y < origin.GetHeight(); ++y)
@@ -105,17 +126,22 @@ Rotation::OutputType Rotation::operator()(const InputType& origin)
 
 GrayScale::OutputType GrayScale::operator()(const InputType& origin)
 {
-    Image result(origin.GetWidth(), origin.GetHeight(), false, true);
+    return origin.ToGrayScale();
+}
 
-    for (std::size_t y = 0; y < result.GetHeight(); ++y)
+RandomGrayScale::RandomGrayScale(double p) : p_(p)
+{
+}
+
+Transform<Image, Image>::OutputType RandomGrayScale::operator()(
+    const InputType& input)
+{
+    if (effolkronium::random_static::get<bool>(p_))
     {
-        for (std::size_t x = 0; x < result.GetWidth(); ++x)
-        {
-            result.At(x, y) = Pixel::ToGrayScale(origin.At(x, y));
-        }
+        return input;
     }
 
-    return result;
+    return input.ToGrayScale();
 }
 
 ToTensor::OutputType ToTensor::operator()(const InputType& input)

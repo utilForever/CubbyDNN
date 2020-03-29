@@ -144,4 +144,19 @@ const Pixel& Image::At(std::size_t x, std::size_t y) const
 {
     return m_data[x + y * m_width];
 }
+
+Image Image::ToGrayScale() const
+{
+    Image result(m_width, m_height, false, true);
+
+    for (std::size_t y = 0; y < result.GetHeight(); ++y)
+    {
+        for (std::size_t x = 0; x < result.GetWidth(); ++x)
+        {
+            result.At(x, y) = Pixel::ToGrayScale(At(x, y));
+        }
+    }
+
+    return result;
+}
 }  // namespace CubbyDNN
