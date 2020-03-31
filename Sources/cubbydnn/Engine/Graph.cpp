@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #include <cubbyDnn/Units/HiddenComputableUnits/Dense.hpp>
-#include <cubbydnn/Engine/Engine.hpp>
+#include <cubbydnn/Engine/Graph.hpp>
 
 namespace CubbyDNN
 {

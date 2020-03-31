@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #include "GraphSynchronizationTest.hpp"
-#include <cubbydnn/Engine/Engine.hpp>
+#include <cubbydnn/Engine/Graph.hpp>
 #include "gtest/gtest.h"
 
 namespace GraphTest
