@@ -120,13 +120,11 @@ UnitId Graph::Dense(const UnitId& input, std::size_t units,
     Shape inputShape;
     if (input.Type == UnitType::Hidden)
     {
-        inputShape =
-            m_hiddenUnitVector.at(input.ID)->GetOutputTensorShape();
+        inputShape = m_hiddenUnitVector.at(input.ID)->GetOutputTensorShape();
     }
     else if (input.Type == UnitType::Source)
     {
-        inputShape =
-            m_hiddenUnitVector.at(input.ID)->GetOutputTensorShape();
+        inputShape = m_hiddenUnitVector.at(input.ID)->GetOutputTensorShape();
     }
     else
         throw std::runtime_error("input unit must be source or hidden");
@@ -148,11 +146,23 @@ UnitId Graph::Dense(const UnitId& input, std::size_t units,
     return unitId;
 }
 
-//! TODO : Do dfs search to seek and connect units together
-void Graph::Compile(OptimizerType optimizer, Loss loss)
+void Graph::Compile(UnitId unitId, OptimizerType optimizer, Loss loss)
 {
-    optimizer;
-    loss;
+    m_optimizer = optimizer;
+    UnitId sinkUnitId = { UnitType::Sink, 0 };
+    if (loss == Loss::CrossEntropy)
+    {
+        m_sinkUnit = SharedPtr<CrossEntropy>::Make(
+            sinkUnitId,
+            m_hiddenUnitVector.at(unitId.ID)->GetOutputTensorShape(),
+            m_numberSystem);
+    }
+    else
+    {
+        // TODO : implement other kinds of loss functions
+        throw std::runtime_error("Not Implemented");
+    }
+
     auto identifier = m_sinkUnit->GetId();
     std::vector<UnitId> sinkUnitVector;
     sinkUnitVector.emplace_back(identifier);
@@ -165,13 +175,13 @@ void Graph::Compile(OptimizerType optimizer, Loss loss)
 
     for (const auto& unitIdVector : m_executionOrder)
     {
-        for (auto unitId : unitIdVector)
+        for (auto id : unitIdVector)
         {
             SharedPtr<CopyUnit> copyUnit = SharedPtr<CopyUnit>::Make();
 
-            if (unitId.Type == UnitType::Source)
+            if (id.Type == UnitType::Source)
             {
-                auto& unitPtr = m_sourceUnitVector.at(unitId.ID);
+                auto& unitPtr = m_sourceUnitVector.at(id.ID);
                 copyUnit->SetInputPtr(unitPtr);
                 const auto outputUnitIdVector = unitPtr->GetOutputUnitVector();
                 std::vector<SharedPtr<ComputableUnit>> outputUnitVector;
@@ -191,9 +201,9 @@ void Graph::Compile(OptimizerType optimizer, Loss loss)
                     }
                 }
             }
-            else if (unitId.Type == UnitType::Hidden)
+            else if (id.Type == UnitType::Hidden)
             {
-                auto& unitPtr = m_sourceUnitVector.at(unitId.ID);
+                auto& unitPtr = m_sourceUnitVector.at(id.ID);
                 copyUnit->SetInputPtr(unitPtr);
                 const auto outputUnitIdVector = unitPtr->GetOutputUnitVector();
                 std::vector<SharedPtr<ComputableUnit>> outputUnitVector;

@@ -22,7 +22,7 @@ void GraphExample()
     const auto dense2 =
         graph.Dense(dense1, 5, Activation::Softmax,
                     InitializerType::LeCunNormal, InitializerType::LeCunNormal);
-    graph.Compile(OptimizerType::Adam, Loss::CrossEntropy);
+    graph.Compile(dense2, OptimizerType::Adam, Loss::CrossEntropy);
 
     graph.Fit(100);
 

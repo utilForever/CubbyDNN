@@ -31,12 +31,25 @@ public:
     //! SinkUnit is not copy-assignable
     SinkUnit& operator=(const SinkUnit& sinkUnit) = delete;
     SinkUnit& operator=(SinkUnit&& sinkUnit) noexcept;
-
 };
 
 class CrossEntropy : public ComputableUnit
 {
-    explicit CrossEntropy(std::vector<TensorInfo> inputTensorInfoVector);
+public:
+    explicit CrossEntropy(UnitId unitId, Shape inputShape,
+                          NumberSystem numberSystem)
+        : ComputableUnit(unitId, { std::move(inputShape) }, Shape(),
+                         numberSystem)
+    {
+    };
+
+    void Forward() override
+    {
+    };
+
+    void Backward() override
+    {
+    };
 };
 } // namespace CubbyDNN
 

@@ -39,7 +39,7 @@ public:
     UnitId Reshape(const UnitId& input, const Shape& shape);
 
     //! OptimizerType, Loss function
-    void Compile(OptimizerType optimizer, Loss loss);
+    void Compile(UnitId unitId, OptimizerType optimizer, Loss loss);
 
     //! Trains the graph with given optimizer and loss function
     void Fit(std::size_t epochs);
@@ -56,7 +56,7 @@ private:
     std::vector<std::vector<UnitId>> m_executionOrder;
 
     std::vector<SharedPtr<ComputableUnit>> m_sourceUnitVector;
-    SharedPtr<SinkUnit> m_sinkUnit;
+    SharedPtr<ComputableUnit> m_sinkUnit;
     std::vector<SharedPtr<ComputableUnit>> m_hiddenUnitVector;
     std::vector<SharedPtr<CopyUnit>> m_sourceCopyUnitVector;
     std::vector<SharedPtr<CopyUnit>> m_hiddenCopyUnitVector;
