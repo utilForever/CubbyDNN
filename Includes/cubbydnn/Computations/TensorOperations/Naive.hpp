@@ -31,9 +31,9 @@ public:
     static void TensorAdd(const Tensor& inputA, const Tensor& inputB,
                           Tensor& output)
     {
-        const auto inputShapeA = inputA.Info.GetShape();
-        const auto inputShapeB = inputB.Info.GetShape();
-        const auto outputShape = output.Info.GetShape();
+        const auto inputShapeA = inputA.TensorShape;
+        const auto inputShapeB = inputB.TensorShape;
+        const auto outputShape = output.TensorShape;
 
         const auto batchSizeA = inputShapeA.BatchSize();
         const auto batchSizeB = inputShapeB.BatchSize();
@@ -66,9 +66,9 @@ public:
     static void TensorMul(const Tensor& inputA, const Tensor& inputB,
                           Tensor& output)
     {
-        const auto inputShapeA = inputA.Info.GetShape();
-        const auto inputShapeB = inputB.Info.GetShape();
-        const auto outputShape = output.Info.GetShape();
+        const auto inputShapeA = inputA.TensorShape;
+        const auto inputShapeB = inputB.TensorShape;
+        const auto outputShape = output.TensorShape;
 
         const auto batchSizeA = inputShapeA.BatchSize();
         const auto batchSizeB = inputShapeB.BatchSize();
@@ -100,8 +100,8 @@ public:
     template <typename T>
     static void TensorTranspose(const Tensor& input, Tensor& output)
     {
-        const auto inputShape = input.Info.GetShape();
-        const auto outputShape = output.Info.GetShape();
+        const auto inputShape = input.TensorShape;
+        const auto outputShape = output.TensorShape;
 
         const auto batchSize = inputShape.BatchSize();
         const auto batchOutputSize = outputShape.BatchSize();

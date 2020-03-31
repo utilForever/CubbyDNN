@@ -9,19 +9,15 @@
 
 namespace CubbyDNN
 {
-BlazeOperation::BlazeOperation()
-    : TensorOperation()
-{
-}
 
 void BlazeOperation::Multiply(const Tensor& inputA, const Tensor& inputB,
                               Tensor& output)
 {
-    if (inputA.Info.GetNumberSystem() != inputB.Info.GetNumberSystem() ||
-        inputA.Info.GetNumberSystem() != output.Info.GetNumberSystem())
+    if (inputA.NumericType != inputB.NumericType ||
+        inputA.NumericType != output.NumericType)
         throw std::runtime_error("Number system mismatches between tensors");
 
-    const auto numberSystem = inputA.Info.GetNumberSystem();
+    const auto numberSystem = inputA.NumericType;
 
     if (numberSystem == NumberSystem::Float)
         Blaze::TensorMul<float>(inputA, inputB, output);
@@ -32,11 +28,11 @@ void BlazeOperation::Multiply(const Tensor& inputA, const Tensor& inputB,
 void BlazeOperation::Add(const Tensor& inputA, const Tensor& inputB,
                          Tensor& output)
 {
-    if (inputA.Info.GetNumberSystem() != inputB.Info.GetNumberSystem() ||
-        inputA.Info.GetNumberSystem() != output.Info.GetNumberSystem())
+    if (inputA.NumericType != inputB.NumericType ||
+        inputA.NumericType != output.NumericType)
         throw std::runtime_error("Number system mismatches between tensors");
 
-    const auto numberSystem = inputA.Info.GetNumberSystem();
+    const auto numberSystem = inputA.NumericType;
     if (numberSystem == NumberSystem::Float)
         Blaze::TensorAdd<float>(inputA, inputB, output);
     else
@@ -45,9 +41,9 @@ void BlazeOperation::Add(const Tensor& inputA, const Tensor& inputB,
 
 void BlazeOperation::Transpose(const Tensor& input, Tensor& output)
 {
-    if (input.Info.GetNumberSystem() != output.Info.GetNumberSystem())
+    if (input.NumericType != output.NumericType)
         throw std::runtime_error("Number system mismatch");
-    const auto numberSystem = input.Info.GetNumberSystem();
+    const auto numberSystem = input.NumericType;
 
     if (numberSystem == NumberSystem::Float)
         Blaze::TensorTranspose<float>(input, output);

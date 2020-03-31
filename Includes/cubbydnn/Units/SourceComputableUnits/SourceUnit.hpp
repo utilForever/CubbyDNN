@@ -8,8 +8,6 @@
 #define CUBBYDNN_SOURCEUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Units/CopyUnit.hpp>
-#include <cubbydnn/Utils/SharedPtr.hpp>
 
 namespace CubbyDNN
 {
@@ -18,10 +16,11 @@ namespace CubbyDNN
 //! or generator
 class SourceUnit : public ComputableUnit
 {
- public:
+public:
     //! Constructor
     //! \param output : TensorInfo of the output
-    explicit SourceUnit(TensorInfo output);
+    explicit SourceUnit(UnitId unitId, Shape outputShape,
+                        NumberSystem numberSystem);
     ~SourceUnit() = default;
 
     //! SourceUnit is not copy-assignable
@@ -31,46 +30,29 @@ class SourceUnit : public ComputableUnit
     //! SourceUnit is not copy-assignable
     SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
     SourceUnit& operator=(SourceUnit&& sourceUnit) noexcept;
-
-    virtual void Forward()
-    {
-    }
-
-    virtual void Backward()
-    {
-        //! No default action required for back propagation for source unit
-    }
-
- protected:
-    Tensor m_outputForwardTensor;
-    Tensor m_inputBackwardTensor;
 };
 
-class PlaceHolderUnit : public SourceUnit
+class PlaceHolderUnit : public ComputableUnit
 {
-    explicit PlaceHolderUnit(TensorInfo shape);
+public:
+    explicit PlaceHolderUnit(UnitId unitId, Shape outputShape,
+                             NumberSystem numberSystem);
+    ~PlaceHolderUnit() = default;
+
+    PlaceHolderUnit(const PlaceHolderUnit& placeHolderUnit) = delete;
+    PlaceHolderUnit(PlaceHolderUnit&& placeHolderUnit) noexcept;
+
+    PlaceHolderUnit& operator=(const PlaceHolderUnit& placeHolderUnit) = delete;
+    PlaceHolderUnit& operator=(PlaceHolderUnit&& placeHolderUnit) noexcept;
+
+    void Forward() override
+    {
+    };
+
+    void Backward() override
+    {
+    };
 };
-
-class ConstantUnit : public SourceUnit
-{
- public:
-    explicit ConstantUnit(TensorInfo output, void* dataPtr);
-    ~ConstantUnit();
-
-    //! ConstantUnit is not copy-assignable
-    ConstantUnit(const ConstantUnit& constantUnit) = delete;
-    ConstantUnit(ConstantUnit&& constantUnit) noexcept;
-
-    //! ConstantUnit is not copy-assignable
-    ConstantUnit& operator=(const ConstantUnit& sourceUnit) = delete;
-    ConstantUnit& operator=(ConstantUnit&& constantUnit) noexcept;
-
-    void Forward() final;
-
- private:
-    void* m_dataPtr = nullptr;
-    std::size_t m_byteSize = 0;
-};
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif  // CUBBYDNN_SOURCEUNIT_HPP

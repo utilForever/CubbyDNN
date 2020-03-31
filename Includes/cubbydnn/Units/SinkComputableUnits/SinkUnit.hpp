@@ -8,9 +8,6 @@
 #define CUBBYDNN_SINKUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Utils/SharedPtr.hpp>
-
-#include <functional>
 
 namespace CubbyDNN
 {
@@ -20,8 +17,11 @@ class SinkUnit : public ComputableUnit
 {
 public:
     //! Constructor
-    //! \param inputTensorInfoVector : vector of tensorInfo to accept
-    explicit SinkUnit(std::vector<TensorInfo> inputTensorInfoVector);
+    //! \param unitId : Unique Id of this unit
+    //! \param inputShapeVector : vector of tensorInfo to accept
+    //! \param numberSystem : number system for this unit
+    explicit SinkUnit(UnitId unitId, std::vector<Shape> inputShapeVector,
+                      NumberSystem numberSystem);
     ~SinkUnit() = default;
 
     //! SinkUnit is not copy-assignable
@@ -32,19 +32,11 @@ public:
     SinkUnit& operator=(const SinkUnit& sinkUnit) = delete;
     SinkUnit& operator=(SinkUnit&& sinkUnit) noexcept;
 
-    virtual void Forward() = 0;
+};
 
-    virtual void Backward() = 0;
-
-private:
-    /// ptr to units to receive result from
-    std::vector<SharedPtr<ComputableUnit>> m_inputPtrVector;
-    //! vector of tensor information for input in forward propagation
-    std::vector<TensorInfo> m_inputTensorInfoVector;
-    //! vector of input tensors used to compute forward propagation
-    std::vector<Tensor> m_inputForwardTensorVector;
-    //! single output tensor of back propagation
-    std::vector<Tensor> m_outputBackwardTensorVector;
+class CrossEntropy : public ComputableUnit
+{
+    explicit CrossEntropy(std::vector<TensorInfo> inputTensorInfoVector);
 };
 } // namespace CubbyDNN
 

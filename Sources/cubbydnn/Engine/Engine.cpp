@@ -14,13 +14,13 @@ Graph::Graph(NumberSystem numberSystem)
 {
 }
 
-void Graph::ExecuteForward(std::size_t epochs)
+void Graph::Predict(std::size_t epochs)
 {
     m_maxEpochs = epochs;
     const auto totalDepth = m_executionOrder.size();
     for (std::size_t count = 0; count < epochs; ++count)
     {
-        //! Forard Propagation
+        //! Forward Propagation
         for (std::size_t depth = 0; depth < totalDepth; ++depth)
         {
             auto unitVector = m_executionOrder.at(depth);
@@ -50,7 +50,7 @@ void Graph::Fit(std::size_t epochs)
     const auto totalDepth = m_executionOrder.size();
     for (std::size_t count = 0; count < epochs; ++count)
     {
-        //! Forard Propagation
+        //! Forward Propagation
         for (std::size_t depth = 0; depth < totalDepth; ++depth)
         {
             auto unitVector = m_executionOrder.at(depth);
@@ -103,69 +103,56 @@ void Graph::Fit(std::size_t epochs)
 
 UnitId Graph::PlaceHolder(const Shape& shape)
 {
-    SharedPtr<PlaceHolderUnit> ptr =
-        SharedPtr<PlaceHolderUnit>::Make(TensorInfo(shape, m_numberSystem));
-
     const auto id = m_sourceUnitVector.size();
+    UnitId unitId = { UnitType::Source, id };
+    SharedPtr<PlaceHolderUnit> ptr =
+        SharedPtr<PlaceHolderUnit>::Make(unitId, shape, m_numberSystem);
+
     m_sourceUnitVector.emplace_back(std::move(ptr));
-    return { UnitType::Source, id };
+    return unitId;
 }
 
 // TODO : put activation, initializing methods, etc.
-UnitId Graph::Dense(const UnitId& input, std::size_t units, ActivationType activationType)
+UnitId Graph::Dense(const UnitId& input, std::size_t units,
+                    Activation activation, InitializerType kernelInitializer,
+                    InitializerType biasInitializer, float dropoutRate)
 {
-    TensorInfo inputTensorInfo;
-    TensorInfo weightTensorInfo;
-    TensorInfo biasTensorInfo;
+    Shape inputShape;
     if (input.Type == UnitType::Hidden)
     {
-        inputTensorInfo =
-            m_hiddenUnitVector.at(input.ID)->GetOutputTensorInfo();
+        inputShape =
+            m_hiddenUnitVector.at(input.ID)->GetOutputTensorShape();
     }
     else if (input.Type == UnitType::Source)
     {
-        inputTensorInfo =
-            m_hiddenUnitVector.at(input.ID)->GetOutputTensorInfo();
+        inputShape =
+            m_hiddenUnitVector.at(input.ID)->GetOutputTensorShape();
     }
     else
         throw std::runtime_error("input unit must be source or hidden");
 
-    const Shape weightShape = { inputTensorInfo.GetShape().Row(), units };
-    const Shape biasShape = { 1, inputTensorInfo.GetShape().Row() };
-
-    // TODO : specify number system other than float
-    TensorInfo weightInfo(weightShape);
-    TensorInfo biasInfo(biasShape);
-
-    SharedPtr<ConstantUnit> weightPtr = SharedPtr<ConstantUnit>::Make(
-        weightInfo, AllocateData<float>(weightShape));
-    SharedPtr<ConstantUnit> biasPtr = SharedPtr<ConstantUnit>::Make(
-        weightInfo, AllocateData<float>(biasShape));
-
-    const auto weightUnitID = m_sourceUnitVector.size();
-    m_sourceUnitVector.emplace_back(std::move(weightPtr));
-    const auto biasUnitID = m_sourceUnitVector.size();
-    m_sourceUnitVector.emplace_back(std::move(biasPtr));
-
-    const UnitId weightUnit = { UnitType::Source, weightUnitID };
-    const UnitId biasUnit = { UnitType::Source, biasUnitID };
+    const Shape weightShape = { inputShape.Row(), units };
+    const Shape biasShape = { 1, inputShape.Row() };
+    Shape outputShape = inputShape;
+    outputShape.SetCol(units);
 
     const auto denseUnitID = m_hiddenUnitVector.size();
+    const UnitId unitId = { UnitType::Hidden, denseUnitID };
     SharedPtr<DenseUnit> densePtr = SharedPtr<DenseUnit>::Make(
-        inputTensorInfo, weightTensorInfo, biasTensorInfo);
+        unitId, inputShape, weightShape, biasShape, outputShape, m_numberSystem,
+        kernelInitializer, biasInitializer, activation, dropoutRate);
 
-    densePtr->SetInputUnitVector({ input, weightUnit, biasUnit });
+    densePtr->SetInputUnitVector({ input });
 
-    m_hiddenUnitVector.emplace_back(SharedPtr<DenseUnit>::Make(
-        inputTensorInfo, weightTensorInfo, biasTensorInfo));
-
-    const UnitId unitIdentifier = { UnitType::Hidden, denseUnitID };
-    return unitIdentifier;
+    m_hiddenUnitVector.emplace_back(densePtr);
+    return unitId;
 }
 
 //! TODO : Do dfs search to seek and connect units together
-void Graph::Compile(Optimizer optimizer, Loss loss)
+void Graph::Compile(OptimizerType optimizer, Loss loss)
 {
+    optimizer;
+    loss;
     auto identifier = m_sinkUnit->GetId();
     std::vector<UnitId> sinkUnitVector;
     sinkUnitVector.emplace_back(identifier);
@@ -176,7 +163,7 @@ void Graph::Compile(Optimizer optimizer, Loss loss)
         m_getExecutionOrder(unit, m_executionOrder, 1);
     }
 
-    for (auto unitIdVector : m_executionOrder)
+    for (const auto& unitIdVector : m_executionOrder)
     {
         for (auto unitId : unitIdVector)
         {

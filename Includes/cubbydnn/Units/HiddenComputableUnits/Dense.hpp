@@ -7,14 +7,18 @@
 #ifndef CUBBYDNN_DENSE_HPP
 #define CUBBYDNN_DENSE_HPP
 
-#include <cubbydnn/Units/HiddenComputableUnits/HiddenUnit.hpp>
+#include <cubbydnn/Units/ComputableUnit.hpp>
 
 namespace CubbyDNN
 {
-class DenseUnit : public HiddenUnit
+class DenseUnit : public ComputableUnit
 {
- public:
-    DenseUnit(TensorInfo input, TensorInfo weight, TensorInfo bias, TensorInfo output);
+public:
+    DenseUnit(UnitId unitId, Shape input, Shape weightShape, Shape biasShape,
+              Shape output, NumberSystem numberSystem,
+              InitializerType kernelInitializer,
+              InitializerType biasInitializer, Activation activation,
+              float dropoutRate);
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& dense) = delete;
@@ -26,9 +30,14 @@ class DenseUnit : public HiddenUnit
 
     void Backward() override;
 
- private:
-    Tensor m_temp = Tensor(nullptr, TensorInfo());
+private:
+    Tensor m_kernel;
+    Tensor m_bias;
+    InitializerType m_kernelInitializer;
+    InitializerType m_biasInitializer;
+    Activation m_activation;
+    float m_dropoutRate;
 };
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif

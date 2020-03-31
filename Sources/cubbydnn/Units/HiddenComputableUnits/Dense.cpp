@@ -5,29 +5,53 @@
 // property of any third parties.
 
 #include <cubbyDnn/Units/HiddenComputableUnits/Dense.hpp>
+#include <cubbydnn/Computations/Initializers/Initializer.hpp>
+#include "cubbydnn/Computations/TensorOperations/NaiveOperations.hpp"
 
 namespace CubbyDNN
 {
-DenseUnit::DenseUnit(TensorInfo input, TensorInfo weight, TensorInfo bias,
-                     TensorInfo output)
-    : HiddenUnit(
-          { input, weight, bias }, std::move(output))
+DenseUnit::DenseUnit(UnitId unitId, Shape input, Shape weightShape,
+                     Shape biasShape,
+                     Shape output,
+                     NumberSystem numberSystem,
+                     InitializerType kernelInitializer,
+                     InitializerType biasInitializer, Activation activation,
+                     float dropoutRate)
+    : ComputableUnit(unitId,
+                 { input }, std::move(output), numberSystem),
+      m_kernel(CreateTensor(weightShape, numberSystem)),
+      m_bias(CreateTensor(biasShape, numberSystem)),
+      m_kernelInitializer(kernelInitializer),
+      m_biasInitializer(biasInitializer),
+      m_activation(activation),
+      m_dropoutRate(dropoutRate)
 
 {
-    Shape tempShape(weight.GetShape());
-    tempShape.SetCol(1);
-    m_temp = AllocateTensor(TensorInfo(tempShape, weight.GetNumberSystem()));
+    //TODO : make this selectable
+    Initializer::LecunNormal(m_kernel);
+    Initializer::LecunNormal(m_bias);
 }
 
 DenseUnit::DenseUnit(DenseUnit&& dense) noexcept
-    : HiddenUnit(std::move(dense))
+    : ComputableUnit(std::move(dense)),
+      m_kernel(std::move(dense.m_kernel)),
+      m_bias(std::move(dense.m_bias)),
+      m_kernelInitializer(dense.m_kernelInitializer),
+      m_biasInitializer(m_biasInitializer),
+      m_activation(dense.m_activation),
+      m_dropoutRate(dense.m_dropoutRate)
 {
 }
 
 DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
 {
-    m_temp = std::move(dense.m_temp);
-    HiddenUnit::operator=(std::move(dense));
+    m_kernel = std::move(dense.m_kernel);
+    m_bias = std::move(dense.m_bias);
+    m_kernelInitializer = dense.m_kernelInitializer;
+    m_biasInitializer = dense.m_biasInitializer;
+    m_activation = dense.m_activation;
+    m_dropoutRate = dense.m_dropoutRate;
+    ComputableUnit::operator=(std::move(dense));
     return *this;
 }
 
@@ -38,8 +62,8 @@ void DenseUnit::Forward()
     Tensor& bias = m_inputForwardTensorVector.at(2);
     Tensor& output = m_outputForwardTensor;
 
-    m_tensorOperation->Multiply(weight, input, m_temp);
-    m_tensorOperation->Add(m_temp, bias, output);
+    Native::Multiply(weight, input, m_kernel);
+    Native::Add(m_kernel, bias, output);
 }
 
 void DenseUnit::Backward()

@@ -19,7 +19,7 @@ namespace CubbyDNN
 struct Tensor
 {
     Tensor() = default;
-    Tensor(void* Data, TensorInfo info);
+    Tensor(void* Data, Shape shape, NumberSystem numberSystem);
     ~Tensor();
 
     Tensor(const Tensor& tensor) = delete;
@@ -32,14 +32,16 @@ struct Tensor
     /// Data vector which possesses actual data
     void* DataPtr = nullptr;
     /// Shape of this tensorData
-    TensorInfo Info;
+    Shape TensorShape;
+    NumberSystem NumericType = NumberSystem::Float;
 };
 
 
 //! Builds empty Tensor so data can be put potentially
-//! \param info : information of tensor to allocate
+//! \param shape : shape of tensor to allocate
+//! \param numberSystem : number system of the tensor
 //! \return : Tensor that has been allocated
-Tensor AllocateTensor(const TensorInfo& info);
+Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem);
 
 template <typename T>
 void* AllocateData(const Shape& shape)
@@ -57,7 +59,7 @@ void* AllocateData(const Shape& shape)
 template <typename T>
 void SetData(std::initializer_list<std::size_t> index, Tensor& tensor, T value)
 {
-    const auto offset = tensor.Info.GetShape().Offset(index);
+    const auto offset = tensor.TensorShape.Offset(index);
     *(static_cast<T*>(tensor.DataPtr) + offset) = value;
 }
 
@@ -74,7 +76,7 @@ void SetData(std::initializer_list<std::size_t> index, const Shape& shape, void*
 template <typename T>
 T GetData(std::initializer_list<std::size_t> index, const Tensor& tensor)
 {
-    const auto offset = tensor.Info.GetShape().Offset(index);
+    const auto offset = tensor.TensorShape.Offset(index);
     return *(static_cast<T*>(tensor.DataPtr) + offset);
 }
 } // namespace CubbyDNN

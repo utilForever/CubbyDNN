@@ -60,7 +60,7 @@ struct UnitId
     }
 };
 
-enum class ActivationType
+enum class Activation
 {
     Sigmoid,
     Relu,
@@ -99,7 +99,7 @@ enum class Padding
     Same,
 };
 
-enum class Optimizer
+enum class OptimizerType
 {
     Adam,
     Adagrad,

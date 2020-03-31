@@ -11,9 +11,10 @@
 
 namespace CubbyDNN
 {
-Tensor::Tensor(void* Data, TensorInfo info)
+Tensor::Tensor(void* Data, Shape shape, NumberSystem numberSystem)
     : DataPtr(Data),
-      Info(std::move(info))
+      TensorShape(std::move(shape)),
+      NumericType(numberSystem)
 {
     Data = nullptr;
 }
@@ -25,7 +26,8 @@ Tensor::~Tensor()
 
 Tensor::Tensor(Tensor&& tensor) noexcept
     : DataPtr(tensor.DataPtr),
-      Info(std::move(tensor.Info))
+      TensorShape(std::move(tensor.TensorShape)),
+      NumericType(tensor.NumericType)
 {
     tensor.DataPtr = nullptr;
 }
@@ -34,25 +36,37 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 {
     DataPtr = tensor.DataPtr;
     tensor.DataPtr = nullptr;
-    Info = tensor.Info;
+    TensorShape = tensor.TensorShape;
+    NumericType = tensor.NumericType;
     return *this;
 }
 
-Tensor AllocateTensor(const TensorInfo& info)
+Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem)
 {
-    const auto byteSize = info.GetByteSize();
+    std::size_t byteSize;
+    if (numberSystem == NumberSystem::Float)
+        byteSize = shape.TotalSize() * sizeof(float);
+    else
+        byteSize = shape.TotalSize() * sizeof(int);
     void* dataPtr = static_cast<void*>(malloc(byteSize));
     std::memset(dataPtr, 0, byteSize);
-    return Tensor(dataPtr, info);
+    return Tensor(dataPtr, shape, numberSystem);
 }
 
 void Tensor::CopyTensor(Tensor& source, Tensor& destination)
 {
-    if (source.Info != destination.Info)
+    if (source.TensorShape != destination.TensorShape)
         throw std::runtime_error("Information of each tensor should be same");
-    assert(source.Info.GetByteSize() == destination.Info.GetByteSize());
-    const std::size_t ByteSize = source.Info.GetByteSize();
+    if (source.NumericType != destination.NumericType)
+        throw std::runtime_error("NumberSystem of two tensors does not match");
 
-    std::memcpy(destination.DataPtr, source.DataPtr, ByteSize);
+    std::size_t byteSize;
+    const auto shape = source.TensorShape;
+    if (source.NumericType == NumberSystem::Float)
+        byteSize = shape.TotalSize() * sizeof(float);
+    else
+        byteSize = shape.TotalSize() * sizeof(int);
+
+    std::memcpy(destination.DataPtr, source.DataPtr, byteSize);
 }
 } // namespace CubbyDNN

@@ -9,20 +9,14 @@
 
 namespace CubbyDNN
 {
-NaiveOperation::NaiveOperation()
-    : TensorOperation()
-{
-}
-
-
-void NaiveOperation::Multiply(const Tensor& inputA, const Tensor& inputB,
+void Native::Multiply(const Tensor& inputA, const Tensor& inputB,
                               Tensor& output)
 {
-    if (inputA.Info.GetNumberSystem() != inputB.Info.GetNumberSystem() ||
-        inputA.Info.GetNumberSystem() != output.Info.GetNumberSystem())
+    if (inputA.NumericType != inputB.NumericType ||
+        inputA.NumericType != output.NumericType)
         throw std::runtime_error("Number system mismatches between tensors");
 
-    const auto numberSystem = inputA.Info.GetNumberSystem();
+    const auto numberSystem = inputA.NumericType;
 
     if (numberSystem == NumberSystem::Float)
         Naive::TensorMul<float>(inputA, inputB, output);
@@ -30,14 +24,14 @@ void NaiveOperation::Multiply(const Tensor& inputA, const Tensor& inputB,
         Naive::TensorMul<int>(inputA, inputB, output);
 }
 
-void NaiveOperation::Add(const Tensor& inputA, const Tensor& inputB,
+void Native::Add(const Tensor& inputA, const Tensor& inputB,
                          Tensor& output)
 {
-    if (inputA.Info.GetNumberSystem() != inputB.Info.GetNumberSystem() ||
-        inputA.Info.GetNumberSystem() != output.Info.GetNumberSystem())
+    if (inputA.NumericType != inputB.NumericType ||
+        inputA.NumericType != output.NumericType)
         throw std::runtime_error("Number system mismatches between tensors");
 
-    const auto numberSystem = inputA.Info.GetNumberSystem();
+    const auto numberSystem = inputA.NumericType;
 
     if (numberSystem == NumberSystem::Float)
         Naive::TensorAdd<float>(inputA, inputB, output);
@@ -45,12 +39,12 @@ void NaiveOperation::Add(const Tensor& inputA, const Tensor& inputB,
         Naive::TensorAdd<int>(inputA, inputB, output);
 }
 
-void NaiveOperation::Transpose(const Tensor& input, Tensor& output)
+void Native::Transpose(const Tensor& input, Tensor& output)
 {
-    if (input.Info.GetNumberSystem() != output.Info.GetNumberSystem())
+    if (input.NumericType != output.NumericType)
         throw std::runtime_error("Number system mismatch");
 
-    const auto numberSystem = input.Info.GetNumberSystem();
+    const auto numberSystem = input.NumericType;
     if (numberSystem == NumberSystem::Float)
         Naive::TensorTranspose<float>(input, output);
     else

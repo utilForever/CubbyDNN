@@ -31,7 +31,7 @@ void CopyUnit::Forward()
 
 void CopyUnit::Backward()
 {
-    auto& inputTensor = m_inputUnitPtr->GetOutputForwardTensor();
+    //auto& inputTensor = m_inputUnitPtr->GetOutputForwardTensor();
 
     for (const auto& outputPtrIndexPair : m_outputUnitPtrVector)
     {

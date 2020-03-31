@@ -8,20 +8,17 @@
 #define CUBBYDNN_BLAZEOPERATIONS_HPP
 
 #include <cubbydnn/Tensors/Tensor.hpp>
-#include <cubbydnn/Computations/TensorOperations/TensorOperations.hpp>
-
 namespace CubbyDNN
 {
-class BlazeOperation : public TensorOperation
+class BlazeOperation
 {
 public:
-    BlazeOperation();
+    static void Multiply(const Tensor& inputA, const Tensor& inputB,
+                         Tensor& output);
 
-    void Multiply(const Tensor& inputA, const Tensor& inputB, Tensor& output) override;
+    static void Add(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
-    void Add(const Tensor& inputA, const Tensor& inputB, Tensor& output) override;
-
-    void Transpose(const Tensor& input, Tensor& output) override;
+    static void Transpose(const Tensor& input, Tensor& output);
 };
 } // namespace CubbyDNN
 

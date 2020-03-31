@@ -16,12 +16,13 @@ namespace CubbyDNN
 class ComputableUnit
 {
 public:
-    //! \param unitType : type of the unit
-    //! \param inputTensorInfoVector : vector of input tensor information
-    //! \param outputTensorInfo : output tensor information
-    ComputableUnit(UnitType unitType,
-                   std::vector<TensorInfo> inputTensorInfoVector,
-                   TensorInfo outputTensorInfo);
+    //! \param unitId : type of the unit
+    //! \param inputShapeVector : vector of input tensor information
+    //! \param outputShape : output tensor information
+    //! \param numberSystem : number system to use
+    ComputableUnit(UnitId unitId,
+                   std::vector<Shape> inputShapeVector,
+                   Shape outputShape, NumberSystem numberSystem);
 
     //! Constructor
     virtual ~ComputableUnit() = default;
@@ -57,9 +58,9 @@ public:
         return m_outputBackwardTensorVector.at(index);
     }
 
-    TensorInfo GetOutputTensorInfo() const
+    Shape GetOutputTensorShape() const
     {
-        return m_outputTensorInfo;
+        return m_outputTensorShape;
     }
 
     const std::vector<UnitId>& GetInputUnitVector() const
@@ -96,19 +97,30 @@ public:
         return m_unitState.StateNum.load(std::memory_order_acquire);
     }
 
-    UnitType Type;
+    virtual void Forward() = 0;
+
+    virtual void Backward() = 0;
+
+    UnitType Type()
+    {
+        return m_id.Type;
+    }
 
 protected:
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
     UnitState m_unitState;
+    //! Unique Id of this unit
     UnitId m_id;
-    std::vector<UnitId> m_inputUnitIdVector;
-    std::vector<std::pair<UnitId, std::size_t>> m_outputUnitIdVector;
     //! vector of tensor information for input in forward propagation
-    std::vector<TensorInfo> m_inputTensorInfoVector;
+    std::vector<Shape> m_inputShapeVector;
     //! tensor information for output in forward propagation
-    TensorInfo m_outputTensorInfo;
+    Shape m_outputTensorShape;
+    //! Number system for this unit to use
+    NumberSystem m_numberSystem;
 
+    std::vector<UnitId> m_inputUnitIdVector;
+
+    std::vector<std::pair<UnitId, std::size_t>> m_outputUnitIdVector;
     //! single output tensor of forward propagation
     Tensor m_outputForwardTensor;
     //! single output tensor of back propagation

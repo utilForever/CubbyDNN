@@ -6,11 +6,11 @@
 
 #ifndef CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
 #define CUBBYDNN_GRAPHSYNCHRONIZATIONTEST_HPP
-#include <cstdlib>
+#include <cstddef>
 
 namespace GraphTest{
 
-    void SimpleGraphTest(size_t epochs);
+    void GraphExample(std::size_t epochs);
 
 }
 

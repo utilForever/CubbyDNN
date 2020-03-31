@@ -7,31 +7,27 @@
 #ifndef CUBBYDNN_NAIVEOPERATIONS_HPP
 #define CUBBYDNN_NAIVEOPERATIONS_HPP
 
-#include <cubbydnn/Computations/TensorOperations/TensorOperations.hpp>
 #include <cubbydnn/Tensors/Tensor.hpp>
 
 namespace CubbyDNN
 {
-class NaiveOperation : public TensorOperation
+class Native
 {
- public:
-    NaiveOperation();
+public:
+    static void Multiply(const Tensor& inputA, const Tensor& inputB,
+                         Tensor& output);
 
-    void Multiply(const Tensor& inputA, const Tensor& inputB,
-                  Tensor& output) override;
+    static void Add(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
-    void Add(const Tensor& inputA, const Tensor& inputB,
-             Tensor& output) override;
+    static void Transpose(const Tensor& input, Tensor& output);
 
-    void Transpose(const Tensor& input, Tensor& output) override;
-
-    void Activation(const Tensor& input, Tensor& output) override
+    static void Activation(const Tensor& input, Tensor& output)
     {
         input;
         output;
-         throw std::runtime_error("Not implemented");
+        throw std::runtime_error("Not implemented");
     }
 };
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif

@@ -25,9 +25,9 @@ class Blaze
     template <typename T, bool IsAligned = false>
     static void TensorMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
     {
-        const auto inputShapeA = inputA.Info.GetShape();
-        const auto inputShapeB = inputB.Info.GetShape();
-        const auto outputShape = output.Info.GetShape();
+        const auto inputShapeA = inputA.TensorShape;
+        const auto inputShapeB = inputB.TensorShape;
+        const auto outputShape = output.TensorShape;
 
         const auto batchSizeA = inputShapeA.BatchSize();
         const auto batchSizeB = inputShapeB.BatchSize();
@@ -88,9 +88,9 @@ class Blaze
     template <typename T, bool IsAligned = false>
     static void TensorAdd(const Tensor& inputA, const Tensor& inputB, Tensor& output)
     {
-        const auto inputShapeA = inputA.Info.GetShape();
-        const auto inputShapeB = inputB.Info.GetShape();
-        const auto outputShape = output.Info.GetShape();
+        const auto inputShapeA = inputA.TensorShape;
+        const auto inputShapeB = inputB.TensorShape;
+        const auto outputShape = output.TensorShape;
 
         if (inputShapeA.BatchSize() != inputShapeB.BatchSize() ||
             inputShapeA.BatchSize() != outputShape.BatchSize())
@@ -144,8 +144,8 @@ class Blaze
     template <typename T, bool IsAligned = false>
     static void TensorTranspose(const Tensor& input, Tensor& output)
     {
-        const auto inputShape = input.Info.GetShape();
-        const auto outputShape = output.Info.GetShape();
+        const auto inputShape = input.TensorShape;
+        const auto outputShape = output.TensorShape;
 
         if (inputShape.BatchSize() != outputShape.BatchSize())
             throw std::runtime_error("TensorTranspose - Batch size mismatch");
