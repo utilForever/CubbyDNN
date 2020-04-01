@@ -28,9 +28,6 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t rowIdx = 0; rowIdx < shape.Row(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
@@ -52,10 +49,7 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
-        if constexpr (std::is_integral_v<T>)
+        if constexpr (std::is_integral<T>::value)
         {
             std::uniform_int_distribution<T> uniform(min, max);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -95,9 +89,6 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t rowIdx = 0; rowIdx < shape.Row(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
@@ -121,10 +112,7 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
-        if constexpr (std::is_integral_v<T>)
+        if constexpr (std::is_integral<T>::value)
         {
             std::uniform_int_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -167,9 +155,6 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t rowIdx = 0; rowIdx < shape.Row(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
@@ -196,10 +181,7 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
-        if constexpr (std::is_integral_v<T>)
+        if constexpr (std::is_integral<T>::value)
         {
             std::uniform_int_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -240,9 +222,6 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t rowIdx = 0; rowIdx < shape.Row(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
@@ -267,10 +246,7 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
-        if constexpr (std::is_integral_v<T>)
+        if constexpr (std::is_integral<T>::value)
         {
             std::uniform_int_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -304,9 +280,6 @@ public:
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
 
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
-
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t rowIdx = 0; rowIdx < shape.Row(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
@@ -324,9 +297,6 @@ public:
         const auto batchSize = shape.BatchSize();
         const auto colSize =
             (shape.PadSize() > 0) ? shape.PadSize() : shape.Col();
-
-        const auto rowMean = shape.Row() / static_cast<T>(2);
-        const auto colMean = shape.Col() / static_cast<T>(2);
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t rowIdx = 0; rowIdx < shape.Row(); ++rowIdx)

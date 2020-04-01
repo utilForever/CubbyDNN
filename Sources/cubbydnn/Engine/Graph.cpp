@@ -233,7 +233,7 @@ void Graph::m_getExecutionOrder(
 {
     const UnitType type = subjectUnit.Type;
     const std::size_t id = subjectUnit.ID;
-    if (executionOrder.size() < depth + 1)
+    if (executionOrder.size() < static_cast<std::size_t>(depth + 1))
         executionOrder.emplace_back(std::vector<UnitId>());
 
     if (type == UnitType::Hidden)

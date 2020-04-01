@@ -18,7 +18,7 @@ DenseUnit::DenseUnit(UnitId unitId, Shape input, Shape weightShape,
                      InitializerType biasInitializer, Activation activation,
                      float dropoutRate)
     : ComputableUnit(unitId,
-                 { input }, std::move(output), numberSystem),
+                     { input }, std::move(output), numberSystem),
       m_kernel(CreateTensor(weightShape, numberSystem)),
       m_bias(CreateTensor(biasShape, numberSystem)),
       m_kernelInitializer(kernelInitializer),
@@ -37,7 +37,7 @@ DenseUnit::DenseUnit(DenseUnit&& dense) noexcept
       m_kernel(std::move(dense.m_kernel)),
       m_bias(std::move(dense.m_bias)),
       m_kernelInitializer(dense.m_kernelInitializer),
-      m_biasInitializer(m_biasInitializer),
+      m_biasInitializer(std::move(dense.m_biasInitializer)),
       m_activation(dense.m_activation),
       m_dropoutRate(dense.m_dropoutRate)
 {

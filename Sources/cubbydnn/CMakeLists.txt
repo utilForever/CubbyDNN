@@ -62,7 +62,7 @@ if(WITH_BLAZE)
        include_directories(BUILD_SHARED_LIBS)
        target_link_libraries(${target} PUBLIC blaze_target)
 
-       add_compile_definitions(WITH_BLAZE)
+       add_definitions(-DWITH_BLAZE)
        message(STATUS "Using Blaze")
     endif()
 endif()

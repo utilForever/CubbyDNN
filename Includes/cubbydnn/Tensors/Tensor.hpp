@@ -28,7 +28,7 @@ struct Tensor
     Tensor& operator=(const Tensor& tensor) = delete;
     Tensor& operator=(Tensor&& tensor) noexcept;
 
-    static void CopyTensor(Tensor& source, Tensor& destination);
+    static void CopyTensor(const Tensor& source, Tensor& destination);
     /// Data vector which possesses actual data
     void* DataPtr = nullptr;
     /// Shape of this tensorData

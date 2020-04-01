@@ -23,8 +23,8 @@ public:
 
     static void Activation(const Tensor& input, Tensor& output)
     {
-        input;
-        output;
+        //TODO : implement activation functions in this way
+        Tensor::CopyTensor(input, output);
         throw std::runtime_error("Not implemented");
     }
 };

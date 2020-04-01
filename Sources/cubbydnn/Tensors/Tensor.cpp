@@ -53,7 +53,7 @@ Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem)
     return Tensor(dataPtr, shape, numberSystem);
 }
 
-void Tensor::CopyTensor(Tensor& source, Tensor& destination)
+void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
 {
     if (source.TensorShape != destination.TensorShape)
         throw std::runtime_error("Information of each tensor should be same");
