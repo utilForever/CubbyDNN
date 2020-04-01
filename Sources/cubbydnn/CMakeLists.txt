@@ -52,14 +52,17 @@ target_link_libraries(${target}
         )
 
 option(WITH_BLAZE "Uses blaze for matrix computations" ON)
+
 if(WITH_BLAZE)
-    find_package(blaze REQUIRED)
+    find_package(blaze)
     if( blaze_FOUND )
-       add_definitions(-DUSE_BLAZE=1)
+
        add_library( blaze_target INTERFACE )
        target_link_libraries( blaze_target INTERFACE blaze::blaze )
        include_directories(BUILD_SHARED_LIBS)
        target_link_libraries(${target} PUBLIC blaze_target)
+
+       add_compile_definitions(WITH_BLAZE)
        message(STATUS "Using Blaze")
     endif()
 endif()

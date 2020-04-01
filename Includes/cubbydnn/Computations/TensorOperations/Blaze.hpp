@@ -4,6 +4,7 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+#ifdef WITH_BLAZE
 #ifndef CUBBYDNN_BLAZEOPS_HPP
 #define CUBBYDNN_BLAZEOPS_HPP
 
@@ -21,9 +22,10 @@ using blaze::unpadded;
 
 class Blaze
 {
- public:
+public:
     template <typename T, bool IsAligned = false>
-    static void TensorMul(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+    static void TensorMul(const Tensor& inputA, const Tensor& inputB,
+                          Tensor& output)
     {
         const auto inputShapeA = inputA.TensorShape;
         const auto inputShapeB = inputB.TensorShape;
@@ -86,7 +88,8 @@ class Blaze
     }
 
     template <typename T, bool IsAligned = false>
-    static void TensorAdd(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+    static void TensorAdd(const Tensor& inputA, const Tensor& inputB,
+                          Tensor& output)
     {
         const auto inputShapeA = inputA.TensorShape;
         const auto inputShapeB = inputB.TensorShape;
@@ -188,4 +191,5 @@ class Blaze
 };
 } // namespace CubbyDNN
 
+#endif
 #endif

@@ -4,6 +4,7 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+#ifdef WITH_BLAZE
 #ifndef CUBBYDNN_BLAZEOPERATIONS_HPP
 #define CUBBYDNN_BLAZEOPERATIONS_HPP
 
@@ -22,4 +23,5 @@ public:
 };
 } // namespace CubbyDNN
 
+#endif
 #endif

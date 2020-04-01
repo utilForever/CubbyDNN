@@ -4,9 +4,9 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+#ifdef WITH_BLAZE
 #include <cubbydnn/computations/TensorOperations/BlazeOperations.hpp>
 #include <cubbydnn/computations/TensorOperations/Blaze.hpp>
-
 namespace CubbyDNN
 {
 
@@ -51,3 +51,5 @@ void BlazeOperation::Transpose(const Tensor& input, Tensor& output)
         Blaze::TensorTranspose<int>(input, output);
 }
 } // namespace CubbyDNN
+
+#endif
