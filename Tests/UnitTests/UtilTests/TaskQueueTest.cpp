@@ -33,7 +33,7 @@ void StressTask()
 
 void TaskQueueTest(int workers)
 {
-    const auto desired = 100000;
+    const auto desired = 100;
     std::atomic_int count = 0;
 
     std::vector<std::thread> threadVector;
@@ -49,7 +49,6 @@ void TaskQueueTest(int workers)
             while (func())
             {
                 func = taskQueue.Dequeue();
-                std::cout << "Increment" << std::endl;
             }
         };
         threadVector.emplace_back(std::thread(std::move(run)));
@@ -63,7 +62,6 @@ void TaskQueueTest(int workers)
             count.fetch_add(1);
             return true;
         };
-        std::cout << "Enqueue" << std::endl;
         taskQueue.Enqueue(run);
     }
 
@@ -84,8 +82,8 @@ void TaskQueueTest(int workers)
     }
 }
 
-TEST(TaskQueueTest, UtilTest)
-{
-    TaskQueueTest(12);
-}
+// TEST(TaskQueueTest, UtilTest)
+// {
+//     TaskQueueTest(12);
+// }
 } // namespace CubbyDNN

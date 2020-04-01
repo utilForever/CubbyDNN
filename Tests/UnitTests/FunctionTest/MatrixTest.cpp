@@ -32,9 +32,9 @@ void TestMatMul()
 
     Native::Multiply(tensorA, tensorB, output);
 
-    for (size_t i = 0; i < 3; i++)
+    for (std::size_t i = 0; i < 3; i++)
     {
-        for (size_t j = 0; j < 3; j++)
+        for (std::size_t j = 0; j < 3; j++)
         {
             const auto num = GetData<float>({ 0, 0, i, j }, output);
             if (i == j)
@@ -79,9 +79,9 @@ void TestMatMul2()
 
     Native::Multiply(tensorA, tensorB, output);
 
-    for (size_t i = 0; i < 3; i++)
+    for (std::size_t i = 0; i < 3; i++)
     {
-        for (size_t j = 0; j < 3; j++)
+        for (std::size_t j = 0; j < 3; j++)
         {
             const auto num = GetData<float>({ 0, 0, i, j }, output);
             EXPECT_EQ(num, 12);
@@ -181,15 +181,13 @@ void TestMatMul3()
     Tensor output =
         CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
 
-    Native naiveOperation;
+    Native::Multiply(tensorA, tensorB, output);
 
-    naiveOperation.Multiply(tensorA, tensorB, output);
-
-    for (size_t batchIdx = 0; batchIdx < 2; ++batchIdx)
-        for (size_t channelIdx = 0; channelIdx < 2; ++channelIdx)
-            for (size_t rowIdx = 0; rowIdx < 3; rowIdx++)
+    for (std::size_t batchIdx = 0; batchIdx < 2; ++batchIdx)
+        for (std::size_t channelIdx = 0; channelIdx < 2; ++channelIdx)
+            for (std::size_t rowIdx = 0; rowIdx < 3; rowIdx++)
             {
-                for (size_t colIdx = 0; colIdx < 3; colIdx++)
+                for (std::size_t colIdx = 0; colIdx < 3; colIdx++)
                 {
                     const auto num = GetData<float>(
                         { batchIdx, channelIdx, rowIdx, colIdx }, output);
@@ -200,10 +198,10 @@ void TestMatMul3()
             }
 }
 
-TEST(MatrixTest, MatMul)
-{
-    TestMatMul();
-    TestMatMul2();
-    TestMatMul3();
-}
+// TEST(MatrixTest, MatMul)
+// {
+//     TestMatMul();
+//     TestMatMul2();
+//     TestMatMul3();
+// }
 } // namespace CubbyDNN
