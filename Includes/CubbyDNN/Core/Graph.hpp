@@ -1,6 +1,7 @@
 #ifndef CUBBYDNN_GRAPH_HPP
 #define CUBBYDNN_GRAPH_HPP
 
+#include <CubbyDNN/Core/GraphBuilder.hpp>
 #include <CubbyDNN/Node/Node.hpp>
 #include <CubbyDNN/Node/NodeType.hpp>
 
@@ -11,7 +12,12 @@ namespace CubbyDNN
 {
 class Graph
 {
+ public:
+    GraphBuilder& Builder() noexcept;
+
  private:
+    GraphBuilder m_graphBuilder;
+
     std::unordered_map<std::string, std::unique_ptr<Node>> m_nodeMap;
     std::unordered_multimap<const NodeType*, Node*> m_nodeTypeMap;
 };
