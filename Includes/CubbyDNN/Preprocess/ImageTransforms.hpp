@@ -26,7 +26,7 @@ class RandomFlipHorizontal : public Transform<Image, Image>
     OutputType operator()(const InputType& input) override;
 
  private:
-    double p_;
+    double m_prob;
 };
 
 class RandomFlipVertical : public Transform<Image, Image>
@@ -34,21 +34,22 @@ class RandomFlipVertical : public Transform<Image, Image>
  public:
     RandomFlipVertical(double p = 0.5);
 
-    OutputType operator()(const Image& input) override;
+    OutputType operator()(const InputType& input) override;
 
  private:
-    double p_;
+    double m_prob;
 };
 
-class Rotation : public Transform<Image, Image>
+class RandomRotation : public Transform<Image, Image>
 {
  public:
-    Rotation(double degree);
+    RandomRotation(double degree, double p = 0.5);
 
     OutputType operator()(const InputType& input) override;
 
  private:
-    double m_rotationDegree_;
+    double m_rotationDegree;
+    double m_prob;
 };
 
 class GrayScale : public Transform<Image, Image>
@@ -59,13 +60,13 @@ class GrayScale : public Transform<Image, Image>
 
 class RandomGrayScale : public Transform<Image, Image>
 {
-public:
+ public:
     RandomGrayScale(double p = 0.5);
 
     OutputType operator()(const InputType& input) override;
 
-private:
-    double p_;
+ private:
+    double m_prob;
 };
 
 class ToTensor : public Transform<Image, FloatTensor>

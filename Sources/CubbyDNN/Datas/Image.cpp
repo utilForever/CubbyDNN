@@ -1,5 +1,6 @@
 #include <CubbyDNN/Datas/Image.hpp>
 
+#include <cmath>
 #include <stdexcept>
 
 namespace CubbyDNN
@@ -98,6 +99,53 @@ bool Pixel::operator!=(const Pixel& other) const
     return !(*this == other);
 }
 
+Image Image::ToGrayScale(const Image& origin)
+{
+    Image result(origin.GetWidth(), origin.GetHeight(), false, true);
+
+    for (std::size_t y = 0; y < result.GetHeight(); ++y)
+    {
+        for (std::size_t x = 0; x < result.GetWidth(); ++x)
+        {
+            result.At(x, y) = Pixel::ToGrayScale(origin.At(x, y));
+        }
+    }
+
+    return result;
+}
+
+Image Image::Rotate(const Image& origin, double degree)
+{
+    constexpr double PI = 3.141592653589793238462643383279;
+
+    Image result(origin.GetWidth(), origin.GetHeight(), origin.HasAlpha());
+
+    const double cosV = std::cos(PI * degree / 180.);
+    const double sinV = std::sin(PI * degree / 180.);
+    const double centerX = origin.GetWidth() / 2.,
+                 centerY = origin.GetHeight() / 2.;
+
+    for (std::size_t y = 0; y < origin.GetHeight(); ++y)
+    {
+        for (std::size_t x = 0; x < origin.GetWidth(); ++x)
+        {
+            const double origX =
+                (centerX + (y - centerY) * sinV + (x - centerX) * cosV);
+            const double origY =
+                (centerY + (y - centerY) * cosV - (x - centerX) * sinV);
+
+            if ((origX >= 0 &&
+                 static_cast<std::size_t>(origX) < origin.GetWidth()) &&
+                (origY >= 0 &&
+                 static_cast<std::size_t>(origY) < origin.GetHeight()))
+                result.At(x, y) = origin.At(static_cast<std::size_t>(origX),
+                                            static_cast<std::size_t>(origY));
+        }
+    }
+
+    return result;
+}
+
 Image::Image(std::size_t width, std::size_t height, bool hasAlpha,
              bool grayScale)
     : m_width(width),
@@ -143,20 +191,5 @@ Pixel& Image::At(std::size_t x, std::size_t y)
 const Pixel& Image::At(std::size_t x, std::size_t y) const
 {
     return m_data[x + y * m_width];
-}
-
-Image Image::ToGrayScale() const
-{
-    Image result(m_width, m_height, false, true);
-
-    for (std::size_t y = 0; y < result.GetHeight(); ++y)
-    {
-        for (std::size_t x = 0; x < result.GetWidth(); ++x)
-        {
-            result.At(x, y) = Pixel::ToGrayScale(At(x, y));
-        }
-    }
-
-    return result;
 }
 }  // namespace CubbyDNN

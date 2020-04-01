@@ -42,6 +42,10 @@ class Pixel final
 class Image final
 {
  public:
+    static Image ToGrayScale(const Image& origin);
+    static Image Rotate(const Image& origin, double degree);
+
+ public:
     Image() = default;
     Image(std::size_t width, std::size_t height, bool hasAlpha = true,
           bool grayScale = false);
@@ -53,8 +57,6 @@ class Image final
 
     Pixel& At(std::size_t x, std::size_t y);
     const Pixel& At(std::size_t x, std::size_t y) const;
-
-    Image ToGrayScale() const;
 
  private:
     std::size_t m_width{ 0 }, m_height{ 0 };
