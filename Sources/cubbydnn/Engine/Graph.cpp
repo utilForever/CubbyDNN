@@ -4,7 +4,7 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbyDnn/Units/HiddenComputableUnits/Dense.hpp>
+#include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
 #include <cubbydnn/Engine/Graph.hpp>
 
 namespace CubbyDNN
@@ -129,10 +129,10 @@ UnitId Graph::Dense(const UnitId& input, std::size_t units,
     else
         throw std::runtime_error("input unit must be source or hidden");
 
-    const Shape weightShape = { inputShape.Row(), units };
-    const Shape biasShape = { 1, inputShape.Row() };
+    const Shape weightShape = { inputShape.NumRows(), units };
+    const Shape biasShape = { 1, inputShape.NumRows() };
     Shape outputShape = inputShape;
-    outputShape.SetCol(units);
+    outputShape.SetNumCols(units);
 
     const auto denseUnitID = m_hiddenUnitVector.size();
     const UnitId unitId = { UnitType::Hidden, denseUnitID };

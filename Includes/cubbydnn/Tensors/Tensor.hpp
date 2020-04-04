@@ -34,6 +34,7 @@ struct Tensor
     /// Shape of this tensorData
     Shape TensorShape;
     NumberSystem NumericType = NumberSystem::Float;
+    std::size_t PadSize = 0;
 };
 
 
@@ -41,19 +42,7 @@ struct Tensor
 //! \param shape : shape of tensor to allocate
 //! \param numberSystem : number system of the tensor
 //! \return : Tensor that has been allocated
-Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem);
-
-template <typename T>
-void* AllocateData(const Shape& shape)
-{
-    const auto byteSize = shape.TotalSize() * sizeof(T);
-    void* dataPtr = malloc(byteSize);
-    if (dataPtr != nullptr)
-        std::memset(dataPtr, 0, byteSize);
-    else
-        std::runtime_error("Data allocation has failed");
-    return dataPtr;
-}
+Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, bool pad = false);
 
 //! Used only for testing
 template <typename T>

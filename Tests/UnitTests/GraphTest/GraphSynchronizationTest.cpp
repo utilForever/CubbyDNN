@@ -14,6 +14,7 @@ using namespace CubbyDNN;
 
 void GraphExample()
 {
+
     Graph graph(NumberSystem::Float);
     const auto placeHolder = graph.PlaceHolder({ 1, 1 });
     const auto dense1 = graph.Dense(placeHolder, 10, Activation::Relu, 
@@ -25,7 +26,6 @@ void GraphExample()
     graph.Compile(dense2, OptimizerType::Adam, Loss::CrossEntropy);
 
     graph.Fit(100);
-
 }
 
 TEST(SimpleGraph, GraphConstruction)

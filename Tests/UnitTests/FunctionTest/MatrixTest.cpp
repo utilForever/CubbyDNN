@@ -5,30 +5,27 @@
 // property of any third parties.
 
 #include "MatrixTest.hpp"
-#include "gtest/gtest.h"
 #include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
+#include <cubbydnn/Tensors/Tensor.hpp>
 #include <iostream>
-#include "cubbydnn/Tensors/Tensor.hpp"
+#include "gtest/gtest.h"
 
 namespace CubbyDNN
 {
 void TestMatMul()
 {
-    Tensor tensorA =
-        CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
-    Tensor tensorB =
-        CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
+    Tensor tensorA = CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float, false);
+    Tensor tensorB = CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float);
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 4.0f);
-    SetData<float>({ 0, 0, 1, 1 }, tensorA, 4.0f);
-    SetData<float>({ 0, 0, 2, 2 }, tensorA, 4.0f);
+    SetData<float>({ 1, 1, 0, 0 }, tensorA, 4.0f);
+    SetData<float>({ 2, 2, 0, 0 }, tensorA, 4.0f);
 
     SetData<float>({ 0, 0, 0, 0 }, tensorB, 4.0f);
-    SetData<float>({ 0, 0, 1, 1 }, tensorB, 4.0f);
-    SetData<float>({ 0, 0, 2, 2 }, tensorB, 4.0f);
+    SetData<float>({ 1, 1, 0, 0 }, tensorB, 4.0f);
+    SetData<float>({ 2, 2, 0, 0 }, tensorB, 4.0f);
 
-    Tensor output =
-        CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
+    Tensor output = CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float);
 
     Native::Multiply(tensorA, tensorB, output);
 
@@ -36,23 +33,19 @@ void TestMatMul()
     {
         for (std::size_t j = 0; j < 3; j++)
         {
-            const auto num = GetData<float>({ 0, 0, i, j }, output);
+            const auto num = GetData<float>({ j, i, 0, 0 }, output);
             if (i == j)
                 EXPECT_EQ(num, 16);
             else
                 EXPECT_EQ(num, 0);
-            std::cout << num << " ";
         }
-        std::cout << std::endl;
     }
 }
 
 void TestMatMul2()
 {
-    Tensor tensorA =
-        CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
-    Tensor tensorB =
-        CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
+    Tensor tensorA = CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
+    Tensor tensorB = CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 2.0f);
     SetData<float>({ 0, 0, 0, 1 }, tensorA, 2.0f);
@@ -74,8 +67,7 @@ void TestMatMul2()
     SetData<float>({ 0, 0, 2, 1 }, tensorB, 2.0f);
     SetData<float>({ 0, 0, 2, 2 }, tensorB, 2.0f);
 
-    Tensor output =
-        CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
+    Tensor output = CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
 
     Native::Multiply(tensorA, tensorB, output);
 
@@ -93,10 +85,8 @@ void TestMatMul2()
 
 void TestMatMul3()
 {
-    Tensor tensorA =
-        CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
-    Tensor tensorB =
-        CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
+    Tensor tensorA = CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
+    Tensor tensorB = CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 3.0f);
     SetData<float>({ 0, 0, 0, 1 }, tensorA, 3.0f);
@@ -178,8 +168,7 @@ void TestMatMul3()
     SetData<float>({ 1, 1, 2, 1 }, tensorB, 3.0f);
     SetData<float>({ 1, 1, 2, 2 }, tensorB, 3.0f);
 
-    Tensor output =
-        CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
+    Tensor output = CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
 
     Native::Multiply(tensorA, tensorB, output);
 
@@ -198,10 +187,10 @@ void TestMatMul3()
             }
 }
 
-// TEST(MatrixTest, MatMul)
-// {
-//     TestMatMul();
-//     TestMatMul2();
-//     TestMatMul3();
-// }
+TEST(MatrixTest, MatMul)
+{
+    TestMatMul();
+    //TestMatMul2();
+    //TestMatMul3();
+}
 } // namespace CubbyDNN

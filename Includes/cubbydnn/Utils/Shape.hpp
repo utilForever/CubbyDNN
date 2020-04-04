@@ -62,31 +62,22 @@ public:
 
     [[nodiscard]] std::size_t MatrixSize() const;
 
-    [[nodiscard]] std::size_t PadSize() const
-    {
-        return m_padding;
-    }
-
-    [[nodiscard]] std::size_t PaddedMatrixSize() const;
-
-    [[nodiscard]] bool IsAligned() const;
-
-    [[nodiscard]] std::size_t Row() const
+    [[nodiscard]] std::size_t NumRows() const
     {
         return m_shapeVector.at(1);
     }
 
-    [[nodiscard]] std::size_t Col() const
+    [[nodiscard]] std::size_t NumCols() const
     {
         return m_shapeVector.at(0);
     }
 
-    void SetRow(std::size_t row)
+    void SetNumRows(std::size_t row)
     {
         m_shapeVector.at(1) = row;
     }
 
-    void SetCol(std::size_t col)
+    void SetNumCols(std::size_t col)
     {
         m_shapeVector.at(0) = col;
     }
@@ -95,7 +86,6 @@ public:
 
 private:
     std::vector<std::size_t> m_shapeVector;
-    std::size_t m_padding = 0;
 };
 } // namespace CubbyDNN
 

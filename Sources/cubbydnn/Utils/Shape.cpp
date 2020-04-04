@@ -9,8 +9,7 @@
 namespace CubbyDNN
 {
 Shape::Shape()
-    : m_shapeVector({1,1}),
-      m_padding(0)
+    : m_shapeVector({1,1})
 {
 }
 
@@ -54,12 +53,10 @@ Shape Shape::operator*(const Shape& shape) const
 {
     if (this->Dim() != shape.Dim())
         throw std::runtime_error("Dimension mismatch");
-    if (this->Col() != shape.Row())
+    if (this->NumCols() != shape.NumRows())
         throw std::runtime_error("Multiply-shape mismatch");
     if (this->BatchSize() != shape.BatchSize())
         throw std::runtime_error("Batch size mismatch");
-    if (this->PadSize() != shape.PadSize())
-        throw std::runtime_error("Padding size mismatch");
 
     std::vector<std::size_t> shapeVector;
     shapeVector.reserve(shape.Dim());
@@ -74,7 +71,6 @@ Shape Shape::operator*(const Shape& shape) const
 
     Shape derivedShape;
     derivedShape.m_shapeVector = shapeVector;
-    derivedShape.m_padding = shape.PadSize();
     return derivedShape;
 }
 
@@ -157,7 +153,7 @@ std::size_t Shape::BatchSize() const
 {
     std::size_t size = 1;
     for (std::size_t i = 2; i < m_shapeVector.size(); ++i)
-        size *= i;
+        size *= m_shapeVector.at(i);
     return size;
 }
 
@@ -167,17 +163,5 @@ std::size_t Shape::MatrixSize() const
 }
 
 
-std::size_t Shape::PaddedMatrixSize() const
-{
-    if (m_padding > 0)
-        return m_shapeVector.at(1) * m_padding;
-    return m_shapeVector.at(0) * m_shapeVector.at(1);
-}
 
-bool Shape::IsAligned() const
-{
-    if (m_padding > 0)
-        return true;
-    return false;
-}
 } // namespace CubbyDNN
