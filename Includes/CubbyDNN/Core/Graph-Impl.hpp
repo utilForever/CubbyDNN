@@ -1,6 +1,8 @@
 #ifndef CUBBYDNN_GRAPH_IMPL_HPP
 #define CUBBYDNN_GRAPH_IMPL_HPP
 
+#include <stdexcept>
+
 namespace CubbyDNN::Core
 {
 template <typename T>
@@ -34,7 +36,7 @@ T* Graph::CreateNode(const std::string& nodeName, P&&... params)
 
     if (!pNodeType)
     {
-        throw std::exception{ "not registered or unknown node type." };
+        throw std::invalid_argument("not registered or unknown node type.");
     }
 
     auto node = Node(nodeName);
