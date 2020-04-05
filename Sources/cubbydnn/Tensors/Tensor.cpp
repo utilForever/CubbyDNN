@@ -20,7 +20,10 @@ Tensor::Tensor(void* Data, Shape shape, NumberSystem numberSystem)
 
 Tensor::~Tensor()
 {
-    delete[] DataPtr;
+    if (NumericType == NumberSystem::Float)
+        delete[] static_cast<float*>(DataPtr);
+    else
+        delete[] static_cast<int*>(DataPtr);
 }
 
 Tensor::Tensor(Tensor&& tensor) noexcept
