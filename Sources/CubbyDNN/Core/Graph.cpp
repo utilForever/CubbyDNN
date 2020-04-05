@@ -2,6 +2,11 @@
 
 namespace CubbyDNN::Core
 {
+Graph::Graph() : m_graphBuilder(this)
+{
+    m_graphBuilder.RegisterStandardNodeType();
+}
+
 GraphBuilder& Graph::Builder() noexcept
 {
     return m_graphBuilder;

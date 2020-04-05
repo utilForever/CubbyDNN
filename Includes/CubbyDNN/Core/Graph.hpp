@@ -8,12 +8,15 @@
 
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace CubbyDNN::Core
 {
 class Graph
 {
  public:
+    Graph();
+
     GraphBuilder& Builder() noexcept;
 
     Node::Node* Node(const std::string& nodeName) const;
@@ -21,8 +24,11 @@ class Graph
     template <typename T>
     T* Node(const std::string& nodeName) const;
 
-    template <typename T>
-    T* CreateNode(std::string_view nodeName);
+    template <typename T, typename... P>
+    T* CreateNode(const std::string& nodeName, P&&... params);
+
+    template <typename T, typename... P>
+    T* CreateInitializer(P&&... params);
 
     Node::NodeTypeManager nodeTypeManager;
 
@@ -31,6 +37,8 @@ class Graph
 
     std::unordered_map<std::string, std::unique_ptr<Node::Node>> m_nodeMap;
     std::unordered_multimap<const Node::NodeType*, Node::Node*> m_nodeTypeMap;
+    std::unordered_set<std::unique_ptr<Initializer::Initializer>>
+        m_intializerSet;
 };
 }  // namespace CubbyDNN::Core
 

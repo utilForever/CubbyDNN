@@ -50,17 +50,17 @@ auto main() -> int
         "w1", Core::Shape{ 300, 784 }, graph.Builder().InitXavier(0, 784, 300));
     auto b1 = graph.Builder().Parameter("b1", Core::Shape{ 300 },
                                         graph.Builder().InitConstant());
-    auto a1 = graph.Builder().Dense(x, w1, b1);
-    auto o1 = graph.Builder().ReLU(a1, .001f);
+    //auto a1 = graph.Builder().Dense(x, w1, b1);
+    //auto o1 = graph.Builder().ReLU(a1, .001f);
 
     auto w2 = graph.Builder().Parameter("w2", Core::Shape{ 10, 300 },
                                         graph.Builder().InitXavier(0, 300, 10));
     auto b2 = graph.Builder().Parameter("b2", Core::Shape{ 10 },
                                         graph.Builder().InitConstant());
-    auto a2 = graph.Builder().Dense(o1, w2, b2);
-    auto o2 = graph.Builder().Softmax(a2, { true, false });
+    //auto a2 = graph.Builder().Dense(o1, w2, b2);
+    //auto o2 = graph.Builder().Softmax(a2, { true, false });
 
-    auto loss = graph.Builder().SoftmaxCE(y, o2);
+    //auto loss = graph.Builder().SoftmaxCE(y, o2);
 
     return 0;
 }

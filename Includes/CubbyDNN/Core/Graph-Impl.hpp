@@ -25,34 +25,48 @@ T* Graph::Node(const std::string& nodeName) const
     return static_cast<T*>(node);
 }
 
-template <typename T>
-T* Graph::CreateNode(std::string_view nodeName)
+template <typename T, typename... P>
+T* Graph::CreateNode(const std::string& nodeName, P&&... params)
 {
     static_assert(std::is_base_of<Node::Node, T>());
 
-    const auto* pNodeType(nodeTypeManager.type<T>());
+    const auto* pNodeType(nodeTypeManager.Type<T>());
 
     if (!pNodeType)
     {
         throw std::exception{ "not registered or unknown node type." };
     }
 
-    auto* pNode(Node(nodeName));
+    auto node = Node(nodeName);
 
-    if (!pNode)
-        pNode = this->nodeMap
-                    .emplace(std::piecewise_construct,
-                             std::forward_as_tuple(sNodeName),
-                             std::forward_as_tuple(new T(
-                                 this, sNodeName, std::forward<P>(tParam)...)))
-                    .first->second.get();
+    if (!node)
+    {
+        node = m_nodeMap
+                   .emplace(std::piecewise_construct,
+                            std::forward_as_tuple(nodeName),
+                            std::forward_as_tuple(new T(
+                                this, nodeName, std::forward<P>(params)...)))
+                   .first->second.get();
+    }
 
-    for (const auto *pNodeType{ this->sNodeTypeManager.type<T>() }; pNodeType;
-         pNodeType = pNodeType->pBaseType)
-        this->sNodeTypeMap.emplace(pNodeType, pNode);
+    for (const auto* nodeType = nodeTypeManager.Type<T>(); nodeType;
+         nodeType = nodeType->baseType)
+    {
+        m_nodeTypeMap.emplace(nodeType, node);
+    }
 
-    return static_cast<T *>(pNode);
+    return static_cast<T*>(node);
 }
-}  // namespace CubbyDNN
+
+template <typename T, typename... P>
+T* Graph::CreateInitializer(P&&... params)
+{
+    static_assert(std::is_base_of<Initializer::Initializer, T>());
+
+    return static_cast<T*>(
+        this->m_intializerSet.emplace(new T(std::forward<P>(params)...))
+            .first->get());
+}
+}  // namespace CubbyDNN::Core
 
 #endif

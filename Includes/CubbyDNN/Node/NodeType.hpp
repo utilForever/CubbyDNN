@@ -24,7 +24,7 @@ class NodeType
     bool IsExactlyBaseOf(const NodeType* _derivedType) const;
     bool IsExactlyDerivedFrom(const NodeType* _baseType) const;
 
-    const NodeType* baseType;
+    const NodeType* const baseType;
     const std::string typeName;
 
  private:
