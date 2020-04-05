@@ -4,7 +4,7 @@
 #include <numeric>
 #include <stdexcept>
 
-namespace CubbyDNN
+namespace CubbyDNN::Core
 {
 Shape::Shape()
 {

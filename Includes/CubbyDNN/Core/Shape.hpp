@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace CubbyDNN
+namespace CubbyDNN::Core
 {
 class Shape
 {

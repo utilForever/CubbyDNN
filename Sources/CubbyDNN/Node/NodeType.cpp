@@ -1,6 +1,6 @@
 #include <CubbyDNN/Node/NodeType.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Node
 {
 NodeType::NodeType(const NodeType* _baseType, std::string_view _typeName)
     : baseType(_baseType), typeName(_typeName)
@@ -74,4 +74,4 @@ bool NodeType::IsExactlyBaseOf(const NodeType* _baseType,
 
     return false;
 }
-}  // namespace CubbyDNN
+}  // namespace CubbyDNN::Node

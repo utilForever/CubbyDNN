@@ -4,7 +4,7 @@
 #include <string>
 #include <string_view>
 
-namespace CubbyDNN
+namespace CubbyDNN::Node
 {
 class NodeType
 {
