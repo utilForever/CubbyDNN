@@ -16,6 +16,8 @@ GraphBuilder::GraphBuilder(Graph* _graph) : graph(_graph)
 
 void GraphBuilder::RegisterStandardNodeType()
 {
+    graph->nodeTypeManager.RegisterNode<Node::Input>();
+    graph->nodeTypeManager.RegisterNode<Node::Parameter>();
 }
 
 Node::NodeWrapper GraphBuilder::Input(const std::string& nodeName)

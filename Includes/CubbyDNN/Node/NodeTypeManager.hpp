@@ -13,6 +13,12 @@ class NodeTypeManager
     template <typename T>
     const NodeType* Type() const;
 
+    template <typename T>
+    void RegisterNode();
+
+    template <typename T, typename B>
+    void RegisterNode();
+
  private:
     std::unordered_map<std::string, NodeType> m_nodeTypeMap;
 };
