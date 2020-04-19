@@ -19,7 +19,12 @@ class Graph
 
     GraphBuilder& Builder() noexcept;
 
+    std::size_t NodeCount(const Node::NodeType* nodeType) const;
+
     Node::Node* Node(const std::string& nodeName) const;
+
+    template <typename T>
+    std::size_t NodeCount() const;
 
     template <typename T>
     T* Node(const std::string& nodeName) const;

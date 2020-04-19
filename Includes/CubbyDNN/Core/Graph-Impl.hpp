@@ -6,6 +6,12 @@
 namespace CubbyDNN::Core
 {
 template <typename T>
+std::size_t Graph::NodeCount() const
+{
+    return NodeCount(nodeTypeManager.Type<T>());
+}
+
+template <typename T>
 T* Graph::Node(const std::string& nodeName) const
 {
     static_assert(std::is_base_of<Node::Node, T>());
