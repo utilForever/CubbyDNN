@@ -10,6 +10,9 @@ class NodeWrapper
  public:
     NodeWrapper(Node* _node);
 
+    NodeInput* operator[](const std::string& inputName) const;
+    operator Node*() const noexcept;
+
     Node* const node;
 };
 }  // namespace CubbyDNN::Node

@@ -6,4 +6,14 @@ NodeWrapper::NodeWrapper(Node* _node) : node(_node)
 {
     // Do nothing
 }
+
+NodeInput* NodeWrapper::operator[](const std::string& inputName) const
+{
+    return node->operator[](inputName);
+}
+
+NodeWrapper::operator Node*() const noexcept
+{
+    return node;
+}
 }  // namespace CubbyDNN::Node
