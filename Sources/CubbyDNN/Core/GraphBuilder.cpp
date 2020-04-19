@@ -2,10 +2,19 @@
 #include <CubbyDNN/Core/GraphBuilder.hpp>
 #include <CubbyDNN/Initializer/Constant.hpp>
 #include <CubbyDNN/Initializer/Xavier.hpp>
+#include <CubbyDNN/Node/Dense.hpp>
 #include <CubbyDNN/Node/Input.hpp>
 #include <CubbyDNN/Node/Parameter.hpp>
 
 #include <cassert>
+#include <sstream>
+
+template <typename T>
+constexpr std::string GetDefaultName(CubbyDNN::Core::Graph* graph)
+{
+    return (std::ostringstream{} << T::TypeName() << graph->NodeCount<T>())
+        .str();
+}
 
 namespace CubbyDNN::Core
 {
@@ -37,6 +46,20 @@ Initializer::InitializerWrapper GraphBuilder::InitConstant(float constant)
 {
     return Initializer::InitializerWrapper(
         graph->CreateInitializer<Initializer::Constant>(constant));
+}
+
+Node::NodeWrapper GraphBuilder::Dense(Node::NodeWrapper input,
+                                      Node::NodeWrapper weight,
+                                      Node::NodeWrapper bias)
+{
+    Node::NodeWrapper node(
+        graph->CreateNode<Node::Dense>(GetDefaultName<Node::Dense>(graph)));
+
+    node["input"]->Attach(input);
+    node["weight"]->Attach(weight);
+    node["bias"]->Attach(bias);
+
+    return node;
 }
 
 Initializer::InitializerWrapper GraphBuilder::InitXavier(
