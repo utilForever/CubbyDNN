@@ -21,6 +21,8 @@ class Node
 
     Node(Core::Graph* _graph, std::string_view _name);
 
+    NodeInput* operator[](const std::string& inputName);
+
     virtual const NodeType* Type() const;
     static std::string_view TypeName();
 

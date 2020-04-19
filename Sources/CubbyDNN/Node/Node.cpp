@@ -9,6 +9,12 @@ Node::Node(Core::Graph* _graph, std::string_view _name)
     // Do nothing
 }
 
+NodeInput* Node::operator[](const std::string& inputName)
+{
+    const auto index(m_nodeInputMap.find(inputName));
+    return index == m_nodeInputMap.cend() ? nullptr : index->second;
+}
+
 const NodeType* Node::Type() const
 {
     return graph->nodeTypeManager.Type<Node>();
