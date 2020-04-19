@@ -27,7 +27,7 @@ class Node
     Core::Graph* const graph;
     const std::string name;
 
- private:
+ protected:
     std::vector<NodeInput*> m_revNodeInputList;
     std::unordered_set<Node*> m_deps;
     std::unordered_set<Node*> m_revDeps;
