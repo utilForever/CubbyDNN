@@ -12,6 +12,13 @@ class Parameter : public Node
  public:
     Parameter(Core::Graph* _graph, std::string_view _name, Core::Shape _shape,
               Initializer::Initializer* _initializer);
+    Parameter(const Parameter& rhs) = delete;
+    Parameter(Parameter&& rhs) noexcept = delete;
+
+    virtual ~Parameter() noexcept = default;
+
+    Parameter& operator=(const Parameter& rhs) = delete;
+    Parameter& operator=(Parameter&& rhs) noexcept = delete;
 
     const Core::Shape parameterShape;
     Initializer::Initializer* const initializer;
