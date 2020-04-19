@@ -31,9 +31,9 @@ const Node* NodeInput::InputNode() const noexcept
     return m_inputNode;
 }
 
-bool NodeInput::IsDependOn(const Node* node) const
+bool NodeInput::IsDependOn(const Node* _node) const
 {
-    return m_depsSet.count(const_cast<Node*>(node));
+    return m_depsSet.count(const_cast<Node*>(_node));
 }
 
 void NodeInput::Attach(Node* inputNode)

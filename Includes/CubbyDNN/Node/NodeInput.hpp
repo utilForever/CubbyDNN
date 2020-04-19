@@ -20,7 +20,7 @@ class NodeInput
     Node* InputNode() noexcept;
     const Node* InputNode() const noexcept;
 
-    bool IsDependOn(const Node* node) const;
+    bool IsDependOn(const Node* _node) const;
     void Attach(Node* inputNode);
 
     Node* const node;
