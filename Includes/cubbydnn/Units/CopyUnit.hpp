@@ -10,7 +10,7 @@
 #include <cubbydnn/Units/ComputableUnit.hpp>
 #include <cubbydnn/Utils/WeakPtr.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
 //! CopyUnit
 //! This will connect between other units(not copy) by copying the output of

@@ -8,17 +8,19 @@
 #define CUBBYDNN_DENSE_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Computations/Initializers/InitializerType.hpp>
 
-namespace CubbyDNN
+
+namespace CubbyDNN::Graph
 {
 class DenseUnit : public ComputableUnit
 {
 public:
     DenseUnit(UnitId unitId, Shape input, Shape weightShape, Shape biasShape,
               Shape output, NumberSystem numberSystem,
-              InitializerType kernelInitializer,
-              InitializerType biasInitializer, Activation activation,
-              float dropoutRate);
+              std::unique_ptr<Initializer> kernelInitializer,
+              std::unique_ptr<Initializer> biasInitializer, Activation activation,
+              float dropoutRate, std::size_t padSize);
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& dense) = delete;
@@ -33,8 +35,8 @@ public:
 private:
     Tensor m_kernel;
     Tensor m_bias;
-    InitializerType m_kernelInitializer;
-    InitializerType m_biasInitializer;
+    std::unique_ptr<Initializer> m_kernelInitializer;
+    std::unique_ptr<Initializer> m_biasInitializer;
     Activation m_activation;
     float m_dropoutRate;
 };

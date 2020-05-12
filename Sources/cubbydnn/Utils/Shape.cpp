@@ -156,12 +156,4 @@ std::size_t Shape::BatchSize() const
         size *= m_shapeVector.at(i);
     return size;
 }
-
-std::size_t Shape::MatrixSize() const
-{
-    return m_shapeVector.at(0) * m_shapeVector.at(1);
-}
-
-
-
 } // namespace CubbyDNN

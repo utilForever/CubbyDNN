@@ -6,7 +6,7 @@
 
 #include <cubbydnn/Units/CopyUnit.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
 CopyUnit::CopyUnit(CopyUnit&& copyUnit) noexcept
     : m_inputTensorIndex(copyUnit.m_inputTensorIndex),
@@ -44,6 +44,6 @@ void CopyUnit::Backward()
 
 std::size_t CopyUnit::GetStateNum() const
 {
-    return m_unitState.StateNum.load(std::memory_order_acquire);
+    return m_unitState.ForwardStateCount.load(std::memory_order_acquire);
 }
 } // namespace CubbyDNN

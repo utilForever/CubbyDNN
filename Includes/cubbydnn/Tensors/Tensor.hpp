@@ -41,8 +41,9 @@ struct Tensor
 //! Builds empty Tensor so data can be put potentially
 //! \param shape : shape of tensor to allocate
 //! \param numberSystem : number system of the tensor
+//! \param padSize : size of padding (optional)
 //! \return : Tensor that has been allocated
-Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, bool pad = false);
+Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, std::size_t padSize = 0);
 
 //! Used only for testing
 template <typename T>

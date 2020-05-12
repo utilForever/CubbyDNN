@@ -7,7 +7,6 @@
 #ifndef CUBBYDNN_STRUCTS_HPP
 #define CUBBYDNN_STRUCTS_HPP
 #include <atomic>
-#include <cstdlib>
 
 namespace CubbyDNN
 {
@@ -16,22 +15,17 @@ enum class NumberSystem
     Float,
     Int,
 };
-enum class UnitType
-{
-    Source,
-    Hidden,
-    Sink,
-    Copy,
-};
+
 
 //! UnitState
-//! Wrapper class containing the state and StateNum
+//! Wrapper class containing the state and ForwardStateCount
 //! This represents the execution state of computable Unit
 struct UnitState
 {
     explicit UnitState();
     /// State number of current
-    std::atomic<std::size_t> StateNum = 0;
+    std::atomic<std::size_t> ForwardStateCount = 0;
+    std::atomic<std::size_t> BackwardStateCount = 0;
 };
 
 enum class TaskType
@@ -44,21 +38,6 @@ enum class TaskType
     None,
 };
 
-struct UnitId
-{
-    UnitType Type;
-    std::size_t ID;
-
-    friend bool operator==(const UnitId& lhs, const UnitId& rhs)
-    {
-        return lhs.Type == rhs.Type && lhs.ID == rhs.ID;
-    }
-
-    friend bool operator!=(const UnitId& lhs, const UnitId& rhs)
-    {
-        return !(lhs == rhs);
-    }
-};
 
 enum class Activation
 {
@@ -72,24 +51,6 @@ enum class Activation
     softsign,
     HardSigmoid,
     Linear,
-};
-
-enum class InitializerType
-{
-    None,
-    Zeros,
-    Ones,
-    RandomNormal,
-    RandomUniform,
-    TruncatedNormal,
-    VarianceScaling,
-    Orthogonal,
-    Identity,
-    LecunUniform,
-    Xavier,
-    HeNormal,
-    LeCunNormal,
-    HeUniform,
 };
 
 enum class Padding

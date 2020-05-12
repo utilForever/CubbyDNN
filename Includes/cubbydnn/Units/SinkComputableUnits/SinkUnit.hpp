@@ -9,7 +9,7 @@
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
 //! Unit that has no output, but has inputs
 //! This type of unit plays role as sink of the computable graph

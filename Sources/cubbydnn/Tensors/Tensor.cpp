@@ -43,11 +43,11 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     return *this;
 }
 
-Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, bool pad)
+Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, std::size_t padSize)
 {
     void* dataPtr = nullptr;
-    auto totalSize =
-        pad ? shape.BatchSize() * shape.NumRows() * 8 : shape.TotalSize();
+    const auto totalSize =
+        padSize  > 0 ? shape.BatchSize() * shape.NumRows() * padSize : shape.TotalSize();
     if (numberSystem == NumberSystem::Float)
     {
         dataPtr = static_cast<void*>(new float[shape.TotalSize()]);

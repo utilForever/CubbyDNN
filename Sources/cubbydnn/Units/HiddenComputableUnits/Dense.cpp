@@ -4,39 +4,40 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbyDnn/Units/HiddenComputableUnits/Dense.hpp>
-#include <cubbydnn/Computations/Initializers/Initializer.hpp>
-#include "cubbydnn/Computations/TensorOperations/NaiveOperations.hpp"
+#include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
+#include <cubbydnn/Computations/Initializers/InitializerType.hpp>
+#include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
 DenseUnit::DenseUnit(UnitId unitId, Shape input, Shape weightShape,
                      Shape biasShape,
                      Shape output,
                      NumberSystem numberSystem,
-                     InitializerType kernelInitializer,
-                     InitializerType biasInitializer, Activation activation,
-                     float dropoutRate)
+                     std::unique_ptr<Initializer> kernelInitializer,
+                     std::unique_ptr<Initializer> biasInitializer,
+                     Activation activation,
+                     float dropoutRate, std::size_t padSize)
     : ComputableUnit(unitId,
-                     { input }, std::move(output), numberSystem),
-      m_kernel(CreateTensor(weightShape, numberSystem)),
-      m_bias(CreateTensor(biasShape, numberSystem)),
-      m_kernelInitializer(kernelInitializer),
-      m_biasInitializer(biasInitializer),
+                     { std::move(input) }, std::move(output), numberSystem),
+      m_kernel(CreateTensor(weightShape, numberSystem, padSize)),
+      m_bias(CreateTensor(biasShape, numberSystem, padSize)),
+      m_kernelInitializer(std::move(kernelInitializer)),
+      m_biasInitializer(std::move(biasInitializer)),
       m_activation(activation),
       m_dropoutRate(dropoutRate)
 
 {
     //TODO : make this selectable
-    Initializer::LecunNormal(m_kernel);
-    Initializer::LecunNormal(m_bias);
+    m_kernelInitializer->Initialize(m_kernel, m_numberSystem);
+    m_biasInitializer->Initialize(m_bias, m_numberSystem);
 }
 
 DenseUnit::DenseUnit(DenseUnit&& dense) noexcept
     : ComputableUnit(std::move(dense)),
       m_kernel(std::move(dense.m_kernel)),
       m_bias(std::move(dense.m_bias)),
-      m_kernelInitializer(dense.m_kernelInitializer),
+      m_kernelInitializer(std::move(dense.m_kernelInitializer)),
       m_biasInitializer(std::move(dense.m_biasInitializer)),
       m_activation(dense.m_activation),
       m_dropoutRate(dense.m_dropoutRate)
@@ -47,8 +48,8 @@ DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
 {
     m_kernel = std::move(dense.m_kernel);
     m_bias = std::move(dense.m_bias);
-    m_kernelInitializer = dense.m_kernelInitializer;
-    m_biasInitializer = dense.m_biasInitializer;
+    m_kernelInitializer = std::move(dense.m_kernelInitializer);
+    m_biasInitializer = std::move(dense.m_biasInitializer);
     m_activation = dense.m_activation;
     m_dropoutRate = dense.m_dropoutRate;
     ComputableUnit::operator=(std::move(dense));
@@ -57,10 +58,10 @@ DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
 
 void DenseUnit::Forward()
 {
-    Tensor& input = m_inputForwardTensorVector.at(0);
-    Tensor& weight = m_inputForwardTensorVector.at(1);
-    Tensor& bias = m_inputForwardTensorVector.at(2);
-    Tensor& output = m_outputForwardTensor;
+    Tensor& input = ForwardInputVector.at(0);
+    Tensor& weight = ForwardInputVector.at(1);
+    Tensor& bias = ForwardInputVector.at(2);
+    Tensor& output = m_fowrardOutput;
 
     Native::Multiply(weight, input, m_kernel);
     Native::Add(m_kernel, bias, output);

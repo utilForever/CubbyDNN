@@ -9,7 +9,7 @@
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
 //! Unit that has no input, but has output only.
 //! This type of unit must be able to fetch data(from the disk or cache)

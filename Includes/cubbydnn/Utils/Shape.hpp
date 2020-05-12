@@ -60,8 +60,6 @@ public:
 
     [[nodiscard]] std::size_t BatchSize() const;
 
-    [[nodiscard]] std::size_t MatrixSize() const;
-
     [[nodiscard]] std::size_t NumRows() const
     {
         return m_shapeVector.at(1);

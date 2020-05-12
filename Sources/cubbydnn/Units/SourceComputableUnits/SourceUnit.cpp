@@ -4,10 +4,9 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cassert>
 #include <cubbydnn/Units/SourceComputableUnits/SourceUnit.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
 SourceUnit::SourceUnit(UnitId unitId, Shape outputShape,
                        NumberSystem numberSystem)

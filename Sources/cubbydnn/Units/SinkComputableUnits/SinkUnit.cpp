@@ -6,16 +6,16 @@
 
 #include <cubbydnn/Units/SinkComputableUnits/SinkUnit.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
 SinkUnit::SinkUnit(UnitId unitId, std::vector<Shape> inputShapeVector,
                    NumberSystem numberSystem)
     : ComputableUnit(unitId, inputShapeVector, Shape(), numberSystem)
 {
-    m_inputForwardTensorVector.reserve(m_inputShapeVector.size());
+    ForwardInputVector.reserve(m_inputShapeVector.size());
     for (const auto& tensorShape : m_inputShapeVector)
     {
-        m_inputForwardTensorVector.emplace_back(
+        ForwardInputVector.emplace_back(
             CreateTensor(tensorShape, numberSystem));
     }
 }

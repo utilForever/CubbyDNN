@@ -9,160 +9,135 @@
 
 namespace CubbyDNN::Graph
 {
-UnitManager::UnitManager(std::size_t totalUnitSize)
-{
-    m_sourceUnitVector.reserve(totalUnitSize);
-}
-
 UnitManager::UnitManager(UnitManager&& unitManager) noexcept
-    : m_sourceUnitVector(std::move(unitManager.m_sourceUnitVector)),
-      m_hiddenUnitVector(std::move(unitManager.m_hiddenUnitVector)),
-      m_sinkUnit(std::move(unitManager.m_sinkUnit)),
-      m_copyUnitMap(std::move(unitManager.m_copyUnitMap))
+    : m_unitMetaDataMap(std::move(unitManager.m_unitMetaDataMap)),
+      m_unitMap(std::move(unitManager.m_unitMap))
 {
 }
 
 UnitManager& UnitManager::operator=(UnitManager&& unitManager) noexcept
 {
-    if (this == &unitManager)
-        return *this;
-    m_sourceUnitVector = std::move(unitManager.m_sourceUnitVector);
-    m_hiddenUnitVector = std::move(unitManager.m_hiddenUnitVector);
-    m_sinkUnit = std::move(unitManager.m_sinkUnit);
-    m_copyUnitMap = std::move(unitManager.m_copyUnitMap);
-    return *this;
+    m_unitMetaDataMap = std::move(unitManager.m_unitMetaDataMap);
+    m_unitMap = std::move(unitManager.m_unitMap);
 }
 
-void UnitManager::AddUnit(UnitId previousUnitId, std::size_t parameterIndex,
-                          SharedPtr<ComputableUnit> unit)
+
+void UnitManager::AddUnit(UnitMetaData unitMetaData)
 {
-    const auto unitId = unit->GetId();
-    if (unitId.BaseType != UnitBaseType::Source)
+    std::vector<Tensor> forwardInputVector;
+    std::vector<Tensor> backwardInputVector;
+    std::vector<Tensor> backwardOutputVector;
+
+    Tensor forwardOutput =
+        CreateTensor(unitMetaData.OutputShape(), NumberSystem::Float);
+
+    for (const auto& shape : unitMetaData.InputShapeVector())
     {
-        auto prevUnit = GetUnit(previousUnitId);
-        prevUnit->AddOutputUnitVector(unit->GetId(), parameterIndex);
+        forwardInputVector.emplace_back(CreateTensor(
+            shape, unitMetaData.NumericType, unitMetaData.PadSize));
+        backwardOutputVector.emplace_back(CreateTensor(
+            shape, unitMetaData.NumericType, unitMetaData.PadSize));
     }
 
-    if (unitId.BaseType == UnitBaseType::Source)
-        m_sourceUnitVector.emplace_back(std::move(unit));
-    else if (unitId.BaseType == UnitBaseType::Hidden)
-        m_hiddenUnitVector.emplace_back(std::move(unit));
-    else if (unitId.BaseType == UnitBaseType::Sink)
-        m_sinkUnit = std::move(unit);
-    else
-        throw std::invalid_argument("Unsupported BaseUnitType");
-}
+    for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
+        backwardInputVector.emplace_back(
+            CreateTensor(unitMetaData.OutputShape(), unitMetaData.NumericType,
+                         unitMetaData.PadSize));
 
-SharedPtr<ComputableUnit> UnitManager::GetUnit(UnitId unitId)
-{
-    if (unitId.BaseType == UnitBaseType::Source)
-        return m_sourceUnitVector.at(unitId.Id);
-    if (unitId.BaseType == UnitBaseType::Hidden)
-        return m_hiddenUnitVector.at(unitId.Id);
-    if (unitId.BaseType == UnitBaseType::Sink)
-        return m_sinkUnit;
-    throw std::invalid_argument("Unsupported BaseUnitType");
-}
+    m_unitMetaDataMap[unitMetaData.Id().Id] = std::move(unitMetaData);
+    // TODO : Create appropriate Unit by examining UnitID
 
-SharedPtr<CopyUnit> UnitManager::GetCopyUnit(UnitId unitId)
-{
-    return m_copyUnitMap[unitId];
 }
 
 
-void UnitManager::CreateExecutionOrder()
+void UnitManager::Forward(std::size_t cycle)
 {
-    if (!m_executionOrder.empty())
-        m_executionOrder.clear();
-    m_createExecutionOrder(m_sinkUnit->GetId(), 0);
-}
-
-void UnitManager::AssignCopyUnits()
-{
-    for (const auto& executionGroup : m_executionOrder)
+    for (const auto& [key, unitPtr] : m_unitMap)
     {
-        for (const auto& subjectUnitId : executionGroup)
-        {
-            if (subjectUnitId.BaseType == UnitBaseType::Sink)
-                continue;
+        if (unitPtr->IsForwardReady())
+            unitPtr->Forward(cycle);
+        m_forwardCopy(key);
+    }
+}
 
-            auto getOutputUnitVector = GetUnit(subjectUnitId)->
-                GetOutputUnitVector();
-            auto copyUnit = SharedPtr<CopyUnit>::Make();
-            for (const auto& unitIdIndexPair : getOutputUnitVector)
-            {
-                auto [destUnitId, parameterIndex] = unitIdIndexPair;
-                copyUnit->AddOutputPtr(GetUnit(destUnitId), parameterIndex);
-                copyUnit->SetInputPtr(GetUnit(subjectUnitId));
-            }
-            m_copyUnitMap.insert_or_assign(subjectUnitId, std::move(copyUnit));
+void UnitManager::Backward(std::size_t cycle)
+{
+    for (const auto& [key, unitPtr] : m_unitMap)
+    {
+        if (unitPtr->IsBackwardReady())
+            unitPtr->Backward(cycle);
+        m_backwardCopy(key);
+    }
+}
+
+void UnitManager::AsyncForward(std::size_t cycle)
+{
+    std::unordered_map<int, std::future<bool>> futureVector;
+    futureVector.reserve(10);
+
+    for (const auto& [key, unitPtr] : m_unitMap)
+    {
+        if (unitPtr->IsForwardReady())
+        {
+            std::promise<bool> promise;
+            futureVector[key] = promise.get_future();
+            unitPtr->AsyncForward(cycle, std::move(promise));
+        }
+    }
+
+    for (auto& [key, future] : futureVector)
+    {
+        future.wait();
+        m_forwardCopy(key);
+    }
+}
+
+void UnitManager::AsyncBackward(std::size_t cycle)
+{
+    std::unordered_map<int, std::future<bool>> futureVector;
+    futureVector.reserve(10);
+
+    for (const auto& [key, unitPtr] : m_unitMap)
+    {
+        if (unitPtr->IsBackwardReady())
+        {
+            std::promise<bool> promise;
+            futureVector[key] = promise.get_future();
+            unitPtr->AsyncBackward(cycle, std::move(promise));
+        }
+    }
+
+    for (auto& [key, future] : futureVector)
+    {
+        future.wait();
+        m_backwardCopy(key);
+    }
+}
+
+void UnitManager::m_forwardCopy(int sourceKey)
+{
+    const auto& sourceMetaData = m_unitMetaDataMap[sourceKey];
+    for (const auto& unitId : sourceMetaData.OutputUnitVector())
+    {
+        const auto& outputTensor = m_unitMap[unitId.Id]->ForwardOutput;
+        auto& nextInputTensorVector = m_unitMap[unitId.Id]->ForwardInputVector;
+        for (auto& destTensor : nextInputTensorVector)
+        {
+            Tensor::CopyTensor(outputTensor, destTensor);
         }
     }
 }
 
-
-void UnitManager::m_createExecutionOrder(UnitId unitId, std::size_t depth)
+void UnitManager::m_backwardCopy(int sourceKey)
 {
-    if (m_executionOrder.size() <= depth)
-        m_executionOrder.emplace_back(std::vector<UnitId>());
-    m_executionOrder.at(depth).emplace_back(unitId);
-
-    auto inputUnitVector = GetUnit(unitId)->GetInputUnitVector();
-    for (const auto& inputUnitId : inputUnitVector)
+    const auto& sourceMetaData = m_unitMetaDataMap[sourceKey];
+    for (const auto& unitId : sourceMetaData.OutputUnitVector())
     {
-        m_createExecutionOrder(inputUnitId, depth++);
-    }
-}
-
-void UnitManager::Train(std::size_t epochs)
-{
-    const auto sequenceSize = m_executionOrder.size();
-    for (std::size_t epoch = 0; epoch < epochs; ++epoch)
-    {
-        for (int index = static_cast<int>(sequenceSize); index >= 0; --index)
+        const auto& outputTensor = m_unitMap[unitId.Id]->BackwardOutput;
+        auto& nextInputTensorVector = m_unitMap[unitId.Id]->BackwardInputVector;
+        for (auto& destTensor : nextInputTensorVector)
         {
-            for (auto unitId : m_executionOrder.at(index))
-            {
-                auto unit = GetUnit(unitId);
-                if (unit->GetForwardStateCount() == epoch)
-                {
-                    unit->Forward();
-                    if (unit->GetId().BaseType != UnitBaseType::Sink)
-                        GetCopyUnit(unitId)->Forward();
-                    unit->IncrementForwardStateCount();
-                }
-            }
-        }
-
-        for (int index = 0; index < static_cast<int>(sequenceSize); ++index)
-        {
-            for (auto unitId : m_executionOrder.at(index))
-            {
-                auto unit = GetUnit(unitId);
-                if (unit->GetBackwardStateCount() == epoch)
-                {
-                    if (unit->GetId().BaseType != UnitBaseType::Sink)
-                        GetCopyUnit(unitId)->Backward();
-                    unit->Backward();
-                    unit->IncrementBackwardStateCount();
-                }
-            }
-        }
-    }
-}
-
-void UnitManager::Predict()
-{
-    const auto sequenceSize = m_executionOrder.size();
-    for (int index = static_cast<int>(sequenceSize); index >= 0; --index)
-    {
-        for (auto unitId : m_executionOrder.at(index))
-        {
-            auto unit = GetUnit(unitId);
-            unit->Forward();
-            if (unit->GetId().BaseType != UnitBaseType::Sink)
-                GetCopyUnit(unitId)->Forward();
-            unit->IncrementForwardStateCount();
+            Tensor::CopyTensor(outputTensor, destTensor);
         }
     }
 }
