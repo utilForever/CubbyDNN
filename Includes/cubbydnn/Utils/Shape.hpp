@@ -82,6 +82,8 @@ public:
 
     void Reshape(std::initializer_list<std::size_t> newShape);
 
+    [[nodiscard]] Shape GetTransposedShape() const;
+
 private:
     std::vector<std::size_t> m_shapeVector;
 };

@@ -16,10 +16,10 @@ namespace CubbyDNN::Graph
 class DenseUnit : public ComputableUnit
 {
 public:
-    DenseUnit(UnitId unitId, Shape input, Shape weightShape, Shape biasShape,
-              Shape output, NumberSystem numberSystem,
-              std::unique_ptr<Initializer> kernelInitializer,
-              std::unique_ptr<Initializer> biasInitializer, Activation activation,
+    DenseUnit(UnitId unitId, NumberSystem numberSystem, Tensor forwardInput,
+              std::vector<Tensor> backwardInputVector, Tensor forwardOutput,
+              Tensor backwardOutput,
+              Shape weightShape, Shape biasShape,
               float dropoutRate, std::size_t padSize);
     ~DenseUnit() = default;
 
@@ -35,9 +35,8 @@ public:
 private:
     Tensor m_kernel;
     Tensor m_bias;
-    std::unique_ptr<Initializer> m_kernelInitializer;
-    std::unique_ptr<Initializer> m_biasInitializer;
-    Activation m_activation;
+    Tensor m_temp;
+    Tensor m_transposedKernel;
     float m_dropoutRate;
 };
 } // namespace CubbyDNN

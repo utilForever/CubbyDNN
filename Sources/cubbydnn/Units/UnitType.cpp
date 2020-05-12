@@ -4,7 +4,7 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Units/UnitId.hpp>
+#include <cubbydnn/Units/UnitType.hpp>
 
 namespace CubbyDNN::Graph
 {
@@ -22,15 +22,15 @@ UnitType::UnitType(UnitBaseType type, std::string_view name,
 {
 }
 
-bool UnitType::operator==(const UnitType& rhs) const
+bool UnitType::operator==(const UnitType& unitType) const
 {
-    return BaseType == rhs.BaseType &&
-           m_typeName == rhs.m_typeName;
+    return BaseType == unitType.BaseType &&
+           m_typeName == unitType.m_typeName;
 }
 
-bool UnitType::operator!=(const UnitType& rhs) const
+bool UnitType::operator!=(const UnitType& unitType) const
 {
-    return !(*this == rhs);
+    return !(*this == unitType);
 }
 
 bool UnitType::IsBaseOf(const UnitType& baseUnit, const UnitType& derivedUnit)

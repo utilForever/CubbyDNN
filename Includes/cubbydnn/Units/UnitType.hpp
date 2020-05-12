@@ -32,8 +32,8 @@ public:
     UnitType& operator=(const UnitType& unitType) = default;
     UnitType& operator=(UnitType&& unitType) noexcept = default;
 
-    bool operator==(const UnitType& rhs) const;
-    bool operator!=(const UnitType& rhs) const;
+    bool operator==(const UnitType& unitType) const;
+    bool operator!=(const UnitType& unitType) const;
 
     [[nodiscard]] bool IsBaseOf(const UnitType& derivedUnit) const
     {

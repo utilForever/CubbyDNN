@@ -35,6 +35,8 @@ struct Tensor
     Shape TensorShape;
     NumberSystem NumericType = NumberSystem::Float;
     std::size_t PadSize = 0;
+    std::size_t ForwardStateNum = 0;
+    std::size_t BackwardStateNum = 0;
 };
 
 

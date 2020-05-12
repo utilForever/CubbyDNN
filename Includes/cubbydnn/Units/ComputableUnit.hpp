@@ -26,16 +26,16 @@ public:
     //! \param backwardOutput P: output of backward propagation
     ComputableUnit(UnitId unitId,
                    NumberSystem numberSystem,
-                   std::vector<Tensor>&& forwardInputVector,
-                   std::vector<Tensor>&& backwardInputVector,
-                   Tensor&& forwardOutput, Tensor&& backwardOutput
+                   std::vector<Tensor> forwardInputVector,
+                   std::vector<Tensor> backwardInputVector,
+                   Tensor forwardOutput, Tensor backwardOutput
         );
     virtual ~ComputableUnit() = default;
 
     ComputableUnit(const ComputableUnit& computableUnit) = delete;
     ComputableUnit(ComputableUnit&& computableUnit) noexcept;
 
-    ComputableUnit& operator=(ComputableUnit&& computableUnit) = delete;
+    ComputableUnit& operator=(ComputableUnit&& computableUnit);
     ComputableUnit& operator=(const ComputableUnit& computableUnit) = delete;
 
     UnitId Id() const
@@ -46,31 +46,29 @@ public:
     //! Execute the Forward-propagating operation
     //! Throws runtime exception if unit is not ready to be executed
     //! This includes copying the result to input of next unit
-    //! \param cycle : current cycle
-    //! \return : True if execution was completed False if execution is not ready
-    virtual void Forward(std::size_t cycle) = 0;
-    virtual std::future<bool> AsyncForward(std::size_t cycle,
-                                           std::promise<bool> promise) = 0;
+    virtual void Forward() = 0;
+    virtual std::future<bool> AsyncForward(
+        std::promise<bool> promise) = 0;
     //! Execute Backward-propagating operation
     //! Throws runtime exception if unit is not ready to be executed
     //! This includes copying the result to input of previous unit
-    //! \param cycle : current cycle
-    //! \return : True if execution was completed False if execution is not ready
-    virtual bool Backward(std::size_t cycle) = 0;
-    virtual std::future<bool> AsyncBackward(std::size_t cycle,
-                                            std::promise<bool>& promise) = 0;
+    virtual void Backward() = 0;
+    virtual std::future<bool> AsyncBackward(
+        std::promise<bool>& promise) = 0;
 
     //! Initializes internal tensors
     virtual void Initialize(
         std::initializer_list<std::unique_ptr<Initializer>> initializer) = 0;
 
     //! Checks if forward propagation is ready
+    //! \param cycle : cycle of current state
     //! \return : True if ready False if not
-    virtual bool IsForwardReady() = 0;
+    [[nodiscard]] bool IsForwardReady(std::size_t cycle) const;
 
     //! Checks if forward propagation is ready
+    //! \param cycle : cycle of current state
     //! \return : True if ready False if not
-    virtual bool IsBackwardReady() = 0;
+    [[nodiscard]] bool IsBackwardReady(std::size_t cycle) const;
 
     //! vector of input tensors used to compute forward propagation
     std::vector<Tensor> ForwardInputVector;
@@ -81,7 +79,7 @@ public:
     //! single output tensor of back propagation
     Tensor BackwardOutput;
 
- protected:
+protected:
     void m_updateForwardState();
 
     void m_updateBackwardState();

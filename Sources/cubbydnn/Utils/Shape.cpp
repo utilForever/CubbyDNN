@@ -156,4 +156,14 @@ std::size_t Shape::BatchSize() const
         size *= m_shapeVector.at(i);
     return size;
 }
+
+Shape Shape::GetTransposedShape() const
+{
+    Shape shape = *this;
+    auto shapeVector = m_shapeVector;
+    const auto temp = shape.m_shapeVector.at(0);
+    shape.m_shapeVector.at(0) = shape.m_shapeVector.at(1);
+    shape.m_shapeVector.at(1) = temp;
+    return shape;
+}
 } // namespace CubbyDNN

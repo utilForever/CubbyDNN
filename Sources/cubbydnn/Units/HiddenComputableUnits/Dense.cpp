@@ -10,36 +10,30 @@
 
 namespace CubbyDNN::Graph
 {
-DenseUnit::DenseUnit(UnitId unitId, Shape input, Shape weightShape,
-                     Shape biasShape,
-                     Shape output,
-                     NumberSystem numberSystem,
-                     std::unique_ptr<Initializer> kernelInitializer,
-                     std::unique_ptr<Initializer> biasInitializer,
-                     Activation activation,
-                     float dropoutRate, std::size_t padSize)
-    : ComputableUnit(unitId,
-                     { std::move(input) }, std::move(output), numberSystem),
+DenseUnit::DenseUnit(UnitId unitId, NumberSystem numberSystem,
+                     Tensor forwardInput,
+                     std::vector<Tensor> backwardInputVector,
+                     Tensor forwardOutput, Tensor backwardOutput,
+                     Shape weightShape, Shape biasShape, float dropoutRate,
+                     std::size_t padSize)
+    : ComputableUnit(std::move(unitId), numberSystem,
+                     { std::move(forwardInput) },
+                     std::move(backwardInputVector),
+                     std::move(forwardOutput), std::move(backwardOutput)),
       m_kernel(CreateTensor(weightShape, numberSystem, padSize)),
       m_bias(CreateTensor(biasShape, numberSystem, padSize)),
-      m_kernelInitializer(std::move(kernelInitializer)),
-      m_biasInitializer(std::move(biasInitializer)),
-      m_activation(activation),
+      m_temp(CreateTensor(forwardOutput.TensorShape, numberSystem, padSize)),
+      m_transposedKernel(CreateTensor(weightShape, numberSystem, padSize)),
       m_dropoutRate(dropoutRate)
-
 {
-    //TODO : make this selectable
-    m_kernelInitializer->Initialize(m_kernel, m_numberSystem);
-    m_biasInitializer->Initialize(m_bias, m_numberSystem);
 }
 
 DenseUnit::DenseUnit(DenseUnit&& dense) noexcept
     : ComputableUnit(std::move(dense)),
       m_kernel(std::move(dense.m_kernel)),
       m_bias(std::move(dense.m_bias)),
-      m_kernelInitializer(std::move(dense.m_kernelInitializer)),
-      m_biasInitializer(std::move(dense.m_biasInitializer)),
-      m_activation(dense.m_activation),
+      m_temp(std::move(dense.m_temp)),
+      m_transposedKernel(std::move(dense.m_transposedKernel)),
       m_dropoutRate(dense.m_dropoutRate)
 {
 }
@@ -48,9 +42,8 @@ DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
 {
     m_kernel = std::move(dense.m_kernel);
     m_bias = std::move(dense.m_bias);
-    m_kernelInitializer = std::move(dense.m_kernelInitializer);
-    m_biasInitializer = std::move(dense.m_biasInitializer);
-    m_activation = dense.m_activation;
+    m_temp = std::move(dense.m_temp);
+    m_transposedKernel = std::move(dense.m_transposedKernel);
     m_dropoutRate = dense.m_dropoutRate;
     ComputableUnit::operator=(std::move(dense));
     return *this;
@@ -59,20 +52,18 @@ DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
 void DenseUnit::Forward()
 {
     Tensor& input = ForwardInputVector.at(0);
-    Tensor& weight = ForwardInputVector.at(1);
-    Tensor& bias = ForwardInputVector.at(2);
-    Tensor& output = m_fowrardOutput;
 
-    Native::Multiply(weight, input, m_kernel);
-    Native::Add(m_kernel, bias, output);
+    Native::Multiply(m_kernel, input, m_temp);
+    Native::Add(m_temp, m_bias, ForwardOutput);
 }
 
 void DenseUnit::Backward()
 {
-    // TODO : Create separate inputs and outputs for back propagation
-    // Tensor& delta = m_inputTensorVector.at(0);
-    // Tensor& weight = m_inputTensorVector.at(1);
-    // Tensor& input = m_inputTensorVector.at(0); // (W(l+1) & delta(l + 1)
-    // m_tensorOperation->Multiply(weight, delta, m_temp);
+    Tensor& delta = BackwardInputVector.at(0);
+
+    Native::Transpose(m_kernel, m_transposedKernel);
+    Native::Multiply(m_transposedKernel, delta, BackwardOutput);
+
+    // TODO : Update kernel using gradient updater
 }
 } // namespace CubbyDNN

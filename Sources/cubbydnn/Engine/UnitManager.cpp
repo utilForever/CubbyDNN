@@ -46,7 +46,6 @@ void UnitManager::AddUnit(UnitMetaData unitMetaData)
 
     m_unitMetaDataMap[unitMetaData.Id().Id] = std::move(unitMetaData);
     // TODO : Create appropriate Unit by examining UnitID
-
 }
 
 
@@ -54,7 +53,7 @@ void UnitManager::Forward(std::size_t cycle)
 {
     for (const auto& [key, unitPtr] : m_unitMap)
     {
-        if (unitPtr->IsForwardReady())
+        if (unitPtr->IsForwardReady(cycle))
             unitPtr->Forward(cycle);
         m_forwardCopy(key);
     }
@@ -64,7 +63,7 @@ void UnitManager::Backward(std::size_t cycle)
 {
     for (const auto& [key, unitPtr] : m_unitMap)
     {
-        if (unitPtr->IsBackwardReady())
+        if (unitPtr->IsBackwardReady(cycle))
             unitPtr->Backward(cycle);
         m_backwardCopy(key);
     }
@@ -77,7 +76,7 @@ void UnitManager::AsyncForward(std::size_t cycle)
 
     for (const auto& [key, unitPtr] : m_unitMap)
     {
-        if (unitPtr->IsForwardReady())
+        if (unitPtr->IsForwardReady(cycle))
         {
             std::promise<bool> promise;
             futureVector[key] = promise.get_future();
@@ -99,7 +98,7 @@ void UnitManager::AsyncBackward(std::size_t cycle)
 
     for (const auto& [key, unitPtr] : m_unitMap)
     {
-        if (unitPtr->IsBackwardReady())
+        if (unitPtr->IsBackwardReady(cycle))
         {
             std::promise<bool> promise;
             futureVector[key] = promise.get_future();
@@ -119,11 +118,13 @@ void UnitManager::m_forwardCopy(int sourceKey)
     const auto& sourceMetaData = m_unitMetaDataMap[sourceKey];
     for (const auto& unitId : sourceMetaData.OutputUnitVector())
     {
-        const auto& outputTensor = m_unitMap[unitId.Id]->ForwardOutput;
+        auto& outputTensor = m_unitMap[unitId.Id]->ForwardOutput;
         auto& nextInputTensorVector = m_unitMap[unitId.Id]->ForwardInputVector;
         for (auto& destTensor : nextInputTensorVector)
         {
             Tensor::CopyTensor(outputTensor, destTensor);
+            outputTensor.ForwardStateNum += 1;
+            destTensor.ForwardStateNum += 1;
         }
     }
 }
@@ -133,11 +134,13 @@ void UnitManager::m_backwardCopy(int sourceKey)
     const auto& sourceMetaData = m_unitMetaDataMap[sourceKey];
     for (const auto& unitId : sourceMetaData.OutputUnitVector())
     {
-        const auto& outputTensor = m_unitMap[unitId.Id]->BackwardOutput;
+        auto& outputTensor = m_unitMap[unitId.Id]->BackwardOutput;
         auto& nextInputTensorVector = m_unitMap[unitId.Id]->BackwardInputVector;
         for (auto& destTensor : nextInputTensorVector)
         {
             Tensor::CopyTensor(outputTensor, destTensor);
+            outputTensor.BackwardStateNum += 1;
+            destTensor.BackwardStateNum += 1;
         }
     }
 }
