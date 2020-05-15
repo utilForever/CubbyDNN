@@ -20,9 +20,8 @@ public:
     DenseUnit(UnitId unitId, NumberSystem numberSystem, Tensor forwardInput,
               std::vector<Tensor> backwardInputVector, Tensor forwardOutput,
               Tensor backwardOutput,
-              Tensor weight, Tensor bias, Tensor temporary,
-              Tensor weightTranspose,
-              float dropout);
+              Tensor weight, Tensor bias,
+              Tensor weightTranspose);
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& dense) = delete;
@@ -30,7 +29,7 @@ public:
     DenseUnit& operator=(const DenseUnit& dens) = delete;
     DenseUnit& operator=(DenseUnit&& dense) noexcept;
 
-   static DenseUnit CreateUnit(const UnitMetaData& unitMetaData,
+    static DenseUnit CreateUnit(const UnitMetaData& unitMetaData,
                                 float dropout);
 
     void Forward() override;
@@ -47,9 +46,7 @@ public:
 private:
     Tensor m_kernel;
     Tensor m_bias;
-    Tensor m_temp;
     Tensor m_transposedKernel;
-    float m_dropoutRate;
 };
 } // namespace CubbyDNN
 

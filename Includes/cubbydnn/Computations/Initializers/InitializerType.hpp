@@ -25,6 +25,25 @@ public:
     virtual void Initialize(Tensor& tensor, NumberSystem numericType) const = 0;
 };
 
+class Zeros : public Initializer
+{
+public:
+    Zeros() = default;
+
+    void Initialize(Tensor& tensor, NumberSystem numericType) const override
+    {
+        if (numericType == NumberSystem::Float)
+            InitializerOperations::Zeros(
+                tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
+                tensor.PadSize);
+        else
+            InitializerOperations::Zeros(
+                tensor.TensorShape, static_cast<int*>(tensor.DataPtr),
+                tensor.PadSize);
+    }
+};
+
+
 class XavierNormal : public Initializer
 {
 public:

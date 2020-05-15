@@ -18,7 +18,7 @@ ComputableUnit::ComputableUnit(UnitId unitId, NumberSystem numberSystem,
       ForwardOutput(std::move(forwardOutput)),
       BackwardOutputVector(std::move(backwardOutputVector)),
       m_unitId(std::move(unitId)),
-      m_numberSystem(numberSystem){
+      m_numericType(numberSystem){
 }
 
 ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
@@ -27,7 +27,7 @@ ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
       ForwardOutput(std::move(computableUnit.ForwardOutput)),
       BackwardOutputVector(std::move(computableUnit.BackwardOutputVector)),
       m_unitId(std::move(computableUnit.m_unitId)),
-      m_numberSystem(computableUnit.m_numberSystem)
+      m_numericType(computableUnit.m_numericType)
 {
 }
 
@@ -39,7 +39,7 @@ ComputableUnit& ComputableUnit::operator=(
     ForwardOutput = std::move(computableUnit.ForwardOutput);
     BackwardOutputVector = std::move(computableUnit.BackwardOutputVector);
     m_unitId = std::move(computableUnit.m_unitId);
-    m_numberSystem = computableUnit.m_numberSystem;
+    m_numericType = computableUnit.m_numericType;
     return *this;
 }
 

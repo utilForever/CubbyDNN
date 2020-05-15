@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_SHAPER_HPP
-#define CUBBYDNN_SHAPER_HPP
+#ifndef CUBBYDNN_SHAPE_HPP
+#define CUBBYDNN_SHAPE_HPP
 
 #include <stdexcept>
 #include <vector>

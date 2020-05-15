@@ -88,7 +88,7 @@ protected:
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
     UnitState m_unitState;
     //! Number system for this unit to use
-    NumberSystem m_numberSystem;
+    NumberSystem m_numericType;
 };
 }; // namespace CubbyDNN
 

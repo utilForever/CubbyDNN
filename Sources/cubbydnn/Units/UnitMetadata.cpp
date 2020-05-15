@@ -59,7 +59,7 @@ InitializerVector() const
     return m_initializerVector;
 }
 
-std::vector<Shape> UnitMetaData::InternalVaribleShapeVector() const
+std::vector<Shape> UnitMetaData::InternalVariableShapeVector() const
 {
     return m_internalVariableShapeVector;
 }
