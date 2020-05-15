@@ -27,8 +27,6 @@ public:
     template <typename... Ts>
     void AppendUnit(const UnitMetaData& unitMetaData, Ts ... type);
 
-    void Initialize();
-
     virtual void Forward(std::size_t cycle);
 
     virtual void Backward(std::size_t cycle);
@@ -38,10 +36,10 @@ public:
     virtual void AsyncBackward(std::size_t cycle);
 
 private:
-    //! Copies output of source unit to destination units that has connection
-    void m_forwardCopy(int sourceKey);
-
-    void m_backwardCopy(int sourceKey);
+    //! Copies forward output of subject unit to forward inputs of destination units with direct connection
+    void m_forwardCopy(int subjectUnitKey);
+    //! Copies backward outputs of subject unit to backward inputs of destination units with direct connection
+    void m_backwardCopy(int subjectUnitKey);
 
 
     std::unordered_map<int, UnitMetaData> m_unitMetaDataMap;

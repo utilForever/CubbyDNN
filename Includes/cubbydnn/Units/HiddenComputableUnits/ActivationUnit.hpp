@@ -20,6 +20,7 @@ public:
     ActivationUnit(UnitId unitId, NumberSystem numberSystem,
                    Tensor forwardInput, std::vector<Tensor> backwardInputVector,
                    Tensor forwardOutput, Tensor backwardOutput,
+                   Tensor backwardTemp,
                    std::unique_ptr<Compute::ActivationFunc> activationFunc);
 
 
@@ -41,11 +42,9 @@ public:
 
     void AsyncBackward(std::promise<bool> promise) override;
 
-    void Initialize(const std::vector<std::unique_ptr<Initializer>>&
-        initializerVector) override;
-
 private:
     std::unique_ptr<Compute::ActivationFunc> m_activationFunc;
+    Tensor m_backwardTemp;
 };
 } // namespace CubbyDNN::Graph
 

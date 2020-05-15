@@ -11,7 +11,7 @@
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <functional>
 
-namespace CubbyDNN
+namespace CubbyDNN::Compute
 {
 class Naive
 {
@@ -150,6 +150,13 @@ public:
                             static_cast<T*>(output.DataPtr)[numRows * i + j] =
                                 static_cast<T*>(input.DataPtr)[numCols * j + i];
                         }
+    }
+
+    template <typename T>
+    static void Activation(const Tensor& input, Tensor& output, T& activation)
+    {
+        const auto inputShape = input.TensorShape;
+        const auto outputShape = output.TensorShape;
     }
 };
 } // namespace CubbyDNN

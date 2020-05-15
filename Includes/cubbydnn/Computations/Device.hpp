@@ -35,6 +35,16 @@ public:
                && m_name == device.m_name;
     }
 
+    DeviceType Type() const
+    {
+        return type;
+    }
+
+    std::string Name() const
+    {
+        return m_name;
+    }
+
 private:
     std::size_t m_id;
     DeviceType type;

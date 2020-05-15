@@ -4,26 +4,30 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Units/HiddenComputableUnits/Activation.hpp>
+#include <cubbydnn/Units/HiddenComputableUnits/ActivationUnit.hpp>
+#include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
 
 namespace CubbyDNN::Graph
 {
 ActivationUnit::ActivationUnit(UnitId unitId, NumberSystem numberSystem,
                                Tensor forwardInput,
                                std::vector<Tensor> backwardInputVector,
-                               Tensor forwardOutput, Tensor backwardOutput,
+                               Tensor forwardOutput,
+                               Tensor backwardOutput, Tensor backwardTemp,
                                std::unique_ptr<Compute::ActivationFunc>
                                activationFunc)
     : ComputableUnit(unitId, numberSystem, { std::move(forwardInput) },
                      std::move(backwardInputVector), std::move(forwardOutput),
                      { std::move(backwardOutput) }),
-      m_activationFunc(std::move(activationFunc))
+      m_activationFunc(std::move(activationFunc)),
+      m_backwardTemp(std::move(backwardTemp))
 {
 }
 
 ActivationUnit::ActivationUnit(ActivationUnit&& activationUnit) noexcept
     : ComputableUnit(std::move(activationUnit)),
-      m_activationFunc(std::move(activationUnit.m_activationFunc))
+      m_activationFunc(std::move(activationUnit.m_activationFunc)),
+      m_backwardTemp(std::move(activationUnit.m_backwardTemp))
 {
 }
 
@@ -34,7 +38,6 @@ ActivationUnit& ActivationUnit::operator=(
     ComputableUnit::operator=(std::move(activationUnit));
     return *this;
 }
-
 
 ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData,
                                           std::unique_ptr<Compute::
@@ -62,12 +65,18 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData,
         unitMetaData.InputShapeVector().at(0), unitMetaData.NumericType,
         unitMetaData.Device, unitMetaData.PadSize);
 
+    auto backwardTempTensor =
+        Tensor::CreateTensor(unitMetaData.OutputShape(),
+                             unitMetaData.NumericType,
+                             unitMetaData.Device, unitMetaData.PadSize);
+
     auto activationUnit = ActivationUnit(unitMetaData.Id(),
                                          unitMetaData.NumericType,
                                          std::move(forwardInputTensor),
                                          std::move(backwardInputVector),
                                          std::move(forwardOutputTensor),
                                          std::move(backwardOutputTensor),
+                                         std::move(backwardTempTensor),
                                          std::move(activationFunc));
 
     return activationUnit;
@@ -75,8 +84,43 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData,
 
 void ActivationUnit::Forward()
 {
-    
+    Compute::Native::ActivationForward(ForwardInputVector.at(0), ForwardOutput,
+                                       m_activationFunc);
 }
 
+void ActivationUnit::AsyncForward(std::promise<bool> promise)
+{
+    Compute::Native::ActivationForward(ForwardInputVector.at(0), ForwardOutput,
+                                       m_activationFunc);
+    promise.set_value(true);
+}
 
+void ActivationUnit::Backward()
+{
+    const Zeros zeroInitializer;
+    zeroInitializer.Initialize(m_backwardTemp);
+    for (const auto& tensor : BackwardInputVector)
+        Compute::Native::Add(tensor, m_backwardTemp,
+                             m_backwardTemp);
+    Compute::Native::ActivationBackward(ForwardInputVector.at(0),
+                                        BackwardOutputVector.at(0),
+                                        m_activationFunc);
+    Compute::Native::Dot(m_backwardTemp, BackwardOutputVector.at(0),
+                         BackwardOutputVector.at(0));
+}
+
+void ActivationUnit::AsyncBackward(std::promise<bool> promise)
+{
+    const Zeros zeroInitializer;
+    zeroInitializer.Initialize(m_backwardTemp);
+    for (const auto& tensor : BackwardInputVector)
+        Compute::Native::Add(tensor, m_backwardTemp,
+                             m_backwardTemp);
+    Compute::Native::ActivationBackward(
+        ForwardInputVector.at(0), BackwardOutputVector.at(0), m_activationFunc);
+    Compute::Native::Dot(m_backwardTemp, BackwardOutputVector.at(0),
+                         BackwardOutputVector.at(0));
+
+    promise.set_value(true);
+}
 }

@@ -25,12 +25,11 @@ public:
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& dense) = delete;
-    DenseUnit(DenseUnit&& dense) noexcept;
+    DenseUnit(DenseUnit&& denseUnit) noexcept;
     DenseUnit& operator=(const DenseUnit& dens) = delete;
     DenseUnit& operator=(DenseUnit&& dense) noexcept;
 
-    static DenseUnit CreateUnit(const UnitMetaData& unitMetaData,
-                                float dropout);
+    static DenseUnit CreateUnit(const UnitMetaData& unitMetaData);
 
     void Forward() override;
 
@@ -39,9 +38,6 @@ public:
     void Backward() override;
 
     void AsyncBackward(std::promise<bool> promise) override;
-
-    void Initialize(const std::vector<std::unique_ptr<Initializer>>&
-        initializerVector) override;
 
 private:
     Tensor m_kernel;

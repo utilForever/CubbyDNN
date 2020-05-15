@@ -56,10 +56,6 @@ public:
     virtual void AsyncBackward(
         std::promise<bool> promise) = 0;
 
-    //! Initializes internal tensors
-    virtual void Initialize(
-        const std::vector<std::unique_ptr<Initializer>>& initializerVector) = 0;
-
     //! Checks if forward propagation is ready
     //! \param cycle : cycle of current state
     //! \return : True if ready False if not

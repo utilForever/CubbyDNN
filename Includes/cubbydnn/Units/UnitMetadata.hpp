@@ -48,7 +48,7 @@ public:
     [[nodiscard]] const std::vector<std::unique_ptr<Initializer>>&
     InitializerVector() const;
 
-    [[nodiscard]] std::vector<Shape> InternalVaribleShapeVector() const;
+    [[nodiscard]] std::vector<Shape> InternalVariableShapeVector() const;
 
     NumberSystem NumericType;
     std::size_t PadSize;

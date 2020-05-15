@@ -13,8 +13,7 @@ DenseUnit::DenseUnit(UnitId unitId, NumberSystem numberSystem,
                      Tensor forwardInput,
                      std::vector<Tensor> backwardInputVector,
                      Tensor forwardOutput, Tensor backwardOutput,
-                     Tensor weight, Tensor bias,
-                     Tensor weightTranspose)
+                     Tensor weight, Tensor bias, Tensor weightTranspose)
     : ComputableUnit(std::move(unitId), numberSystem,
                      { std::move(forwardInput) },
                      std::move(backwardInputVector), std::move(forwardOutput),
@@ -25,11 +24,11 @@ DenseUnit::DenseUnit(UnitId unitId, NumberSystem numberSystem,
 {
 }
 
-DenseUnit::DenseUnit(DenseUnit&& dense) noexcept
-    : ComputableUnit(std::move(dense)),
-      m_kernel(std::move(dense.m_kernel)),
-      m_bias(std::move(dense.m_bias)),
-      m_transposedKernel(std::move(dense.m_transposedKernel))
+DenseUnit::DenseUnit(DenseUnit&& denseUnit) noexcept
+    : ComputableUnit(std::move(denseUnit)),
+      m_kernel(std::move(denseUnit.m_kernel)),
+      m_bias(std::move(denseUnit.m_bias)),
+      m_transposedKernel(std::move(denseUnit.m_transposedKernel))
 {
 }
 
@@ -42,15 +41,15 @@ DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
     return *this;
 }
 
-DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData, float dropout)
+DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData)
 {
     const auto unitId = unitMetaData.Id();
 
     auto forwardInputTensor =
         Tensor::CreateTensor(unitMetaData.InputShapeVector().at(0),
                              unitMetaData.NumericType, unitMetaData.Device);
-    std::vector<Tensor> backwardInputVector;
 
+    std::vector<Tensor> backwardInputVector;
     backwardInputVector.reserve(unitMetaData.OutputUnitVector().size());
     for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
     {
@@ -74,10 +73,14 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData, float dropout)
     auto weightTensor =
         Tensor::CreateTensor(weightShape, unitMetaData.NumericType,
                              unitMetaData.Device, unitMetaData.PadSize);
+    const auto& weightInitializer = unitMetaData.InitializerVector().at(0);
+    weightInitializer->Initialize(weightTensor);
 
     auto biasTensor =
         Tensor::CreateTensor(biasShape, unitMetaData.NumericType,
                              unitMetaData.Device, unitMetaData.PadSize);
+    const auto& biasInitializer = unitMetaData.InitializerVector().at(1);
+    biasInitializer->Initialize(biasTensor);
 
     auto weightTransposeTensor = Tensor::CreateTensor(
         weightShape.Transpose(), unitMetaData.NumericType,
@@ -87,10 +90,9 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData, float dropout)
         unitId, unitMetaData.NumericType, std::move(forwardInputTensor),
         std::move(backwardInputVector), std::move(forwardOutputTensor),
         std::move(backwardOutputTensor), std::move(weightTensor),
-        std::move(biasTensor),
-        std::move(weightTransposeTensor));
+        std::move(biasTensor), std::move(weightTransposeTensor));
 
-    return std::move(denseUnit);
+    return denseUnit;
 }
 
 
@@ -98,16 +100,16 @@ void DenseUnit::Forward()
 {
     Tensor& input = ForwardInputVector.at(0);
 
-    Native::Multiply(m_kernel, input, ForwardOutput);
-    Native::Add(ForwardOutput, m_bias, ForwardOutput);
+    Compute::Native::Multiply(m_kernel, input, ForwardOutput);
+    Compute::Native::Add(ForwardOutput, m_bias, ForwardOutput);
 }
 
 void DenseUnit::AsyncForward(std::promise<bool> promise)
 {
     Tensor& input = ForwardInputVector.at(0);
 
-    Native::Multiply(m_kernel, input, ForwardOutput);
-    Native::Add(ForwardOutput, m_bias, ForwardOutput);
+    Compute::Native::Multiply(m_kernel, input, ForwardOutput);
+    Compute::Native::Add(ForwardOutput, m_bias, ForwardOutput);
     promise.set_value(true);
 }
 
@@ -116,8 +118,9 @@ void DenseUnit::Backward()
 {
     Tensor& delta = BackwardInputVector.at(0);
 
-    Native::Transpose(m_kernel, m_transposedKernel);
-    Native::Multiply(m_transposedKernel, delta, BackwardOutputVector.at(0));
+    Compute::Native::Transpose(m_kernel, m_transposedKernel);
+    Compute::Native::Multiply(m_transposedKernel, delta,
+                              BackwardOutputVector.at(0));
 
     // TODO : Update kernel using gradient optimizer
 }
@@ -126,20 +129,11 @@ void DenseUnit::AsyncBackward(std::promise<bool> promise)
 {
     Tensor& delta = BackwardInputVector.at(0);
 
-    Native::Transpose(m_kernel, m_transposedKernel);
-    Native::Multiply(m_transposedKernel, delta, BackwardOutputVector.at(0));
+    Compute::Native::Transpose(m_kernel, m_transposedKernel);
+    Compute::Native::Multiply(m_transposedKernel, delta,
+                              BackwardOutputVector.at(0));
 
     // TODO : Update kernel using gradient optimizer
     promise.set_value(true);
-}
-
-void DenseUnit::Initialize(
-    const std::vector<std::unique_ptr<Initializer>>& initializerVector)
-{
-    initializerVector.at(0)->Initialize(m_kernel, m_numericType);
-    initializerVector.at(1)->Initialize(m_bias, m_numericType);
-
-    const Zeros zeroInitializer;
-    zeroInitializer.Initialize(m_transposedKernel, m_numericType);
 }
 } // namespace CubbyDNN

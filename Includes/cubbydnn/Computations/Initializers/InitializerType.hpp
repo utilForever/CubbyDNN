@@ -22,7 +22,7 @@ public:
     Initializer(Initializer&& other) noexcept = default;
     Initializer& operator=(const Initializer& other) = default;
     Initializer& operator=(Initializer&& other) noexcept = default;
-    virtual void Initialize(Tensor& tensor, NumberSystem numericType) const = 0;
+    virtual void Initialize(Tensor& tensor) const = 0;
 };
 
 class Zeros : public Initializer
@@ -30,9 +30,9 @@ class Zeros : public Initializer
 public:
     Zeros() = default;
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) const override
+    void Initialize(Tensor& tensor) const override
     {
-        if (numericType == NumberSystem::Float)
+        if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::Zeros(
                 tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
                 tensor.PadSize);
@@ -49,9 +49,9 @@ class XavierNormal : public Initializer
 public:
     XavierNormal() = default;
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) const override
+    void Initialize(Tensor& tensor) const override
     {
-        if (numericType == NumberSystem::Float)
+        if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::XavierNormal(tensor.TensorShape,
                                                 static_cast<float*>(tensor.
                                                     DataPtr),
@@ -68,9 +68,9 @@ class HeNormal : public Initializer
 public:
     HeNormal() = default;
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) const override
+    void Initialize(Tensor& tensor) const override
     {
-        if (numericType == NumberSystem::Float)
+        if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::HeNormal(
                 tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
                 tensor.PadSize);
@@ -86,9 +86,9 @@ class LecunNormal : public Initializer
 public:
     LecunNormal() = default;
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) const override
+    void Initialize(Tensor& tensor) const override
     {
-        if (numericType == NumberSystem::Float)
+        if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::LecunNormal(tensor.TensorShape,
                                                static_cast<float*>(tensor.
                                                    DataPtr), tensor.PadSize);
@@ -104,9 +104,9 @@ class RandomUniform : public Initializer
 public:
     RandomUniform(float min, float max);
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) const override
+    void Initialize(Tensor& tensor) const override
     {
-        if (numericType == NumberSystem::Float)
+        if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::RandomUniform(
                 tensor.TensorShape, m_min,
                 m_max, static_cast<float*>(tensor.DataPtr),
@@ -129,9 +129,9 @@ class RandomNormal : public Initializer
 public:
     RandomNormal(float min, float max);
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) const override
+    void Initialize(Tensor& tensor) const override
     {
-        if (numericType == NumberSystem::Float)
+        if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::RandomNormal(
                 tensor.TensorShape, m_min, m_max,
                 static_cast<float*>(tensor.DataPtr), tensor.PadSize);

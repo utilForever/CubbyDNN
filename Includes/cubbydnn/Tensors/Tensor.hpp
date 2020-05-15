@@ -18,7 +18,6 @@ namespace CubbyDNN
 class Tensor
 {
  public:
-    Tensor() = default;
     Tensor(void* Data, Shape shape, NumberSystem numberSystem, Compute::Device device);
     ~Tensor();
 
@@ -44,11 +43,9 @@ class Tensor
     NumberSystem NumericType = NumberSystem::Float;
     Compute::Device Device;
     std::size_t PadSize = 0;
-    std::size_t ForwardStateNum = 0;
-    std::size_t BackwardStateNum = 0;
+    std::atomic<std::size_t> ForwardStateNum = 0;
+    std::atomic<std::size_t> BackwardStateNum = 0;
 };
-
-
 
 //! Used only for testing
 template <typename T>

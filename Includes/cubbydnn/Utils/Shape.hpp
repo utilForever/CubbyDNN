@@ -88,7 +88,7 @@ public:
 
     Shape& Reshape(std::initializer_list<std::size_t> newShape);
 
-    [[nodiscard]] Shape& Transpose();
+   Shape& Transpose();
 
 private:
     std::vector<std::size_t> m_shapeVector;

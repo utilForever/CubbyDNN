@@ -8,12 +8,14 @@
 #define CUBBYDNN_NAIVEOPERATIONS_HPP
 
 #include <cubbydnn/Tensors/Tensor.hpp>
+#include <cubbydnn/Computations/Activations/ActivationFunc.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Compute
 {
 class Native
 {
 public:
+
     static void Multiply(const Tensor& inputA, const Tensor& inputB,
                          Tensor& output);
 
@@ -21,12 +23,13 @@ public:
 
     static void Transpose(const Tensor& input, Tensor& output);
 
-    static void Activation(const Tensor& input, Tensor& output)
-    {
-        //TODO : implement activation functions in this way
-        Tensor::CopyTensor(input, output);
-        throw std::runtime_error("Not implemented");
-    }
+    static void ActivationForward(const Tensor& input, Tensor& output,
+                           std::unique_ptr<ActivationFunc>& activation);
+
+    static void ActivationBackward(const Tensor& input, Tensor& output,
+                                  std::unique_ptr<ActivationFunc>& activation);
+
+    static void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 };
 } // namespace CubbyDNN
 
