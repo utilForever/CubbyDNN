@@ -25,7 +25,7 @@ void Model::Predict()
 
 void Model::Fit(std::size_t epochs)
 {
-    m_unitManager.Train(epochs);
+    m_unitManager.Forward(epochs);
 }
 
 UnitId Model::PlaceHolder(const Shape& shape, const std::string& name)

@@ -22,7 +22,7 @@ public:
     Initializer(Initializer&& other) noexcept = default;
     Initializer& operator=(const Initializer& other) = default;
     Initializer& operator=(Initializer&& other) noexcept = default;
-    virtual void Initialize(Tensor& tensor, NumberSystem numericType) = 0;
+    virtual void Initialize(Tensor& tensor, NumberSystem numericType) const = 0;
 };
 
 class XavierNormal : public Initializer
@@ -30,7 +30,7 @@ class XavierNormal : public Initializer
 public:
     XavierNormal() = default;
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) override
+    void Initialize(Tensor& tensor, NumberSystem numericType) const override
     {
         if (numericType == NumberSystem::Float)
             InitializerOperations::XavierNormal(tensor.TensorShape,
@@ -49,7 +49,7 @@ class HeNormal : public Initializer
 public:
     HeNormal() = default;
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) override
+    void Initialize(Tensor& tensor, NumberSystem numericType) const override
     {
         if (numericType == NumberSystem::Float)
             InitializerOperations::HeNormal(
@@ -67,7 +67,7 @@ class LecunNormal : public Initializer
 public:
     LecunNormal() = default;
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) override
+    void Initialize(Tensor& tensor, NumberSystem numericType) const override
     {
         if (numericType == NumberSystem::Float)
             InitializerOperations::LecunNormal(tensor.TensorShape,
@@ -85,7 +85,7 @@ class RandomUniform : public Initializer
 public:
     RandomUniform(float min, float max);
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) override
+    void Initialize(Tensor& tensor, NumberSystem numericType) const override
     {
         if (numericType == NumberSystem::Float)
             InitializerOperations::RandomUniform(
@@ -110,7 +110,7 @@ class RandomNormal : public Initializer
 public:
     RandomNormal(float min, float max);
 
-    void Initialize(Tensor& tensor, NumberSystem numericType) override
+    void Initialize(Tensor& tensor, NumberSystem numericType) const override
     {
         if (numericType == NumberSystem::Float)
             InitializerOperations::RandomNormal(

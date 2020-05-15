@@ -11,32 +11,33 @@ namespace CubbyDNN::Graph
 ComputableUnit::ComputableUnit(UnitId unitId, NumberSystem numberSystem,
                                std::vector<Tensor> forwardInputVector,
                                std::vector<Tensor> backwardInputVector,
-                               Tensor forwardOutput, Tensor backwardOutput)
+                               Tensor forwardOutput,
+                               std::vector<Tensor> backwardOutputVector)
     : ForwardInputVector(std::move(forwardInputVector)),
       BackwardInputVector(std::move(backwardInputVector)),
       ForwardOutput(std::move(forwardOutput)),
-      BackwardOutput(std::move(backwardOutput)),
+      BackwardOutputVector(std::move(backwardOutputVector)),
       m_unitId(std::move(unitId)),
-      m_numberSystem(numberSystem)
-{
+      m_numberSystem(numberSystem){
 }
 
 ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
     : ForwardInputVector(std::move(computableUnit.ForwardInputVector)),
       BackwardInputVector(std::move(computableUnit.BackwardInputVector)),
       ForwardOutput(std::move(computableUnit.ForwardOutput)),
-      BackwardOutput(std::move(computableUnit.BackwardOutput)),
+      BackwardOutputVector(std::move(computableUnit.BackwardOutputVector)),
       m_unitId(std::move(computableUnit.m_unitId)),
       m_numberSystem(computableUnit.m_numberSystem)
 {
 }
 
-ComputableUnit& ComputableUnit::operator=(ComputableUnit&& computableUnit)
+ComputableUnit& ComputableUnit::operator=(
+    ComputableUnit&& computableUnit) noexcept
 {
     ForwardInputVector = std::move(computableUnit.ForwardInputVector);
     BackwardInputVector = std::move(computableUnit.BackwardInputVector);
     ForwardOutput = std::move(computableUnit.ForwardOutput);
-    BackwardOutput = std::move(computableUnit.BackwardOutput);
+    BackwardOutputVector = std::move(computableUnit.BackwardOutputVector);
     m_unitId = std::move(computableUnit.m_unitId);
     m_numberSystem = computableUnit.m_numberSystem;
     return *this;
@@ -63,8 +64,11 @@ bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
             return false;
     }
 
-    if (BackwardOutput.BackwardStateNum != cycle)
-        return false;
+    for (const auto& tensor : BackwardOutputVector)
+    {
+        if (tensor.BackwardStateNum != cycle)
+            return false;
+    }
     return true;
 }
 

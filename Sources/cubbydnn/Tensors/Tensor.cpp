@@ -10,10 +10,12 @@
 
 namespace CubbyDNN
 {
-Tensor::Tensor(void* Data, Shape shape, NumberSystem numberSystem)
+Tensor::Tensor(void* Data, Shape shape, NumberSystem numberSystem,
+               Compute::Device device)
     : DataPtr(Data),
       TensorShape(std::move(shape)),
-      NumericType(numberSystem)
+      NumericType(numberSystem),
+      Device(device)
 {
     Data = nullptr;
 }
@@ -29,7 +31,8 @@ Tensor::~Tensor()
 Tensor::Tensor(Tensor&& tensor) noexcept
     : DataPtr(tensor.DataPtr),
       TensorShape(std::move(tensor.TensorShape)),
-      NumericType(tensor.NumericType)
+      NumericType(tensor.NumericType),
+      Device(tensor.Device)
 {
     tensor.DataPtr = nullptr;
 }
@@ -43,25 +46,28 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     return *this;
 }
 
-Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, std::size_t padSize)
+Tensor Tensor::CreateTensor(const Shape& shape, NumberSystem numberSystem,
+                            Compute::Device deviceType, std::size_t padSize)
 {
     void* dataPtr = nullptr;
     const auto totalSize =
-        padSize  > 0 ? shape.BatchSize() * shape.NumRows() * padSize : shape.TotalSize();
+        padSize > 0
+            ? shape.BatchSize() * shape.NumRows() * padSize
+            : shape.Size();
     if (numberSystem == NumberSystem::Float)
     {
-        dataPtr = static_cast<void*>(new float[shape.TotalSize()]);
+        dataPtr = static_cast<void*>(new float[shape.Size()]);
         for (std::size_t i = 0; i < totalSize; ++i)
             static_cast<float*>(dataPtr)[i] = 0.0f;
     }
     else if (numberSystem == NumberSystem::Int)
     {
-        dataPtr = static_cast<void*>(new int[shape.TotalSize()]);
+        dataPtr = static_cast<void*>(new int[shape.Size()]);
         for (std::size_t i = 0; i < totalSize; ++i)
             static_cast<int*>(dataPtr)[i] = 0;
     }
 
-    return Tensor(dataPtr, shape, numberSystem);
+    return Tensor(dataPtr, shape, numberSystem, deviceType);
 }
 
 void Tensor::CopyTensor(const Tensor& source, Tensor& destination)

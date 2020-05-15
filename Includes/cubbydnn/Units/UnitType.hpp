@@ -35,6 +35,11 @@ public:
     bool operator==(const UnitType& unitType) const;
     bool operator!=(const UnitType& unitType) const;
 
+    [[nodiscard]] const std::string& Name() const
+    {
+        return m_typeName;
+    }
+
     [[nodiscard]] bool IsBaseOf(const UnitType& derivedUnit) const
     {
         return IsBaseOf(*this, derivedUnit);
@@ -56,6 +61,13 @@ private:
 
 struct UnitId
 {
+    bool operator==(const UnitId& unitId) const
+    {
+        return Type == unitId.Type
+               && Id == unitId.Id
+               && UnitName == unitId.UnitName;
+    }
+
     UnitType Type;
     std::size_t Id;
     std::string UnitName;

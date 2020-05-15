@@ -8,20 +8,23 @@
 
 namespace CubbyDNN::Graph
 {
-UnitMetaData::UnitMetaData(UnitId unitId, std::vector<Shape> inputShapeVector,
-                           Shape outputShape,
-                           std::vector<UnitId> inputUnitIdVector,
-                           std::vector<UnitId> outputUnitIdVector,
-                           std::vector<Initializer> initializerVector,
-                           NumberSystem numericType, std::size_t padSize)
+UnitMetaData::UnitMetaData(
+    UnitId unitId, std::vector<Shape> internalVariableShapeVector,
+    std::vector<std::unique_ptr<Initializer>> initializerVector,
+    std::vector<Shape> inputShapeVector, Shape outputShape,
+    std::vector<UnitId> inputUnitIdVector,
+    std::vector<UnitId> outputUnitIdVector, NumberSystem numericType,
+    Compute::Device device, std::size_t padSize)
     : NumericType(numericType),
       PadSize(padSize),
+      Device(std::move(device)),
       m_unitId(std::move(unitId)),
+      m_internalVariableShapeVector(std::move(internalVariableShapeVector)),
+      m_initializerVector(std::move(initializerVector)),
       m_inputShapeVector(std::move(inputShapeVector)),
       m_outputShape(std::move(outputShape)),
       m_inputUnitVector(std::move(inputUnitIdVector)),
-      m_outputUnitVector(std::move(outputUnitIdVector)),
-      m_initializerVector(std::move(initializerVector))
+      m_outputUnitVector(std::move(outputUnitIdVector))
 {
 }
 
@@ -48,5 +51,16 @@ std::vector<UnitId> UnitMetaData::InputUnitVector() const
 std::vector<UnitId> UnitMetaData::OutputUnitVector() const
 {
     return m_outputUnitVector;
+}
+
+const std::vector<std::unique_ptr<Initializer>>& UnitMetaData::
+InitializerVector() const
+{
+    return m_initializerVector;
+}
+
+std::vector<Shape> UnitMetaData::InternalVaribleShapeVector() const
+{
+    return m_internalVariableShapeVector;
 }
 }

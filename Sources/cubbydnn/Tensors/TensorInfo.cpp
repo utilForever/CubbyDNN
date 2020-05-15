@@ -35,7 +35,7 @@ bool TensorInfo::operator!=(const TensorInfo& tensorInfo) const
 
 std::size_t TensorInfo::GetSize() const noexcept
 {
-    return m_shape.TotalSize();
+    return m_shape.Size();
 }
 
 std::size_t TensorInfo::GetByteSize() const noexcept

@@ -8,18 +8,18 @@
 #define CUBBYDNN_TENSOR_DATA_HPP
 
 #include <cubbydnn/Tensors/TensorInfo.hpp>
-#include <cstring>
+#include <cubbydnn/Computations/Device.hpp>
 #include <memory>
 
 namespace CubbyDNN
 {
 //! TensorData class contains data vector for processing
 //! with attributes describing it
-//! \tparam T : type of data this tensorData contains
-struct Tensor
+class Tensor
 {
+ public:
     Tensor() = default;
-    Tensor(void* Data, Shape shape, NumberSystem numberSystem);
+    Tensor(void* Data, Shape shape, NumberSystem numberSystem, Compute::Device device);
     ~Tensor();
 
     Tensor(const Tensor& tensor) = delete;
@@ -28,24 +28,27 @@ struct Tensor
     Tensor& operator=(const Tensor& tensor) = delete;
     Tensor& operator=(Tensor&& tensor) noexcept;
 
+    //! Builds empty Tensor so data can be put potentially
+    //! \param shape : shape of tensor to allocate
+    //! \param numberSystem : number system of the tensor
+    //! \param padSize : size of padding (optional)
+    //! \return : Tensor that has been allocated
+    static Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, Compute::Device device,
+                        std::size_t padSize = 0);
+
     static void CopyTensor(const Tensor& source, Tensor& destination);
     /// Data vector which possesses actual data
     void* DataPtr = nullptr;
     /// Shape of this tensorData
     Shape TensorShape;
     NumberSystem NumericType = NumberSystem::Float;
+    Compute::Device Device;
     std::size_t PadSize = 0;
     std::size_t ForwardStateNum = 0;
     std::size_t BackwardStateNum = 0;
 };
 
 
-//! Builds empty Tensor so data can be put potentially
-//! \param shape : shape of tensor to allocate
-//! \param numberSystem : number system of the tensor
-//! \param padSize : size of padding (optional)
-//! \return : Tensor that has been allocated
-Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, std::size_t padSize = 0);
 
 //! Used only for testing
 template <typename T>

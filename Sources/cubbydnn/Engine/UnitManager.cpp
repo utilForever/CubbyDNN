@@ -6,6 +6,7 @@
 
 
 #include <cubbydnn/Engine/UnitManager.hpp>
+#include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
 
 namespace CubbyDNN::Graph
 {
@@ -19,42 +20,34 @@ UnitManager& UnitManager::operator=(UnitManager&& unitManager) noexcept
 {
     m_unitMetaDataMap = std::move(unitManager.m_unitMetaDataMap);
     m_unitMap = std::move(unitManager.m_unitMap);
+    return *this;
 }
 
-
-void UnitManager::AddUnit(UnitMetaData unitMetaData)
+template <typename... Ts>
+void UnitManager::AppendUnit(const UnitMetaData& unitMetaData, Ts... type)
 {
-    std::vector<Tensor> forwardInputVector;
-    std::vector<Tensor> backwardInputVector;
-    std::vector<Tensor> backwardOutputVector;
-
-    Tensor forwardOutput =
-        CreateTensor(unitMetaData.OutputShape(), NumberSystem::Float);
-
-    for (const auto& shape : unitMetaData.InputShapeVector())
+    const auto unitId = unitMetaData.Id();
+    if (unitId.Type.Name() == "Dense")
     {
-        forwardInputVector.emplace_back(CreateTensor(
-            shape, unitMetaData.NumericType, unitMetaData.PadSize));
-        backwardOutputVector.emplace_back(CreateTensor(
-            shape, unitMetaData.NumericType, unitMetaData.PadSize));
+        m_unitMap[unitId.Id] =
+            std::move(DenseUnit::CreateUnit(unitMetaData, type...));
     }
-
-    for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
-        backwardInputVector.emplace_back(
-            CreateTensor(unitMetaData.OutputShape(), unitMetaData.NumericType,
-                         unitMetaData.PadSize));
-
-    m_unitMetaDataMap[unitMetaData.Id().Id] = std::move(unitMetaData);
-    // TODO : Create appropriate Unit by examining UnitID
 }
 
+void UnitManager::Initialize()
+{
+    for (const auto& [key, unit] : m_unitMap)
+    {
+        unit->Initialize(m_unitMetaDataMap[key].InitializerVector());
+    }
+}
 
 void UnitManager::Forward(std::size_t cycle)
 {
     for (const auto& [key, unitPtr] : m_unitMap)
     {
         if (unitPtr->IsForwardReady(cycle))
-            unitPtr->Forward(cycle);
+            unitPtr->Forward();
         m_forwardCopy(key);
     }
 }
@@ -64,7 +57,7 @@ void UnitManager::Backward(std::size_t cycle)
     for (const auto& [key, unitPtr] : m_unitMap)
     {
         if (unitPtr->IsBackwardReady(cycle))
-            unitPtr->Backward(cycle);
+            unitPtr->Backward();
         m_backwardCopy(key);
     }
 }
@@ -80,7 +73,7 @@ void UnitManager::AsyncForward(std::size_t cycle)
         {
             std::promise<bool> promise;
             futureVector[key] = promise.get_future();
-            unitPtr->AsyncForward(cycle, std::move(promise));
+            unitPtr->AsyncForward(std::move(promise));
         }
     }
 
@@ -102,7 +95,7 @@ void UnitManager::AsyncBackward(std::size_t cycle)
         {
             std::promise<bool> promise;
             futureVector[key] = promise.get_future();
-            unitPtr->AsyncBackward(cycle, std::move(promise));
+            unitPtr->AsyncBackward(std::move(promise));
         }
     }
 
@@ -118,7 +111,7 @@ void UnitManager::m_forwardCopy(int sourceKey)
     const auto& sourceMetaData = m_unitMetaDataMap[sourceKey];
     for (const auto& unitId : sourceMetaData.OutputUnitVector())
     {
-        auto& outputTensor = m_unitMap[unitId.Id]->ForwardOutput;
+        auto& outputTensor = m_unitMap[sourceKey]->ForwardOutput;
         auto& nextInputTensorVector = m_unitMap[unitId.Id]->ForwardInputVector;
         for (auto& destTensor : nextInputTensorVector)
         {
@@ -132,16 +125,27 @@ void UnitManager::m_forwardCopy(int sourceKey)
 void UnitManager::m_backwardCopy(int sourceKey)
 {
     const auto& sourceMetaData = m_unitMetaDataMap[sourceKey];
-    for (const auto& unitId : sourceMetaData.OutputUnitVector())
+    int index = 0;
+    for (const auto& unitId : sourceMetaData.InputUnitVector())
     {
-        auto& outputTensor = m_unitMap[unitId.Id]->BackwardOutput;
+        auto& outputTensor = m_unitMap[sourceKey]->BackwardOutputVector[index];
         auto& nextInputTensorVector = m_unitMap[unitId.Id]->BackwardInputVector;
-        for (auto& destTensor : nextInputTensorVector)
+        auto nextBackwardInputUnitVector =
+            m_unitMetaDataMap[unitId.Id].OutputUnitVector();
+
+        for (std::size_t i = 0; i < nextInputTensorVector.size(); ++i)
         {
-            Tensor::CopyTensor(outputTensor, destTensor);
-            outputTensor.BackwardStateNum += 1;
-            destTensor.BackwardStateNum += 1;
+            auto targetUnitId = nextBackwardInputUnitVector.at(i);
+            if (targetUnitId == sourceMetaData.Id())
+            {
+                auto& destTensor =
+                    m_unitMap[unitId.Id]->BackwardInputVector.at(i);
+                Tensor::CopyTensor(outputTensor, destTensor);
+                outputTensor.BackwardStateNum += 1;
+            }
         }
+        index += 1;
     }
 }
+
 }

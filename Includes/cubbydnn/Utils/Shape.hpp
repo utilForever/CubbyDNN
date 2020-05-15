@@ -53,7 +53,7 @@ public:
         return !(lhs == rhs);
     }
 
-    [[nodiscard]] std::size_t TotalSize() const noexcept;
+    [[nodiscard]] std::size_t Size() const noexcept;
 
     [[nodiscard]] std::size_t Offset(std::vector<std::size_t> index) const
     noexcept;
@@ -80,9 +80,15 @@ public:
         m_shapeVector.at(0) = col;
     }
 
-    void Reshape(std::initializer_list<std::size_t> newShape);
+    Shape& ChangeDimension(std::size_t axis, std::size_t value)
+    {
+        m_shapeVector.at(axis) = value;
+        return *this;
+    }
 
-    [[nodiscard]] Shape GetTransposedShape() const;
+    Shape& Reshape(std::initializer_list<std::size_t> newShape);
+
+    [[nodiscard]] Shape& Transpose();
 
 private:
     std::vector<std::size_t> m_shapeVector;

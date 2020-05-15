@@ -8,6 +8,7 @@
 #define CUBBYDNN_DENSE_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Units/UnitMetadata.hpp>
 #include <cubbydnn/Computations/Initializers/InitializerType.hpp>
 
 
@@ -19,8 +20,9 @@ public:
     DenseUnit(UnitId unitId, NumberSystem numberSystem, Tensor forwardInput,
               std::vector<Tensor> backwardInputVector, Tensor forwardOutput,
               Tensor backwardOutput,
-              Shape weightShape, Shape biasShape,
-              float dropoutRate, std::size_t padSize);
+              Tensor weight, Tensor bias, Tensor temporary,
+              Tensor weightTranspose,
+              float dropout);
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& dense) = delete;
@@ -28,9 +30,19 @@ public:
     DenseUnit& operator=(const DenseUnit& dens) = delete;
     DenseUnit& operator=(DenseUnit&& dense) noexcept;
 
+   static DenseUnit CreateUnit(const UnitMetaData& unitMetaData,
+                                float dropout);
+
     void Forward() override;
 
+    void AsyncForward(std::promise<bool> promise) override;
+
     void Backward() override;
+
+    void AsyncBackward(std::promise<bool> promise) override;
+
+    void Initialize(const std::vector<std::unique_ptr<Initializer>>&
+        initializerVector) override;
 
 private:
     Tensor m_kernel;

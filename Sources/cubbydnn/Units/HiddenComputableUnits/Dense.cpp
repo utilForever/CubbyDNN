@@ -14,17 +14,17 @@ DenseUnit::DenseUnit(UnitId unitId, NumberSystem numberSystem,
                      Tensor forwardInput,
                      std::vector<Tensor> backwardInputVector,
                      Tensor forwardOutput, Tensor backwardOutput,
-                     Shape weightShape, Shape biasShape, float dropoutRate,
-                     std::size_t padSize)
+                     Tensor weight, Tensor bias, Tensor temporary,
+                     Tensor weightTranspose, float dropout)
     : ComputableUnit(std::move(unitId), numberSystem,
                      { std::move(forwardInput) },
-                     std::move(backwardInputVector),
-                     std::move(forwardOutput), std::move(backwardOutput)),
-      m_kernel(CreateTensor(weightShape, numberSystem, padSize)),
-      m_bias(CreateTensor(biasShape, numberSystem, padSize)),
-      m_temp(CreateTensor(forwardOutput.TensorShape, numberSystem, padSize)),
-      m_transposedKernel(CreateTensor(weightShape, numberSystem, padSize)),
-      m_dropoutRate(dropoutRate)
+                     std::move(backwardInputVector), std::move(forwardOutput),
+                     { std::move(backwardOutput) }),
+      m_kernel(std::move(weight)),
+      m_bias(std::move(bias)),
+      m_temp(std::move(temporary)),
+      m_transposedKernel(std::move(weightTranspose)),
+      m_dropoutRate(dropout)
 {
 }
 
@@ -49,6 +49,62 @@ DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
     return *this;
 }
 
+DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData, float dropout)
+{
+    const auto unitId = unitMetaData.Id();
+
+    auto forwardInputTensor =
+        Tensor::CreateTensor(unitMetaData.InputShapeVector().at(0),
+                             unitMetaData.NumericType, unitMetaData.Device);
+    std::vector<Tensor> backwardInputVector;
+
+    backwardInputVector.reserve(unitMetaData.OutputUnitVector().size());
+    for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
+    {
+        auto tensor = Tensor::CreateTensor(unitMetaData.OutputShape(),
+                                           unitMetaData.NumericType,
+                                           unitMetaData.Device);
+        backwardInputVector.emplace_back(std::move(tensor));
+    }
+
+    auto forwardOutputTensor =
+        Tensor::CreateTensor(unitMetaData.OutputShape(),
+                             unitMetaData.NumericType, unitMetaData.Device);
+
+    auto backwardOutputTensor =
+        Tensor::CreateTensor(unitMetaData.InputShapeVector().at(0),
+                             unitMetaData.NumericType, unitMetaData.Device);
+
+    auto weightShape = unitMetaData.InternalVariableShapeVector().at(0);
+    auto biasShape = unitMetaData.InternalVariableShapeVector().at(1);
+
+    auto weightTensor =
+        Tensor::CreateTensor(weightShape, unitMetaData.NumericType,
+                             unitMetaData.Device, unitMetaData.PadSize);
+
+    auto biasTensor =
+        Tensor::CreateTensor(biasShape, unitMetaData.NumericType,
+                             unitMetaData.Device, unitMetaData.PadSize);
+
+    auto temporaryTensor =
+        Tensor::CreateTensor(biasShape, unitMetaData.NumericType,
+                             unitMetaData.Device, unitMetaData.PadSize);
+
+    auto weightTransposeTensor = Tensor::CreateTensor(
+        weightShape.Transpose(), unitMetaData.NumericType,
+        unitMetaData.Device, unitMetaData.PadSize);
+
+    auto denseUnit = DenseUnit(
+        unitId, unitMetaData.NumericType, std::move(forwardInputTensor),
+        std::move(backwardInputVector), std::move(forwardOutputTensor),
+        std::move(backwardOutputTensor), std::move(weightTensor),
+        std::move(biasTensor), std::move(temporaryTensor),
+        std::move(weightTransposeTensor), 0.5);
+
+    return denseUnit;
+}
+
+
 void DenseUnit::Forward()
 {
     Tensor& input = ForwardInputVector.at(0);
@@ -62,7 +118,7 @@ void DenseUnit::Backward()
     Tensor& delta = BackwardInputVector.at(0);
 
     Native::Transpose(m_kernel, m_transposedKernel);
-    Native::Multiply(m_transposedKernel, delta, BackwardOutput);
+    Native::Multiply(m_transposedKernel, delta, BackwardOutputVector.at(0));
 
     // TODO : Update kernel using gradient updater
 }

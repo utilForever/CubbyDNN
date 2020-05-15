@@ -8,7 +8,6 @@
 #define CUBBYDNN_UNITMANAGER_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
-#include <cubbydnn/Units/CopyUnit.hpp>
 #include <unordered_map>
 #include <cubbydnn/Units/UnitMetadata.hpp>
 
@@ -25,8 +24,8 @@ public:
     UnitManager& operator=(const UnitManager& unitManager) = delete;
     UnitManager& operator=(UnitManager&& unitManager) noexcept;
 
-    //! Adds new unit to unitManager
-    void AddUnit(UnitMetaData unitMetaData);
+    template <typename... Ts>
+    void AppendUnit(const UnitMetaData& unitMetaData, Ts ... type);
 
     void Initialize();
 
@@ -43,6 +42,7 @@ private:
     void m_forwardCopy(int sourceKey);
 
     void m_backwardCopy(int sourceKey);
+
 
     std::unordered_map<int, UnitMetaData> m_unitMetaDataMap;
     std::unordered_map<int, std::unique_ptr<ComputableUnit>> m_unitMap;

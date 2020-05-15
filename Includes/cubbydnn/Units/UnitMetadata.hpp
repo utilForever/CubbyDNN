@@ -18,12 +18,14 @@ namespace CubbyDNN::Graph
 class UnitMetaData
 {
 public:
-    UnitMetaData(UnitId unitId, std::vector<Shape> inputShapeVector,
+    UnitMetaData(UnitId unitId,
+                 std::vector<Shape> internalVariableShapeVector,
+                 std::vector<std::unique_ptr<Initializer>> initializerVector,
+                 std::vector<Shape> inputShapeVector,
                  Shape outputShape,
                  std::vector<UnitId> inputUnitIdVector,
                  std::vector<UnitId> outputUnitIdVector,
-                 std::vector<Initializer> initializerVector,
-                 NumberSystem numericType,
+                 NumberSystem numericType, Compute::Device device,
                  std::size_t padSize);
 
     ~UnitMetaData() = default;
@@ -43,17 +45,25 @@ public:
 
     [[nodiscard]] std::vector<UnitId> OutputUnitVector() const;
 
+    [[nodiscard]] const std::vector<std::unique_ptr<Initializer>>&
+    InitializerVector() const;
+
+    [[nodiscard]] std::vector<Shape> InternalVaribleShapeVector() const;
+
     NumberSystem NumericType;
     std::size_t PadSize;
+    Compute::Device Device;
 
 private:
     UnitId m_unitId;
+    std::vector<Shape> m_internalVariableShapeVector;
+    std::vector<std::unique_ptr<Initializer>> m_initializerVector;
+
     std::vector<Shape> m_inputShapeVector;
     Shape m_outputShape;
 
     std::vector<UnitId> m_inputUnitVector;
     std::vector<UnitId> m_outputUnitVector;
-    std::vector<Initializer> m_initializerVector;
 };
 }
 #endif

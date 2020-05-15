@@ -23,20 +23,20 @@ public:
     //! \param forwardInputVector : vector of input tensor for forward propagation
     //! \param backwardInputVector : vector of input tensor for back propagation
     //! \param forwardOutput : output of forward propagation
-    //! \param backwardOutput P: output of backward propagation
-    ComputableUnit(UnitId unitId,
-                   NumberSystem numberSystem,
+    //! \param backwardOutputVector : output of backward propagation
+    ComputableUnit(UnitId unitId, NumberSystem numberSystem,
                    std::vector<Tensor> forwardInputVector,
                    std::vector<Tensor> backwardInputVector,
-                   Tensor forwardOutput, Tensor backwardOutput
+                   Tensor forwardOutput,
+                   std::vector<Tensor> backwardOutputVector
         );
     virtual ~ComputableUnit() = default;
 
     ComputableUnit(const ComputableUnit& computableUnit) = delete;
     ComputableUnit(ComputableUnit&& computableUnit) noexcept;
 
-    ComputableUnit& operator=(ComputableUnit&& computableUnit);
     ComputableUnit& operator=(const ComputableUnit& computableUnit) = delete;
+    ComputableUnit& operator=(ComputableUnit&& computableUnit) noexcept;
 
     UnitId Id() const
     {
@@ -47,18 +47,18 @@ public:
     //! Throws runtime exception if unit is not ready to be executed
     //! This includes copying the result to input of next unit
     virtual void Forward() = 0;
-    virtual std::future<bool> AsyncForward(
+    virtual void AsyncForward(
         std::promise<bool> promise) = 0;
     //! Execute Backward-propagating operation
     //! Throws runtime exception if unit is not ready to be executed
     //! This includes copying the result to input of previous unit
     virtual void Backward() = 0;
-    virtual std::future<bool> AsyncBackward(
-        std::promise<bool>& promise) = 0;
+    virtual void AsyncBackward(
+        std::promise<bool> promise) = 0;
 
     //! Initializes internal tensors
     virtual void Initialize(
-        std::initializer_list<std::unique_ptr<Initializer>> initializer) = 0;
+        const std::vector<std::unique_ptr<Initializer>>& initializerVector) = 0;
 
     //! Checks if forward propagation is ready
     //! \param cycle : cycle of current state
@@ -77,7 +77,7 @@ public:
     //! single output tensor of forward propagation
     Tensor ForwardOutput;
     //! single output tensor of back propagation
-    Tensor BackwardOutput;
+    std::vector<Tensor> BackwardOutputVector;
 
 protected:
     void m_updateForwardState();

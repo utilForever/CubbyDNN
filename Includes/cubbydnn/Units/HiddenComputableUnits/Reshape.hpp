@@ -13,23 +13,29 @@ namespace CubbyDNN::Graph
 {
 class ReshapeUnit : public ComputableUnit
 {
-    ReshapeUnit(UnitId unitId, Shape inputShape, Shape outputShape,
-            NumberSystem numericType,
-            std::size_t padSize = 0)
-        : ComputableUnit(unitId, { std::move(inputShape) },
-                         std::move(outputShape), numericType)
+    ReshapeUnit(UnitId unitId, NumberSystem numberSystem, Tensor forwardInput,
+                Tensor backwardInput, Tensor forwardOutput,
+                Tensor backwardOutput, Shape newShape)
+        : ComputableUnit(std::move(unitId), numberSystem,
+                         { std::move(forwardInput) },
+                         { std::move(backwardInput) }, std::move(forwardOutput),
+                         std::move(backwardOutput)
+            )
     {
+        if (forwardInput.TensorShape.Size() != newShape.Size())
+            throw std::invalid_argument(
+                "Size of new shape does not match original");
     }
 
     void Forward() override
     {
         Tensor::CopyTensor(ForwardInputVector.at(0),
-                           m_fowrardOutput);
+                           ForwardOutput);
     }
 
     void Backward() override
     {
-        Tensor::CopyTensor(BackwardOutput,
+        Tensor::CopyTensor(BackwardOutputVector,
                            BackwardInputVector.at(0));
     }
 };
