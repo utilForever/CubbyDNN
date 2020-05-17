@@ -6,6 +6,7 @@
 #include <CubbyDNN/Node/Input.hpp>
 #include <CubbyDNN/Node/Parameter.hpp>
 #include <CubbyDNN/Node/ReLU.hpp>
+#include <CubbyDNN/Node/Softmax.hpp>
 
 #include <cassert>
 #include <sstream>
@@ -53,6 +54,17 @@ Node::NodeWrapper GraphBuilder::ReLU(Node::NodeWrapper logit, float alpha)
 {
     Node::NodeWrapper node(graph->CreateNode<Node::ReLU>(
         GetDefaultName<Node::ReLU>(graph), alpha));
+
+    node["logit"]->Attach(logit);
+
+    return node;
+}
+
+Node::NodeWrapper GraphBuilder::Softmax(Node::NodeWrapper logit,
+                          const std::vector<bool>& reduceAxis)
+{
+    Node::NodeWrapper node(graph->CreateNode<Node::Softmax>(
+        GetDefaultName<Node::Softmax>(graph), reduceAxis));
 
     node["logit"]->Attach(logit);
 

@@ -24,6 +24,8 @@ class GraphBuilder
                                 Initializer::InitializerWrapper initializer);
 
     Node::NodeWrapper ReLU(Node::NodeWrapper logit, float alpha = 0.0f);
+    Node::NodeWrapper Softmax(Node::NodeWrapper logit,
+                              const std::vector<bool>& reduceAxis);
 
     Node::NodeWrapper Dense(Node::NodeWrapper input, Node::NodeWrapper weight,
                             Node::NodeWrapper bias);
