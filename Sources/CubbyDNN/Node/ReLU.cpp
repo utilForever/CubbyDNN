@@ -7,7 +7,7 @@ ReLU::ReLU(Core::Graph* graph, std::string_view name, float _alpha)
       alpha(_alpha),
       m_inputLogit(this, "logit", [this](const auto* dy) { (void)dy; })
 {
-    m_nodeInputMap["input"] = &m_inputLogit;
+    m_nodeInputMap["logit"] = &m_inputLogit;
 }
 
 const NodeType* ReLU::Type() const
