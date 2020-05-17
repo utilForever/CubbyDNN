@@ -1,6 +1,7 @@
 #ifndef CUBBYDNN_NODE_HPP
 #define CUBBYDNN_NODE_HPP
 
+#include <CubbyDNN/Core/Memory.hpp>
 #include <CubbyDNN/Node/NodeInput.hpp>
 #include <CubbyDNN/Node/NodeType.hpp>
 
@@ -27,21 +28,25 @@ class Node
     static std::string_view TypeName();
 
     const Core::Shape& Shape() const noexcept;
+    Core::Span<float> Gradient() const noexcept;
 
     Node& EvalShape();
+    Node& EvalGradient(const Node* dy);
 
     Core::Graph* const graph;
     const std::string name;
 
  protected:
     Core::Shape m_shape;
+    Core::Memory<float> m_gradient;
     std::vector<NodeInput*> m_revNodeInputList;
     std::unordered_set<Node*> m_deps;
     std::unordered_set<Node*> m_revDeps;
     std::unordered_map<std::string, NodeInput*> m_nodeInputMap;
 
-private:
+ private:
     bool m_isShapeDirty;
+    const Node* m_gradientDirty;
 };
 }  // namespace CubbyDNN::Node
 
