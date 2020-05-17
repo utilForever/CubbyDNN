@@ -4,7 +4,11 @@
 namespace CubbyDNN::Node
 {
 Node::Node(Core::Graph* _graph, std::string_view _name)
-    : graph(_graph), name(_name), m_isShapeDirty(true), m_gradientDirty(nullptr)
+    : graph(_graph),
+      name(_name),
+      m_isShapeDirty(true),
+      m_isOutputDirty(true),
+      m_gradientDirty(nullptr)
 {
     // Do nothing
 }
@@ -32,12 +36,28 @@ const Core::Shape& Node::Shape() const noexcept
 
 Core::Span<float> Node::Gradient() const noexcept
 {
-    return m_gradient.Span();
+    return m_gradient.GetSpan();
 }
 
 bool Node::HasRevDeps(const Node* revDep) const
 {
     return m_revDeps.count(const_cast<Node*>(revDep));
+}
+
+Node& Node::MarkDirty(bool dirtyShape)
+{
+    m_isShapeDirty = m_isShapeDirty || dirtyShape;
+    m_isOutputDirty = true;
+    m_gradientDirty = nullptr;
+
+    for (auto* node : m_revDeps)
+    {
+        node->m_isShapeDirty = node->m_isShapeDirty || dirtyShape;
+        node->m_isOutputDirty = true;
+        node->m_gradientDirty = nullptr;
+    }
+
+    return *this;
 }
 
 Node& Node::EvalShape()
@@ -69,13 +89,13 @@ Node& Node::EvalGradient(const Node* dy)
 
     if (dy == this)
     {
-        m_gradient.Span().FillOne();
+        m_gradient.GetSpan().FillOne();
         m_gradientDirty = dy;
 
         return *this;
     }
 
-    m_gradient.Span().FillZero();
+    m_gradient.GetSpan().FillZero();
 
     for (const auto* revNodeInput : m_revNodeInputList)
     {

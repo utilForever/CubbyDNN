@@ -2,10 +2,10 @@
 #define CUBBYDNN_NODE_HPP
 
 #include <CubbyDNN/Core/Memory.hpp>
+#include <CubbyDNN/Core/Shape.hpp>
 #include <CubbyDNN/Node/NodeInput.hpp>
 #include <CubbyDNN/Node/NodeType.hpp>
 
-#include <string_view>
 #include <unordered_set>
 
 namespace CubbyDNN::Core
@@ -32,6 +32,8 @@ class Node
 
     bool HasRevDeps(const Node* revDep) const;
 
+    Node& MarkDirty(bool dirtyShape = true);
+
     Node& EvalShape();
     Node& EvalGradient(const Node* dy);
 
@@ -48,6 +50,7 @@ class Node
 
  private:
     bool m_isShapeDirty;
+    bool m_isOutputDirty;
     const Node* m_gradientDirty;
 };
 }  // namespace CubbyDNN::Node
