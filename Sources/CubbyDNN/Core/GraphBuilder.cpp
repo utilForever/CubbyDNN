@@ -7,6 +7,7 @@
 #include <CubbyDNN/Node/Parameter.hpp>
 #include <CubbyDNN/Node/ReLU.hpp>
 #include <CubbyDNN/Node/Softmax.hpp>
+#include <CubbyDNN/Node/SoftmaxCE.hpp>
 
 #include <cassert>
 #include <sstream>
@@ -61,7 +62,7 @@ Node::NodeWrapper GraphBuilder::ReLU(Node::NodeWrapper logit, float alpha)
 }
 
 Node::NodeWrapper GraphBuilder::Softmax(Node::NodeWrapper logit,
-                          const std::vector<bool>& reduceAxis)
+                                        const std::vector<bool>& reduceAxis)
 {
     Node::NodeWrapper node(graph->CreateNode<Node::Softmax>(
         GetDefaultName<Node::Softmax>(graph), reduceAxis));
@@ -81,6 +82,18 @@ Node::NodeWrapper GraphBuilder::Dense(Node::NodeWrapper input,
     node["input"]->Attach(input);
     node["weight"]->Attach(weight);
     node["bias"]->Attach(bias);
+
+    return node;
+}
+
+Node::NodeWrapper GraphBuilder::SoftmaxCE(Node::NodeWrapper label,
+                                          Node::NodeWrapper prob)
+{
+    Node::NodeWrapper node(graph->CreateNode<Node::SoftmaxCE>(
+        GetDefaultName<Node::SoftmaxCE>(graph)));
+
+    node["label"]->Attach(label);
+    node["prob"]->Attach(prob);
 
     return node;
 }

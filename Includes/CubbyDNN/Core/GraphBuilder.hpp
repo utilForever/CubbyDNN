@@ -30,6 +30,9 @@ class GraphBuilder
     Node::NodeWrapper Dense(Node::NodeWrapper input, Node::NodeWrapper weight,
                             Node::NodeWrapper bias);
 
+    Node::NodeWrapper SoftmaxCE(Node::NodeWrapper label,
+                                Node::NodeWrapper prob);
+
     Initializer::InitializerWrapper InitConstant(float constant = 0.0f);
     Initializer::InitializerWrapper InitXavier(
         std::mt19937_64::result_type seed, std::size_t fanIn,
