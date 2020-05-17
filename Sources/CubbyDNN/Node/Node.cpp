@@ -24,4 +24,22 @@ std::string_view Node::TypeName()
 {
     return "Node";
 }
+
+Node& Node::EvalShape()
+{
+    if (!m_isShapeDirty)
+    {
+        return *this;
+    }
+
+    for (const auto& pair : this->m_nodeInputMap)
+    {
+        pair.second->InputNode()->EvalShape();
+    }
+
+    // TODO: Call EvaluateShape()
+    m_isShapeDirty = false;
+
+    return *this;
+}
 }  // namespace CubbyDNN::Node

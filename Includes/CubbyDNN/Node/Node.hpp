@@ -26,6 +26,8 @@ class Node
     virtual const NodeType* Type() const;
     static std::string_view TypeName();
 
+    Node& EvalShape();
+
     Core::Graph* const graph;
     const std::string name;
 
@@ -34,6 +36,9 @@ class Node
     std::unordered_set<Node*> m_deps;
     std::unordered_set<Node*> m_revDeps;
     std::unordered_map<std::string, NodeInput*> m_nodeInputMap;
+
+private:
+    bool m_isShapeDirty;
 };
 }  // namespace CubbyDNN::Node
 
