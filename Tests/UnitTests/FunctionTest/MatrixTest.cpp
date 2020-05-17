@@ -199,10 +199,4 @@ void TestMatMul3()
             }
 }
 
-TEST(MatrixTest, MatMul)
-{
-    TestMatMul();
-    //TestMatMul2();
-    //TestMatMul3();
-}
 } // namespace CubbyDNN

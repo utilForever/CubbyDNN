@@ -105,17 +105,17 @@ void Transpose(const Tensor& input, Tensor& output)
         Naive::TensorTranspose<int>(input, output);
 }
 
-void ActivationForward(const Tensor& input, Tensor& output,
-                       std::unique_ptr<ActivationFunc>& activation)
-{
-}
-
-void ActivationBackward(const Tensor& input, Tensor& output,
-                        std::unique_ptr<ActivationFunc>& activation)
-{
-}
-
-void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
-{
-}
+// void ActivationForward(const Tensor& input, Tensor& output,
+//                        std::unique_ptr<ActivationFunc>& activation)
+// {
+// }
+//
+// void ActivationBackward(const Tensor& input, Tensor& output,
+//                         std::unique_ptr<ActivationFunc>& activation)
+// {
+// }
+//
+// void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+// {
+// }
 } // namespace CubbyDNN

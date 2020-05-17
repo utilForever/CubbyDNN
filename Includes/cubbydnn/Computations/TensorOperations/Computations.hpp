@@ -12,20 +12,20 @@
 
 namespace CubbyDNN::Compute
 {
-static void Multiply(const Tensor& inputA, const Tensor& inputB,
+void Multiply(const Tensor& inputA, const Tensor& inputB,
                      Tensor& output);
 
-static void Add(const Tensor& inputA, const Tensor& inputB, Tensor& output);
+void Add(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
-static void Transpose(const Tensor& input, Tensor& output);
+void Transpose(const Tensor& input, Tensor& output);
 
-static void ActivationForward(const Tensor& input, Tensor& output,
+void ActivationForward(const Tensor& input, Tensor& output,
                               std::unique_ptr<ActivationFunc>& activation);
 
-static void ActivationBackward(const Tensor& input, Tensor& output,
+void ActivationBackward(const Tensor& input, Tensor& output,
                                std::unique_ptr<ActivationFunc>& activation);
 
-static void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output);
+void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
 } // namespace CubbyDNN
 #endif

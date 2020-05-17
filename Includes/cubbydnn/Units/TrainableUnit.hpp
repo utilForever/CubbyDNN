@@ -24,8 +24,6 @@ public:
     TrainableUnit& operator=(const TrainableUnit& trainableUnit) = delete;
     TrainableUnit& operator=(TrainableUnit&& trainableUnit) noexcept;
 
-    bool operator==(const TrainableUnit& trainableUnit) const;
-
 protected:
     std::vector<Tensor> m_trainableTensorMap;
    std::unique_ptr<Computation::Optimizer> m_optimizer;

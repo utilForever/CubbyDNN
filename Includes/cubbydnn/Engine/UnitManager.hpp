@@ -37,13 +37,14 @@ public:
 
 private:
     //! Copies forward output of subject unit to forward inputs of destination units with direct connection
-    void m_forwardCopy(int subjectUnitKey);
+    void m_forwardCopy(std::size_t subjectUnitKey);
     //! Copies backward outputs of subject unit to backward inputs of destination units with direct connection
-    void m_backwardCopy(int subjectUnitKey);
+    void m_backwardCopy(std::size_t subjectUnitKey);
 
 
-    std::unordered_map<int, UnitMetaData> m_unitMetaDataMap;
-    std::unordered_map<int, std::unique_ptr<ComputableUnit>> m_unitMap;
+    std::unordered_map<std::size_t, std::unique_ptr<UnitMetaData>>
+    m_unitMetaDataMap;
+    std::unordered_map<std::size_t, std::unique_ptr<ComputableUnit>> m_unitMap;
 };
 } // namespace CubbyDNN::Graph
 

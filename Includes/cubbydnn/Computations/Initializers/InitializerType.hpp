@@ -52,14 +52,12 @@ public:
     void Initialize(Tensor& tensor) const override
     {
         if (tensor.NumericType == NumberSystem::Float)
-            InitializerOperations::XavierNormal(tensor.TensorShape,
-                                                static_cast<float*>(tensor.
-                                                    DataPtr),
-                                                tensor.PadSize);
-        else
             InitializerOperations::XavierNormal(
-                tensor.TensorShape, static_cast<int*>(tensor.DataPtr),
+                tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
                 tensor.PadSize);
+        else
+            throw std::invalid_argument(
+                "No integer type is available for XavierNormal");
     }
 };
 
@@ -75,9 +73,8 @@ public:
                 tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
                 tensor.PadSize);
         else
-            InitializerOperations::HeNormal(
-                tensor.TensorShape, static_cast<int*>(tensor.DataPtr),
-                tensor.PadSize);
+            throw std::invalid_argument(
+                "No integer type is available for HeNormal");
     }
 };
 
@@ -93,9 +90,8 @@ public:
                                                static_cast<float*>(tensor.
                                                    DataPtr), tensor.PadSize);
         else
-            InitializerOperations::LecunNormal(tensor.TensorShape,
-                                               static_cast<int*>(tensor.DataPtr
-                                               ), tensor.PadSize);
+            throw std::invalid_argument(
+                "No integer type is available for LecunNormal");
     }
 };
 
@@ -136,9 +132,8 @@ public:
                 tensor.TensorShape, m_min, m_max,
                 static_cast<float*>(tensor.DataPtr), tensor.PadSize);
         else
-            InitializerOperations::RandomNormal(
-                tensor.TensorShape, m_integerMin, m_integerMax,
-                static_cast<int*>(tensor.DataPtr), tensor.PadSize);
+            throw std::invalid_argument(
+                "No integer type is available for RandomNormal");
     }
 
 private:

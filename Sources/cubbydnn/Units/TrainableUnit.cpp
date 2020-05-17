@@ -23,9 +23,4 @@ TrainableUnit& TrainableUnit::operator=(TrainableUnit&& trainableUnit) noexcept
     return *this;
 }
 
-bool TrainableUnit::operator==(const TrainableUnit& trainableUnit) const
-{
-    return m_trainableTensorMap == trainableUnit.m_trainableTensorMap &&
-           m_optimizer == trainableUnit.m_optimizer;
-}
 }

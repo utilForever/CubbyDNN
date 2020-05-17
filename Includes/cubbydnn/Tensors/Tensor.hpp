@@ -22,7 +22,7 @@ public:
            Compute::Device device);
     ~Tensor();
 
-    Tensor(const Tensor& tensor) = delete;
+    Tensor(const Tensor& tensor);
     Tensor(Tensor&& tensor) noexcept;
     /// move assignment operator
     Tensor& operator=(const Tensor& tensor) = delete;

@@ -25,19 +25,22 @@ UnitManager& UnitManager::operator=(UnitManager&& unitManager) noexcept
 }
 
 template <typename... Ts>
-void UnitManager::AppendUnit(const UnitMetaData& unitMetaData, Ts ... type)
+void UnitManager::AppendUnit(const UnitMetaData& unitMetaData,
+                             Ts ... type)
 {
     const auto unitId = unitMetaData.Id();
     if (unitId.Type.Name() == "Dense")
     {
         m_unitMap[unitId.Id] =
-            std::make_unique<DenseUnit>(DenseUnit::CreateUnit(unitMetaData, type...));
+            std::make_unique<DenseUnit>(
+                DenseUnit::CreateUnit(*unitMetaData, type...));
     }
     if (unitId.Type.Name() == "Activation")
     {
         m_unitMap[unitId.Id] = std::make_unique<ActivationUnit>(
-            ActivationUnit::CreateUnit(unitMetaData, type...));
+            ActivationUnit::CreateUnit(*unitMetaData, type...));
     }
+    m_unitMetaDataMap[unitId.Id] = std::make_unique<UnitMetaData>(unitMetaData);
 }
 
 void UnitManager::Forward(std::size_t cycle)
@@ -62,7 +65,7 @@ void UnitManager::Backward(std::size_t cycle)
 
 void UnitManager::AsyncForward(std::size_t cycle)
 {
-    std::unordered_map<int, std::future<bool>> futureVector;
+    std::unordered_map<std::size_t, std::future<bool>> futureVector;
     futureVector.reserve(10);
 
     for (const auto& [key, unitPtr] : m_unitMap)
@@ -84,7 +87,7 @@ void UnitManager::AsyncForward(std::size_t cycle)
 
 void UnitManager::AsyncBackward(std::size_t cycle)
 {
-    std::unordered_map<int, std::future<bool>> futureVector;
+    std::unordered_map<std::size_t, std::future<bool>> futureVector;
     futureVector.reserve(10);
 
     for (const auto& [key, unitPtr] : m_unitMap)
@@ -104,10 +107,10 @@ void UnitManager::AsyncBackward(std::size_t cycle)
     }
 }
 
-void UnitManager::m_forwardCopy(int subjectUnitKey)
+void UnitManager::m_forwardCopy(std::size_t subjectUnitKey)
 {
     const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitKey];
-    for (const auto& unitId : sourceMetaData.OutputUnitVector())
+    for (const auto& unitId : sourceMetaData->OutputUnitVector())
     {
         auto& outputTensor = m_unitMap[subjectUnitKey]->ForwardOutput;
         auto& nextInputTensorVector = m_unitMap[unitId.Id]->ForwardInputVector;
@@ -120,23 +123,23 @@ void UnitManager::m_forwardCopy(int subjectUnitKey)
     }
 }
 
-void UnitManager::m_backwardCopy(int subjectUnitKey)
+void UnitManager::m_backwardCopy(std::size_t subjectUnitKey)
 {
     const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitKey];
     int index = 0;
-    for (const auto& unitId : sourceMetaData.InputUnitVector())
+    for (const auto& unitId : sourceMetaData->InputUnitVector())
     {
         auto& outputTensor = m_unitMap[subjectUnitKey]->BackwardOutputVector[
             index];
         auto& nextBackwardInputTensorVector = m_unitMap[unitId.Id]->
             BackwardInputVector;
         auto nextBackwardInputUnitVector =
-            m_unitMetaDataMap[unitId.Id].OutputUnitVector();
+            m_unitMetaDataMap[unitId.Id]->OutputUnitVector();
 
         for (std::size_t i = 0; i < nextBackwardInputTensorVector.size(); ++i)
         {
             auto targetUnitId = nextBackwardInputUnitVector.at(i);
-            if (targetUnitId == sourceMetaData.Id())
+            if (targetUnitId == sourceMetaData->Id())
             {
                 auto& destTensor =
                     nextBackwardInputTensorVector.at(i);
