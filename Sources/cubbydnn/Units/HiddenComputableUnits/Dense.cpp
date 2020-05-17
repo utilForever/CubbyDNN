@@ -77,20 +77,20 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
 
     auto weightTensor =
         Tensor::CreateTensor(weightShape, unitMetaData.NumericType,
-                             unitMetaData.Device, unitMetaData.PadSize);
+                             unitMetaData.Device);
     const auto& weightInitializer = unitMetaData
                                     .InitializerVector().at(weightIdx);
     weightInitializer->Initialize(weightTensor);
 
     auto biasTensor =
         Tensor::CreateTensor(biasShape, unitMetaData.NumericType,
-                             unitMetaData.Device, unitMetaData.PadSize);
+                             unitMetaData.Device);
     const auto& biasInitializer = unitMetaData.InitializerVector().at(biasIdx);
     biasInitializer->Initialize(biasTensor);
 
     auto weightTransposeTensor = Tensor::CreateTensor(
         weightShape.Transpose(), unitMetaData.NumericType,
-        unitMetaData.Device, unitMetaData.PadSize);
+        unitMetaData.Device);
 
     auto denseUnit = DenseUnit(
         unitId, unitMetaData.NumericType, std::move(forwardInputTensor),

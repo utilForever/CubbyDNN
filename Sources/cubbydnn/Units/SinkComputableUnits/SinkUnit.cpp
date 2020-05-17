@@ -8,27 +8,5 @@
 
 namespace CubbyDNN::Graph
 {
-SinkUnit::SinkUnit(UnitId unitId, std::vector<Shape> inputShapeVector,
-                   NumberSystem numberSystem)
-    : ComputableUnit(unitId, inputShapeVector, Shape(), numberSystem)
-{
-    ForwardInputVector.reserve(m_inputShapeVector.size());
-    for (const auto& tensorShape : m_inputShapeVector)
-    {
-        ForwardInputVector.emplace_back(
-            CreateTensor(tensorShape, numberSystem));
-    }
-}
 
-SinkUnit::SinkUnit(SinkUnit&& sinkUnit) noexcept
-    : ComputableUnit(std::move(sinkUnit))
-{
-}
-
-SinkUnit& SinkUnit::operator=(SinkUnit&& sinkUnit) noexcept
-{
-    if (this != &sinkUnit)
-        ComputableUnit::operator=(std::move(sinkUnit));
-    return *this;
-}
 } // namespace CubbyDNN

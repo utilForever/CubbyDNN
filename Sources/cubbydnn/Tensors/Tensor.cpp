@@ -47,7 +47,7 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 }
 
 Tensor Tensor::CreateTensor(const Shape& shape, NumberSystem numberSystem,
-                            Compute::Device device)
+                            const Compute::Device& device)
 {
     void* dataPtr = nullptr;
     const auto totalSize =
