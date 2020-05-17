@@ -35,14 +35,6 @@ Memory<T>::Memory(Memory&& rhs) noexcept
 }
 
 template <typename T>
-Memory<T>& Memory<T>::operator=(Memory rhs) noexcept
-{
-    Swap(*this, rhs);
-
-    return *this;
-}
-
-template <typename T>
 Memory<T>& Memory<T>::operator=(const Memory& rhs)
 {
     Swap(*this, rhs);

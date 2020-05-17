@@ -17,7 +17,6 @@ class Memory
     Memory(Memory&& rhs) noexcept;
     ~Memory() noexcept = default;
 
-    Memory& operator=(Memory rhs) noexcept;
     Memory& operator=(const Memory& rhs);
     Memory& operator=(Memory&& rhs) noexcept;
 
