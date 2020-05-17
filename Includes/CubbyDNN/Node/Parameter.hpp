@@ -20,8 +20,13 @@ class Parameter : public Node
     Parameter& operator=(const Parameter& rhs) = delete;
     Parameter& operator=(Parameter&& rhs) noexcept = delete;
 
+    Core::Span<float> GetParameter() const noexcept;
+
     const Core::Shape parameterShape;
     Initializer::Initializer* const initializer;
+
+private:
+    Core::Memory<float> m_parameter;
 };
 }  // namespace CubbyDNN::Node
 
