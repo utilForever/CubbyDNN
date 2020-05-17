@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
-#include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
+#include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 
 namespace CubbyDNN::Graph
 {
@@ -72,19 +72,20 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
         Tensor::CreateTensor(unitMetaData.InputShapeVector().at(0),
                              unitMetaData.NumericType, unitMetaData.Device);
 
-    auto weightShape = unitMetaData.InternalVariableShapeVector().at(0);
-    auto biasShape = unitMetaData.InternalVariableShapeVector().at(1);
+    auto weightShape = unitMetaData.InternalVariableShapeVector().at(weightIdx);
+    auto biasShape = unitMetaData.InternalVariableShapeVector().at(biasIdx);
 
     auto weightTensor =
         Tensor::CreateTensor(weightShape, unitMetaData.NumericType,
                              unitMetaData.Device, unitMetaData.PadSize);
-    const auto& weightInitializer = unitMetaData.InitializerVector().at(0);
+    const auto& weightInitializer = unitMetaData
+                                    .InitializerVector().at(weightIdx);
     weightInitializer->Initialize(weightTensor);
 
     auto biasTensor =
         Tensor::CreateTensor(biasShape, unitMetaData.NumericType,
                              unitMetaData.Device, unitMetaData.PadSize);
-    const auto& biasInitializer = unitMetaData.InitializerVector().at(1);
+    const auto& biasInitializer = unitMetaData.InitializerVector().at(biasIdx);
     biasInitializer->Initialize(biasTensor);
 
     auto weightTransposeTensor = Tensor::CreateTensor(
@@ -107,9 +108,9 @@ void DenseUnit::Forward()
 {
     Tensor& input = ForwardInputVector.at(0);
 
-    Compute::Native::Multiply(m_trainableTensorMap.at(weightIdx), input,
+    Compute::Multiply(m_trainableTensorMap.at(weightIdx), input,
                               ForwardOutput);
-    Compute::Native::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
                          ForwardOutput);
 }
 
@@ -117,36 +118,41 @@ void DenseUnit::AsyncForward(std::promise<bool> promise)
 {
     Tensor& input = ForwardInputVector.at(0);
 
-    Compute::Native::Multiply(m_trainableTensorMap.at(weightIdx), input,
+    Compute::Multiply(m_trainableTensorMap.at(weightIdx), input,
                               ForwardOutput);
-    Compute::Native::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
                          ForwardOutput);
     promise.set_value(true);
 }
 
-
 void DenseUnit::Backward()
 {
+    auto& weight = m_trainableTensorMap.at(weightIdx);
+    auto& bias = m_trainableTensorMap.at(biasIdx);
+
     Tensor& delta = BackwardInputVector.at(0);
 
-    Compute::Native::Transpose(m_trainableTensorMap.at(weightIdx),
-                               m_transposedWeight);
-    Compute::Native::Multiply(m_transposedWeight, delta,
+    Compute::Transpose(weight, m_transposedWeight);
+    Compute::Multiply(m_transposedWeight, delta,
                               BackwardOutputVector.at(0));
 
-    // TODO : Update kernel using gradient optimizer
+    m_optimizer->Optimize(weight);
+    m_optimizer->Optimize(bias);
 }
 
 void DenseUnit::AsyncBackward(std::promise<bool> promise)
 {
+    auto& weight = m_trainableTensorMap.at(weightIdx);
+    auto& bias = m_trainableTensorMap.at(biasIdx);
     Tensor& delta = BackwardInputVector.at(0);
 
-    Compute::Native::Transpose(m_trainableTensorMap.at(weightIdx),
-                               m_transposedWeight);
-    Compute::Native::Multiply(m_transposedWeight, delta,
+    Compute::Transpose(weight, bias);
+    Compute::Multiply(m_transposedWeight, delta,
                               BackwardOutputVector.at(0));
 
-    // TODO : Update kernel using gradient optimizer
+    m_optimizer->Optimize(weight);
+    m_optimizer->Optimize(bias);
+
     promise.set_value(true);
 }
 } // namespace CubbyDNN

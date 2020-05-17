@@ -4,15 +4,15 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
+#include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <cubbydnn/Computations/TensorOperations/Naive.hpp>
 #include <cubbydnn/computations/TensorOperations/Blaze.hpp>
 #include <cubbydnn/Computations/Activations/ActivationFunc.hpp>
 
 namespace CubbyDNN::Compute
 {
-void Native::Multiply(const Tensor& inputA, const Tensor& inputB,
-                      Tensor& output)
+void Multiply(const Tensor& inputA, const Tensor& inputB,
+              Tensor& output)
 {
     if (inputA.NumericType != inputB.NumericType ||
         inputA.NumericType != output.NumericType)
@@ -50,8 +50,8 @@ void Native::Multiply(const Tensor& inputA, const Tensor& inputB,
     }
 }
 
-void Native::Add(const Tensor& inputA, const Tensor& inputB,
-                 Tensor& output)
+void Add(const Tensor& inputA, const Tensor& inputB,
+         Tensor& output)
 {
     if (inputA.NumericType != inputB.NumericType ||
         inputA.NumericType != output.NumericType)
@@ -88,7 +88,7 @@ void Native::Add(const Tensor& inputA, const Tensor& inputB,
     }
 }
 
-void Native::Transpose(const Tensor& input, Tensor& output)
+void Transpose(const Tensor& input, Tensor& output)
 {
     if (input.NumericType != output.NumericType)
         throw std::runtime_error("Number system mismatch");
@@ -105,17 +105,17 @@ void Native::Transpose(const Tensor& input, Tensor& output)
         Naive::TensorTranspose<int>(input, output);
 }
 
-void Native::ActivationForward(const Tensor& input, Tensor& output,
-                        std::unique_ptr<ActivationFunc> & activation)
+void ActivationForward(const Tensor& input, Tensor& output,
+                       std::unique_ptr<ActivationFunc>& activation)
 {
 }
 
-void Native::ActivationBackward(const Tensor& input, Tensor& output,
-                               std::unique_ptr<ActivationFunc>& activation)
+void ActivationBackward(const Tensor& input, Tensor& output,
+                        std::unique_ptr<ActivationFunc>& activation)
 {
 }
 
-void Native::Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
 {
 }
 } // namespace CubbyDNN
