@@ -19,7 +19,7 @@ class ReshapeUnit : public ComputableUnit
         : ComputableUnit(std::move(unitId), numberSystem,
                          { std::move(forwardInput) },
                          { std::move(backwardInput) }, std::move(forwardOutput),
-                         std::move(backwardOutput)
+                         { std::move(backwardOutput) }
             )
     {
         if (forwardInput.TensorShape.Size() != newShape.Size())
@@ -35,7 +35,7 @@ class ReshapeUnit : public ComputableUnit
 
     void Backward() override
     {
-        Tensor::CopyTensor(BackwardOutputVector,
+        Tensor::CopyTensor(BackwardOutputVector.at(0),
                            BackwardInputVector.at(0));
     }
 };

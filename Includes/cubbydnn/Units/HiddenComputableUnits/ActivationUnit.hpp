@@ -21,13 +21,13 @@ public:
                    Tensor forwardOutput, Tensor backwardOutput,
                    Tensor backwardTemp,
                    std::unique_ptr<Compute::ActivationFunc> activationFunc);
+    ~ActivationUnit() = default;
 
 
     ActivationUnit(const ActivationUnit& activationUnit) = delete;
     ActivationUnit(ActivationUnit&& activationUnit) noexcept;
     ActivationUnit& operator=(const ActivationUnit& activationUnit) = delete;
     ActivationUnit& operator=(ActivationUnit&& activationUnit) noexcept;
-    ~ActivationUnit() = default;
 
     static ActivationUnit CreateUnit(const UnitMetaData& unitMetaData,
                                      std::unique_ptr<Compute::ActivationFunc>

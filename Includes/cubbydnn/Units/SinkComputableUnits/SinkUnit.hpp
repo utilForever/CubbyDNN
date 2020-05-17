@@ -16,13 +16,16 @@ namespace CubbyDNN::Graph
 class SinkUnit : public ComputableUnit
 {
 public:
-    //! Constructor
     //! \param unitId : Unique Id of this unit
-    //! \param inputShapeVector : vector of tensorInfo to accept
     //! \param numberSystem : number system for this unit
-    explicit SinkUnit(UnitId unitId, std::vector<Shape> inputShapeVector,
-                      NumberSystem numberSystem);
-    ~SinkUnit() = default;
+    //! \param forwardInputVector :vector of input tensor for forward propagation
+    //! \param backwardOutputVector : output of backward propagation
+    explicit SinkUnit(
+        UnitId unitId,
+        NumberSystem numberSystem,
+        std::vector<Tensor> forwardInputVector,
+        std::vector<Tensor> backwardOutputVector);
+    virtual ~SinkUnit() = default;
 
     //! SinkUnit is not copy-assignable
     SinkUnit(const SinkUnit& sinkUnit) = delete;
@@ -31,25 +34,6 @@ public:
     //! SinkUnit is not copy-assignable
     SinkUnit& operator=(const SinkUnit& sinkUnit) = delete;
     SinkUnit& operator=(SinkUnit&& sinkUnit) noexcept;
-};
-
-class CrossEntropy : public ComputableUnit
-{
-public:
-    explicit CrossEntropy(UnitId unitId, Shape inputShape,
-                          NumberSystem numberSystem)
-        : ComputableUnit(unitId, { std::move(inputShape) }, Shape(),
-                         numberSystem)
-    {
-    };
-
-    void Forward() override
-    {
-    };
-
-    void Backward() override
-    {
-    };
 };
 } // namespace CubbyDNN
 

@@ -17,10 +17,15 @@ namespace CubbyDNN::Graph
 class SourceUnit : public ComputableUnit
 {
 public:
-    //! Constructor
-    //! \param output : TensorInfo of the output
-    explicit SourceUnit(UnitId unitId, Shape outputShape,
-                        NumberSystem numberSystem);
+    //! \param unitId : id of the unit
+    //! \param numberSystem : number system to use
+    //! propagation
+    //! \param backwardInputVector : vector of input tensor for back
+    //! propagation
+    //! \param forwardOutput : output of forward propagation
+    explicit SourceUnit(UnitId unitId,
+                        NumberSystem numberSystem, Tensor forwardOutput,
+                        std::vector<Tensor> backwardInputVector);
     ~SourceUnit() = default;
 
     //! SourceUnit is not copy-assignable
@@ -30,28 +35,6 @@ public:
     //! SourceUnit is not copy-assignable
     SourceUnit& operator=(const SourceUnit& sourceUnit) = delete;
     SourceUnit& operator=(SourceUnit&& sourceUnit) noexcept;
-};
-
-class PlaceHolderUnit : public ComputableUnit
-{
-public:
-    explicit PlaceHolderUnit(UnitId unitId, Shape outputShape,
-                             NumberSystem numberSystem);
-    ~PlaceHolderUnit() = default;
-
-    PlaceHolderUnit(const PlaceHolderUnit& placeHolderUnit) = delete;
-    PlaceHolderUnit(PlaceHolderUnit&& placeHolderUnit) noexcept;
-
-    PlaceHolderUnit& operator=(const PlaceHolderUnit& placeHolderUnit) = delete;
-    PlaceHolderUnit& operator=(PlaceHolderUnit&& placeHolderUnit) noexcept;
-
-    void Forward() override
-    {
-    };
-
-    void Backward() override
-    {
-    };
 };
 } // namespace CubbyDNN
 

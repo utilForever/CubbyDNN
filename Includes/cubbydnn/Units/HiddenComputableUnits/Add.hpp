@@ -12,7 +12,7 @@
 
 namespace CubbyDNN::Graph
 {
-class AddUnit
+class AddUnit : public ComputableUnit
 {
 public:
     AddUnit(UnitId unitId, NumberSystem numberSystem,
