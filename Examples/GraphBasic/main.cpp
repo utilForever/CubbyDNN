@@ -1,6 +1,7 @@
 #include <CubbyDNN/Core/Graph.hpp>
 #include <CubbyDNN/Core/Shape.hpp>
 #include <CubbyDNN/Node/Parameter.hpp>
+#include <CubbyDNN/Optimizer/Momentum.hpp>
 
 #include <fstream>
 #include <vector>
@@ -17,28 +18,28 @@ auto main() -> int
     {
         std::ifstream sInput{ L"train_input.dat",
                               std::ifstream::binary | std::ifstream::in };
-        sInput.read(reinterpret_cast<char *>(trainX.data()),
+        sInput.read(reinterpret_cast<char*>(trainX.data()),
                     sizeof(float) * trainX.size());
     }
 
     {
         std::ifstream sInput{ L"train_label.dat",
                               std::ifstream::binary | std::ifstream::in };
-        sInput.read(reinterpret_cast<char *>(trainY.data()),
+        sInput.read(reinterpret_cast<char*>(trainY.data()),
                     sizeof(float) * trainY.size());
     }
 
     {
         std::ifstream sInput{ L"test_input.dat",
                               std::ifstream::binary | std::ifstream::in };
-        sInput.read(reinterpret_cast<char *>(testX.data()),
+        sInput.read(reinterpret_cast<char*>(testX.data()),
                     sizeof(float) * testX.size());
     }
 
     {
         std::ifstream sInput{ L"test_label.dat",
                               std::ifstream::binary | std::ifstream::in };
-        sInput.read(reinterpret_cast<char *>(testY.data()),
+        sInput.read(reinterpret_cast<char*>(testY.data()),
                     sizeof(float) * testY.size());
     }
 
@@ -63,11 +64,10 @@ auto main() -> int
 
     auto loss = graph.Builder().SoftmaxCE(y, o2);
 
-    //Optimizer::Momentum optimizer{
-    //    0.9f,
-    //    { graph.Node<Node::Parameter>("w1"), graph.Node<Node::Parameter>("b1"),
-    //      graph.Node<Node::Parameter>("w2"), graph.Node<Node::Parameter>("b2") }
-    //};
+    Optimizer::Momentum optimizer(0.9f, { graph.Node<Node::Parameter>("w1"),
+                                          graph.Node<Node::Parameter>("b1"),
+                                          graph.Node<Node::Parameter>("w2"),
+                                          graph.Node<Node::Parameter>("b2") });
 
     return 0;
 }
