@@ -26,12 +26,15 @@ class Node
     virtual const NodeType* Type() const;
     static std::string_view TypeName();
 
+    const Core::Shape& Shape() const noexcept;
+
     Node& EvalShape();
 
     Core::Graph* const graph;
     const std::string name;
 
  protected:
+    Core::Shape m_shape;
     std::vector<NodeInput*> m_revNodeInputList;
     std::unordered_set<Node*> m_deps;
     std::unordered_set<Node*> m_revDeps;

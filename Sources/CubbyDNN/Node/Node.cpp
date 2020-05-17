@@ -25,6 +25,11 @@ std::string_view Node::TypeName()
     return "Node";
 }
 
+const Core::Shape& Node::Shape() const noexcept
+{
+    return m_shape;
+}
+
 Node& Node::EvalShape()
 {
     if (!m_isShapeDirty)
