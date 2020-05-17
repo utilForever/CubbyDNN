@@ -4,7 +4,7 @@
 namespace CubbyDNN::Node
 {
 Node::Node(Core::Graph* _graph, std::string_view _name)
-    : graph(_graph), name(_name)
+    : graph(_graph), name(_name), m_isShapeDirty(true)
 {
     // Do nothing
 }
