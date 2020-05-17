@@ -30,6 +30,8 @@ class Node
     const Core::Shape& Shape() const noexcept;
     Core::Span<float> Gradient() const noexcept;
 
+    bool HasRevDeps(const Node* revDep) const;
+
     Node& EvalShape();
     Node& EvalGradient(const Node* dy);
 

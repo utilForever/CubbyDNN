@@ -35,6 +35,11 @@ Core::Span<float> Node::Gradient() const noexcept
     return m_gradient.Span();
 }
 
+bool Node::HasRevDeps(const Node* revDep) const
+{
+    return m_revDeps.count(const_cast<Node*>(revDep));
+}
+
 Node& Node::EvalShape()
 {
     if (!m_isShapeDirty)
