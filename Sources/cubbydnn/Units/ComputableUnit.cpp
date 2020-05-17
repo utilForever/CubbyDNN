@@ -6,67 +6,80 @@
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
-UnitState::UnitState() = default;
-
-ComputableUnit::ComputableUnit(UnitId unitId,
-                               std::vector<Shape> inputShapeVector,
-                               Shape outputShape, NumberSystem numberSystem)
-    : m_id(unitId),
-      m_inputShapeVector(std::move(inputShapeVector)),
-      m_outputTensorShape(std::move(outputShape)),
-      m_numberSystem(numberSystem)
-{
-    m_inputForwardTensorVector.reserve(m_inputShapeVector.size());
-    m_outputBackwardTensorVector.reserve(m_inputShapeVector.size());
-
-    for (const auto& shape : m_inputShapeVector)
-    {
-        m_inputForwardTensorVector.emplace_back(
-            CreateTensor(shape, numberSystem));
-        m_outputBackwardTensorVector.emplace_back(
-            CreateTensor(shape, numberSystem));
-    }
-    m_outputForwardTensor = CreateTensor(outputShape, numberSystem);
-    m_inputBackwardTensor = CreateTensor(outputShape, numberSystem);
+ComputableUnit::ComputableUnit(UnitId unitId, NumberSystem numberSystem,
+                               std::vector<Tensor> forwardInputVector,
+                               std::vector<Tensor> backwardInputVector,
+                               Tensor forwardOutput,
+                               std::vector<Tensor> backwardOutputVector)
+    : ForwardInputVector(std::move(forwardInputVector)),
+      BackwardInputVector(std::move(backwardInputVector)),
+      ForwardOutput(std::move(forwardOutput)),
+      BackwardOutputVector(std::move(backwardOutputVector)),
+      m_unitId(std::move(unitId)),
+      m_numericType(numberSystem){
 }
 
 ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
-    : m_id(computableUnit.m_id),
-      m_inputShapeVector(std::move(computableUnit.m_inputShapeVector)),
-      m_outputTensorShape(std::move(computableUnit.m_outputTensorShape)),
-      m_numberSystem(computableUnit.m_numberSystem),
-      m_inputUnitIdVector(computableUnit.m_inputUnitIdVector),
-      m_outputUnitIdVector(std::move(computableUnit.m_outputUnitIdVector)),
-      m_outputForwardTensor(std::move(computableUnit.m_outputForwardTensor)),
-      m_inputBackwardTensor(std::move(m_inputBackwardTensor)),
-      m_inputForwardTensorVector(std::move(m_inputForwardTensorVector)),
-      m_outputBackwardTensorVector(std::move(m_outputBackwardTensorVector))
+    : ForwardInputVector(std::move(computableUnit.ForwardInputVector)),
+      BackwardInputVector(std::move(computableUnit.BackwardInputVector)),
+      ForwardOutput(std::move(computableUnit.ForwardOutput)),
+      BackwardOutputVector(std::move(computableUnit.BackwardOutputVector)),
+      m_unitId(std::move(computableUnit.m_unitId)),
+      m_numericType(computableUnit.m_numericType)
 {
 }
 
 ComputableUnit& ComputableUnit::operator=(
     ComputableUnit&& computableUnit) noexcept
 {
-    if (this == &computableUnit)
-        return *this;
-    m_id = computableUnit.m_id;
-    m_inputUnitIdVector = std::move(computableUnit.m_inputUnitIdVector);
-    m_outputUnitIdVector = std::move(computableUnit.m_outputUnitIdVector);
-    m_inputShapeVector = std::move(computableUnit.m_inputShapeVector);
-    m_outputTensorShape = std::move(computableUnit.m_outputTensorShape);
-    m_outputForwardTensor = std::move(computableUnit.m_outputForwardTensor);
-    m_inputBackwardTensor = std::move(computableUnit.m_inputBackwardTensor);
-    m_inputForwardTensorVector =
-        std::move(computableUnit.m_inputForwardTensorVector);
-    m_outputBackwardTensorVector = std::move(m_outputBackwardTensorVector);
-    m_numberSystem = std::move(computableUnit.m_numberSystem);
+    ForwardInputVector = std::move(computableUnit.ForwardInputVector);
+    BackwardInputVector = std::move(computableUnit.BackwardInputVector);
+    ForwardOutput = std::move(computableUnit.ForwardOutput);
+    BackwardOutputVector = std::move(computableUnit.BackwardOutputVector);
+    m_unitId = std::move(computableUnit.m_unitId);
+    m_numericType = computableUnit.m_numericType;
     return *this;
 }
 
-void ComputableUnit::ReleaseUnit()
+bool ComputableUnit::IsForwardReady(std::size_t cycle) const
 {
-    m_unitState.StateNum.fetch_add(1, std::memory_order_release);
+    for (const auto& tensor : ForwardInputVector)
+    {
+        if (tensor.ForwardStateNum != cycle)
+            return false;
+    }
+
+    if (ForwardOutput.ForwardStateNum != cycle)
+        return false;
+    return true;
+}
+
+bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
+{
+    for (const auto& tensor : BackwardInputVector)
+    {
+        if (tensor.BackwardStateNum != cycle)
+            return false;
+    }
+
+    for (const auto& tensor : BackwardOutputVector)
+    {
+        if (tensor.BackwardStateNum != cycle)
+            return false;
+    }
+    return true;
+}
+
+
+void ComputableUnit::m_updateForwardState()
+{
+    m_unitState.ForwardStateCount.fetch_add(1);
+}
+
+void ComputableUnit::m_updateBackwardState()
+{
+    m_unitState.BackwardStateCount.fetch_add(1);
 }
 } // namespace CubbyDNN

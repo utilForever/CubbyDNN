@@ -8,35 +8,40 @@
 #define CUBBYDNN_DENSE_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Units/UnitMetadata.hpp>
+#include <cubbydnn/Units/TrainableUnit.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
-class DenseUnit : public ComputableUnit
+class DenseUnit : public ComputableUnit, public TrainableUnit
 {
 public:
-    DenseUnit(UnitId unitId, Shape input, Shape weightShape, Shape biasShape,
-              Shape output, NumberSystem numberSystem,
-              InitializerType kernelInitializer,
-              InitializerType biasInitializer, Activation activation,
-              float dropoutRate);
+    DenseUnit(UnitId unitId, NumberSystem numberSystem, Tensor forwardInput,
+              std::vector<Tensor> backwardInputVector, Tensor forwardOutput,
+              Tensor backwardOutput, std::vector<Tensor> trainableUnit,
+              std::unique_ptr<Computation::Optimizer> optimizer,
+              Tensor weightTranspose);
     ~DenseUnit() = default;
 
-    DenseUnit(const DenseUnit& dense) = delete;
-    DenseUnit(DenseUnit&& dense) noexcept;
-    DenseUnit& operator=(const DenseUnit& dens) = delete;
-    DenseUnit& operator=(DenseUnit&& dense) noexcept;
+    DenseUnit(const DenseUnit& denseUnit) = delete;
+    DenseUnit(DenseUnit&& denseUnit) noexcept;
+    DenseUnit& operator=(const DenseUnit& denseUnit) = delete;
+    DenseUnit& operator=(DenseUnit&& denseUnit) noexcept;
+
+    static DenseUnit CreateUnit(
+        const UnitMetaData& unitMetaData,
+        std::unique_ptr<Computation::Optimizer> optimizer);
 
     void Forward() override;
 
+    void AsyncForward(std::promise<bool> promise) override;
+
     void Backward() override;
 
+    void AsyncBackward(std::promise<bool> promise) override;
+
 private:
-    Tensor m_kernel;
-    Tensor m_bias;
-    InitializerType m_kernelInitializer;
-    InitializerType m_biasInitializer;
-    Activation m_activation;
-    float m_dropoutRate;
+    Tensor m_transposedWeight;
 };
 } // namespace CubbyDNN
 

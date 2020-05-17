@@ -8,25 +8,33 @@
 #define CUBBYDNN_TENSOR_DATA_HPP
 
 #include <cubbydnn/Tensors/TensorInfo.hpp>
-#include <cstring>
+#include <cubbydnn/Computations/Device.hpp>
 #include <memory>
 
 namespace CubbyDNN
 {
 //! TensorData class contains data vector for processing
 //! with attributes describing it
-//! \tparam T : type of data this tensorData contains
-struct Tensor
+class Tensor
 {
-    Tensor() = default;
-    Tensor(void* Data, Shape shape, NumberSystem numberSystem);
+public:
+    Tensor(void* Data, Shape shape, NumberSystem numberSystem,
+           Compute::Device device);
     ~Tensor();
 
-    Tensor(const Tensor& tensor) = delete;
+    Tensor(const Tensor& tensor);
     Tensor(Tensor&& tensor) noexcept;
     /// move assignment operator
     Tensor& operator=(const Tensor& tensor) = delete;
     Tensor& operator=(Tensor&& tensor) noexcept;
+
+    //! Builds empty Tensor so data can be put potentially
+    //! \param shape : shape of tensor to allocate
+    //! \param numberSystem : number system of the tensor
+    //! \param device : type of device to allocate the Tensor
+    //! \return : Tensor that has been allocated
+    static Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem,
+                               const Compute::Device& device);
 
     static void CopyTensor(const Tensor& source, Tensor& destination);
     /// Data vector which possesses actual data
@@ -34,15 +42,11 @@ struct Tensor
     /// Shape of this tensorData
     Shape TensorShape;
     NumberSystem NumericType = NumberSystem::Float;
+    Compute::Device Device;
     std::size_t PadSize = 0;
+    std::atomic<std::size_t> ForwardStateNum = 0;
+    std::atomic<std::size_t> BackwardStateNum = 0;
 };
-
-
-//! Builds empty Tensor so data can be put potentially
-//! \param shape : shape of tensor to allocate
-//! \param numberSystem : number system of the tensor
-//! \return : Tensor that has been allocated
-Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, bool pad = false);
 
 //! Used only for testing
 template <typename T>
@@ -54,7 +58,8 @@ void SetData(std::initializer_list<std::size_t> index, Tensor& tensor, T value)
 
 //! Used only for testing
 template <typename T>
-void SetData(std::initializer_list<std::size_t> index, const Shape& shape, void* dataPtr,
+void SetData(std::initializer_list<std::size_t> index, const Shape& shape,
+             void* dataPtr,
              T data)
 {
     std::size_t offset = shape.Offset(index);

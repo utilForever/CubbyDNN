@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_SHAPER_HPP
-#define CUBBYDNN_SHAPER_HPP
+#ifndef CUBBYDNN_SHAPE_HPP
+#define CUBBYDNN_SHAPE_HPP
 
 #include <stdexcept>
 #include <vector>
@@ -53,14 +53,12 @@ public:
         return !(lhs == rhs);
     }
 
-    [[nodiscard]] std::size_t TotalSize() const noexcept;
+    [[nodiscard]] std::size_t Size() const noexcept;
 
     [[nodiscard]] std::size_t Offset(std::vector<std::size_t> index) const
     noexcept;
 
     [[nodiscard]] std::size_t BatchSize() const;
-
-    [[nodiscard]] std::size_t MatrixSize() const;
 
     [[nodiscard]] std::size_t NumRows() const
     {
@@ -82,7 +80,15 @@ public:
         m_shapeVector.at(0) = col;
     }
 
-    void Reshape(std::initializer_list<std::size_t> newShape);
+    Shape& ChangeDimension(std::size_t axis, std::size_t value)
+    {
+        m_shapeVector.at(axis) = value;
+        return *this;
+    }
+
+    Shape& Reshape(std::initializer_list<std::size_t> newShape);
+
+   Shape& Transpose();
 
 private:
     std::vector<std::size_t> m_shapeVector;

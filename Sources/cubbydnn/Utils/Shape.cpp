@@ -9,7 +9,7 @@
 namespace CubbyDNN
 {
 Shape::Shape()
-    : m_shapeVector({1,1})
+    : m_shapeVector({ 1, 1 })
 {
 }
 
@@ -46,7 +46,6 @@ std::size_t& Shape::operator[](std::size_t index)
 {
     return m_shapeVector.at(index);
 }
-
 
 
 Shape Shape::operator*(const Shape& shape) const
@@ -102,7 +101,7 @@ void Shape::Squeeze()
     m_shapeVector = newDim;
 }
 
-std::size_t Shape::TotalSize() const noexcept
+std::size_t Shape::Size() const noexcept
 {
     std::size_t size = 1;
     for (auto i : m_shapeVector)
@@ -116,7 +115,7 @@ std::size_t Shape::Dim() const
     return m_shapeVector.size();
 }
 
-void Shape::Reshape(std::initializer_list<std::size_t> newShape)
+Shape& Shape::Reshape(std::initializer_list<std::size_t> newShape)
 {
     std::size_t newSize = 1;
     for (auto i : newShape)
@@ -126,11 +125,12 @@ void Shape::Reshape(std::initializer_list<std::size_t> newShape)
         newSize *= 1;
     }
 
-    if (newSize != TotalSize())
+    if (newSize != Size())
         throw std::runtime_error(
             "size of new shape should be same as size of original shape");
 
     m_shapeVector = newShape;
+    return *this;
 }
 
 std::size_t Shape::Offset(std::vector<std::size_t> index) const noexcept
@@ -157,11 +157,11 @@ std::size_t Shape::BatchSize() const
     return size;
 }
 
-std::size_t Shape::MatrixSize() const
+Shape& Shape::Transpose()
 {
-    return m_shapeVector.at(0) * m_shapeVector.at(1);
+    const auto temp = m_shapeVector.at(0);
+    m_shapeVector.at(0) = m_shapeVector.at(1);
+    m_shapeVector.at(1) = temp;
+    return *this;
 }
-
-
-
 } // namespace CubbyDNN

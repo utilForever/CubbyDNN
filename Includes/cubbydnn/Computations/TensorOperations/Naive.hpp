@@ -11,7 +11,7 @@
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <functional>
 
-namespace CubbyDNN
+namespace CubbyDNN::Compute
 {
 class Naive
 {
@@ -94,28 +94,36 @@ public:
         const auto numRowsB = inputShapeB.NumRows();
         const auto numColsB = inputShapeB.NumCols();
 
-        const auto blockSize = 16;
+        const auto blockSize = 32;
 
-        //! Optimized matrix multiplication minimizing cache misses
-        for (std::size_t batch = 0; batch < batchSizeA; ++batch)
-            for (std::size_t jj = 0; jj < numColsB; jj = jj + blockSize)
-                for (std::size_t kk = 0; kk < numColsA; kk = kk + blockSize)
-                    for (std::size_t i = 0; i < numRowsA; ++i)
-                        for (std::size_t j = jj;
-                             j < std::min(jj + blockSize, numColsB); ++j)
-                        {
-                            T r = static_cast<T>(0);
-                            for (std::size_t k = kk;
-                                 k < std::min(kk + blockSize, numColsA); ++k)
-                            {
-                                r += static_cast<T*>(
-                                        inputA.DataPtr)[i * numRowsA + k] *
-                                    static_cast<T*>(
-                                        inputB.DataPtr)[k * numRowsB + j];
-                            }
-                            static_cast<T*>(output.DataPtr)[i * numRowsA + j] +=
-                                r;
-                        }
+        T* inputAPtr = static_cast<T*>(inputA.DataPtr);
+        T* inputBPtr = static_cast<T*>(inputB.DataPtr);
+        T* outputPtr = static_cast<T*>(output.DataPtr);
+
+        //! cache friendly matrix multiplication minimizing cache misses
+        for (std::size_t ii = 0; ii < numRowsA; ii += blockSize)
+            for (std::size_t jj = 0; jj < numColsB; jj += blockSize)
+                for (std::size_t kk = 0; kk < numRowsB; kk += blockSize)
+                {
+                    std::size_t i_lim = ii + blockSize;
+                    if (i_lim > numRowsA)
+                        i_lim = numRowsA;
+
+                    std::size_t j_lim = jj + blockSize;
+                    if (j_lim > numColsB)
+                        j_lim = numColsB;
+
+                    std::size_t k_lim = kk + blockSize;
+                    if (k_lim > numRowsB)
+                        k_lim = numRowsB;
+
+                    for (std::size_t i = ii; i < i_lim; i++)
+                        for (std::size_t j = jj; j < j_lim; j++)
+                            for (std::size_t k = kk; k < k_lim; k++)
+                                outputPtr[i * numColsB + j] +=
+                                    inputAPtr[i * numColsA + k] *
+                                    inputBPtr[k * numColsB + j];
+                }
     }
 
     template <typename T>
@@ -150,6 +158,13 @@ public:
                             static_cast<T*>(output.DataPtr)[numRows * i + j] =
                                 static_cast<T*>(input.DataPtr)[numCols * j + i];
                         }
+    }
+
+    template <typename T>
+    static void Activation(const Tensor& input, Tensor& output, T& activation)
+    {
+        const auto inputShape = input.TensorShape;
+        const auto outputShape = output.TensorShape;
     }
 };
 } // namespace CubbyDNN

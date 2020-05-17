@@ -15,7 +15,8 @@ namespace CubbyDNN
 //! counter
 struct SharedObjectInfo
 {
-    SharedObjectInfo() : RefCount(1)
+    SharedObjectInfo()
+        : RefCount(1)
     {
     }
 
@@ -57,7 +58,7 @@ class SharedPtr
     template <typename U>
     explicit SharedPtr(U* objectPtr, SharedObjectInfo* informationPtr);
 
- public:
+public:
     //! Default constructor that will construct empty SharedPtr object will NULL
     //! object pointer
     SharedPtr() = default;
@@ -128,9 +129,9 @@ class SharedPtr
 
     bool operator!=(const SharedPtr<T>& sharedPtr);
 
-        //! Destructor will automatically decrease the reference counter if this
-        //! ptr has valid pointer
-        ~SharedPtr();
+    //! Destructor will automatically decrease the reference counter if this
+    //! ptr has valid pointer
+    ~SharedPtr();
 
     //! Builds SharedPtr m_objectPtr using raw pointer
     //! \param objectPtr : pointer to the object
@@ -151,6 +152,13 @@ class SharedPtr
     //! \return : ptr to m_objectPtr
     T* operator->() const;
 
+    //! Gets internal object pointer
+    T* Get() const
+    {
+        return m_objectPtr;
+    }
+
+
     //! Gets current reference count
     //! \return :  current reference count
     [[nodiscard]] int GetCurrentRefCount() const
@@ -158,6 +166,6 @@ class SharedPtr
         return m_sharedObjectInfoPtr->RefCount.load(std::memory_order_acquire);
     }
 };
-}  // namespace CubbyDNN
+} // namespace CubbyDNN
 
 #endif  // CUBBYDNN_SHAREDPTR_HPP

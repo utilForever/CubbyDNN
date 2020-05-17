@@ -10,10 +10,12 @@
 
 namespace CubbyDNN
 {
-Tensor::Tensor(void* Data, Shape shape, NumberSystem numberSystem)
+Tensor::Tensor(void* Data, Shape shape, NumberSystem numberSystem,
+               Compute::Device device)
     : DataPtr(Data),
       TensorShape(std::move(shape)),
-      NumericType(numberSystem)
+      NumericType(numberSystem),
+      Device(std::move(device))
 {
     Data = nullptr;
 }
@@ -26,10 +28,19 @@ Tensor::~Tensor()
         delete[] static_cast<int*>(DataPtr);
 }
 
+Tensor::Tensor(const Tensor& tensor)
+    : DataPtr(tensor.DataPtr),
+      TensorShape(tensor.TensorShape),
+      NumericType(tensor.NumericType),
+      Device(tensor.Device)
+{
+}
+
 Tensor::Tensor(Tensor&& tensor) noexcept
     : DataPtr(tensor.DataPtr),
       TensorShape(std::move(tensor.TensorShape)),
-      NumericType(tensor.NumericType)
+      NumericType(tensor.NumericType),
+      Device(std::move(tensor.Device))
 {
     tensor.DataPtr = nullptr;
 }
@@ -43,25 +54,28 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     return *this;
 }
 
-Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, bool pad)
+Tensor Tensor::CreateTensor(const Shape& shape, NumberSystem numberSystem,
+                            const Compute::Device& device)
 {
     void* dataPtr = nullptr;
-    auto totalSize =
-        pad ? shape.BatchSize() * shape.NumRows() * 8 : shape.TotalSize();
+    const auto totalSize =
+        device.PadSize() > 0
+            ? shape.BatchSize() * shape.NumRows() * device.PadSize()
+            : shape.Size();
     if (numberSystem == NumberSystem::Float)
     {
-        dataPtr = static_cast<void*>(new float[shape.TotalSize()]);
-        for (std::size_t i = 0; i < totalSize; ++i)
+        dataPtr = static_cast<void*>(new float[static_cast<int>(shape.Size())]);
+        for (int i = 0; i < static_cast<int>(totalSize); ++i)
             static_cast<float*>(dataPtr)[i] = 0.0f;
     }
     else if (numberSystem == NumberSystem::Int)
     {
-        dataPtr = static_cast<void*>(new int[shape.TotalSize()]);
-        for (std::size_t i = 0; i < totalSize; ++i)
-            static_cast<int*>(dataPtr)[i] = 0;
+        dataPtr = static_cast<void*>(new int[shape.Size()]);
+        for (int i = 0; i < static_cast<int>(totalSize); ++i)
+            static_cast<int*>(dataPtr)[i] = static_cast<int>(0);
     }
 
-    return Tensor(dataPtr, shape, numberSystem);
+    return Tensor(dataPtr, shape, numberSystem, device);
 }
 
 void Tensor::CopyTensor(const Tensor& source, Tensor& destination)

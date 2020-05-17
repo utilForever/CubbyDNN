@@ -5,8 +5,7 @@
 // property of any third parties.
 
 #include "MatrixTest.hpp"
-#include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
-#include <cubbydnn/Tensors/Tensor.hpp>
+#include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <iostream>
 #include "gtest/gtest.h"
 
@@ -14,8 +13,12 @@ namespace CubbyDNN
 {
 void TestMatMul()
 {
-    Tensor tensorA = CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float, false);
-    Tensor tensorB = CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float);
+    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+
+    Tensor tensorA = Tensor::CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float,
+                                          device);
+    Tensor tensorB = Tensor::CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float,
+                                          device);
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 4.0f);
     SetData<float>({ 1, 1, 0, 0 }, tensorA, 4.0f);
@@ -25,9 +28,10 @@ void TestMatMul()
     SetData<float>({ 1, 1, 0, 0 }, tensorB, 4.0f);
     SetData<float>({ 2, 2, 0, 0 }, tensorB, 4.0f);
 
-    Tensor output = CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float);
+    Tensor output = Tensor::CreateTensor({ 3, 3, 1, 1 }, NumberSystem::Float,
+                                         device);
 
-    Native::Multiply(tensorA, tensorB, output);
+    Compute::Multiply(tensorA, tensorB, output);
 
     for (std::size_t i = 0; i < 3; i++)
     {
@@ -44,8 +48,12 @@ void TestMatMul()
 
 void TestMatMul2()
 {
-    Tensor tensorA = CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
-    Tensor tensorB = CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
+    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+
+    Tensor tensorA = Tensor::CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float,
+                                          device);
+    Tensor tensorB = Tensor::CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float,
+                                          device);
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 2.0f);
     SetData<float>({ 0, 0, 0, 1 }, tensorA, 2.0f);
@@ -67,9 +75,9 @@ void TestMatMul2()
     SetData<float>({ 0, 0, 2, 1 }, tensorB, 2.0f);
     SetData<float>({ 0, 0, 2, 2 }, tensorB, 2.0f);
 
-    Tensor output = CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float);
+    Tensor output = Tensor::CreateTensor({ 1, 1, 3, 3 }, NumberSystem::Float, device);
 
-    Native::Multiply(tensorA, tensorB, output);
+    Compute::Multiply(tensorA, tensorB, output);
 
     for (std::size_t i = 0; i < 3; i++)
     {
@@ -85,8 +93,11 @@ void TestMatMul2()
 
 void TestMatMul3()
 {
-    Tensor tensorA = CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
-    Tensor tensorB = CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
+    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Tensor tensorA = Tensor::CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float,
+                                          device);
+    Tensor tensorB = Tensor::CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float,
+                                          device);
 
     SetData<float>({ 0, 0, 0, 0 }, tensorA, 3.0f);
     SetData<float>({ 0, 0, 0, 1 }, tensorA, 3.0f);
@@ -168,9 +179,10 @@ void TestMatMul3()
     SetData<float>({ 1, 1, 2, 1 }, tensorB, 3.0f);
     SetData<float>({ 1, 1, 2, 2 }, tensorB, 3.0f);
 
-    Tensor output = CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float);
+    Tensor output = Tensor::CreateTensor({ 2, 2, 3, 3 }, NumberSystem::Float,
+                                         device);
 
-    Native::Multiply(tensorA, tensorB, output);
+    Compute::Multiply(tensorA, tensorB, output);
 
     for (std::size_t batchIdx = 0; batchIdx < 2; ++batchIdx)
         for (std::size_t channelIdx = 0; channelIdx < 2; ++channelIdx)
@@ -187,10 +199,4 @@ void TestMatMul3()
             }
 }
 
-TEST(MatrixTest, MatMul)
-{
-    TestMatMul();
-    //TestMatMul2();
-    //TestMatMul3();
-}
 } // namespace CubbyDNN

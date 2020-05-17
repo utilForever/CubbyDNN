@@ -4,74 +4,155 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbyDnn/Units/HiddenComputableUnits/Dense.hpp>
-#include <cubbydnn/Computations/Initializers/Initializer.hpp>
-#include "cubbydnn/Computations/TensorOperations/NaiveOperations.hpp"
+#include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
+#include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
-DenseUnit::DenseUnit(UnitId unitId, Shape input, Shape weightShape,
-                     Shape biasShape,
-                     Shape output,
-                     NumberSystem numberSystem,
-                     InitializerType kernelInitializer,
-                     InitializerType biasInitializer, Activation activation,
-                     float dropoutRate)
-    : ComputableUnit(unitId,
-                     { input }, std::move(output), numberSystem),
-      m_kernel(CreateTensor(weightShape, numberSystem)),
-      m_bias(CreateTensor(biasShape, numberSystem)),
-      m_kernelInitializer(kernelInitializer),
-      m_biasInitializer(biasInitializer),
-      m_activation(activation),
-      m_dropoutRate(dropoutRate)
+static const int weightIdx = 0;
+static const int biasIdx = 1;
 
-{
-    //TODO : make this selectable
-    Initializer::LecunNormal(m_kernel);
-    Initializer::LecunNormal(m_bias);
-}
-
-DenseUnit::DenseUnit(DenseUnit&& dense) noexcept
-    : ComputableUnit(std::move(dense)),
-      m_kernel(std::move(dense.m_kernel)),
-      m_bias(std::move(dense.m_bias)),
-      m_kernelInitializer(dense.m_kernelInitializer),
-      m_biasInitializer(std::move(dense.m_biasInitializer)),
-      m_activation(dense.m_activation),
-      m_dropoutRate(dense.m_dropoutRate)
+DenseUnit::DenseUnit(UnitId unitId, NumberSystem numberSystem,
+                     Tensor forwardInput,
+                     std::vector<Tensor> backwardInputVector,
+                     Tensor forwardOutput, Tensor backwardOutput,
+                     std::vector<Tensor> trainableUnit,
+                     std::unique_ptr<Computation::Optimizer> optimizer,
+                     Tensor weightTranspose)
+    : ComputableUnit(std::move(unitId), numberSystem,
+                     { std::move(forwardInput) },
+                     std::move(backwardInputVector), std::move(forwardOutput),
+                     { std::move(backwardOutput) }),
+      TrainableUnit(std::move(trainableUnit), std::move(optimizer)),
+      m_transposedWeight(std::move(weightTranspose))
 {
 }
 
-DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
+DenseUnit::DenseUnit(DenseUnit&& denseUnit) noexcept
+    : ComputableUnit(std::move(denseUnit)),
+      TrainableUnit(std::move(denseUnit)),
+      m_transposedWeight(std::move(denseUnit.m_transposedWeight))
 {
-    m_kernel = std::move(dense.m_kernel);
-    m_bias = std::move(dense.m_bias);
-    m_kernelInitializer = dense.m_kernelInitializer;
-    m_biasInitializer = dense.m_biasInitializer;
-    m_activation = dense.m_activation;
-    m_dropoutRate = dense.m_dropoutRate;
-    ComputableUnit::operator=(std::move(dense));
+}
+
+DenseUnit& DenseUnit::operator=(DenseUnit&& denseUnit) noexcept
+{
+    ComputableUnit::operator=(std::move(denseUnit));
+    TrainableUnit::operator=(std::move(denseUnit));
+    m_transposedWeight = std::move(denseUnit.m_transposedWeight);
+
     return *this;
 }
 
+DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
+                                std::unique_ptr<Computation::Optimizer>
+                                optimizer)
+{
+    const auto unitId = unitMetaData.Id();
+
+    auto forwardInputTensor =
+        Tensor::CreateTensor(unitMetaData.InputShapeVector().at(0),
+                             unitMetaData.NumericType, unitMetaData.Device);
+
+    std::vector<Tensor> backwardInputVector;
+    backwardInputVector.reserve(unitMetaData.OutputUnitVector().size());
+    for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
+    {
+        auto tensor = Tensor::CreateTensor(unitMetaData.OutputShape(),
+                                           unitMetaData.NumericType,
+                                           unitMetaData.Device);
+        backwardInputVector.emplace_back(std::move(tensor));
+    }
+
+    auto forwardOutputTensor =
+        Tensor::CreateTensor(unitMetaData.OutputShape(),
+                             unitMetaData.NumericType, unitMetaData.Device);
+
+    auto backwardOutputTensor =
+        Tensor::CreateTensor(unitMetaData.InputShapeVector().at(0),
+                             unitMetaData.NumericType, unitMetaData.Device);
+
+    auto weightShape = unitMetaData.InternalVariableShapeVector().at(weightIdx);
+    auto biasShape = unitMetaData.InternalVariableShapeVector().at(biasIdx);
+
+    auto weightTensor =
+        Tensor::CreateTensor(weightShape, unitMetaData.NumericType,
+                             unitMetaData.Device);
+    const auto& weightInitializer = unitMetaData
+                                    .InitializerVector().at(weightIdx);
+    weightInitializer->Initialize(weightTensor);
+
+    auto biasTensor =
+        Tensor::CreateTensor(biasShape, unitMetaData.NumericType,
+                             unitMetaData.Device);
+    const auto& biasInitializer = unitMetaData.InitializerVector().at(biasIdx);
+    biasInitializer->Initialize(biasTensor);
+
+    auto weightTransposeTensor = Tensor::CreateTensor(
+        weightShape.Transpose(), unitMetaData.NumericType,
+        unitMetaData.Device);
+
+    auto denseUnit = DenseUnit(
+        unitId, unitMetaData.NumericType, std::move(forwardInputTensor),
+        std::move(backwardInputVector), std::move(forwardOutputTensor),
+        std::move(backwardOutputTensor),
+        { std::move(weightTensor), std::move(biasTensor) },
+        std::move(optimizer),
+        std::move(weightTransposeTensor));
+
+    return denseUnit;
+}
+
+
 void DenseUnit::Forward()
 {
-    Tensor& input = m_inputForwardTensorVector.at(0);
-    Tensor& weight = m_inputForwardTensorVector.at(1);
-    Tensor& bias = m_inputForwardTensorVector.at(2);
-    Tensor& output = m_outputForwardTensor;
+    Tensor& input = ForwardInputVector.at(0);
 
-    Native::Multiply(weight, input, m_kernel);
-    Native::Add(m_kernel, bias, output);
+    Compute::Multiply(m_trainableTensorMap.at(weightIdx), input,
+                              ForwardOutput);
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
+                         ForwardOutput);
+}
+
+void DenseUnit::AsyncForward(std::promise<bool> promise)
+{
+    Tensor& input = ForwardInputVector.at(0);
+
+    Compute::Multiply(m_trainableTensorMap.at(weightIdx), input,
+                              ForwardOutput);
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
+                         ForwardOutput);
+    promise.set_value(true);
 }
 
 void DenseUnit::Backward()
 {
-    // TODO : Create separate inputs and outputs for back propagation
-    // Tensor& delta = m_inputTensorVector.at(0);
-    // Tensor& weight = m_inputTensorVector.at(1);
-    // Tensor& input = m_inputTensorVector.at(0); // (W(l+1) & delta(l + 1)
-    // m_tensorOperation->Multiply(weight, delta, m_temp);
+    auto& weight = m_trainableTensorMap.at(weightIdx);
+    auto& bias = m_trainableTensorMap.at(biasIdx);
+
+    Tensor& delta = BackwardInputVector.at(0);
+
+    Compute::Transpose(weight, m_transposedWeight);
+    Compute::Multiply(m_transposedWeight, delta,
+                              BackwardOutputVector.at(0));
+
+    m_optimizer->Optimize(weight);
+    m_optimizer->Optimize(bias);
+}
+
+void DenseUnit::AsyncBackward(std::promise<bool> promise)
+{
+    auto& weight = m_trainableTensorMap.at(weightIdx);
+    auto& bias = m_trainableTensorMap.at(biasIdx);
+    Tensor& delta = BackwardInputVector.at(0);
+
+    Compute::Transpose(weight, bias);
+    Compute::Multiply(m_transposedWeight, delta,
+                              BackwardOutputVector.at(0));
+
+    m_optimizer->Optimize(weight);
+    m_optimizer->Optimize(bias);
+
+    promise.set_value(true);
 }
 } // namespace CubbyDNN

@@ -7,128 +7,83 @@
 #ifndef CUBBYDNN_COMPUTABLEUNIT_HPP
 #define CUBBYDNN_COMPUTABLEUNIT_HPP
 
-#include <atomic>
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
+#include <cubbydnn/Units/UnitType.hpp>
+#include <future>
 
-namespace CubbyDNN
+namespace CubbyDNN::Graph
 {
 class ComputableUnit
 {
 public:
-    //! \param unitId : type of the unit
-    //! \param inputShapeVector : vector of input tensor information
-    //! \param outputShape : output tensor information
+    //! \param unitId : id of the unit
     //! \param numberSystem : number system to use
-    ComputableUnit(UnitId unitId,
-                   std::vector<Shape> inputShapeVector,
-                   Shape outputShape, NumberSystem numberSystem);
-
-    //! Constructor
+    //! \param forwardInputVector : vector of input tensor for forward propagation
+    //! \param backwardInputVector : vector of input tensor for back propagation
+    //! \param forwardOutput : output of forward propagation
+    //! \param backwardOutputVector : output of backward propagation
+    ComputableUnit(UnitId unitId, NumberSystem numberSystem,
+                   std::vector<Tensor> forwardInputVector,
+                   std::vector<Tensor> backwardInputVector,
+                   Tensor forwardOutput,
+                   std::vector<Tensor> backwardOutputVector
+        );
     virtual ~ComputableUnit() = default;
 
     ComputableUnit(const ComputableUnit& computableUnit) = delete;
     ComputableUnit(ComputableUnit&& computableUnit) noexcept;
 
-    ComputableUnit& operator=(ComputableUnit&& computableUnit) noexcept;
     ComputableUnit& operator=(const ComputableUnit& computableUnit) = delete;
+    ComputableUnit& operator=(ComputableUnit&& computableUnit) noexcept;
 
-    UnitId GetId() const
+    UnitId Id() const
     {
-        return m_id;
+        return m_unitId;
     }
 
-    Tensor& GetInputForwardTensor(std::size_t index)
-    {
-        return m_inputForwardTensorVector.at(index);
-    }
-
-    Tensor& GetOutputForwardTensor()
-    {
-        return m_outputForwardTensor;
-    }
-
-    Tensor& GetInputBackwardTensor()
-    {
-        return m_inputBackwardTensor;
-    }
-
-    Tensor& GetOutputBackwardTensor(std::size_t index)
-    {
-        return m_outputBackwardTensorVector.at(index);
-    }
-
-    Shape GetOutputTensorShape() const
-    {
-        return m_outputTensorShape;
-    }
-
-    const std::vector<UnitId>& GetInputUnitVector() const
-    {
-        return m_inputUnitIdVector;
-    }
-
-    const std::vector<std::pair<UnitId, std::size_t>>&
-    GetOutputUnitVector() const
-    {
-        return m_outputUnitIdVector;
-    }
-
-    void SetInputUnitVector(std::vector<UnitId> inputUnitVector)
-    {
-        m_inputUnitIdVector = inputUnitVector;
-    }
-
-    void AddOutputUnitVector(UnitId outputUnit, std::size_t inputIndex)
-    {
-        m_outputUnitIdVector.emplace_back(
-            std::make_pair(outputUnit, inputIndex));
-    }
-
-    //! Called after computation for releasing the unit after computation
-    //! Increments the stateNum and marks IsBusy as false
-    void ReleaseUnit();
-
-    //! Gets reference of the atomic state counter for atomic comparison
-    //! of state counter
-    //! \return : reference of the state counter
-    std::size_t GetStateNum() const
-    {
-        return m_unitState.StateNum.load(std::memory_order_acquire);
-    }
-
+    //! Execute the Forward-propagating operation
+    //! Throws runtime exception if unit is not ready to be executed
+    //! This includes copying the result to input of next unit
     virtual void Forward() = 0;
-
+    virtual void AsyncForward(
+        std::promise<bool> promise) = 0;
+    //! Execute Backward-propagating operation
+    //! Throws runtime exception if unit is not ready to be executed
+    //! This includes copying the result to input of previous unit
     virtual void Backward() = 0;
+    virtual void AsyncBackward(
+        std::promise<bool> promise) = 0;
 
-    UnitType Type()
-    {
-        return m_id.Type;
-    }
+    //! Checks if forward propagation is ready
+    //! \param cycle : cycle of current state
+    //! \return : True if ready False if not
+    [[nodiscard]] bool IsForwardReady(std::size_t cycle) const;
+
+    //! Checks if forward propagation is ready
+    //! \param cycle : cycle of current state
+    //! \return : True if ready False if not
+    [[nodiscard]] bool IsBackwardReady(std::size_t cycle) const;
+
+    //! vector of input tensors used to compute forward propagation
+    std::vector<Tensor> ForwardInputVector;
+    //! vector of output tensors used to compute back propagation
+    std::vector<Tensor> BackwardInputVector;
+    //! single output tensor of forward propagation
+    Tensor ForwardOutput;
+    //! single output tensor of back propagation
+    std::vector<Tensor> BackwardOutputVector;
 
 protected:
+    void m_updateForwardState();
+
+    void m_updateBackwardState();
+
+    UnitId m_unitId;
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
     UnitState m_unitState;
-    //! Unique Id of this unit
-    UnitId m_id;
-    //! vector of tensor information for input in forward propagation
-    std::vector<Shape> m_inputShapeVector;
-    //! tensor information for output in forward propagation
-    Shape m_outputTensorShape;
     //! Number system for this unit to use
-    NumberSystem m_numberSystem;
-
-    std::vector<UnitId> m_inputUnitIdVector;
-
-    std::vector<std::pair<UnitId, std::size_t>> m_outputUnitIdVector;
-    //! single output tensor of forward propagation
-    Tensor m_outputForwardTensor;
-    //! single output tensor of back propagation
-    Tensor m_inputBackwardTensor;
-    //! vector of input tensors used to compute forward propagation
-    std::vector<Tensor> m_inputForwardTensorVector;
-    //! vector of output tensors used to compute back propagation
-    std::vector<Tensor> m_outputBackwardTensorVector;
+    NumberSystem m_numericType;
 };
 }; // namespace CubbyDNN
 
