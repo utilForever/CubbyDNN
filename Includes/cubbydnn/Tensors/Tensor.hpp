@@ -17,8 +17,9 @@ namespace CubbyDNN
 //! with attributes describing it
 class Tensor
 {
- public:
-    Tensor(void* Data, Shape shape, NumberSystem numberSystem, Compute::Device device);
+public:
+    Tensor(void* Data, Shape shape, NumberSystem numberSystem,
+           Compute::Device device);
     ~Tensor();
 
     Tensor(const Tensor& tensor) = delete;
@@ -30,10 +31,10 @@ class Tensor
     //! Builds empty Tensor so data can be put potentially
     //! \param shape : shape of tensor to allocate
     //! \param numberSystem : number system of the tensor
-    //! \param padSize : size of padding (optional)
+    //! \param device : type of device to allocate the Tensor
     //! \return : Tensor that has been allocated
-    static Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem, Compute::Device device,
-                        std::size_t padSize = 0);
+    static Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem,
+                               const Compute::Device& device);
 
     static void CopyTensor(const Tensor& source, Tensor& destination);
     /// Data vector which possesses actual data
@@ -57,7 +58,8 @@ void SetData(std::initializer_list<std::size_t> index, Tensor& tensor, T value)
 
 //! Used only for testing
 template <typename T>
-void SetData(std::initializer_list<std::size_t> index, const Shape& shape, void* dataPtr,
+void SetData(std::initializer_list<std::size_t> index, const Shape& shape,
+             void* dataPtr,
              T data)
 {
     std::size_t offset = shape.Offset(index);

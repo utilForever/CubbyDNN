@@ -10,7 +10,6 @@
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Units/UnitType.hpp>
-#include <cubbydnn/Computations/Initializers/InitializerType.hpp>
 #include <future>
 
 namespace CubbyDNN::Graph
@@ -19,7 +18,7 @@ class ComputableUnit
 {
 public:
     //! \param unitId : id of the unit
-   //! \param numberSystem : number system to use
+    //! \param numberSystem : number system to use
     //! \param forwardInputVector : vector of input tensor for forward propagation
     //! \param backwardInputVector : vector of input tensor for back propagation
     //! \param forwardOutput : output of forward propagation

@@ -20,7 +20,8 @@ enum class DeviceType
 class Device
 {
 public:
-    Device(std::size_t id, DeviceType type, std::string name);
+    Device(std::size_t id, DeviceType type, std::string name,
+           std::size_t padByteSize = 0);
     ~Device() = default;
 
     Device(const Device& device) = default;
@@ -28,27 +29,28 @@ public:
     Device& operator=(const Device& device) = default;
     Device& operator=(Device&& device) noexcept = default;
 
-    bool operator==(const Device& device)
+    bool operator==(const Device& device) const;
+
+    [[nodiscard]] DeviceType Type() const
     {
-        return m_id == device.m_id
-               && type == device.type
-               && m_name == device.m_name;
+        return m_type;
     }
 
-    DeviceType Type() const
-    {
-        return type;
-    }
-
-    std::string Name() const
+    [[nodiscard]] std::string Name() const
     {
         return m_name;
     }
 
+    [[nodiscard]] std::size_t PadSize() const
+    {
+        return m_padByteSize;
+    }
+
 private:
     std::size_t m_id;
-    DeviceType type;
+    DeviceType m_type;
     std::string m_name;
+    std::size_t m_padByteSize;
 };
 }
 

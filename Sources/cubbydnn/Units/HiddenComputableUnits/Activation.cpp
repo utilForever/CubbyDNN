@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Units/HiddenComputableUnits/ActivationUnit.hpp>
-#include <cubbydnn/Computations/TensorOperations/NaiveOperations.hpp>
+#include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 
 namespace CubbyDNN::Graph
 {
@@ -45,7 +45,7 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData,
 {
     auto forwardInputTensor = Tensor::CreateTensor(
         unitMetaData.InputShapeVector().at(0), unitMetaData.NumericType,
-        unitMetaData.Device, unitMetaData.PadSize);
+        unitMetaData.Device);
 
     std::vector<Tensor> backwardInputVector;
     backwardInputVector.reserve(unitMetaData.OutputUnitVector().size());
@@ -59,16 +59,16 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData,
 
     auto forwardOutputTensor = Tensor::CreateTensor(
         unitMetaData.OutputShape(), unitMetaData.NumericType,
-        unitMetaData.Device, unitMetaData.PadSize);
+        unitMetaData.Device);
 
     auto backwardOutputTensor = Tensor::CreateTensor(
         unitMetaData.InputShapeVector().at(0), unitMetaData.NumericType,
-        unitMetaData.Device, unitMetaData.PadSize);
+        unitMetaData.Device);
 
     auto backwardTempTensor =
         Tensor::CreateTensor(unitMetaData.OutputShape(),
                              unitMetaData.NumericType,
-                             unitMetaData.Device, unitMetaData.PadSize);
+                             unitMetaData.Device);
 
     auto activationUnit = ActivationUnit(unitMetaData.Id(),
                                          unitMetaData.NumericType,
@@ -84,14 +84,14 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData,
 
 void ActivationUnit::Forward()
 {
-    Compute::Native::ActivationForward(ForwardInputVector.at(0), ForwardOutput,
-                                       m_activationFunc);
+    Compute::ActivationForward(ForwardInputVector.at(0), ForwardOutput,
+                               m_activationFunc);
 }
 
 void ActivationUnit::AsyncForward(std::promise<bool> promise)
 {
-    Compute::Native::ActivationForward(ForwardInputVector.at(0), ForwardOutput,
-                                       m_activationFunc);
+    Compute::ActivationForward(ForwardInputVector.at(0), ForwardOutput,
+                               m_activationFunc);
     promise.set_value(true);
 }
 
@@ -100,13 +100,13 @@ void ActivationUnit::Backward()
     const Zeros zeroInitializer;
     zeroInitializer.Initialize(m_backwardTemp);
     for (const auto& tensor : BackwardInputVector)
-        Compute::Native::Add(tensor, m_backwardTemp,
-                             m_backwardTemp);
-    Compute::Native::ActivationBackward(ForwardInputVector.at(0),
-                                        BackwardOutputVector.at(0),
-                                        m_activationFunc);
-    Compute::Native::Dot(m_backwardTemp, BackwardOutputVector.at(0),
-                         BackwardOutputVector.at(0));
+        Compute::Add(tensor, m_backwardTemp,
+                     m_backwardTemp);
+    Compute::ActivationBackward(ForwardInputVector.at(0),
+                                BackwardOutputVector.at(0),
+                                m_activationFunc);
+    Compute::Dot(m_backwardTemp, BackwardOutputVector.at(0),
+                 BackwardOutputVector.at(0));
 }
 
 void ActivationUnit::AsyncBackward(std::promise<bool> promise)
@@ -114,12 +114,12 @@ void ActivationUnit::AsyncBackward(std::promise<bool> promise)
     const Zeros zeroInitializer;
     zeroInitializer.Initialize(m_backwardTemp);
     for (const auto& tensor : BackwardInputVector)
-        Compute::Native::Add(tensor, m_backwardTemp,
-                             m_backwardTemp);
-    Compute::Native::ActivationBackward(
+        Compute::Add(tensor, m_backwardTemp,
+                     m_backwardTemp);
+    Compute::ActivationBackward(
         ForwardInputVector.at(0), BackwardOutputVector.at(0), m_activationFunc);
-    Compute::Native::Dot(m_backwardTemp, BackwardOutputVector.at(0),
-                         BackwardOutputVector.at(0));
+    Compute::Dot(m_backwardTemp, BackwardOutputVector.at(0),
+                 BackwardOutputVector.at(0));
 
     promise.set_value(true);
 }

@@ -15,7 +15,7 @@ Tensor::Tensor(void* Data, Shape shape, NumberSystem numberSystem,
     : DataPtr(Data),
       TensorShape(std::move(shape)),
       NumericType(numberSystem),
-      Device(device)
+      Device(std::move(device))
 {
     Data = nullptr;
 }
@@ -47,12 +47,12 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 }
 
 Tensor Tensor::CreateTensor(const Shape& shape, NumberSystem numberSystem,
-                            Compute::Device deviceType, std::size_t padSize)
+                            Compute::Device device)
 {
     void* dataPtr = nullptr;
     const auto totalSize =
-        padSize > 0
-            ? shape.BatchSize() * shape.NumRows() * padSize
+        device.PadSize() > 0
+            ? shape.BatchSize() * shape.NumRows() * device.PadSize()
             : shape.Size();
     if (numberSystem == NumberSystem::Float)
     {
@@ -67,7 +67,7 @@ Tensor Tensor::CreateTensor(const Shape& shape, NumberSystem numberSystem,
             static_cast<int*>(dataPtr)[i] = 0;
     }
 
-    return Tensor(dataPtr, shape, numberSystem, deviceType);
+    return Tensor(dataPtr, shape, numberSystem, device);
 }
 
 void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
