@@ -22,16 +22,9 @@ public:
     TrainableUnit(const TrainableUnit& trainableUnit) = delete;
     TrainableUnit(TrainableUnit&& trainableUnit) noexcept = default;
     TrainableUnit& operator=(const TrainableUnit& trainableUnit) = delete;
-    TrainableUnit& operator=(TrainableUnit&& trainableUnit) noexcept
-    {
-        m_trainableTensorMap = std::move(trainableUnit.m_trainableTensorMap);
-        m_optimizer = std::move(trainableUnit.m_optimizer);
-    }
+    TrainableUnit& operator=(TrainableUnit&& trainableUnit) noexcept;
 
-    bool operator==(const TrainableUnit& TrainableUnit) const
-    {
-        return m_trainableTensorMap == TrainableUnit.m_trainableTensorMap;
-    }
+    bool operator==(const TrainableUnit& trainableUnit) const;
 
 protected:
     std::vector<Tensor> m_trainableTensorMap;
