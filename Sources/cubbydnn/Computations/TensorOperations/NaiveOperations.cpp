@@ -105,8 +105,13 @@ void Native::Transpose(const Tensor& input, Tensor& output)
         Naive::TensorTranspose<int>(input, output);
 }
 
-void Native::Activation(const Tensor& input, Tensor& output,
-                        ActivationFunc & activation)
+void Native::ActivationForward(const Tensor& input, Tensor& output,
+                        std::unique_ptr<ActivationFunc> & activation)
+{
+}
+
+void Native::ActivationBackward(const Tensor& input, Tensor& output,
+                               std::unique_ptr<ActivationFunc>& activation)
 {
 }
 

@@ -9,39 +9,44 @@
 
 namespace CubbyDNN::Graph
 {
+static const int weightIdx = 0;
+static const int biasIdx = 1;
+
 DenseUnit::DenseUnit(UnitId unitId, NumberSystem numberSystem,
                      Tensor forwardInput,
                      std::vector<Tensor> backwardInputVector,
                      Tensor forwardOutput, Tensor backwardOutput,
-                     Tensor weight, Tensor bias, Tensor weightTranspose)
+                     std::vector<Tensor> trainableUnit,
+                     std::unique_ptr<Computation::Optimizer> optimizer,
+                     Tensor weightTranspose)
     : ComputableUnit(std::move(unitId), numberSystem,
                      { std::move(forwardInput) },
                      std::move(backwardInputVector), std::move(forwardOutput),
                      { std::move(backwardOutput) }),
-      m_kernel(std::move(weight)),
-      m_bias(std::move(bias)),
-      m_transposedKernel(std::move(weightTranspose))
+      TrainableUnit(std::move(trainableUnit), std::move(optimizer)),
+      m_transposedWeight(std::move(weightTranspose))
 {
 }
 
 DenseUnit::DenseUnit(DenseUnit&& denseUnit) noexcept
     : ComputableUnit(std::move(denseUnit)),
-      m_kernel(std::move(denseUnit.m_kernel)),
-      m_bias(std::move(denseUnit.m_bias)),
-      m_transposedKernel(std::move(denseUnit.m_transposedKernel))
+      TrainableUnit(std::move(denseUnit)),
+      m_transposedWeight(std::move(denseUnit.m_transposedWeight))
 {
 }
 
-DenseUnit& DenseUnit::operator=(DenseUnit&& dense) noexcept
+DenseUnit& DenseUnit::operator=(DenseUnit&& denseUnit) noexcept
 {
-    m_kernel = std::move(dense.m_kernel);
-    m_bias = std::move(dense.m_bias);
-    m_transposedKernel = std::move(dense.m_transposedKernel);
-    ComputableUnit::operator=(std::move(dense));
+    ComputableUnit::operator=(std::move(denseUnit));
+    TrainableUnit::operator=(std::move(denseUnit));
+    m_transposedWeight = std::move(denseUnit.m_transposedWeight);
+
     return *this;
 }
 
-DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData)
+DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
+                                std::unique_ptr<Computation::Optimizer>
+                                optimizer)
 {
     const auto unitId = unitMetaData.Id();
 
@@ -89,8 +94,10 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData)
     auto denseUnit = DenseUnit(
         unitId, unitMetaData.NumericType, std::move(forwardInputTensor),
         std::move(backwardInputVector), std::move(forwardOutputTensor),
-        std::move(backwardOutputTensor), std::move(weightTensor),
-        std::move(biasTensor), std::move(weightTransposeTensor));
+        std::move(backwardOutputTensor),
+        { std::move(weightTensor), std::move(biasTensor) },
+        std::move(optimizer),
+        std::move(weightTransposeTensor));
 
     return denseUnit;
 }
@@ -100,16 +107,20 @@ void DenseUnit::Forward()
 {
     Tensor& input = ForwardInputVector.at(0);
 
-    Compute::Native::Multiply(m_kernel, input, ForwardOutput);
-    Compute::Native::Add(ForwardOutput, m_bias, ForwardOutput);
+    Compute::Native::Multiply(m_trainableTensorMap.at(weightIdx), input,
+                              ForwardOutput);
+    Compute::Native::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
+                         ForwardOutput);
 }
 
 void DenseUnit::AsyncForward(std::promise<bool> promise)
 {
     Tensor& input = ForwardInputVector.at(0);
 
-    Compute::Native::Multiply(m_kernel, input, ForwardOutput);
-    Compute::Native::Add(ForwardOutput, m_bias, ForwardOutput);
+    Compute::Native::Multiply(m_trainableTensorMap.at(weightIdx), input,
+                              ForwardOutput);
+    Compute::Native::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
+                         ForwardOutput);
     promise.set_value(true);
 }
 
@@ -118,8 +129,9 @@ void DenseUnit::Backward()
 {
     Tensor& delta = BackwardInputVector.at(0);
 
-    Compute::Native::Transpose(m_kernel, m_transposedKernel);
-    Compute::Native::Multiply(m_transposedKernel, delta,
+    Compute::Native::Transpose(m_trainableTensorMap.at(weightIdx),
+                               m_transposedWeight);
+    Compute::Native::Multiply(m_transposedWeight, delta,
                               BackwardOutputVector.at(0));
 
     // TODO : Update kernel using gradient optimizer
@@ -129,8 +141,9 @@ void DenseUnit::AsyncBackward(std::promise<bool> promise)
 {
     Tensor& delta = BackwardInputVector.at(0);
 
-    Compute::Native::Transpose(m_kernel, m_transposedKernel);
-    Compute::Native::Multiply(m_transposedKernel, delta,
+    Compute::Native::Transpose(m_trainableTensorMap.at(weightIdx),
+                               m_transposedWeight);
+    Compute::Native::Multiply(m_transposedWeight, delta,
                               BackwardOutputVector.at(0));
 
     // TODO : Update kernel using gradient optimizer

@@ -5,8 +5,8 @@
 // property of any third parties.
 
 #ifdef WITH_BLAZE
-#ifndef CUBBYDNN_BLAZEOPS_HPP
-#define CUBBYDNN_BLAZEOPS_HPP
+#ifndef CUBBYDNN_BLAZE_HPP
+#define CUBBYDNN_BLAZE_HPP
 
 #include <blaze/math/CustomMatrix.h>
 #include <cubbydnn/Tensors/Tensor.hpp>
