@@ -5,6 +5,7 @@
 #include <CubbyDNN/Node/Dense.hpp>
 #include <CubbyDNN/Node/Input.hpp>
 #include <CubbyDNN/Node/Parameter.hpp>
+#include <CubbyDNN/Node/ReLU.hpp>
 
 #include <cassert>
 #include <sstream>
@@ -46,6 +47,16 @@ Initializer::InitializerWrapper GraphBuilder::InitConstant(float constant)
 {
     return Initializer::InitializerWrapper(
         graph->CreateInitializer<Initializer::Constant>(constant));
+}
+
+Node::NodeWrapper GraphBuilder::ReLU(Node::NodeWrapper logit, float alpha)
+{
+    Node::NodeWrapper node(graph->CreateNode<Node::ReLU>(
+        GetDefaultName<Node::ReLU>(graph), alpha));
+
+    node["logit"]->Attach(logit);
+
+    return node;
 }
 
 Node::NodeWrapper GraphBuilder::Dense(Node::NodeWrapper input,

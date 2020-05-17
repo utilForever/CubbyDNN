@@ -23,6 +23,8 @@ class GraphBuilder
     Node::NodeWrapper Parameter(const std::string& nodeName, const Shape& shape,
                                 Initializer::InitializerWrapper initializer);
 
+    Node::NodeWrapper ReLU(Node::NodeWrapper logit, float alpha = 0.0f);
+
     Node::NodeWrapper Dense(Node::NodeWrapper input, Node::NodeWrapper weight,
                             Node::NodeWrapper bias);
 
