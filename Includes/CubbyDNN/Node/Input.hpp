@@ -20,6 +20,12 @@ class Input : public Node
 
     const NodeType* Type() const override;
     static std::string_view TypeName();
+
+    void Feed(const Core::Shape& shape, Core::Span<float> span);
+
+ private:
+    Core::Shape m_inputShape;
+    Core::Span<float> m_inputSpan;
 };
 }  // namespace CubbyDNN::Node
 

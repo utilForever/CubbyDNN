@@ -16,4 +16,17 @@ std::string_view Input::TypeName()
 {
     return "Input";
 }
+
+void Input::Feed(const Core::Shape& shape, Core::Span<float> span)
+{
+    m_inputSpan = span;
+
+    const bool isDirtyShape = m_inputShape != shape;
+    if (isDirtyShape)
+    {
+        m_inputShape = shape;
+    }
+
+    MarkDirty(isDirtyShape);
+}
 }  // namespace CubbyDNN::Node
