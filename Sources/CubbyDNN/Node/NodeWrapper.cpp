@@ -16,4 +16,11 @@ NodeWrapper::operator Node*() const noexcept
 {
     return node;
 }
+
+NodeWrapper& NodeWrapper::EvalOutput()
+{
+    node->EvalOutput();
+
+    return *this;
+}
 }  // namespace CubbyDNN::Node
