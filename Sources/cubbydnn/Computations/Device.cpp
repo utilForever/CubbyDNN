@@ -22,4 +22,9 @@ bool Device::operator==(const Device& device) const
     return m_id == device.m_id && m_type == device.m_type &&
            m_name == device.m_name;
 }
+
+bool Device::operator!=(const Device& device) const
+{
+    return !(*this == device);
+}
 }

@@ -30,6 +30,7 @@ public:
     Device& operator=(Device&& device) noexcept = default;
 
     bool operator==(const Device& device) const;
+    bool operator!=(const Device& device) const;
 
     [[nodiscard]] DeviceType Type() const
     {

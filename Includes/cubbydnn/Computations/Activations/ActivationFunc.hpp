@@ -15,7 +15,6 @@ public:
     ActivationFunc() = default;
     virtual ~ActivationFunc() = default;
 
-
     ActivationFunc(const ActivationFunc& activationFunction) = default;
     ActivationFunc(ActivationFunc&& activationFunction) noexcept
     = default;
@@ -25,9 +24,21 @@ public:
         ActivationFunc&& activationFunction) noexcept = default
     ;
 
-    virtual void Forward() = 0;
+    virtual void Apply() = 0;
 
-    virtual void Derivative() = 0;
+    virtual void ApplyDerivative() = 0;
+};
+
+class ReLU : public ActivationFunc
+{
+public:
+    ReLU() = default;
+   virtual ~ReLU() = default;
+
+    void Apply() override;
+
+    void ApplyDerivative() override;
+
 };
 }
 

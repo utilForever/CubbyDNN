@@ -42,7 +42,7 @@ public:
         return m_unitId;
     }
 
-    //! Execute the Forward-propagating operation
+    //! Execute the Apply-propagating operation
     //! Throws runtime exception if unit is not ready to be executed
     //! This includes copying the result to input of next unit
     virtual void Forward() = 0;

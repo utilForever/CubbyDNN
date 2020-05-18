@@ -7,7 +7,6 @@
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <cubbydnn/Computations/TensorOperations/Naive.hpp>
 #include <cubbydnn/computations/TensorOperations/Blaze.hpp>
-#include <cubbydnn/Computations/Activations/ActivationFunc.hpp>
 
 namespace CubbyDNN::Compute
 {
@@ -16,16 +15,22 @@ void Multiply(const Tensor& inputA, const Tensor& inputB,
 {
     if (inputA.NumericType != inputB.NumericType ||
         inputA.NumericType != output.NumericType)
-        throw std::runtime_error("Number system mismatches between tensors");
+        throw std::runtime_error(
+            "Multiply - Number system mismatches between tensors");
 
-    if (inputA.Device.Type() != inputB.Device.Type() ||
-        inputB.Device.Type() != output.Device.Type())
-        throw std::runtime_error("Device Type mismatches between tensors");
+    if (inputA.Device != inputB.Device ||
+        inputB.Device != output.Device)
+        throw std::runtime_error(
+            "Multiply - Device Type mismatches between tensors");
 
     if (inputA.TensorShape.NumCols() != inputB.TensorShape.NumRows() ||
         inputA.TensorShape.NumRows() != output.TensorShape.NumRows() ||
         inputB.TensorShape.NumCols() != output.TensorShape.NumCols())
-        throw std::runtime_error("Tensor shape mismatch");
+        throw std::runtime_error("Multiply - Tensor shape mismatch");
+
+    if (inputA.TensorShape.BatchSize() != inputB.TensorShape.BatchSize() ||
+        inputB.TensorShape.BatchSize() != output.TensorShape.BatchSize())
+        throw std::runtime_error("Multiply - batch size mismatch");
 
     const auto numberSystem = inputA.NumericType;
     const auto deviceType = inputA.Device;
@@ -55,15 +60,20 @@ void Add(const Tensor& inputA, const Tensor& inputB,
 {
     if (inputA.NumericType != inputB.NumericType ||
         inputA.NumericType != output.NumericType)
-        throw std::runtime_error("Number system mismatches between tensors");
+        throw std::runtime_error(
+            "Add - Number system mismatches between tensors");
 
-    if (inputA.Device.Type() != inputB.Device.Type() ||
-        inputB.Device.Type() != output.Device.Type())
-        throw std::runtime_error("Device Type mismatches between tensors");
+    if (inputA.Device != inputB.Device ||
+        inputB.Device != output.Device)
+        throw std::runtime_error("Add - Device mismatch");
 
     if (inputA.TensorShape != inputB.TensorShape ||
         inputB.TensorShape != output.TensorShape)
-        throw std::runtime_error("Tensor shape mismatch");
+        throw std::runtime_error("Add - Tensor shape mismatch");
+
+    if (inputA.TensorShape.BatchSize() != inputB.TensorShape.BatchSize() ||
+        inputB.TensorShape.BatchSize() != output.TensorShape.BatchSize())
+        throw std::runtime_error("Add - Batch size mismatch");
 
     const auto numberSystem = inputA.NumericType;
     const auto deviceType = inputA.Device;
@@ -91,18 +101,65 @@ void Add(const Tensor& inputA, const Tensor& inputB,
 void Transpose(const Tensor& input, Tensor& output)
 {
     if (input.NumericType != output.NumericType)
-        throw std::runtime_error("Number system mismatch");
+        throw std::runtime_error("Transpose - Number system mismatch");
     auto transposedInputShape = input.TensorShape;
     transposedInputShape.Transpose();
 
+    if (input.Device != output.Device)
+        throw std::runtime_error("Transpose - Device mismatch");
+
     if (transposedInputShape != output.TensorShape)
-        throw std::runtime_error("Tensor shape mismatch");
+        throw std::runtime_error("Transpose - Tensor shape mismatch");
+
+    if (input.TensorShape.BatchSize() != output.TensorShape.BatchSize())
+        throw std::runtime_error("Transpose - Batch size mismatch");
 
     const auto numberSystem = input.NumericType;
     if (numberSystem == NumberSystem::Float)
         Naive::TensorTranspose<float>(input, output);
     else
         Naive::TensorTranspose<int>(input, output);
+}
+
+void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+{
+    if (inputA.NumericType != inputB.NumericType ||
+        inputA.NumericType != output.NumericType)
+        throw std::runtime_error(
+            "Dot - Number system mismatches between tensors");
+
+    if (inputA.Device != inputB.Device || inputB.Device != output.Device)
+        throw std::runtime_error("Dot - Device mismatch");
+
+    if (inputA.TensorShape != inputB.TensorShape ||
+        inputB.TensorShape != output.TensorShape)
+        throw std::runtime_error("Dot - Tensor shape mismatch");
+
+    if (inputA.TensorShape.BatchSize() != inputB.TensorShape.BatchSize() ||
+        inputB.TensorShape.BatchSize() != output.TensorShape.BatchSize())
+        throw std::runtime_error("Dot - Batch size mismatch");
+
+    const auto numberSystem = inputA.NumericType;
+    const auto deviceType = inputA.Device;
+
+    if (numberSystem == NumberSystem::Float)
+    {
+        if (deviceType.Type() == DeviceType::Cpu)
+            Naive::TensorDot<float>(inputA, inputB, output);
+        else if (deviceType.Type() == DeviceType::Blaze)
+            throw std::runtime_error("Not implemented");
+        else
+            throw std::runtime_error("Not implemented");
+    }
+    else
+    {
+        if (deviceType.Type() == DeviceType::Cpu)
+            Naive::TensorDot<int>(inputA, inputB, output);
+        else if (deviceType.Type() == DeviceType::Blaze)
+            throw std::runtime_error("Not implemented");
+        else
+            throw std::runtime_error("Not implemented");
+    }
 }
 
 // void ActivationForward(const Tensor& input, Tensor& output,

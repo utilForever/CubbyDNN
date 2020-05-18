@@ -33,12 +33,12 @@ void UnitManager::AppendUnit(const UnitMetaData& unitMetaData,
     {
         m_unitMap[unitId.Id] =
             std::make_unique<DenseUnit>(
-                DenseUnit::CreateUnit(*unitMetaData, type...));
+                DenseUnit::CreateUnit(unitMetaData, type...));
     }
     if (unitId.Type.Name() == "Activation")
     {
         m_unitMap[unitId.Id] = std::make_unique<ActivationUnit>(
-            ActivationUnit::CreateUnit(*unitMetaData, type...));
+            ActivationUnit::CreateUnit(unitMetaData, type...));
     }
     m_unitMetaDataMap[unitId.Id] = std::make_unique<UnitMetaData>(unitMetaData);
 }
