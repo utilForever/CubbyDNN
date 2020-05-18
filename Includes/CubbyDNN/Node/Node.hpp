@@ -28,6 +28,7 @@ class Node
     static std::string_view TypeName();
 
     const Core::Shape& Shape() const noexcept;
+    Core::Span<float> Output() const noexcept;
     Core::Span<float> Gradient() const noexcept;
 
     bool HasRevDeps(const Node* revDep) const;

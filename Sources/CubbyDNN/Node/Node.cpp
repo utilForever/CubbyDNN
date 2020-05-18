@@ -34,6 +34,11 @@ const Core::Shape& Node::Shape() const noexcept
     return m_shape;
 }
 
+Core::Span<float> Node::Output() const noexcept
+{
+    return m_output.GetSpan();
+}
+
 Core::Span<float> Node::Gradient() const noexcept
 {
     return m_gradient.GetSpan();

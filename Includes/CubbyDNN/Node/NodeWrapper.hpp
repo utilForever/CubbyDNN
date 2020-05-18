@@ -13,6 +13,8 @@ class NodeWrapper
     NodeInput* operator[](const std::string& inputName) const;
     operator Node*() const noexcept;
 
+    Core::Span<float> Output() const noexcept;
+
     NodeWrapper& EvalOutput();
 
     Node* const node;

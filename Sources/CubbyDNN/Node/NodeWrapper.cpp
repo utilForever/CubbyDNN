@@ -17,6 +17,11 @@ NodeWrapper::operator Node*() const noexcept
     return node;
 }
 
+Core::Span<float> NodeWrapper::Output() const noexcept
+{
+    return node->Output();
+}
+
 NodeWrapper& NodeWrapper::EvalOutput()
 {
     node->EvalOutput();
