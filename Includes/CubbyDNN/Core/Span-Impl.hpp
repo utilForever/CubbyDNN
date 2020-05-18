@@ -7,10 +7,37 @@
 namespace CubbyDNN::Core
 {
 template <typename T>
+Span<T>::Span() noexcept : m_base(nullptr), m_length(0)
+{
+    // Do nothing
+}
+
+template <typename T>
 Span<T>::Span(T* base, std::size_t length) noexcept
     : m_base(base), m_length(length)
 {
     // Do nothing
+}
+
+template <typename T>
+template <typename Iter>
+Span<T>::Span(Iter begin, Iter end) noexcept
+    : m_base(&*begin),
+      m_length(static_cast<std::size_t>(std::distance(begin, end)))
+{
+    // Do nothing
+}
+
+template <typename T>
+T& Span<T>::operator[](std::size_t index)
+{
+    return m_base[index];
+}
+
+template <typename T>
+const T& Span<T>::operator[](std::size_t index) const
+{
+    return m_base[index];
 }
 
 template <class T>

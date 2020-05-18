@@ -9,7 +9,13 @@ template <typename T>
 class Span
 {
  public:
+    Span() noexcept;
     Span(T* base, std::size_t length) noexcept;
+    template <class Iter>
+    Span(Iter begin, Iter end) noexcept;
+
+	T& operator[](std::size_t index);
+    const T& operator[](std::size_t index) const;
 
     T* begin() noexcept;
     const T* begin() const noexcept;
