@@ -19,6 +19,9 @@ class Graph
 
     GraphBuilder& Builder() noexcept;
 
+    void Feed(const std::vector<std::tuple<std::string, Shape, Span<float>>>&
+                  feedDataList) const;
+
     std::size_t NodeCount(const Node::NodeType* nodeType) const;
 
     Node::Node* Node(const std::string& nodeName) const;

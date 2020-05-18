@@ -1,4 +1,5 @@
 #include <CubbyDNN/Core/Graph.hpp>
+#include <CubbyDNN/Node/Input.hpp>
 
 namespace CubbyDNN::Core
 {
@@ -10,6 +11,16 @@ Graph::Graph() : m_graphBuilder(this)
 GraphBuilder& Graph::Builder() noexcept
 {
     return m_graphBuilder;
+}
+
+void Graph::Feed(const std::vector<std::tuple<std::string, Shape, Span<float>>>&
+                     feedDataList) const
+{
+    for (const auto& feedData : feedDataList)
+    {
+        Node<Node::Input>(std::get<0>(feedData))
+            ->Feed(std::get<1>(feedData), std::get<2>(feedData));
+    }
 }
 
 std::size_t Graph::NodeCount(const Node::NodeType* nodeType) const
