@@ -6,7 +6,7 @@
 
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <cubbydnn/Computations/TensorOperations/Naive.hpp>
-#include <cubbydnn/computations/TensorOperations/Blaze.hpp>
+#include <cubbydnn/Computations/TensorOperations/Blaze.hpp>
 
 namespace CubbyDNN::Compute
 {
@@ -115,10 +115,26 @@ void Transpose(const Tensor& input, Tensor& output)
         throw std::runtime_error("Transpose - Batch size mismatch");
 
     const auto numberSystem = input.NumericType;
+    const auto device = input.Device;
+
     if (numberSystem == NumberSystem::Float)
-        Naive::TensorTranspose<float>(input, output);
+    {
+        if (device.Type() == DeviceType::Cpu)
+            Naive::TensorTranspose<float>(input, output);
+        else if (device.Type() == DeviceType::Blaze)
+            Blaze::TensorTranspose<float>(input, output);
+        else
+            throw std::runtime_error("Not implemented");
+    }
     else
-        Naive::TensorTranspose<int>(input, output);
+    {
+        if (device.Type() == DeviceType::Cpu)
+            Naive::TensorTranspose<int>(input, output);
+        else if (device.Type() == DeviceType::Blaze)
+            Blaze::TensorTranspose<int>(input, output);
+        else
+            throw std::runtime_error("Not implemented");
+    }
 }
 
 void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
@@ -140,23 +156,19 @@ void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
         throw std::runtime_error("Dot - Batch size mismatch");
 
     const auto numberSystem = inputA.NumericType;
-    const auto deviceType = inputA.Device;
+    const auto device = inputA.Device;
 
     if (numberSystem == NumberSystem::Float)
     {
-        if (deviceType.Type() == DeviceType::Cpu)
+        if (device.Type() == DeviceType::Cpu)
             Naive::TensorDot<float>(inputA, inputB, output);
-        else if (deviceType.Type() == DeviceType::Blaze)
-            throw std::runtime_error("Not implemented");
         else
             throw std::runtime_error("Not implemented");
     }
     else
     {
-        if (deviceType.Type() == DeviceType::Cpu)
+        if (device.Type() == DeviceType::Cpu)
             Naive::TensorDot<int>(inputA, inputB, output);
-        else if (deviceType.Type() == DeviceType::Blaze)
-            throw std::runtime_error("Not implemented");
         else
             throw std::runtime_error("Not implemented");
     }

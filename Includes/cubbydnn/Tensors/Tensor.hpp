@@ -43,7 +43,6 @@ public:
     Shape TensorShape;
     NumberSystem NumericType = NumberSystem::Float;
     Compute::Device Device;
-    std::size_t PadSize = 0;
     std::atomic<std::size_t> ForwardStateNum = 0;
     std::atomic<std::size_t> BackwardStateNum = 0;
 };

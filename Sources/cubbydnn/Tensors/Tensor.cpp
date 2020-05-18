@@ -91,9 +91,9 @@ void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
     const auto numRows = sourceShape.NumRows();
     const auto numCols = sourceShape.NumCols();
     const auto sourceColSize =
-        source.PadSize > 0 ? source.PadSize : sourceShape.NumCols();
+        source.Device.PadSize() > 0 ? source.Device.PadSize() : sourceShape.NumCols();
     const auto destColSize =
-        destination.PadSize > 0 ? destination.PadSize : destShape.NumCols();
+        destination.Device.PadSize() > 0 ? destination.Device.PadSize() : destShape.NumCols();
     const NumberSystem numericType = source.NumericType;
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
