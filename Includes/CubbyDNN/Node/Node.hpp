@@ -35,6 +35,7 @@ class Node
     Node& MarkDirty(bool dirtyShape = true);
 
     Node& EvalShape();
+    Node& EvalOutput();
     Node& EvalGradient(const Node* dy);
 
     Core::Graph* const graph;
@@ -42,6 +43,7 @@ class Node
 
  protected:
     Core::Shape m_shape;
+    Core::Memory<float> m_output;
     Core::Memory<float> m_gradient;
     std::vector<NodeInput*> m_revNodeInputList;
     std::unordered_set<Node*> m_deps;

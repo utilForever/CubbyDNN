@@ -78,6 +78,21 @@ Node& Node::EvalShape()
     return *this;
 }
 
+Node& Node::EvalOutput()
+{
+    if (!m_isOutputDirty)
+    {
+        return *this;
+    }
+
+    m_output.Resize(EvalShape().m_shape.Size());
+
+    // TODO: Call EvaluateOutput()
+    m_isOutputDirty = false;
+
+    return *this;
+}
+
 Node& Node::EvalGradient(const Node* dy)
 {
     if (m_gradientDirty == dy)
