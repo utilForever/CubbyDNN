@@ -43,32 +43,26 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData,
                                           std::unique_ptr<Compute::
                                               ActivationFunc> activationFunc)
 {
-    auto forwardInputTensor = Tensor::CreateTensor(
-        unitMetaData.InputShapeVector().at(0), unitMetaData.NumericType,
-        unitMetaData.Device);
+    Tensor forwardInputTensor(unitMetaData.InputShapeVector().at(0),
+                              unitMetaData.Device, unitMetaData.NumericType);
 
     std::vector<Tensor> backwardInputVector;
     backwardInputVector.reserve(unitMetaData.OutputUnitVector().size());
     for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
     {
-        auto tensor =
-            Tensor::CreateTensor(unitMetaData.OutputShape(),
-                                 unitMetaData.NumericType, unitMetaData.Device);
+        Tensor tensor(unitMetaData.OutputShape(),
+                      unitMetaData.Device, unitMetaData.NumericType);
         backwardInputVector.emplace_back(std::move(tensor));
     }
 
-    auto forwardOutputTensor = Tensor::CreateTensor(
-        unitMetaData.OutputShape(), unitMetaData.NumericType,
-        unitMetaData.Device);
+    Tensor forwardOutputTensor(unitMetaData.OutputShape(),
+                               unitMetaData.Device, unitMetaData.NumericType);
 
-    auto backwardOutputTensor = Tensor::CreateTensor(
-        unitMetaData.InputShapeVector().at(0), unitMetaData.NumericType,
-        unitMetaData.Device);
+    Tensor backwardOutputTensor(unitMetaData.InputShapeVector().at(0),
+                                unitMetaData.Device, unitMetaData.NumericType);
 
-    auto backwardTempTensor =
-        Tensor::CreateTensor(unitMetaData.OutputShape(),
-                             unitMetaData.NumericType,
-                             unitMetaData.Device);
+    Tensor backwardTempTensor(unitMetaData.OutputShape(),
+                              unitMetaData.Device, unitMetaData.NumericType);
 
     auto activationUnit = ActivationUnit(unitMetaData.Id(),
                                          unitMetaData.NumericType,

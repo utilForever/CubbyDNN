@@ -47,6 +47,12 @@ std::size_t& Shape::operator[](std::size_t index)
     return m_shapeVector.at(index);
 }
 
+std::size_t Shape::At(std::size_t index) const
+{
+    return m_shapeVector.at(index);
+}
+
+
 
 Shape Shape::operator*(const Shape& shape) const
 {
@@ -133,21 +139,6 @@ Shape& Shape::Reshape(std::initializer_list<std::size_t> newShape)
     return *this;
 }
 
-std::size_t Shape::Offset(std::vector<std::size_t> index) const noexcept
-{
-    std::size_t shapeIdx = 0;
-    std::size_t idx = 0;
-    std::size_t multiplier = 1;
-    std::size_t offset = 0;
-    for (; shapeIdx != m_shapeVector.size() && idx != index.size();
-           ++shapeIdx, ++idx)
-    {
-        offset += multiplier * index.at(idx);
-        multiplier *= m_shapeVector.at(shapeIdx);
-    }
-
-    return offset;
-}
 
 std::size_t Shape::BatchSize() const
 {

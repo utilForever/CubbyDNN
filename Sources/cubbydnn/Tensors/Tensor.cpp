@@ -10,14 +10,27 @@
 
 namespace CubbyDNN
 {
-Tensor::Tensor(void* Data, Shape shape, NumberSystem numberSystem,
-               Compute::Device device)
-    : DataPtr(Data),
-      TensorShape(std::move(shape)),
+Tensor::Tensor(Shape shape, Compute::Device device, NumberSystem numberSystem)
+    : TensorShape(std::move(shape)),
       NumericType(numberSystem),
       Device(std::move(device))
 {
-    Data = nullptr;
+    paddedColumnSize = m_getPaddedColumnSize();
+    const auto totalSize = (TensorShape.Size() / TensorShape.NumCols()) *
+                           paddedColumnSize;
+
+    if (NumericType == NumberSystem::Float)
+    {
+        DataPtr = static_cast<void*>(new float[totalSize]);
+        for (std::size_t i = 0; i < totalSize; ++i)
+            *(static_cast<float*>(DataPtr) + i) = 0;
+    }
+    else if (NumericType == NumberSystem::Int)
+    {
+        DataPtr = static_cast<void*>(new int[totalSize]);
+        for (std::size_t i = 0; i < totalSize; ++i)
+            *(static_cast<float*>(DataPtr) + i) = 0;
+    }
 }
 
 Tensor::~Tensor()
@@ -54,30 +67,6 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     return *this;
 }
 
-Tensor Tensor::CreateTensor(const Shape& shape, NumberSystem numberSystem,
-                            const Compute::Device& device)
-{
-    void* dataPtr = nullptr;
-    const auto totalSize =
-        device.PadSize() > 0
-            ? shape.BatchSize() * shape.NumRows() * device.PadSize()
-            : shape.Size();
-    if (numberSystem == NumberSystem::Float)
-    {
-        dataPtr = static_cast<void*>(new float[static_cast<int>(shape.Size())]);
-        for (int i = 0; i < static_cast<int>(totalSize); ++i)
-            static_cast<float*>(dataPtr)[i] = 0.0f;
-    }
-    else if (numberSystem == NumberSystem::Int)
-    {
-        dataPtr = static_cast<void*>(new int[shape.Size()]);
-        for (int i = 0; i < static_cast<int>(totalSize); ++i)
-            static_cast<int*>(dataPtr)[i] = static_cast<int>(0);
-    }
-
-    return Tensor(dataPtr, shape, numberSystem, device);
-}
-
 void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
 {
     if (source.TensorShape != destination.TensorShape)
@@ -91,9 +80,13 @@ void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
     const auto numRows = sourceShape.NumRows();
     const auto numCols = sourceShape.NumCols();
     const auto sourceColSize =
-        source.Device.PadSize() > 0 ? source.Device.PadSize() : sourceShape.NumCols();
+        source.Device.PadSize() > 0
+            ? source.Device.PadSize()
+            : sourceShape.NumCols();
     const auto destColSize =
-        destination.Device.PadSize() > 0 ? destination.Device.PadSize() : destShape.NumCols();
+        destination.Device.PadSize() > 0
+            ? destination.Device.PadSize()
+            : destShape.NumCols();
     const NumberSystem numericType = source.NumericType;
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)

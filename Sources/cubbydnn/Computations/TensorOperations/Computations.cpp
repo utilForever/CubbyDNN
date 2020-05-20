@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
-#include <cubbydnn/Computations/TensorOperations/Naive.hpp>
+#include <cubbydnn/Computations/TensorOperations/Native.hpp>
 #include <cubbydnn/Computations/TensorOperations/Blaze.hpp>
 
 namespace CubbyDNN::Compute
@@ -38,7 +38,7 @@ void Multiply(const Tensor& inputA, const Tensor& inputB,
     if (numberSystem == NumberSystem::Float)
     {
         if (deviceType.Type() == DeviceType::Cpu)
-            Naive::TensorMul<float>(inputA, inputB, output);
+            Native::TensorMul<float>(inputA, inputB, output);
         else if (deviceType.Type() == DeviceType::Blaze)
             Blaze::TensorMul<float>(inputA, inputB, output);
         else
@@ -47,7 +47,7 @@ void Multiply(const Tensor& inputA, const Tensor& inputB,
     else
     {
         if (deviceType.Type() == DeviceType::Cpu)
-            Naive::TensorMul<int>(inputA, inputB, output);
+            Native::TensorMul<int>(inputA, inputB, output);
         else if (deviceType.Type() == DeviceType::Blaze)
             Blaze::TensorMul<int>(inputA, inputB, output);
         else
@@ -81,7 +81,7 @@ void Add(const Tensor& inputA, const Tensor& inputB,
     if (numberSystem == NumberSystem::Float)
     {
         if (deviceType.Type() == DeviceType::Cpu)
-            Naive::TensorAdd<float>(inputA, inputB, output);
+            Native::TensorAdd<float>(inputA, inputB, output);
         else if (deviceType.Type() == DeviceType::Blaze)
             Blaze::TensorAdd<float>(inputA, inputB, output);
         else
@@ -90,7 +90,7 @@ void Add(const Tensor& inputA, const Tensor& inputB,
     else
     {
         if (deviceType.Type() == DeviceType::Cpu)
-            Naive::TensorAdd<int>(inputA, inputB, output);
+            Native::TensorAdd<int>(inputA, inputB, output);
         else if (deviceType.Type() == DeviceType::Blaze)
             Blaze::TensorAdd<int>(inputA, inputB, output);
         else
@@ -120,7 +120,7 @@ void Transpose(const Tensor& input, Tensor& output)
     if (numberSystem == NumberSystem::Float)
     {
         if (device.Type() == DeviceType::Cpu)
-            Naive::TensorTranspose<float>(input, output);
+            Native::TensorTranspose<float>(input, output);
         else if (device.Type() == DeviceType::Blaze)
             Blaze::TensorTranspose<float>(input, output);
         else
@@ -129,7 +129,7 @@ void Transpose(const Tensor& input, Tensor& output)
     else
     {
         if (device.Type() == DeviceType::Cpu)
-            Naive::TensorTranspose<int>(input, output);
+            Native::TensorTranspose<int>(input, output);
         else if (device.Type() == DeviceType::Blaze)
             Blaze::TensorTranspose<int>(input, output);
         else
@@ -161,14 +161,14 @@ void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
     if (numberSystem == NumberSystem::Float)
     {
         if (device.Type() == DeviceType::Cpu)
-            Naive::TensorDot<float>(inputA, inputB, output);
+            Native::TensorDot<float>(inputA, inputB, output);
         else
             throw std::runtime_error("Not implemented");
     }
     else
     {
         if (device.Type() == DeviceType::Cpu)
-            Naive::TensorDot<int>(inputA, inputB, output);
+            Native::TensorDot<int>(inputA, inputB, output);
         else
             throw std::runtime_error("Not implemented");
     }

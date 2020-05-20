@@ -10,6 +10,12 @@
 namespace CubbyDNN
 {
 void TestMatMul();
+
+void TestMatMul2();
+
+void TestMatAdd();
+
+void TestMatDot();
 }
 
 #endif

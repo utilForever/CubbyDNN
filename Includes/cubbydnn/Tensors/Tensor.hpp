@@ -18,8 +18,9 @@ namespace CubbyDNN
 class Tensor
 {
 public:
-    Tensor(void* Data, Shape shape, NumberSystem numberSystem,
-           Compute::Device device);
+    Tensor(Shape shape, Compute::Device device,
+           NumberSystem numberSystem = NumberSystem::Float);
+
     ~Tensor();
 
     Tensor(const Tensor& tensor);
@@ -28,15 +29,28 @@ public:
     Tensor& operator=(const Tensor& tensor) = delete;
     Tensor& operator=(Tensor&& tensor) noexcept;
 
-    //! Builds empty Tensor so data can be put potentially
-    //! \param shape : shape of tensor to allocate
-    //! \param numberSystem : number system of the tensor
-    //! \param device : type of device to allocate the Tensor
-    //! \return : Tensor that has been allocated
-    static Tensor CreateTensor(const Shape& shape, NumberSystem numberSystem,
-                               const Compute::Device& device);
+    template <typename T>
+    T& At(std::vector<std::size_t> index)
+    {
+        std::size_t shapeIdx = 0;
+        std::size_t idx = 0;
+        std::size_t multiplier = 1;
+        std::size_t offset = 0;
+        for (; shapeIdx != TensorShape.Dim() && idx != index.size();
+               ++shapeIdx, ++idx)
+        {
+            offset += multiplier * index.at(idx);
+            if (idx == 0 && Device.PadSize() > 0)
+                multiplier = paddedColumnSize;
+            else
+                multiplier *= TensorShape.At(idx);
+        }
+
+        return *(static_cast<T*>(DataPtr) + offset);
+    }
 
     static void CopyTensor(const Tensor& source, Tensor& destination);
+
     /// Data vector which possesses actual data
     void* DataPtr = nullptr;
     /// Shape of this tensorData
@@ -45,33 +59,22 @@ public:
     Compute::Device Device;
     std::atomic<std::size_t> ForwardStateNum = 0;
     std::atomic<std::size_t> BackwardStateNum = 0;
+
+private:
+    std::size_t paddedColumnSize = 0;
+
+    std::size_t m_getPaddedColumnSize() const
+    {
+        if (Device.PadSize() == 0)
+            return TensorShape.NumCols();
+
+        std::size_t i = 0;
+        while (Device.PadSize() * i < TensorShape.NumCols())
+            ++i;
+
+        return Device.PadSize() * i;
+    }
 };
-
-//! Used only for testing
-template <typename T>
-void SetData(std::initializer_list<std::size_t> index, Tensor& tensor, T value)
-{
-    const auto offset = tensor.TensorShape.Offset(index);
-    *(static_cast<T*>(tensor.DataPtr) + offset) = value;
-}
-
-//! Used only for testing
-template <typename T>
-void SetData(std::initializer_list<std::size_t> index, const Shape& shape,
-             void* dataPtr,
-             T data)
-{
-    std::size_t offset = shape.Offset(index);
-    *(static_cast<T*>(dataPtr) + offset) = data;
-}
-
-//! Used only for testing
-template <typename T>
-T GetData(std::initializer_list<std::size_t> index, const Tensor& tensor)
-{
-    const auto offset = tensor.TensorShape.Offset(index);
-    return *(static_cast<T*>(tensor.DataPtr) + offset);
-}
 } // namespace CubbyDNN
 
 #endif  // CUBBYDNN_TENSOR_DATA_HPP

@@ -79,8 +79,8 @@ public:
         const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
         const auto matrixSizeOut = outputShape.NumRows() * colDataSizeOutput;
 
-        const T* inputPtrA = static_cast<T*>(inputA.DataPtr);
-        const T* inputPtrB = static_cast<T*>(inputB.DataPtr);
+        T* inputPtrA = static_cast<T*>(inputA.DataPtr);
+        T* inputPtrB = static_cast<T*>(inputB.DataPtr);
         T* outputPtr = static_cast<T*>(output.DataPtr);
 
         if constexpr (IsAligned)
@@ -166,8 +166,8 @@ public:
         const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
         const auto matrixSizeOut = outputShape.NumRows() * colDataSizeOutput;
 
-        const T* inputPtrA = static_cast<T*>(inputA.DataPtr);
-        const T* inputPtrB = static_cast<T*>(inputB.DataPtr);
+        T* inputPtrA = static_cast<T*>(inputA.DataPtr);
+        T* inputPtrB = static_cast<T*>(inputB.DataPtr);
         T* outputPtr = static_cast<T*>(output.DataPtr);
 
         if constexpr (IsAligned)
@@ -243,7 +243,7 @@ public:
         const auto matrixSizeOutput = outputShape.NumRows() * colDataSizeOutput;
         const auto batchSize = inputShape.BatchSize();
 
-        const T* inputPtr = static_cast<T*>(input.DataPtr);
+        T* inputPtr = static_cast<T*>(input.DataPtr);
         T* outputPtr = static_cast<T*>(output.DataPtr);
 
         if (IsAligned)

@@ -12,7 +12,7 @@
 
 namespace CubbyDNN::Compute
 {
-class Naive
+class Native
 {
 public:
     template <typename T>
@@ -47,9 +47,9 @@ public:
         const auto batchSize = inputShapeA.BatchSize();
         const auto matrixSize = numRows * numCols;
 
-        const T* inputPtrA = inputA.DataPtr;
-        const T* inputPtrB = inputB.DataPtr;
-        T* outputPtr = output.DataPtr;
+        const T* inputPtrA = static_cast<T*>(inputA.DataPtr);
+        const T* inputPtrB = static_cast<T*>(inputB.DataPtr);
+        T* outputPtr = static_cast<T*>(output.DataPtr);
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t i = 0; i < numRows; ++i)
@@ -72,8 +72,8 @@ public:
         const auto batchSize = tensorShape.BatchSize();
         const auto matrixSize = numRows * numCols;
 
-        T* tensorPtr = tensor.DataPtr;
-        const T* addPtr = toAdd.DataPtr;
+        T* tensorPtr = static_cast<T*>(tensor.DataPtr);
+        const T* addPtr = static_cast<T*>(toAdd.DataPtr);
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t i = 0; i < numRows; ++i)
@@ -92,12 +92,11 @@ public:
         const auto inputShapeB = inputB.TensorShape;
         const auto outputShape = output.TensorShape;
 
-        const auto batchSizeA = inputShapeA.BatchSize();
-        const auto batchSizeB = inputShapeB.BatchSize();
-        const auto batchOutputSize = outputShape.BatchSize();
-
-        if (batchSizeA != batchSizeB || batchSizeA != batchOutputSize)
-            throw std::runtime_error("TensorMul - batch size mismatch");
+        const auto batchSize = inputShapeA.BatchSize();
+        const auto matrixSizeA = inputShapeA.NumRows() * inputShapeA.NumCols();
+        const auto matrixSizeB = inputShapeB.NumRows() * inputShapeB.NumCols();
+        const auto matrixSizeOutput =
+            outputShape.NumRows() * outputShape.NumCols();
 
         const auto numRowsA = inputShapeA.NumRows();
         const auto numColsA = inputShapeA.NumCols();
@@ -110,29 +109,36 @@ public:
         T* outputPtr = static_cast<T*>(output.DataPtr);
 
         //! cache friendly matrix multiplication minimizing cache misses
-        for (std::size_t ii = 0; ii < numRowsA; ii += blockSize)
-            for (std::size_t jj = 0; jj < numColsB; jj += blockSize)
-                for (std::size_t kk = 0; kk < numRowsB; kk += blockSize)
-                {
-                    std::size_t i_lim = ii + blockSize;
-                    if (i_lim > numRowsA)
-                        i_lim = numRowsA;
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            for (std::size_t ii = 0; ii < numRowsA; ii += blockSize)
+                for (std::size_t jj = 0; jj < numColsB; jj += blockSize)
+                    for (std::size_t kk = 0; kk < numRowsB; kk += blockSize)
+                    {
+                        std::size_t i_lim = ii + blockSize;
+                        if (i_lim > numRowsA)
+                            i_lim = numRowsA;
 
-                    std::size_t j_lim = jj + blockSize;
-                    if (j_lim > numColsB)
-                        j_lim = numColsB;
+                        std::size_t j_lim = jj + blockSize;
+                        if (j_lim > numColsB)
+                            j_lim = numColsB;
 
-                    std::size_t k_lim = kk + blockSize;
-                    if (k_lim > numRowsB)
-                        k_lim = numRowsB;
+                        std::size_t k_lim = kk + blockSize;
+                        if (k_lim > numRowsB)
+                            k_lim = numRowsB;
 
-                    for (std::size_t i = ii; i < i_lim; i++)
-                        for (std::size_t j = jj; j < j_lim; j++)
-                            for (std::size_t k = kk; k < k_lim; k++)
-                                outputPtr[i * numColsB + j] +=
-                                    inputAPtr[i * numColsA + k] *
-                                    inputBPtr[k * numColsB + j];
-                }
+                        for (std::size_t i = ii; i < i_lim; i++)
+                            for (std::size_t j = jj; j < j_lim; j++)
+                                for (std::size_t k = kk; k < k_lim; k++)
+                                    outputPtr[
+                                            batchIdx * matrixSizeOutput + i *
+                                            numColsB + j] +=
+                                        inputAPtr[
+                                            batchIdx * matrixSizeA + i *
+                                            numColsA + k] *
+                                        inputBPtr[
+                                            batchIdx * matrixSizeB + k *
+                                            numColsB + j];
+                    }
     }
 
     template <typename T, std::size_t blockSize = 32>
@@ -173,7 +179,8 @@ public:
     }
 
     template <typename T>
-    static void TensorDot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+    static void TensorDot(const Tensor& inputA, const Tensor& inputB,
+                          Tensor& output)
     {
         const auto shape = inputA.TensorShape;
 
@@ -183,9 +190,9 @@ public:
         const auto matrixSize = numRows * numCols;
         const auto batchSize = shape.BatchSize();
 
-        const T* inputPtrA = inputA.DataPtr;
-        const T* inputPtrB = inputB.DataPtr;
-        T* outputPtr = output.DataPtr;
+        const T* inputPtrA = static_cast<T*>(inputA.DataPtr);
+        const T* inputPtrB = static_cast<T*>(inputB.DataPtr);
+        T* outputPtr = static_cast<T*>(output.DataPtr);
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t i = 0; i < numRows; ++i)

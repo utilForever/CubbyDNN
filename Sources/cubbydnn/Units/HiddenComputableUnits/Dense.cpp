@@ -50,47 +50,41 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
 {
     const auto unitId = unitMetaData.Id();
 
-    auto forwardInputTensor =
-        Tensor::CreateTensor(unitMetaData.InputShapeVector().at(0),
-                             unitMetaData.NumericType, unitMetaData.Device);
+    Tensor forwardInputTensor(unitMetaData.InputShapeVector().at(0),
+                              unitMetaData.Device,
+                              unitMetaData.NumericType);
 
     std::vector<Tensor> backwardInputVector;
     backwardInputVector.reserve(unitMetaData.OutputUnitVector().size());
     for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
     {
-        auto tensor = Tensor::CreateTensor(unitMetaData.OutputShape(),
-                                           unitMetaData.NumericType,
-                                           unitMetaData.Device);
+        Tensor tensor(unitMetaData.OutputShape(),
+                      unitMetaData.Device, unitMetaData.NumericType);
         backwardInputVector.emplace_back(std::move(tensor));
     }
 
-    auto forwardOutputTensor =
-        Tensor::CreateTensor(unitMetaData.OutputShape(),
-                             unitMetaData.NumericType, unitMetaData.Device);
+    Tensor forwardOutputTensor(unitMetaData.OutputShape(),
+                               unitMetaData.Device, unitMetaData.NumericType);
 
-    auto backwardOutputTensor =
-        Tensor::CreateTensor(unitMetaData.InputShapeVector().at(0),
-                             unitMetaData.NumericType, unitMetaData.Device);
+    Tensor backwardOutputTensor(unitMetaData.InputShapeVector().at(0),
+                                unitMetaData.Device, unitMetaData.NumericType);
 
     auto weightShape = unitMetaData.InternalVariableShapeVector().at(weightIdx);
     auto biasShape = unitMetaData.InternalVariableShapeVector().at(biasIdx);
 
-    auto weightTensor =
-        Tensor::CreateTensor(weightShape, unitMetaData.NumericType,
-                             unitMetaData.Device);
+    Tensor weightTensor(weightShape,
+                        unitMetaData.Device, unitMetaData.NumericType);
     const auto& weightInitializer = unitMetaData
                                     .InitializerVector().at(weightIdx);
     weightInitializer->Initialize(weightTensor);
 
-    auto biasTensor =
-        Tensor::CreateTensor(biasShape, unitMetaData.NumericType,
-                             unitMetaData.Device);
+    Tensor biasTensor(biasShape, unitMetaData.Device,
+                      unitMetaData.NumericType);
     const auto& biasInitializer = unitMetaData.InitializerVector().at(biasIdx);
     biasInitializer->Initialize(biasTensor);
 
-    auto weightTransposeTensor = Tensor::CreateTensor(
-        weightShape.Transpose(), unitMetaData.NumericType,
-        unitMetaData.Device);
+    Tensor weightTransposeTensor(weightShape.Transpose(),
+                                 unitMetaData.Device, unitMetaData.NumericType);
 
     auto denseUnit = DenseUnit(
         unitId, unitMetaData.NumericType, std::move(forwardInputTensor),
@@ -109,9 +103,9 @@ void DenseUnit::Forward()
     Tensor& input = ForwardInputVector.at(0);
 
     Compute::Multiply(m_trainableTensorMap.at(weightIdx), input,
-                              ForwardOutput);
+                      ForwardOutput);
     Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
-                         ForwardOutput);
+                 ForwardOutput);
 }
 
 void DenseUnit::AsyncForward(std::promise<bool> promise)
@@ -119,9 +113,9 @@ void DenseUnit::AsyncForward(std::promise<bool> promise)
     Tensor& input = ForwardInputVector.at(0);
 
     Compute::Multiply(m_trainableTensorMap.at(weightIdx), input,
-                              ForwardOutput);
+                      ForwardOutput);
     Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
-                         ForwardOutput);
+                 ForwardOutput);
     promise.set_value(true);
 }
 
@@ -134,7 +128,7 @@ void DenseUnit::Backward()
 
     Compute::Transpose(weight, m_transposedWeight);
     Compute::Multiply(m_transposedWeight, delta,
-                              BackwardOutputVector.at(0));
+                      BackwardOutputVector.at(0));
 
     m_optimizer->Optimize(weight);
     m_optimizer->Optimize(bias);
@@ -148,7 +142,7 @@ void DenseUnit::AsyncBackward(std::promise<bool> promise)
 
     Compute::Transpose(weight, bias);
     Compute::Multiply(m_transposedWeight, delta,
-                              BackwardOutputVector.at(0));
+                      BackwardOutputVector.at(0));
 
     m_optimizer->Optimize(weight);
     m_optimizer->Optimize(bias);

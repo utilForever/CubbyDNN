@@ -30,10 +30,7 @@ public:
 
     Shape operator*(const Shape& shape) const;
 
-    [[nodiscard]] std::size_t At(std::size_t index) const
-    {
-        return m_shapeVector.at(index);
-    }
+    [[nodiscard]] std::size_t At(std::size_t index) const;
 
     void Expand(std::size_t rank);
 
@@ -54,9 +51,6 @@ public:
     }
 
     [[nodiscard]] std::size_t Size() const noexcept;
-
-    [[nodiscard]] std::size_t Offset(std::vector<std::size_t> index) const
-    noexcept;
 
     [[nodiscard]] std::size_t BatchSize() const;
 
@@ -88,7 +82,7 @@ public:
 
     Shape& Reshape(std::initializer_list<std::size_t> newShape);
 
-   Shape& Transpose();
+    Shape& Transpose();
 
 private:
     std::vector<std::size_t> m_shapeVector;
