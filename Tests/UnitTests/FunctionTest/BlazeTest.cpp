@@ -63,7 +63,7 @@ void TestBlazeMul2()
 {
     Compute::Device device(0, Compute::DeviceType::Blaze, "testDevice", 256);
 
-    const auto batchSize = 30;
+    const auto batchSize = 3;
     const auto size = 1000;
 
     Tensor tensorA({ size, size, batchSize }, device);
@@ -97,7 +97,7 @@ void TestBlazeMul2()
 void TestBlazeAdd()
 {
     Compute::Device device(0, Compute::DeviceType::Blaze, "testDevice", 256);
-    const auto batchSize = 100;
+    const auto batchSize = 3;
     const auto rowSize = 1000;
     const auto colSize = 100;
 
