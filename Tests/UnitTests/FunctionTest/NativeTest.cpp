@@ -64,8 +64,8 @@ void TestMatMul2()
 {
     Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
 
-    const auto batchSize = 3;
-    const auto size = 3;
+    const auto batchSize = 30;
+    const auto size = 500;
 
     Tensor tensorA({ size, size, batchSize },
                    device);
@@ -92,7 +92,7 @@ void TestMatMul2()
             for (std::size_t j = 0; j < size; j++)
             {
                 const auto num = output.At<float>({ j, i, batchIdx });
-                EXPECT_EQ(num, 12);
+                EXPECT_EQ(num, 4 * size);
             }
         }
 }

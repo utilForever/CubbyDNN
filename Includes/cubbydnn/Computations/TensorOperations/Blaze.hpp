@@ -172,25 +172,24 @@ public:
         T* outputPtr = static_cast<T*>(output.DataPtr);
 
         if constexpr (IsAligned)
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            {
-                const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
-                    inputPtrA + batchIdx * matrixSizeA,
-                    inputShapeA.NumRows(), inputShapeB.NumCols(),
-                    colDataSizeA);
+        {
+            const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
+                inputPtrA,
+                inputShapeA.NumRows() * batchSize, inputShapeB.NumCols(),
+                colDataSizeA);
 
-                const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
-                    inputPtrB + batchIdx * matrixSizeB,
-                    inputShapeB.NumRows(), inputShapeB.NumCols(),
-                    colDataSizeB);
+            const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
+                inputPtrB,
+                inputShapeB.NumRows() * batchSize, inputShapeB.NumCols(),
+                colDataSizeB);
 
-                CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
-                    outputPtr + batchIdx * matrixSizeOut,
-                    outputShape.NumRows(), outputShape.NumCols(),
-                    colDataSizeOutput);
+            CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
+                outputPtr,
+                outputShape.NumRows() * batchSize, outputShape.NumCols(),
+                colDataSizeOutput);
 
-                Out = A + B;
-            }
+            Out = A + B;
+        }
         else
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             {

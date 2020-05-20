@@ -63,21 +63,24 @@ void TestBlazeMul2()
 {
     Compute::Device device(0, Compute::DeviceType::Blaze, "testDevice", 256);
 
-    const auto batchSize = 3;
-    const auto size = 1000;
+    const auto batchSize = 30;
+    const auto size = 500;
 
     Tensor tensorA({ size, size, batchSize }, device);
     Tensor tensorB({ size, size, batchSize }, device);
 
     Tensor output({ size, size, batchSize }, device);
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    for (int batchIdx = 0; batchIdx < static_cast<int>(batchSize); ++
+         batchIdx)
         for (std::size_t i = 0; i < size; i++)
         {
             for (std::size_t j = 0; j < size; j++)
             {
-                tensorA.At<float>({ j, i, batchIdx }) = 2.0f;
-                tensorB.At<float>({ j, i, batchIdx }) = 2.0f;
+                tensorA.At<float>(
+                    { j, i, static_cast<std::size_t>(batchIdx) }) = 2.0f;
+                tensorB.At<float>(
+                    { j, i, static_cast<std::size_t>(batchIdx) }) = 2.0f;
             }
         }
 
@@ -97,8 +100,8 @@ void TestBlazeMul2()
 void TestBlazeAdd()
 {
     Compute::Device device(0, Compute::DeviceType::Blaze, "testDevice", 256);
-    const auto batchSize = 3;
-    const auto rowSize = 1000;
+    const auto batchSize = 30;
+    const auto rowSize = 100;
     const auto colSize = 100;
 
     Tensor tensorA({ rowSize, colSize, batchSize }, device);
