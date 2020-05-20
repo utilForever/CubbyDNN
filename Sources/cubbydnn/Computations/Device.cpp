@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Computations/Device.hpp>
+#include <stdexcept>
 
 namespace CubbyDNN::Compute
 {
@@ -15,6 +16,9 @@ Device::Device(std::size_t id, DeviceType type, std::string name,
       m_name(std::move(name)),
       m_padByteSize(padByteSize)
 {
+    if (type != DeviceType::Blaze && padByteSize > 0)
+        throw std::invalid_argument(
+            "Only blaze device can have padded tensors");
 }
 
 bool Device::operator==(const Device& device) const

@@ -7,6 +7,7 @@
 #ifndef CUBBYDNN_TRAINABLEUNIT_HPP
 #define CUBBYDNN_TRAINABLEUNIT_HPP
 
+#include <memory>
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Computations/Optimizers/Optimizer.hpp>
 

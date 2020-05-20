@@ -9,7 +9,6 @@
 
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Computations/Device.hpp>
-#include <memory>
 
 namespace CubbyDNN
 {
@@ -29,6 +28,8 @@ public:
     Tensor& operator=(const Tensor& tensor) = delete;
     Tensor& operator=(Tensor&& tensor) noexcept;
 
+    static void CopyTensor(const Tensor& source, Tensor& destination);
+
     template <typename T>
     T& At(std::vector<std::size_t> index)
     {
@@ -41,7 +42,7 @@ public:
         {
             offset += multiplier * index.at(idx);
             if (idx == 0 && Device.PadSize() > 0)
-                multiplier = paddedColumnSize;
+                multiplier = numPaddedColumn;
             else
                 multiplier *= TensorShape.At(idx);
         }
@@ -49,7 +50,10 @@ public:
         return *(static_cast<T*>(DataPtr) + offset);
     }
 
-    static void CopyTensor(const Tensor& source, Tensor& destination);
+    std::size_t GetPaddedNumCols() const
+    {
+        return numPaddedColumn;
+    }
 
     /// Data vector which possesses actual data
     void* DataPtr = nullptr;
@@ -61,18 +65,21 @@ public:
     std::atomic<std::size_t> BackwardStateNum = 0;
 
 private:
-    std::size_t paddedColumnSize = 0;
+    std::size_t numPaddedColumn = 0;
 
+    template <typename T>
     std::size_t m_getPaddedColumnSize() const
     {
         if (Device.PadSize() == 0)
             return TensorShape.NumCols();
 
+        const auto padUnitSize = Device.PadSize() / sizeof(T);
+
         std::size_t i = 0;
-        while (Device.PadSize() * i < TensorShape.NumCols())
+        while (padUnitSize * i < TensorShape.NumCols())
             ++i;
 
-        return Device.PadSize() * i;
+        return padUnitSize * i;
     }
 };
 } // namespace CubbyDNN

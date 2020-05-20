@@ -15,9 +15,12 @@ Tensor::Tensor(Shape shape, Compute::Device device, NumberSystem numberSystem)
       NumericType(numberSystem),
       Device(std::move(device))
 {
-    paddedColumnSize = m_getPaddedColumnSize();
+    if (numberSystem == NumberSystem::Float)
+        numPaddedColumn = m_getPaddedColumnSize<float>();
+    else
+        numPaddedColumn = m_getPaddedColumnSize<int>();
     const auto totalSize = (TensorShape.Size() / TensorShape.NumCols()) *
-                           paddedColumnSize;
+                           numPaddedColumn;
 
     if (NumericType == NumberSystem::Float)
     {
@@ -66,6 +69,7 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     NumericType = tensor.NumericType;
     return *this;
 }
+
 
 void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
 {

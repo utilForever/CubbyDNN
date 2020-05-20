@@ -4,10 +4,10 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_MATRIXTEST_HPP
-#define CUBBYDNN_MATRIXTEST_HPP
+#ifndef CUBBYDNN_TEST_MATRIXTEST_HPP
+#define CUBBYDNN_TEST_MATRIXTEST_HPP
 
-namespace CubbyDNN
+namespace CubbyDNN::Test
 {
 void TestMatMul();
 

@@ -9,9 +9,10 @@
 
 #include <cubbydnn/Units/UnitType.hpp>
 #include <cubbydnn/Utils/Shape.hpp>
-#include <vector>
 #include <cubbydnn/Utils/Declarations.hpp>
 #include <cubbydnn/Computations/Initializers/InitializerType.hpp>
+#include <vector>
+#include <memory>
 
 namespace CubbyDNN::Graph
 {

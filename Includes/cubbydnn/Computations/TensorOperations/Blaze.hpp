@@ -52,16 +52,17 @@ public:
 
         if constexpr (IsAligned)
         {
-            if (inputA.Device.PadSize() < inputA.TensorShape.NumCols() ||
-                inputB.Device.PadSize() < inputB.TensorShape.NumCols() ||
-                output.Device.PadSize() < output.TensorShape.NumCols())
+            if (inputA.GetPaddedNumCols() <
+                inputA.TensorShape.NumCols() ||
+                inputB.GetPaddedNumCols() < inputB.TensorShape.NumCols() ||
+                output.GetPaddedNumCols() < output.TensorShape.NumCols())
                 throw std::runtime_error(
                     "padSize should be always larger than column size in "
                     "aligned matrix");
 
-            colDataSizeA = inputB.Device.PadSize();
-            colDataSizeB = inputB.Device.PadSize();
-            colDataSizeOutput = output.Device.PadSize();
+            colDataSizeA = inputA.GetPaddedNumCols();
+            colDataSizeB = inputB.GetPaddedNumCols();
+            colDataSizeOutput = output.GetPaddedNumCols();
         }
         else
         {
@@ -70,7 +71,7 @@ public:
                 output.Device.PadSize() != 0)
                 throw std::runtime_error(
                     "Unaligned matrix should have pad size 0");
-            colDataSizeA = inputB.TensorShape.NumCols();
+            colDataSizeA = inputA.TensorShape.NumCols();
             colDataSizeB = inputB.TensorShape.NumCols();
             colDataSizeOutput = output.TensorShape.NumCols();
         }
@@ -92,12 +93,12 @@ public:
                     colDataSizeA);
 
                 const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
-                    static_cast<T*>(inputB.DataPtr) + batchIdx * matrixSizeB,
+                    inputPtrB + batchIdx * matrixSizeB,
                     inputShapeB.NumRows(), inputShapeB.NumCols(),
                     colDataSizeB);
 
                 CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
-                    static_cast<T*>(output.DataPtr) + batchIdx * matrixSizeOut,
+                    outputPtr + batchIdx * matrixSizeOut,
                     outputShape.NumRows(), outputShape.NumCols(),
                     colDataSizeOutput);
 
@@ -140,16 +141,16 @@ public:
 
         if constexpr (IsAligned)
         {
-            if (inputA.Device.PadSize() < inputA.TensorShape.NumCols() ||
-                inputB.Device.PadSize() < inputB.TensorShape.NumCols() ||
-                output.Device.PadSize() < output.TensorShape.NumCols())
+            if (inputA.GetPaddedNumCols() < inputA.TensorShape.NumCols() ||
+                inputB.GetPaddedNumCols() < inputB.TensorShape.NumCols() ||
+                output.GetPaddedNumCols() < output.TensorShape.NumCols())
                 throw std::runtime_error(
                     "padSize should be always larger than column size in "
                     "aligned matrix");
 
-            colDataSizeA = inputB.Device.PadSize();
-            colDataSizeB = inputB.Device.PadSize();
-            colDataSizeOutput = output.Device.PadSize();
+            colDataSizeA = inputA.GetPaddedNumCols();
+            colDataSizeB = inputB.GetPaddedNumCols();
+            colDataSizeOutput = output.GetPaddedNumCols();
         }
         else
         {
@@ -176,17 +177,17 @@ public:
                 const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
                     inputPtrA + batchIdx * matrixSizeA,
                     inputShapeA.NumRows(), inputShapeB.NumCols(),
-                    inputA.Device.PadSize());
+                    colDataSizeA);
 
                 const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
                     inputPtrB + batchIdx * matrixSizeB,
                     inputShapeB.NumRows(), inputShapeB.NumCols(),
-                    inputB.Device.PadSize());
+                    colDataSizeB);
 
                 CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
                     outputPtr + batchIdx * matrixSizeOut,
                     outputShape.NumRows(), outputShape.NumCols(),
-                    output.Device.PadSize());
+                    colDataSizeOutput);
 
                 Out = A + B;
             }
@@ -220,14 +221,14 @@ public:
 
         if constexpr (IsAligned)
         {
-            if (input.Device.PadSize() < input.TensorShape.NumCols() ||
-                output.Device.PadSize() < output.TensorShape.NumCols())
+            if (input.GetPaddedNumCols() < input.TensorShape.NumCols() ||
+                output.GetPaddedNumCols() < output.TensorShape.NumCols())
                 throw std::runtime_error(
                     "padSize should be always larger than column size in "
                     "aligned matrix");
 
-            colDataSizeInput = input.Device.PadSize();
-            colDataSizeOutput = output.Device.PadSize();
+            colDataSizeInput = input.GetPaddedNumCols();
+            colDataSizeOutput = output.GetPaddedNumCols();
         }
         else
         {
@@ -253,13 +254,13 @@ public:
                     inputPtr +
                     batchIdx * matrixSizeInput,
                     inputShape.NumRows(), inputShape.NumCols(),
-                    input.Device.PadSize());
+                    colDataSizeInput);
 
                 CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
                     outputPtr +
                     batchIdx * matrixSizeOutput,
                     outputShape.NumRows(), outputShape.NumCols(),
-                    output.Device.PadSize());
+                    colDataSizeOutput);
 
                 Out = blaze::trans(A);
             }

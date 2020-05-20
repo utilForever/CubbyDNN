@@ -5,8 +5,8 @@
 // property of any third parties.
 
 
-#ifndef CUBBYDNN_RESHAPE_HPP
-#define CUBBYDNN_RESHAPE_HPP
+#ifndef CUBBYDNN_GRAPH_RESHAPE_HPP
+#define CUBBYDNN_GRAPH_RESHAPE_HPP
 #include <cubbydnn/Units/ComputableUnit.hpp>
 
 namespace CubbyDNN::Graph

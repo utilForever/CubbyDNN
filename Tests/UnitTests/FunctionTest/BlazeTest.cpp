@@ -4,17 +4,17 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include "MatrixTest.hpp"
-#include <cubbydnn/Computations/TensorOperations/Computations.hpp>
-#include <iostream>
-#include <array>
+#include "BlazeTest.hpp"
 #include "gtest/gtest.h"
 
-namespace CubbyDNN
+#include <array>
+#include <cubbydnn/Computations/TensorOperations/Computations.hpp>
+
+namespace CubbyDNN::Test
 {
-void TestMatMul()
+void TestBlazeMul()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::Blaze, "testDevice", 256);
     const auto batchSize = 3;
 
     Tensor tensorA({ 2, 3, batchSize }, device);
@@ -41,11 +41,10 @@ void TestMatMul()
 
     Compute::Multiply(tensorA, tensorB, output);
 
-    std::array<std::array<float, 3>, 3> answer = {
-        { { 5.0f, 11.0f, 17.0f },
-          { 11.0f, 25.0f, 39.0f },
-          { 17.0f, 39.0f, 61.0f } }
-    };
+    std::array<std::array<float, 3>, 3> answer = { { { 5.0f, 11.0f, 17.0f },
+                                                     { 11.0f, 25.0f, 39.0f },
+                                                     { 17.0f, 39.0f,
+                                                       61.0f } } };
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         for (std::size_t i = 0; i < 3; i++)
@@ -60,17 +59,15 @@ void TestMatMul()
         }
 }
 
-void TestMatMul2()
+void TestBlazeMul2()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::Blaze, "testDevice", 256);
 
-    const auto batchSize = 3;
-    const auto size = 3;
+    const auto batchSize = 30;
+    const auto size = 1000;
 
-    Tensor tensorA({ size, size, batchSize },
-                   device);
-    Tensor tensorB({ size, size, batchSize },
-                   device);
+    Tensor tensorA({ size, size, batchSize }, device);
+    Tensor tensorB({ size, size, batchSize }, device);
 
     Tensor output({ size, size, batchSize }, device);
 
@@ -92,17 +89,17 @@ void TestMatMul2()
             for (std::size_t j = 0; j < size; j++)
             {
                 const auto num = output.At<float>({ j, i, batchIdx });
-                EXPECT_EQ(num, 12);
+                EXPECT_EQ(num, 4*size);
             }
         }
 }
 
-void TestMatAdd()
+void TestBlazeAdd()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
-    const auto batchSize = 3;
-    const auto rowSize = 2;
-    const auto colSize = 5;
+    Compute::Device device(0, Compute::DeviceType::Blaze, "testDevice", 256);
+    const auto batchSize = 100;
+    const auto rowSize = 1000;
+    const auto colSize = 100;
 
     Tensor tensorA({ rowSize, colSize, batchSize }, device);
     Tensor tensorB({ rowSize, colSize, batchSize }, device);
@@ -132,9 +129,9 @@ void TestMatAdd()
         }
 }
 
-void TestMatDot()
+void TestBlazeDot()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::Blaze, "testDevice", 256);
     const auto batchSize = 3;
     const auto rowSize = 2;
     const auto colSize = 5;
@@ -167,25 +164,23 @@ void TestMatDot()
         }
 }
 
-TEST(NativeOpTest, MatMul1)
+TEST(BlazeOpTest, MatMul1)
 {
-    TestMatMul();
+    TestBlazeMul();
 }
 
-TEST(NativeOpTest, MatMul2)
+TEST(BlazeOpTest, MatMul2)
 {
-    TestMatMul2();
+    TestBlazeMul2();
 }
 
-
-TEST(NativeOpTest, MatAdd)
+TEST(BlazeOpTest, MatAdd)
 {
-    TestMatAdd();
+    TestBlazeAdd();
 }
 
-
-TEST(NativeOpTest, MatDot)
+TEST(BlazeOpTest, MatDot)
 {
-    TestMatDot();
+    TestBlazeDot();
 }
-} // namespace CubbyDNN
+} // namespace CubbyDNN::Test

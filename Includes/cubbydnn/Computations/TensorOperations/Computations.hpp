@@ -9,23 +9,24 @@
 
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Computations/Activations/ActivationFunc.hpp>
+#include <memory>
+
 
 namespace CubbyDNN::Compute
 {
 void Multiply(const Tensor& inputA, const Tensor& inputB,
-                     Tensor& output);
+              Tensor& output);
 
 void Add(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
 void Transpose(const Tensor& input, Tensor& output);
 
 void ActivationForward(const Tensor& input, Tensor& output,
-                              std::unique_ptr<ActivationFunc>& activation);
+                       std::unique_ptr<ActivationFunc>& activation);
 
 void ActivationBackward(const Tensor& input, Tensor& output,
-                               std::unique_ptr<ActivationFunc>& activation);
+                        std::unique_ptr<ActivationFunc>& activation);
 
 void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output);
-
 } // namespace CubbyDNN
 #endif

@@ -185,7 +185,7 @@ public:
         const auto shape = inputA.TensorShape;
 
         const auto numRows = shape.NumRows();
-        const auto numCols = shape.NumCols();
+        const auto numCols = inputA.GetPaddedNumCols();
 
         const auto matrixSize = numRows * numCols;
         const auto batchSize = shape.BatchSize();
