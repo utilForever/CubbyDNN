@@ -46,35 +46,9 @@ public:
 
         const auto batchSize = inputShapeA.NumMatrices();
 
-        std::size_t colDataSizeA;
-        std::size_t colDataSizeB;
-        std::size_t colDataSizeOutput;
-
-        if constexpr (IsAligned)
-        {
-            if (inputA.GetPaddedNumCols() <
-                inputA.TensorShape.NumCols() ||
-                inputB.GetPaddedNumCols() < inputB.TensorShape.NumCols() ||
-                output.GetPaddedNumCols() < output.TensorShape.NumCols())
-                throw std::runtime_error(
-                    "padSize should be always larger than column size in "
-                    "aligned matrix");
-
-            colDataSizeA = inputA.GetPaddedNumCols();
-            colDataSizeB = inputB.GetPaddedNumCols();
-            colDataSizeOutput = output.GetPaddedNumCols();
-        }
-        else
-        {
-            if (inputA.Device.PadSize() != 0 ||
-                inputB.Device.PadSize() != 0 ||
-                output.Device.PadSize() != 0)
-                throw std::runtime_error(
-                    "Unaligned matrix should have pad size 0");
-            colDataSizeA = inputA.TensorShape.NumCols();
-            colDataSizeB = inputB.TensorShape.NumCols();
-            colDataSizeOutput = output.TensorShape.NumCols();
-        }
+        std::size_t colDataSizeA = inputA.GetPaddedNumCols();
+        std::size_t colDataSizeB = inputB.GetPaddedNumCols();
+        std::size_t colDataSizeOutput = output.GetPaddedNumCols();
 
         const auto matrixSizeA = inputShapeA.NumRows() * colDataSizeA;
         const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
@@ -84,7 +58,7 @@ public:
         T* inputPtrB = static_cast<T*>(inputB.DataPtr.get());
         T* outputPtr = static_cast<T*>(output.DataPtr.get());
 
-        if constexpr (IsAligned)
+        if (inputA.Device.PadSize() > 0)
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             {
                 const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
@@ -135,33 +109,9 @@ public:
 
         const auto batchSize = inputShapeA.NumMatrices();
 
-        std::size_t colDataSizeA;
-        std::size_t colDataSizeB;
-        std::size_t colDataSizeOutput;
-
-        if constexpr (IsAligned)
-        {
-            if (inputA.GetPaddedNumCols() < inputA.TensorShape.NumCols() ||
-                inputB.GetPaddedNumCols() < inputB.TensorShape.NumCols() ||
-                output.GetPaddedNumCols() < output.TensorShape.NumCols())
-                throw std::runtime_error(
-                    "padSize should be always larger than column size in "
-                    "aligned matrix");
-
-            colDataSizeA = inputA.GetPaddedNumCols();
-            colDataSizeB = inputB.GetPaddedNumCols();
-            colDataSizeOutput = output.GetPaddedNumCols();
-        }
-        else
-        {
-            if (inputA.Device.PadSize() != 0 || inputB.Device.PadSize() != 0 ||
-                output.Device.PadSize() != 0)
-                throw std::runtime_error(
-                    "Unaligned matrix should have pad size 0");
-            colDataSizeA = inputA.TensorShape.NumCols();
-            colDataSizeB = inputB.TensorShape.NumCols();
-            colDataSizeOutput = output.TensorShape.NumCols();
-        }
+        std::size_t colDataSizeA = inputA.GetPaddedNumCols();
+        std::size_t colDataSizeB = inputB.GetPaddedNumCols();
+        std::size_t colDataSizeOutput = output.GetPaddedNumCols();
 
         const auto matrixSizeA = inputShapeA.NumRows() * colDataSizeA;
         const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
@@ -171,7 +121,7 @@ public:
         T* inputPtrB = static_cast<T*>(inputB.DataPtr.get());
         T* outputPtr = static_cast<T*>(output.DataPtr.get());
 
-        if constexpr (IsAligned)
+        if (inputA.Device.PadSize() > 0)
         {
             const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
                 inputPtrA,
@@ -217,28 +167,8 @@ public:
 
         const auto batchSize = inputShapeA.NumMatrices();
 
-        std::size_t colDataSizeA;
-        std::size_t colDataSizeOutput;
-
-        if constexpr (IsAligned)
-        {
-            if (tensor.GetPaddedNumCols() < tensor.TensorShape.NumCols() ||
-                toAdd.GetPaddedNumCols() < toAdd.TensorShape.NumCols())
-                throw std::runtime_error(
-                    "padSize should be always larger than column size in "
-                    "aligned matrix");
-
-            colDataSizeA = tensor.GetPaddedNumCols();
-            colDataSizeOutput = toAdd.GetPaddedNumCols();
-        }
-        else
-        {
-            if (tensor.Device.PadSize() != 0 || toAdd.Device.PadSize() != 0)
-                throw std::runtime_error(
-                    "Unaligned matrix should have pad size 0");
-            colDataSizeA = tensor.TensorShape.NumCols();
-            colDataSizeOutput = toAdd.TensorShape.NumCols();
-        }
+        std::size_t colDataSizeA = tensor.GetPaddedNumCols();
+        std::size_t colDataSizeOutput = toAdd.GetPaddedNumCols();
 
         const auto matrixSizeA = inputShapeA.NumRows() * colDataSizeA;
         const auto matrixSizeOut = outputShape.NumRows() * colDataSizeOutput;
@@ -322,29 +252,8 @@ public:
         const auto inputShape = input.TensorShape;
         const auto outputShape = output.TensorShape;
 
-        std::size_t colDataSizeInput;
-        std::size_t colDataSizeOutput;
-
-        if constexpr (IsAligned)
-        {
-            if (input.GetPaddedNumCols() < input.TensorShape.NumCols() ||
-                output.GetPaddedNumCols() < output.TensorShape.NumCols())
-                throw std::runtime_error(
-                    "padSize should be always larger than column size in "
-                    "aligned matrix");
-
-            colDataSizeInput = input.GetPaddedNumCols();
-            colDataSizeOutput = output.GetPaddedNumCols();
-        }
-        else
-        {
-            if (input.Device.PadSize() != 0 || input.Device.PadSize() != 0 ||
-                output.Device.PadSize() != 0)
-                throw std::runtime_error(
-                    "Unaligned matrix should have pad size 0");
-            colDataSizeInput = input.TensorShape.NumCols();
-            colDataSizeOutput = output.TensorShape.NumCols();
-        }
+        std::size_t colDataSizeInput = input.GetPaddedNumCols();
+        std::size_t colDataSizeOutput = output.GetPaddedNumCols();
 
         const auto matrixSizeInput = inputShape.NumRows() * colDataSizeInput;
         const auto matrixSizeOutput = outputShape.NumRows() * colDataSizeOutput;

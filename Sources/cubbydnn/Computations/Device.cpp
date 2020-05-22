@@ -24,7 +24,7 @@ Device::Device(std::size_t id, DeviceType type, std::string name,
 bool Device::operator==(const Device& device) const
 {
     return m_id == device.m_id && m_type == device.m_type &&
-           m_name == device.m_name;
+           m_name == device.m_name && m_padByteSize == device.m_padByteSize;
 }
 
 bool Device::operator!=(const Device& device) const
