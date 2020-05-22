@@ -4,7 +4,6 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <iostream>
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <cubbydnn/Computations/TensorOperations/Native.hpp>
 #include <cubbydnn/Computations/TensorOperations/Blaze.hpp>
@@ -42,7 +41,7 @@ void Multiply(const Tensor& inputA, const Tensor& inputB,
         if (deviceType.Type() == DeviceType::Cpu)
             Native::TensorMul<float>(inputA, inputB, output);
         else if (deviceType.Type() == DeviceType::Blaze)
-            Blaze::TensorMul<float, true>(inputA, inputB, output);
+            Blaze::TensorMul<float>(inputA, inputB, output);
         else
             throw std::runtime_error("Not implemented");
     }
@@ -51,7 +50,7 @@ void Multiply(const Tensor& inputA, const Tensor& inputB,
         if (deviceType.Type() == DeviceType::Cpu)
             Native::TensorMul<int>(inputA, inputB, output);
         else if (deviceType.Type() == DeviceType::Blaze)
-            Blaze::TensorMul<int, true>(inputA, inputB, output);
+            Blaze::TensorMul<int>(inputA, inputB, output);
         else
             throw std::runtime_error("Not implemented");
     }
@@ -85,7 +84,7 @@ void Add(const Tensor& inputA, const Tensor& inputB,
         if (deviceType.Type() == DeviceType::Cpu)
             Native::TensorAdd<float>(inputA, inputB, output);
         else if (deviceType.Type() == DeviceType::Blaze)
-            Blaze::TensorAdd<float, true>(inputA, inputB, output);
+            Blaze::TensorAdd<float>(inputA, inputB, output);
         else
             throw std::runtime_error("Not implemented");
     }
@@ -94,7 +93,7 @@ void Add(const Tensor& inputA, const Tensor& inputB,
         if (deviceType.Type() == DeviceType::Cpu)
             Native::TensorAdd<int>(inputA, inputB, output);
         else if (deviceType.Type() == DeviceType::Blaze)
-            Blaze::TensorAdd<int, true>(inputA, inputB, output);
+            Blaze::TensorAdd<int>(inputA, inputB, output);
         else
             throw std::runtime_error("Not implemented");
     }
@@ -123,7 +122,7 @@ void Add(Tensor& tensor, const Tensor& toAdd)
         if (deviceType.Type() == DeviceType::Cpu)
             Native::TensorAdd<float>(tensor, toAdd);
         else if (deviceType.Type() == DeviceType::Blaze)
-            Blaze::TensorAdd<float, true>(tensor, toAdd);
+            Blaze::TensorAdd<float>(tensor, toAdd);
         else
             throw std::runtime_error("Not implemented");
     }
@@ -132,7 +131,7 @@ void Add(Tensor& tensor, const Tensor& toAdd)
         if (deviceType.Type() == DeviceType::Cpu)
             Native::TensorAdd<int>(tensor, toAdd);
         else if (deviceType.Type() == DeviceType::Blaze)
-            Blaze::TensorAdd<int, true>(tensor, toAdd);
+            Blaze::TensorAdd<int>(tensor, toAdd);
         else
             throw std::runtime_error("Not implemented");
     }
@@ -151,12 +150,6 @@ void Add(const std::vector<Tensor>& tensorVector, Tensor& output)
     for (const auto& tensor : tensorVector)
         Add(output, tensor);
 }
-
-// void BatchMean(const std::vector<Tensor>& tensor, std::size_t idx,
-//                Tensor& output)
-// {
-//     
-// }
 
 void Transpose(const Tensor& input, Tensor& output)
 {
@@ -182,7 +175,7 @@ void Transpose(const Tensor& input, Tensor& output)
         if (device.Type() == DeviceType::Cpu)
             Native::TensorTranspose<float>(input, output);
         else if (device.Type() == DeviceType::Blaze)
-            Blaze::TensorTranspose<float, true>(input, output);
+            Blaze::TensorTranspose<float>(input, output);
         else
             throw std::runtime_error("Not implemented");
     }
@@ -191,7 +184,7 @@ void Transpose(const Tensor& input, Tensor& output)
         if (device.Type() == DeviceType::Cpu)
             Native::TensorTranspose<int>(input, output);
         else if (device.Type() == DeviceType::Blaze)
-            Blaze::TensorTranspose<int, true>(input, output);
+            Blaze::TensorTranspose<int>(input, output);
         else
             throw std::runtime_error("Not implemented");
     }
@@ -235,18 +228,4 @@ void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
             throw std::runtime_error("Not implemented");
     }
 }
-
-// void ActivationForward(const Tensor& input, Tensor& output,
-//                        std::unique_ptr<ActivationFunc>& activation)
-// {
-// }
-//
-// void ActivationBackward(const Tensor& input, Tensor& output,
-//                         std::unique_ptr<ActivationFunc>& activation)
-// {
-// }
-//
-// void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
-// {
-// }
 } // namespace CubbyDNN

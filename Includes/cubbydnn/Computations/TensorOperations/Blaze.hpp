@@ -36,7 +36,7 @@ private:
     }
 
 public:
-    template <typename T, bool IsAligned = false>
+    template <typename T>
     static void TensorMul(const Tensor& inputA, const Tensor& inputB,
                           Tensor& output)
     {
@@ -99,7 +99,7 @@ public:
         }
     }
 
-    template <typename T, bool IsAligned = false>
+    template <typename T>
     static void TensorAdd(const Tensor& inputA, const Tensor& inputB,
                           Tensor& output)
     {
@@ -159,7 +159,7 @@ public:
             }
     }
 
-    template <typename T, bool IsAligned = false>
+    template <typename T>
     static void TensorAdd(Tensor& tensor, const Tensor& toAdd)
     {
         const auto inputShapeA = tensor.TensorShape;
@@ -176,7 +176,7 @@ public:
         T* inputPtrA = static_cast<T*>(tensor.DataPtr.get());
         T* outputPtr = static_cast<T*>(toAdd.DataPtr.get());
 
-        if constexpr (IsAligned)
+        if (tensor.Device.PadSize() > 0)
         {
             const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
                 inputPtrA, inputShapeA.NumRows() * batchSize,
@@ -246,7 +246,7 @@ public:
             outputPtr[elementIdx] /= batchSize;
     }
 
-    template <typename T, bool IsAligned = false>
+    template <typename T>
     static void TensorTranspose(const Tensor& input, Tensor& output)
     {
         const auto inputShape = input.TensorShape;
@@ -262,7 +262,7 @@ public:
         T* inputPtr = static_cast<T*>(input.DataPtr.get());
         T* outputPtr = static_cast<T*>(output.DataPtr.get());
 
-        if (IsAligned)
+        if (input.Device.PadSize() > 0)
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             {
                 const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
