@@ -104,8 +104,7 @@ void DenseUnit::Forward()
 
     Compute::Multiply(m_trainableTensorMap.at(weightIdx), input,
                       ForwardOutput);
-    Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
-                 ForwardOutput);
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx));
 }
 
 void DenseUnit::AsyncForward(std::promise<bool> promise)
@@ -114,8 +113,7 @@ void DenseUnit::AsyncForward(std::promise<bool> promise)
 
     Compute::Multiply(m_trainableTensorMap.at(weightIdx), input,
                       ForwardOutput);
-    Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx),
-                 ForwardOutput);
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at(biasIdx));
     promise.set_value(true);
 }
 

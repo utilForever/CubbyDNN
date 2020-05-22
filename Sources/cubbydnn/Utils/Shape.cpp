@@ -49,9 +49,10 @@ std::size_t& Shape::operator[](std::size_t index)
 
 std::size_t Shape::At(std::size_t index) const
 {
+    if (index >= m_shapeVector.size())
+        throw std::invalid_argument("Requested index exceeds shape dimension");
     return m_shapeVector.at(index);
 }
-
 
 
 Shape Shape::operator*(const Shape& shape) const
@@ -60,7 +61,7 @@ Shape Shape::operator*(const Shape& shape) const
         throw std::runtime_error("Dimension mismatch");
     if (this->NumCols() != shape.NumRows())
         throw std::runtime_error("Multiply-shape mismatch");
-    if (this->BatchSize() != shape.BatchSize())
+    if (this->NumMatrices() != shape.NumMatrices())
         throw std::runtime_error("Batch size mismatch");
 
     std::vector<std::size_t> shapeVector;
@@ -101,8 +102,6 @@ void Shape::Squeeze()
     for (auto i : m_shapeVector)
         if (i != 1)
             newDim.emplace_back(i);
-    while (newDim.size() < 2)
-        newDim.emplace_back(1);
 
     m_shapeVector = newDim;
 }
@@ -140,10 +139,10 @@ Shape& Shape::Reshape(std::initializer_list<std::size_t> newShape)
 }
 
 
-std::size_t Shape::BatchSize() const
+std::size_t Shape::NumMatrices() const
 {
     std::size_t size = 1;
-    for (std::size_t i = 2; i < m_shapeVector.size(); ++i)
+    for (std::size_t i = 0; i < m_shapeVector.size() - 2; ++i)
         size *= m_shapeVector.at(i);
     return size;
 }

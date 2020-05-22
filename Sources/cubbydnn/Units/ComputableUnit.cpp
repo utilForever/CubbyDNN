@@ -47,11 +47,11 @@ bool ComputableUnit::IsForwardReady(std::size_t cycle) const
 {
     for (const auto& tensor : ForwardInputVector)
     {
-        if (tensor.ForwardStateNum != cycle)
+        if (tensor.ForwardState != cycle)
             return false;
     }
 
-    if (ForwardOutput.ForwardStateNum != cycle)
+    if (ForwardOutput.ForwardState != cycle)
         return false;
     return true;
 }
@@ -60,13 +60,13 @@ bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
 {
     for (const auto& tensor : BackwardInputVector)
     {
-        if (tensor.BackwardStateNum != cycle)
+        if (tensor.BackwardState != cycle)
             return false;
     }
 
     for (const auto& tensor : BackwardOutputVector)
     {
-        if (tensor.BackwardStateNum != cycle)
+        if (tensor.BackwardState != cycle)
             return false;
     }
     return true;

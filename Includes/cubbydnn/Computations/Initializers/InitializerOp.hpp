@@ -30,13 +30,13 @@ public:
         if  (padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -63,13 +63,13 @@ public:
         if (padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -115,13 +115,13 @@ public:
         if(padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -150,13 +150,13 @@ public:
         if (padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -206,13 +206,13 @@ public:
         if (padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -244,13 +244,13 @@ public:
         if (padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -297,13 +297,13 @@ public:
         if(padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -333,13 +333,13 @@ public:
         if (padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -379,13 +379,13 @@ public:
         if (padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 
@@ -409,13 +409,13 @@ public:
         if (padSize)
         {
             matrixSize = shape.NumRows() * padSize;
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
             matrixSize = shape.NumRows() * shape.NumCols();
-            batchSize = shape.BatchSize();
+            batchSize = shape.NumMatrices();
             colSize = shape.NumCols();
         }
 

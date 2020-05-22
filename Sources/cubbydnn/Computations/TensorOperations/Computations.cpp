@@ -8,6 +8,7 @@
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <cubbydnn/Computations/TensorOperations/Native.hpp>
 #include <cubbydnn/Computations/TensorOperations/Blaze.hpp>
+#include <cubbydnn/Computations/Initializers/InitializerType.hpp>
 
 namespace CubbyDNN::Compute
 {
@@ -29,8 +30,8 @@ void Multiply(const Tensor& inputA, const Tensor& inputB,
         inputB.TensorShape.NumCols() != output.TensorShape.NumCols())
         throw std::runtime_error("Multiply - Tensor shape mismatch");
 
-    if (inputA.TensorShape.BatchSize() != inputB.TensorShape.BatchSize() ||
-        inputB.TensorShape.BatchSize() != output.TensorShape.BatchSize())
+    if (inputA.TensorShape.NumMatrices() != inputB.TensorShape.NumMatrices() ||
+        inputB.TensorShape.NumMatrices() != output.TensorShape.NumMatrices())
         throw std::runtime_error("Multiply - batch size mismatch");
 
     const auto numberSystem = inputA.NumericType;
@@ -72,8 +73,8 @@ void Add(const Tensor& inputA, const Tensor& inputB,
         inputB.TensorShape != output.TensorShape)
         throw std::runtime_error("Add - Tensor shape mismatch");
 
-    if (inputA.TensorShape.BatchSize() != inputB.TensorShape.BatchSize() ||
-        inputB.TensorShape.BatchSize() != output.TensorShape.BatchSize())
+    if (inputA.TensorShape.NumMatrices() != inputB.TensorShape.NumMatrices() ||
+        inputB.TensorShape.NumMatrices() != output.TensorShape.NumMatrices())
         throw std::runtime_error("Add - Batch size mismatch");
 
     const auto numberSystem = inputA.NumericType;
@@ -99,6 +100,64 @@ void Add(const Tensor& inputA, const Tensor& inputB,
     }
 }
 
+void Add(Tensor& tensor, const Tensor& toAdd)
+{
+    if (toAdd.NumericType != tensor.NumericType)
+        throw std::runtime_error(
+            "Add - Number system mismatches between tensors");
+
+    if (toAdd.Device != tensor.Device)
+        throw std::runtime_error("Add - Device mismatch");
+
+    if (toAdd.TensorShape != tensor.TensorShape)
+        throw std::runtime_error("Add - Tensor shape mismatch");
+
+    if (toAdd.TensorShape.NumMatrices() != tensor.TensorShape.NumMatrices())
+        throw std::runtime_error("Add - Batch size mismatch");
+
+    const auto numberSystem = toAdd.NumericType;
+    const auto deviceType = toAdd.Device;
+
+    if (numberSystem == NumberSystem::Float)
+    {
+        if (deviceType.Type() == DeviceType::Cpu)
+            Native::TensorAdd<float>(tensor, toAdd);
+        else if (deviceType.Type() == DeviceType::Blaze)
+            Blaze::TensorAdd<float, true>(tensor, toAdd);
+        else
+            throw std::runtime_error("Not implemented");
+    }
+    else
+    {
+        if (deviceType.Type() == DeviceType::Cpu)
+            Native::TensorAdd<int>(tensor, toAdd);
+        else if (deviceType.Type() == DeviceType::Blaze)
+            Blaze::TensorAdd<int, true>(tensor, toAdd);
+        else
+            throw std::runtime_error("Not implemented");
+    }
+}
+
+void Add(const std::vector<Tensor>& tensorVector, Tensor& output)
+{
+    if (tensorVector.empty())
+        return;
+
+    const Zeros zeroInitializer;
+    zeroInitializer.Initialize(output);
+
+    Tensor::CopyTensor(tensorVector.at(0), output);
+
+    for (const auto& tensor : tensorVector)
+        Add(output, tensor);
+}
+
+// void BatchMean(const std::vector<Tensor>& tensor, std::size_t idx,
+//                Tensor& output)
+// {
+//     
+// }
+
 void Transpose(const Tensor& input, Tensor& output)
 {
     if (input.NumericType != output.NumericType)
@@ -112,7 +171,7 @@ void Transpose(const Tensor& input, Tensor& output)
     if (transposedInputShape != output.TensorShape)
         throw std::runtime_error("Transpose - Tensor shape mismatch");
 
-    if (input.TensorShape.BatchSize() != output.TensorShape.BatchSize())
+    if (input.TensorShape.NumMatrices() != output.TensorShape.NumMatrices())
         throw std::runtime_error("Transpose - Batch size mismatch");
 
     const auto numberSystem = input.NumericType;
@@ -152,8 +211,8 @@ void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
         inputB.TensorShape != output.TensorShape)
         throw std::runtime_error("Dot - Tensor shape mismatch");
 
-    if (inputA.TensorShape.BatchSize() != inputB.TensorShape.BatchSize() ||
-        inputB.TensorShape.BatchSize() != output.TensorShape.BatchSize())
+    if (inputA.TensorShape.NumMatrices() != inputB.TensorShape.NumMatrices() ||
+        inputB.TensorShape.NumMatrices() != output.TensorShape.NumMatrices())
         throw std::runtime_error("Dot - Batch size mismatch");
 
     const auto numberSystem = inputA.NumericType;

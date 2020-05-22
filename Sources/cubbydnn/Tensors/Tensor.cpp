@@ -16,9 +16,9 @@ Tensor::Tensor(Shape shape, Compute::Device device, NumberSystem numberSystem)
       Device(std::move(device))
 {
     if (numberSystem == NumberSystem::Float)
-        numPaddedColumn = m_getPaddedColumnSize<float>();
+        numPaddedColumn = m_getPaddedColumnSize();
     else
-        numPaddedColumn = m_getPaddedColumnSize<int>();
+        numPaddedColumn = m_getPaddedColumnSize();
     const auto totalSize = (TensorShape.Size() / TensorShape.NumCols()) *
                            numPaddedColumn;
 
@@ -71,20 +71,31 @@ void Tensor::ForwardTensor(const Tensor& source, Tensor& destination)
     if (source.NumericType != destination.NumericType)
         throw std::runtime_error("NumberSystem of two tensors does not match");
 
+    if (source.Device == destination.Device)
+        MoveTensor(source, destination);
+    else
+        CopyTensor(source, destination);
+}
+
+void Tensor::MoveTensor(const Tensor& source, Tensor& destination)
+{
+    if (source.Device != destination.Device)
+        throw std::invalid_argument(
+            "Device type of source and destination tensor must be same when "
+            "moving between tensors");
+    destination.DataPtr = source.DataPtr;
+}
+
+void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
+{
+    const auto numericType = source.NumericType;
     const auto sourceShape = source.TensorShape;
     const auto destShape = destination.TensorShape;
-    const auto batchSize = sourceShape.BatchSize();
+    const auto batchSize = sourceShape.NumMatrices();
     const auto numRows = sourceShape.NumRows();
     const auto numCols = sourceShape.NumCols();
-    const auto sourceColSize =
-        source.Device.PadSize() > 0
-            ? source.Device.PadSize()
-            : sourceShape.NumCols();
-    const auto destColSize =
-        destination.Device.PadSize() > 0
-            ? destination.Device.PadSize()
-            : destShape.NumCols();
-    const NumberSystem numericType = source.NumericType;
+    const auto sourceColSize = source.GetPaddedNumCols();
+    const auto destColSize = destination.GetPaddedNumCols();
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
@@ -102,12 +113,11 @@ void Tensor::ForwardTensor(const Tensor& source, Tensor& destination)
                             sourceColSize * rowIdx + colIdx];
                 else
                     static_cast<int*>(
-                            destination
-                            .DataPtr.get())[batchIdx * (destColSize * numRows) +
-                                            destColSize * rowIdx + colIdx] =
+                            destination.DataPtr.get())[
+                            batchIdx * (destColSize * numRows) +
+                            destColSize * rowIdx + colIdx] =
                         static_cast<int*>(
-                            source
-                            .DataPtr.get())[
+                            source.DataPtr.get())[
                             batchIdx * (sourceColSize * numRows) +
                             sourceColSize * rowIdx + colIdx];
             }

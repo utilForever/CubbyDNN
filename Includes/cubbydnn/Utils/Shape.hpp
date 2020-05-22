@@ -8,6 +8,7 @@
 #define CUBBYDNN_SHAPE_HPP
 
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace CubbyDNN
@@ -52,30 +53,45 @@ public:
 
     [[nodiscard]] std::size_t Size() const noexcept;
 
-    [[nodiscard]] std::size_t BatchSize() const;
+    [[nodiscard]] std::size_t NumMatrices() const;
 
     [[nodiscard]] std::size_t NumRows() const
     {
-        return m_shapeVector.at(1);
+        if (m_shapeVector.size() < 2)
+            return 1;
+        return m_shapeVector.at(m_shapeVector.size() - 2);
     }
 
     [[nodiscard]] std::size_t NumCols() const
     {
-        return m_shapeVector.at(0);
+        if (m_shapeVector.empty())
+            return 0;
+        return m_shapeVector.at(m_shapeVector.size() - 1);
     }
 
     void SetNumRows(std::size_t row)
     {
+        if (m_shapeVector.size() < 2)
+            throw std::invalid_argument(
+                "SetNumRows requires dimension larger than 1");
         m_shapeVector.at(1) = row;
     }
 
     void SetNumCols(std::size_t col)
     {
+        if (m_shapeVector.empty())
+            throw std::invalid_argument(
+                "SetNumRows requires dimension larger than 0");
         m_shapeVector.at(0) = col;
     }
 
     Shape& ChangeDimension(std::size_t axis, std::size_t value)
     {
+        if (axis >= m_shapeVector.size())
+            throw std::invalid_argument(
+                "Requested to change dimension " + std::to_string(axis) +
+                " But this tensor has only " + std::to_string(
+                    m_shapeVector.size()) + " dimensions");
         m_shapeVector.at(axis) = value;
         return *this;
     }

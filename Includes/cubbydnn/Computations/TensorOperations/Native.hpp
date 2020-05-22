@@ -22,7 +22,7 @@ public:
         const auto inputShape = input.TensorShape;
         const auto outputShape = output.TensorShape;
 
-        const auto batchSize = inputShape.BatchSize();
+        const auto batchSize = inputShape.NumMatrices();
 
         const auto numRows = inputShape.NumRows();
         const auto numCols = inputShape.NumCols();
@@ -30,8 +30,10 @@ public:
         for (std::size_t batch = 0; batch < batchSize; ++batch)
             for (std::size_t i = 0; i < numRows; ++i)
                 for (std::size_t j = 0; j < numCols; ++j)
-                    static_cast<T*>(output.DataPtr.get())[i * numCols + j] = function(
-                        static_cast<T*>(input.DataPtr.get())[i * numCols + j]);
+                    static_cast<T*>(output.DataPtr.get())[i * numCols + j] =
+                        function(
+                            static_cast<T*>(input.DataPtr.get())[i * numCols + j
+                            ]);
     }
 
     template <typename T>
@@ -44,7 +46,7 @@ public:
 
         const auto numRows = inputShapeA.NumRows();
         const auto numCols = inputShapeA.NumCols();
-        const auto batchSize = inputShapeA.BatchSize();
+        const auto batchSize = inputShapeA.NumMatrices();
         const auto matrixSize = numRows * numCols;
 
         const T* inputPtrA = static_cast<T*>(inputA.DataPtr.get());
@@ -69,7 +71,7 @@ public:
 
         const auto numRows = tensorShape.NumRows();
         const auto numCols = tensorShape.NumCols();
-        const auto batchSize = tensorShape.BatchSize();
+        const auto batchSize = tensorShape.NumMatrices();
         const auto matrixSize = numRows * numCols;
 
         T* tensorPtr = static_cast<T*>(tensor.DataPtr.get());
@@ -84,6 +86,39 @@ public:
                 }
     }
 
+    template <typename T>
+    static void BatchMean(const Tensor& input, std::size_t idx, Tensor& output)
+    {
+        std::size_t interval = 1;
+        for (int i = input.TensorShape.Dim() - 1; i > static_cast<int>(idx);
+             --i)
+            if (i == input.TensorShape.Dim() - 1)
+                interval *= input.GetPaddedNumCols();
+            else
+                interval *= input.TensorShape.At(i);
+
+        std::size_t batchSize = 1;
+        for (std::size_t i = 0; i <= idx; ++i)
+            if (i == input.TensorShape.Dim() - 1)
+                interval *= input.GetPaddedNumCols();
+            else
+                interval *= input.TensorShape.At(i);
+
+        const T* tensorPtr = static_cast<T*>(input.DataPtr.get());
+        T* outputPtr = static_cast<T*>(output.DataPtr.get());
+
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        {
+            for (std::size_t elementIdx = 0; elementIdx < interval;
+                 ++elementIdx)
+                outputPtr[elementIdx] +=
+                    tensorPtr[batchIdx * interval + elementIdx];
+        }
+
+        for (std::size_t elementIdx = 0; elementIdx < interval; ++elementIdx)
+            outputPtr[elementIdx] /= batchSize;
+    }
+
     template <typename T, std::size_t blockSize = 32>
     static void TensorMul(const Tensor& inputA, const Tensor& inputB,
                           Tensor& output)
@@ -92,7 +127,7 @@ public:
         const auto inputShapeB = inputB.TensorShape;
         const auto outputShape = output.TensorShape;
 
-        const auto batchSize = inputShapeA.BatchSize();
+        const auto batchSize = inputShapeA.NumMatrices();
         const auto matrixSizeA = inputShapeA.NumRows() * inputShapeA.NumCols();
         const auto matrixSizeB = inputShapeB.NumRows() * inputShapeB.NumCols();
         const auto matrixSizeOutput =
@@ -150,7 +185,7 @@ public:
         const auto numCols = shape.NumCols();
 
         const auto matrixSize = numRows * numCols;
-        const auto batchSize = shape.BatchSize();
+        const auto batchSize = shape.NumMatrices();
 
         const T* inputPtr = static_cast<T*>(input.DataPtr.get());
         T* outputPtr = static_cast<T*>(output.DataPtr.get());
@@ -188,7 +223,7 @@ public:
         const auto numCols = inputA.GetPaddedNumCols();
 
         const auto matrixSize = numRows * numCols;
-        const auto batchSize = shape.BatchSize();
+        const auto batchSize = shape.NumMatrices();
 
         const T* inputPtrA = static_cast<T*>(inputA.DataPtr.get());
         const T* inputPtrB = static_cast<T*>(inputB.DataPtr.get());

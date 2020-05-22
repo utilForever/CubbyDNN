@@ -30,20 +30,29 @@ public:
     Tensor& operator=(const Tensor& tensor) = delete;
     Tensor& operator=(Tensor&& tensor) noexcept;
 
+    //! If both tensors are on same device, data is moved rather than copied
     static void ForwardTensor(const Tensor& source, Tensor& destination);
+
+    static void MoveTensor(const Tensor& source, Tensor& destination);
+
+    static void CopyTensor(const Tensor& source, Tensor& destination);
 
     template <typename T>
     T& At(std::vector<std::size_t> index)
     {
-        std::size_t shapeIdx = 0;
-        std::size_t idx = 0;
+        if (index.size() != TensorShape.Dim())
+            throw std::invalid_argument(
+                "Index must have same dimension with tensor shape");
+        const int columnIdx = static_cast<int>(TensorShape.Dim() - 1);
+        int shapeIdx = columnIdx;
+        int idx = columnIdx;
         std::size_t multiplier = 1;
         std::size_t offset = 0;
-        for (; shapeIdx != TensorShape.Dim() && idx != index.size();
-               ++shapeIdx, ++idx)
+        for (; shapeIdx >= 0 && idx != index.size();
+               --shapeIdx, --idx)
         {
             offset += multiplier * index.at(idx);
-            if (idx == 0 && Device.PadSize() > 0)
+            if (idx == columnIdx && Device.PadSize() > 0)
                 multiplier = numPaddedColumn;
             else
                 multiplier *= TensorShape.At(idx);
@@ -63,19 +72,22 @@ public:
     Shape TensorShape;
     NumberSystem NumericType = NumberSystem::Float;
     Compute::Device Device;
-    std::atomic<std::size_t> ForwardStateNum = 0;
-    std::atomic<std::size_t> BackwardStateNum = 0;
+    std::atomic<std::size_t> ForwardState = 0;
+    std::atomic<std::size_t> BackwardState = 0;
 
 private:
     std::size_t numPaddedColumn = 0;
 
-    template <typename T>
     std::size_t m_getPaddedColumnSize() const
     {
         if (Device.PadSize() == 0)
             return TensorShape.NumCols();
 
-        const auto padUnitSize = Device.PadSize() / sizeof(T);
+        std::size_t padUnitSize;
+        if (NumericType == NumberSystem::Float)
+            padUnitSize = Device.PadSize() / sizeof(float);
+        else
+            padUnitSize = Device.PadSize() / sizeof(int);
 
         std::size_t i = 0;
         while (padUnitSize * i < TensorShape.NumCols())
