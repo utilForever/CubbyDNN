@@ -64,8 +64,8 @@ void TestMatMul2()
 {
     Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
 
-    const auto batchSize = 30;
-    const auto size = 500;
+    const auto batchSize = 3;
+    const auto size = 150;
 
     Tensor tensorA({ size, size, batchSize },
                    device);

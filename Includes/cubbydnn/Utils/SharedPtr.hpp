@@ -213,6 +213,15 @@ SharedPtr<T>::~SharedPtr()
 }
 
 template <typename T>
+auto& SharedPtr<T>::operator[](std::ptrdiff_t idx)
+{
+    return m_objectPtr[idx];
+}
+
+
+
+
+template <typename T>
 SharedPtr<T> SharedPtr<T>::Make(T* objectPtr)
 {
     auto* infoPtr = new SharedObjectInfo();

@@ -133,6 +133,13 @@ public:
     //! ptr has valid pointer
     ~SharedPtr();
 
+    auto& operator[](std::ptrdiff_t idx);
+
+   [[nodiscard]]  T* get() const noexcept
+    {
+        return m_objectPtr;
+    }
+
     //! Builds SharedPtr m_objectPtr using raw pointer
     //! \param objectPtr : pointer to the object
     static SharedPtr<T> Make(T* objectPtr);

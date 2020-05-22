@@ -30,8 +30,8 @@ public:
         for (std::size_t batch = 0; batch < batchSize; ++batch)
             for (std::size_t i = 0; i < numRows; ++i)
                 for (std::size_t j = 0; j < numCols; ++j)
-                    static_cast<T*>(output.DataPtr)[i * numCols + j] = function(
-                        static_cast<T*>(input.DataPtr)[i * numCols + j]);
+                    static_cast<T*>(output.DataPtr.get())[i * numCols + j] = function(
+                        static_cast<T*>(input.DataPtr.get())[i * numCols + j]);
     }
 
     template <typename T>
@@ -47,9 +47,9 @@ public:
         const auto batchSize = inputShapeA.BatchSize();
         const auto matrixSize = numRows * numCols;
 
-        const T* inputPtrA = static_cast<T*>(inputA.DataPtr);
-        const T* inputPtrB = static_cast<T*>(inputB.DataPtr);
-        T* outputPtr = static_cast<T*>(output.DataPtr);
+        const T* inputPtrA = static_cast<T*>(inputA.DataPtr.get());
+        const T* inputPtrB = static_cast<T*>(inputB.DataPtr.get());
+        T* outputPtr = static_cast<T*>(output.DataPtr.get());
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t i = 0; i < numRows; ++i)
@@ -72,8 +72,8 @@ public:
         const auto batchSize = tensorShape.BatchSize();
         const auto matrixSize = numRows * numCols;
 
-        T* tensorPtr = static_cast<T*>(tensor.DataPtr);
-        const T* addPtr = static_cast<T*>(toAdd.DataPtr);
+        T* tensorPtr = static_cast<T*>(tensor.DataPtr.get());
+        const T* addPtr = static_cast<T*>(toAdd.DataPtr.get());
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t i = 0; i < numRows; ++i)
@@ -104,9 +104,9 @@ public:
         const auto numRowsB = inputShapeB.NumRows();
         const auto numColsB = inputShapeB.NumCols();
 
-        const T* inputAPtr = static_cast<T*>(inputA.DataPtr);
-        const T* inputBPtr = static_cast<T*>(inputB.DataPtr);
-        T* outputPtr = static_cast<T*>(output.DataPtr);
+        const T* inputAPtr = static_cast<T*>(inputA.DataPtr.get());
+        const T* inputBPtr = static_cast<T*>(inputB.DataPtr.get());
+        T* outputPtr = static_cast<T*>(output.DataPtr.get());
 
         //! cache friendly matrix multiplication minimizing cache misses
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -152,8 +152,8 @@ public:
         const auto matrixSize = numRows * numCols;
         const auto batchSize = shape.BatchSize();
 
-        const T* inputPtr = static_cast<T*>(input.DataPtr);
-        T* outputPtr = static_cast<T*>(output.DataPtr);
+        const T* inputPtr = static_cast<T*>(input.DataPtr.get());
+        T* outputPtr = static_cast<T*>(output.DataPtr.get());
 
         //! Optimized matrix transpose minimizing cache misses
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -190,9 +190,9 @@ public:
         const auto matrixSize = numRows * numCols;
         const auto batchSize = shape.BatchSize();
 
-        const T* inputPtrA = static_cast<T*>(inputA.DataPtr);
-        const T* inputPtrB = static_cast<T*>(inputB.DataPtr);
-        T* outputPtr = static_cast<T*>(output.DataPtr);
+        const T* inputPtrA = static_cast<T*>(inputA.DataPtr.get());
+        const T* inputPtrB = static_cast<T*>(inputB.DataPtr.get());
+        T* outputPtr = static_cast<T*>(output.DataPtr.get());
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t i = 0; i < numRows; ++i)

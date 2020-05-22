@@ -10,6 +10,8 @@
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Computations/Device.hpp>
 
+#include <cubbydnn/Utils/SharedPtr.hpp>
+
 namespace CubbyDNN
 {
 //! TensorData class contains data vector for processing
@@ -20,7 +22,7 @@ public:
     Tensor(Shape shape, Compute::Device device,
            NumberSystem numberSystem = NumberSystem::Float);
 
-    ~Tensor();
+    ~Tensor() = default;
 
     Tensor(const Tensor& tensor);
     Tensor(Tensor&& tensor) noexcept;
@@ -28,7 +30,7 @@ public:
     Tensor& operator=(const Tensor& tensor) = delete;
     Tensor& operator=(Tensor&& tensor) noexcept;
 
-    static void CopyTensor(const Tensor& source, Tensor& destination);
+    static void ForwardTensor(const Tensor& source, Tensor& destination);
 
     template <typename T>
     T& At(std::vector<std::size_t> index)
@@ -47,7 +49,7 @@ public:
                 multiplier *= TensorShape.At(idx);
         }
 
-        return *(static_cast<T*>(DataPtr) + offset);
+        return *(static_cast<T*>(DataPtr.get()) + offset);
     }
 
     std::size_t GetPaddedNumCols() const
@@ -56,7 +58,7 @@ public:
     }
 
     /// Data vector which possesses actual data
-    void* DataPtr = nullptr;
+    SharedPtr<void> DataPtr;
     /// Shape of this tensorData
     Shape TensorShape;
     NumberSystem NumericType = NumberSystem::Float;

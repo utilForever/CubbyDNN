@@ -34,11 +34,11 @@ public:
     {
         if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::Zeros(
-                tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
+                tensor.TensorShape, static_cast<float*>(tensor.DataPtr.get()),
                 tensor.Device.PadSize());
         else
             InitializerOperations::Zeros(
-                tensor.TensorShape, static_cast<int*>(tensor.DataPtr),
+                tensor.TensorShape, static_cast<int*>(tensor.DataPtr.get()),
                 tensor.Device.PadSize());
     }
 };
@@ -53,7 +53,7 @@ public:
     {
         if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::XavierNormal(
-                tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
+                tensor.TensorShape, static_cast<float*>(tensor.DataPtr.get()),
                 tensor.Device.PadSize());
         else
             throw std::invalid_argument(
@@ -70,7 +70,7 @@ public:
     {
         if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::HeNormal(
-                tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
+                tensor.TensorShape, static_cast<float*>(tensor.DataPtr.get()),
                 tensor.Device.PadSize());
         else
             throw std::invalid_argument(
@@ -88,7 +88,7 @@ public:
         if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::LecunNormal(tensor.TensorShape,
                                                static_cast<float*>(tensor.
-                                                   DataPtr), tensor.Device.PadSize());
+                                                   DataPtr.get()), tensor.Device.PadSize());
         else
             throw std::invalid_argument(
                 "No integer type is available for LecunNormal");
@@ -105,12 +105,12 @@ public:
         if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::RandomUniform(
                 tensor.TensorShape, m_min,
-                m_max, static_cast<float*>(tensor.DataPtr),
+                m_max, static_cast<float*>(tensor.DataPtr.get()),
                 tensor.Device.PadSize());
         else
             InitializerOperations::RandomUniform(
                 tensor.TensorShape, m_integerMin, m_integerMax,
-                static_cast<int*>(tensor.DataPtr), tensor.Device.PadSize());
+                static_cast<int*>(tensor.DataPtr.get()), tensor.Device.PadSize());
     }
 
 private:
@@ -130,7 +130,7 @@ public:
         if (tensor.NumericType == NumberSystem::Float)
             InitializerOperations::RandomNormal(
                 tensor.TensorShape, m_min, m_max,
-                static_cast<float*>(tensor.DataPtr), tensor.Device.PadSize());
+                static_cast<float*>(tensor.DataPtr.get()), tensor.Device.PadSize());
         else
             throw std::invalid_argument(
                 "No integer type is available for RandomNormal");
