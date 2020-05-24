@@ -8,14 +8,21 @@ namespace CubbyDNN::Node
 class NodeTypeManager
 {
  public:
-    const NodeType* Type(const std::string& typeName) const;
+    NodeTypeManager();
+    ~NodeTypeManager() noexcept = default;
 
+    NodeTypeManager(const NodeTypeManager& rhs) = delete;
+    NodeTypeManager(NodeTypeManager&& rhs) noexcept = delete;
+
+    NodeTypeManager& operator=(const NodeTypeManager& rhs) = delete;
+    NodeTypeManager& operator=(NodeTypeManager&& rhs) noexcept = delete;
+
+    const NodeType* Type(const std::string& typeName) const;
     template <typename T>
     const NodeType* Type() const;
 
     template <typename T>
     void RegisterNode();
-
     template <typename T, typename B>
     void RegisterNode();
 
