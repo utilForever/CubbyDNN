@@ -52,6 +52,9 @@ target_link_libraries(${target}
         ${DEFAULT_LINKER_OPTIONS}
         ${DEFAULT_LIBRARIES}
 
+        ${CURL_LIBRARIES}
+        ${ZLIB_LIBRARIES}
+        
         INTERFACE
         )
 

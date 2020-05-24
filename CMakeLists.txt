@@ -33,6 +33,20 @@ endif()
 # Overrides
 set(CMAKE_MACOSX_RPATH ON)
 
+find_package(CURL)
+if (CURL_FOUND)
+    include_directories(${CURL_INCLUDE_DIRS})
+else()
+    message(FATAL_ERROR "Could not find the CURL library and development files.")
+endif()
+
+find_package(ZLIB)
+if (ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIRS})
+else()
+    message(FATAL_ERROR "Could not find the ZLIB library and development files.")
+endif()
+
 # Project modules
 add_subdirectory(Sources/CubbyDNN)
 add_subdirectory(Tests/UnitTests)
