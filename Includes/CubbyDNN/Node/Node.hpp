@@ -21,6 +21,13 @@ class Node
     friend NodeInput;
 
     Node(Core::Graph* _graph, std::string_view _name);
+    virtual ~Node() noexcept = default;
+
+    Node(const Node& rhs) = delete;
+    Node(Node&& rhs) noexcept = delete;
+
+    Node& operator=(const Node& rhs) = delete;
+    Node& operator=(Node&& rhs) noexcept = delete;
 
     NodeInput* operator[](const std::string& inputName);
 
@@ -43,6 +50,9 @@ class Node
     const std::string name;
 
  protected:
+    virtual void EvalShapeInternal() = 0;
+    virtual void EvalOutputInternal() = 0;
+
     Core::Shape m_shape;
     Core::Memory<float> m_output;
     Core::Memory<float> m_gradient;
