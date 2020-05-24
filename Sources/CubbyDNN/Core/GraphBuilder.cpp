@@ -30,6 +30,13 @@ void GraphBuilder::RegisterStandardNodeType()
 {
     graph->nodeTypeManager.RegisterNode<Node::Input>();
     graph->nodeTypeManager.RegisterNode<Node::Parameter>();
+
+    graph->nodeTypeManager.RegisterNode<Node::ReLU>();
+    graph->nodeTypeManager.RegisterNode<Node::Softmax>();
+
+    graph->nodeTypeManager.RegisterNode<Node::Dense>();
+
+    graph->nodeTypeManager.RegisterNode<Node::SoftmaxCE>();
 }
 
 Node::NodeWrapper GraphBuilder::Input(const std::string& nodeName)
