@@ -107,6 +107,18 @@ const T* Span<T>::Max() const
 }
 
 template <typename T>
+Span<T> Span<T>::SubSpan(std::size_t offset) const noexcept
+{
+    return Span(m_base + offset, m_base + m_length);
+}
+
+template <typename T>
+Span<T> Span<T>::SubSpan(std::size_t offset, std::size_t length) const noexcept
+{
+    return Span(m_base + offset, m_base + std::min(m_length, length));
+}
+
+template <typename T>
 void Span<T>::FillZero()
 {
     std::fill(m_base, m_base + m_length, static_cast<T>(0));

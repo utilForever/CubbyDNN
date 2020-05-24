@@ -30,6 +30,9 @@ class Span
     T* Max();
     const T* Max() const;
 
+    Span SubSpan(std::size_t offset) const noexcept;
+    Span SubSpan(std::size_t offset, std::size_t length) const noexcept;
+
     void FillZero();
     void FillOne();
 
