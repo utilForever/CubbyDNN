@@ -76,6 +76,30 @@ const T* Span<T>::cend() const noexcept
     return m_base + m_length;
 }
 
+template <class T>
+T* Span<T>::Min()
+{
+    return std::min_element(begin(), end());
+}
+
+template <class T>
+const T* Span<T>::Min() const
+{
+    return std::min_element(begin(), end());
+}
+
+template <class T>
+T* Span<T>::Max()
+{
+    return std::max_element(begin(), end());
+}
+
+template <class T>
+const T* Span<T>::Max() const
+{
+    return std::max_element(begin(), end());
+}
+
 template <typename T>
 void Span<T>::FillZero()
 {

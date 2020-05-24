@@ -24,6 +24,11 @@ class Span
     const T* end() const noexcept;
     const T* cend() const noexcept;
 
+    T* Min();
+    const T* Min() const;
+    T* Max();
+    const T* Max() const;
+
     void FillZero();
     void FillOne();
 
