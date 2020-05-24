@@ -6,7 +6,7 @@
 
 namespace CubbyDNN::Node
 {
-class Dense : public Node
+class Dense final : public Node
 {
  public:
     Dense(Core::Graph* graph, std::string_view name);
@@ -22,6 +22,9 @@ class Dense : public Node
     static std::string_view TypeName();
 
  private:
+    void EvalShapeInternal() override;
+    void EvalOutputInternal() override;
+
     NodeInput m_input;
     NodeInput m_inputWeight;
     NodeInput m_inputBias;

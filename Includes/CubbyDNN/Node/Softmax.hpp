@@ -6,7 +6,7 @@
 
 namespace CubbyDNN::Node
 {
-class Softmax : public Node
+class Softmax final : public Node
 {
  public:
     Softmax(Core::Graph* graph, std::string_view name,
@@ -25,7 +25,13 @@ class Softmax : public Node
     const std::vector<bool> groupAxis;
 
  private:
+    void EvalShapeInternal() override;
+    void EvalOutputInternal() override;
+
+    Core::Memory<float> m_summation;
     NodeInput m_inputLogit;
+    std::vector<std::tuple<std::size_t, std::size_t, std::size_t>>
+        m_indexFactorList;
 };
 }  // namespace CubbyDNN::Node
 

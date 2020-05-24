@@ -6,7 +6,7 @@
 
 namespace CubbyDNN::Node
 {
-class ReLU : public Node
+class ReLU final : public Node
 {
  public:
     ReLU(Core::Graph* graph, std::string_view name, float _alpha);
@@ -24,6 +24,9 @@ class ReLU : public Node
     const float alpha = 0.0;
 
  private:
+    void EvalShapeInternal() override;
+    void EvalOutputInternal() override;
+
     NodeInput m_inputLogit;
 };
 }  // namespace CubbyDNN::Node

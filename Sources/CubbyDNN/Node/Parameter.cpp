@@ -19,4 +19,14 @@ Core::Span<float> Parameter::GetParameter() const noexcept
 {
     return m_parameter.GetSpan();
 }
+
+void Parameter::EvalShapeInternal()
+{
+    m_shape = parameterShape;
+}
+
+void Parameter::EvalOutputInternal()
+{
+    Output().CopyFrom(m_parameter.GetSpan());
+}
 }  // namespace CubbyDNN::Node

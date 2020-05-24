@@ -7,7 +7,7 @@
 
 namespace CubbyDNN::Node
 {
-class Parameter : public Node
+class Parameter final : public Node
 {
  public:
     Parameter(Core::Graph* _graph, std::string_view _name, Core::Shape _shape,
@@ -25,7 +25,10 @@ class Parameter : public Node
     const Core::Shape parameterShape;
     Initializer::Initializer* const initializer;
 
-private:
+ private:
+    void EvalShapeInternal() override;
+    void EvalOutputInternal() override;
+
     Core::Memory<float> m_parameter;
 };
 }  // namespace CubbyDNN::Node

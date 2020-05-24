@@ -6,7 +6,7 @@
 
 namespace CubbyDNN::Node
 {
-class SoftmaxCE : public Node
+class SoftmaxCE final : public Node
 {
  public:
     SoftmaxCE(Core::Graph* graph, std::string_view name);
@@ -22,6 +22,9 @@ class SoftmaxCE : public Node
     static std::string_view TypeName();
 
  private:
+    void EvalShapeInternal() override;
+    void EvalOutputInternal() override;
+
     NodeInput m_inputLabel;
     NodeInput m_inputProb;
 };

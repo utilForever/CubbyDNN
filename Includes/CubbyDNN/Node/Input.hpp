@@ -6,7 +6,7 @@
 
 namespace CubbyDNN::Node
 {
-class Input : public Node
+class Input final : public Node
 {
  public:
     Input(Core::Graph* graph, std::string_view name);
@@ -24,6 +24,9 @@ class Input : public Node
     void Feed(const Core::Shape& shape, Core::Span<float> span);
 
  private:
+    void EvalShapeInternal() override;
+    void EvalOutputInternal() override;
+
     Core::Shape m_inputShape;
     Core::Span<float> m_inputSpan;
 };

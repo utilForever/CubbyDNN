@@ -29,4 +29,14 @@ void Input::Feed(const Core::Shape& shape, Core::Span<float> span)
 
     MarkDirty(isDirtyShape);
 }
+
+void Input::EvalShapeInternal()
+{
+    m_shape = m_inputShape;
+}
+
+void Input::EvalOutputInternal()
+{
+    Output().CopyFrom(m_inputSpan);
+}
 }  // namespace CubbyDNN::Node

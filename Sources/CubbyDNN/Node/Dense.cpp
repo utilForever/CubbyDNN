@@ -22,4 +22,66 @@ std::string_view Dense::TypeName()
 {
     return "Dense";
 }
+
+void Dense::EvalShapeInternal()
+{
+    if (!m_input)
+    {
+        throw std::runtime_error("No node attached at 'input'");
+    }
+
+    if (m_input.InputNode()->Shape().Rank() != 2)
+    {
+        throw std::runtime_error("The rank of 'input' must be 2");
+    }
+
+    if (m_inputWeight.InputNode()->Shape().Rank() != 2)
+    {
+        throw std::runtime_error("The rank of 'weight' must be 2");
+    }
+
+    if (m_inputBias && m_inputBias.InputNode()->Shape().Rank() != 1)
+    {
+        throw std::runtime_error("The rank of 'bias' must be 1");
+    }
+
+    if (m_input.InputNode()->Shape()[0] !=
+        m_inputWeight.InputNode()->Shape()[1])
+    {
+        throw std::runtime_error(
+            "The shape of 'input' and 'weight' is not compatible");
+    }
+
+    if (m_inputBias && m_inputWeight.InputNode()->Shape()[0] !=
+                           m_inputBias.InputNode()->Shape()[0])
+    {
+        throw std::runtime_error(
+            "The shape of 'weight' and 'bias' is not compatible");
+    }
+
+    m_shape = { m_inputWeight.InputNode()->Shape()[0],
+                m_input.InputNode()->Shape()[1] };
+}
+
+void Dense::EvalOutputInternal()
+{
+    if (m_inputBias)
+    {
+        m_inputBias.InputNode()->EvalOutput();
+
+        for (std::size_t index = 0, maxIndex = m_shape[1], width = m_shape[0];
+             index < maxIndex; ++index)
+        {
+            m_output.GetSpan()
+                .SubSpan(index * width)
+                .CopyFrom(m_inputBias.InputNode()->Output());
+        }
+    }
+    else
+    {
+        m_output.GetSpan().FillZero();
+    }
+
+    // TODO: Compute multiply add using GEMM
+}
 }  // namespace CubbyDNN::Node
