@@ -77,7 +77,7 @@ Node& Node::EvalShape()
         pair.second->InputNode()->EvalShape();
     }
 
-    // TODO: Call EvaluateShape()
+    EvalShapeInternal();
     m_isShapeDirty = false;
 
     return *this;
@@ -92,7 +92,7 @@ Node& Node::EvalOutput()
 
     m_output.Resize(EvalShape().m_shape.Size());
 
-    // TODO: Call EvaluateOutput()
+    EvalOutputInternal();
     m_isOutputDirty = false;
 
     return *this;
