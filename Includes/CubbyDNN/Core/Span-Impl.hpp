@@ -40,61 +40,67 @@ const T& Span<T>::operator[](std::size_t index) const
     return m_base[index];
 }
 
-template <class T>
+template <typename T>
 T* Span<T>::begin() noexcept
 {
     return m_base;
 }
 
-template <class T>
+template <typename T>
 const T* Span<T>::begin() const noexcept
 {
     return m_base;
 }
 
-template <class T>
+template <typename T>
 const T* Span<T>::cbegin() const noexcept
 {
     return m_base;
 }
 
-template <class T>
+template <typename T>
 T* Span<T>::end() noexcept
 {
     return m_base + m_length;
 }
 
-template <class T>
+template <typename T>
 const T* Span<T>::end() const noexcept
 {
     return m_base + m_length;
 }
 
-template <class T>
+template <typename T>
 const T* Span<T>::cend() const noexcept
 {
     return m_base + m_length;
 }
 
-template <class T>
+template <typename T>
+std::size_t Span<T>::Length() const noexcept
+{
+    return m_length;
+}
+
+template <typename T>
 T* Span<T>::Min()
 {
     return std::min_element(begin(), end());
 }
 
-template <class T>
+template <typename T>
 const T* Span<T>::Min() const
 {
     return std::min_element(begin(), end());
 }
 
-template <class T>
+template <typename T>
 T* Span<T>::Max()
 {
     return std::max_element(begin(), end());
 }
 
-template <class T>
+template <typename T>
 const T* Span<T>::Max() const
 {
     return std::max_element(begin(), end());

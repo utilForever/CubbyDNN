@@ -23,6 +23,7 @@ class Span
     T* end() noexcept;
     const T* end() const noexcept;
     const T* cend() const noexcept;
+    std::size_t Length() const noexcept;
 
     T* Min();
     const T* Min() const;
