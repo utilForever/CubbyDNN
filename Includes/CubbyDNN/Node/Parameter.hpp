@@ -20,6 +20,9 @@ class Parameter final : public Node
     Parameter& operator=(const Parameter& rhs) = delete;
     Parameter& operator=(Parameter&& rhs) noexcept = delete;
 
+    const NodeType* Type() const override;
+    static std::string_view TypeName();
+
     Core::Span<float> GetParameter() const noexcept;
 
     const Core::Shape parameterShape;

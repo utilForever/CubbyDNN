@@ -1,3 +1,4 @@
+#include <CubbyDNN/Core/Graph.hpp>
 #include <CubbyDNN/Node/Parameter.hpp>
 
 #include <utility>
@@ -13,6 +14,16 @@ Parameter::Parameter(Core::Graph* _graph, std::string_view _name,
 {
     m_parameter.Resize(EvalShape().Shape().Size());
     (*initializer)(m_parameter.GetSpan());
+}
+
+const NodeType* Parameter::Type() const
+{
+    return graph->nodeTypeManager.Type<Parameter>();
+}
+
+std::string_view Parameter::TypeName()
+{
+    return "Parameter";
 }
 
 Core::Span<float> Parameter::GetParameter() const noexcept
