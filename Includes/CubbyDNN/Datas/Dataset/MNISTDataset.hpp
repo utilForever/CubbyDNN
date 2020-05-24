@@ -12,7 +12,7 @@ namespace CubbyDNN
 class MNISTDataset final : public Dataset<MNISTDataset, std::tuple<Image, long>>
 {
  public:
-    MNISTDataset(const std::string& root, bool train);
+    MNISTDataset(const std::string& root, bool train, bool download);
 
     bool IsTrain() const;
     OutputType Get(std::size_t index) const override;

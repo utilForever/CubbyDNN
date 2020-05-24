@@ -1,5 +1,8 @@
 #include <CubbyDNN/Datas/Dataset/MNISTDataset.hpp>
 
+#include <CubbyDNN/Utils/Downloader.hpp>
+
+#include <filesystem>
 #include <fstream>
 
 namespace
@@ -29,18 +32,67 @@ std::uint32_t readInt32(std::ifstream& stream)
 
 namespace CubbyDNN
 {
-MNISTDataset::MNISTDataset(const std::string& root, bool train)
+MNISTDataset::MNISTDataset(const std::string& root, bool train, bool download)
     : m_isTrain(train)
 {
+    const std::string train_images_path = root + "/train-images.idx3-ubyte";
+    const std::string train_labels_path = root + "/train-labels.idx1-ubyte";
+    const std::string test_images_path = root + "/t10k-images.idx3-ubyte";
+    const std::string test_labels_path = root + "/t10k-labels.idx1-ubyte";
+
+    if (download)
+    {
+        if (!std::filesystem::exists(root))
+        {
+            std::filesystem::create_directories(root);
+        }
+
+        std::ofstream train_images(train_images_path + ".gz");
+        if (!Downloader::DownloadData(
+                "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz",
+                train_images))
+            throw std::runtime_error("Cannot download train images");
+        train_images.close();
+        if (!Downloader::UnGzip(train_images_path + ".gz", train_images_path))
+            throw std::runtime_error("Cannot extract train images");
+
+        std::ofstream train_labels(train_labels_path + ".gz");
+        if (!Downloader::DownloadData(
+                "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz",
+                train_labels))
+            throw std::runtime_error("Cannot download train labels");
+        train_labels.close();
+        if (!Downloader::UnGzip(train_labels_path + ".gz", train_labels_path))
+            throw std::runtime_error("Cannot extract train labels");
+
+        std::ofstream test_images(test_images_path + ".gz");
+        if (!Downloader::DownloadData(
+                "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz",
+                test_images))
+            throw std::runtime_error("Cannot download test images");
+        test_images.close();
+        if (!Downloader::UnGzip(test_images_path + ".gz", test_images_path))
+            throw std::runtime_error("Cannot extract test images");
+
+        std::ofstream test_labels(test_labels_path + ".gz");
+        if (!Downloader::DownloadData(
+                "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz",
+                test_labels))
+            throw std::runtime_error("Cannot download test labels");
+        test_labels.close();
+        if (!Downloader::UnGzip(test_labels_path + ".gz", test_labels_path))
+            throw std::runtime_error("Cannot extract test labels");
+    }
+
     if (train)
     {
-        loadImages(root + "/train-images.idx3-ubyte");
-        loadLabels(root + "/train-labels.idx1-ubyte");
+        loadImages(train_images_path);
+        loadLabels(train_labels_path);
     }
     else
     {
-        loadImages(root + "/t10k-images.idx3-ubyte");
-        loadLabels(root + "/t10k-labels.idx1-ubyte");
+        loadImages(test_images_path);
+        loadLabels(test_labels_path);
     }
 
     m_loaded = true;
