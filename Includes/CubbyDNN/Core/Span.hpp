@@ -27,6 +27,8 @@ class Span
     void FillZero();
     void FillOne();
 
+    void CopyFrom(const Span& span);
+
     void AccumulateFrom(const Span& span);
     void AccumulateFrom(T factor, const Span& span);
 
