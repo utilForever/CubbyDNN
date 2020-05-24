@@ -1,5 +1,7 @@
 #include <CubbyDNN/Node/Dense.hpp>
 
+#include <CubbyDNN/Compute/GEMM.hpp>
+
 namespace CubbyDNN::Node
 {
 Dense::Dense(Core::Graph* graph, std::string_view name)
@@ -82,6 +84,9 @@ void Dense::EvalOutputInternal()
         m_output.GetSpan().FillZero();
     }
 
-    // TODO: Compute multiply add using GEMM
+    Compute::GEMM::MultiplyAdd(
+        m_input.InputNode()->Shape()[0], m_shape[1], m_shape[0],
+        m_input.InputNode()->EvalOutput().Output(),
+        m_inputWeight.InputNode()->EvalOutput().Output(), m_output.GetSpan());
 }
 }  // namespace CubbyDNN::Node
