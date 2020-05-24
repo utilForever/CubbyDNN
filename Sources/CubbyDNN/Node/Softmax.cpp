@@ -23,7 +23,7 @@ std::string_view Softmax::TypeName()
 
 void Softmax::EvalShapeInternal()
 {
-    if (m_inputLogit)
+    if (!m_inputLogit)
     {
         throw std::runtime_error("No node attached at 'logit'");
     }

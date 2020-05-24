@@ -22,7 +22,7 @@ std::string_view ReLU::TypeName()
 
 void ReLU::EvalShapeInternal()
 {
-    if (m_inputLogit)
+    if (!m_inputLogit)
     {
         throw std::runtime_error("No node attached at 'logit'");
     }
