@@ -27,6 +27,11 @@ class GEMM final
         const Core::Span<float> left, const Core::Span<float> right,
         Core::Span<float> destination) noexcept;
 
+    static void __vectorcall dMultiplyLeft(
+        std::size_t maxIndex, std::size_t numRow, std::size_t numColumn,
+        const Core::Span<float> gradient, const Core::Span<float> right,
+        Core::Span<float> destination) noexcept;
+
     static void __vectorcall dMultiplyAddLeft(
         std::size_t maxIndex, std::size_t numRow, std::size_t numColumn,
         const Core::Span<float> gradient, const Core::Span<float> right,

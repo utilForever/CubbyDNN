@@ -66,6 +66,17 @@ void __vectorcall GEMM::MultiplyAdd(std::size_t maxIndex, std::size_t numRow,
     }
 }
 
+void __vectorcall GEMM::dMultiplyLeft(std::size_t maxIndex, std::size_t numRow,
+                                      std::size_t numColumn,
+                                      const Core::Span<float> gradient,
+                                      const Core::Span<float> right,
+                                      Core::Span<float> destination) noexcept
+{
+    destination.FillZero();
+
+    dMultiplyAddLeft(maxIndex, numRow, numColumn, gradient, right, destination);
+}
+
 void __vectorcall GEMM::dMultiplyAddLeft(std::size_t maxIndex,
                                          std::size_t numRow,
                                          std::size_t numColumn,
