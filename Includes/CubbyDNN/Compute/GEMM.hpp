@@ -16,6 +16,12 @@ class GEMM final
     GEMM& operator=(const GEMM& rhs) = delete;
     GEMM& operator=(GEMM&& rhs) noexcept = delete;
 
+    static void __vectorcall Multiply(std::size_t maxIndex, std::size_t numRow,
+                                      std::size_t numColumn,
+                                      const Core::Span<float> left,
+                                      const Core::Span<float> right,
+                                      Core::Span<float> destination) noexcept;
+
     static void __vectorcall MultiplyAdd(
         std::size_t maxIndex, std::size_t numRow, std::size_t numColumn,
         const Core::Span<float> left, const Core::Span<float> right,

@@ -4,6 +4,17 @@
 
 namespace CubbyDNN::Compute
 {
+void __vectorcall GEMM::Multiply(std::size_t maxIndex, std::size_t numRow,
+                                 std::size_t numColumn,
+                                 const Core::Span<float> left,
+                                 const Core::Span<float> right,
+                                 Core::Span<float> destination) noexcept
+{
+    destination.FillZero();
+
+    MultiplyAdd(maxIndex, numRow, numColumn, left, right, destination);
+}
+
 void __vectorcall GEMM::MultiplyAdd(std::size_t maxIndex, std::size_t numRow,
                                     std::size_t numColumn,
                                     const Core::Span<float> left,
