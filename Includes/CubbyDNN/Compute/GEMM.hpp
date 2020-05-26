@@ -37,6 +37,11 @@ class GEMM final
         const Core::Span<float> gradient, const Core::Span<float> right,
         Core::Span<float> destination) noexcept;
 
+    static void __vectorcall dMultiplyRight(
+        std::size_t maxIndex, std::size_t numRow, std::size_t numColumn,
+        const Core::Span<float> gradient, const Core::Span<float> left,
+        Core::Span<float> destination) noexcept;
+
     static void __vectorcall dMultiplyAddRight(
         std::size_t maxIndex, std::size_t numRow, std::size_t numColumn,
         const Core::Span<float> gradient, const Core::Span<float> left,
