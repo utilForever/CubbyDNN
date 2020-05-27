@@ -45,7 +45,7 @@ void Momentum::Reduce(float learningRate, Node::Node* target)
         }
     }
 
-    auto momentumGradient(m_momentumGradientList.begin());
+    auto momentumGradient = m_momentumGradientList.begin();
 
     for (auto* parameter : m_parameterList)
     {
