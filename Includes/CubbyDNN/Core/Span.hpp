@@ -35,6 +35,7 @@ class Span
 
     void FillZero();
     void FillOne();
+    void FillScalar(T scalar);
 
     void CopyFrom(const Span& span);
 

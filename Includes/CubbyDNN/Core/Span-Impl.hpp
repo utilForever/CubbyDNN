@@ -131,6 +131,12 @@ void Span<T>::FillOne()
 }
 
 template <typename T>
+void Span<T>::FillScalar(T scalar)
+{
+    std::fill(m_base, m_base + m_length, scalar);
+}
+
+template <typename T>
 void Span<T>::CopyFrom(const Span& span)
 {
     std::copy(span.m_base, span.m_base + std::min(span.m_length, m_length),
