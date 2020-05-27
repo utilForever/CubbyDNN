@@ -28,6 +28,8 @@ class Softmax final : public Node
     void EvalShapeInternal() override;
     void EvalOutputInternal() override;
 
+    void BackwardOp(const Node* dy);
+
     Core::Memory<float> m_summation;
     NodeInput m_inputLogit;
     std::vector<std::tuple<std::size_t, std::size_t, std::size_t>>

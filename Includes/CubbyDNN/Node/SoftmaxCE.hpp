@@ -25,6 +25,9 @@ class SoftmaxCE final : public Node
     void EvalShapeInternal() override;
     void EvalOutputInternal() override;
 
+    void BackwardOpLabel(const Node* dy);
+    void BackwardOpProb(const Node* dy);
+
     NodeInput m_inputLabel;
     NodeInput m_inputProb;
 };

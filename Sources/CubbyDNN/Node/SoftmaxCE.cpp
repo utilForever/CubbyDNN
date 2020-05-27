@@ -4,8 +4,9 @@ namespace CubbyDNN::Node
 {
 SoftmaxCE::SoftmaxCE(Core::Graph* graph, std::string_view name)
     : Node(graph, name),
-      m_inputLabel(this, "label", [this](const auto* dy) { (void)dy; }),
-      m_inputProb(this, "prob", [this](const auto* dy) { (void)dy; })
+      m_inputLabel(this, "label",
+                   [this](const auto* dy) { BackwardOpLabel(dy); }),
+      m_inputProb(this, "prob", [this](const auto* dy) { BackwardOpProb(dy); })
 {
     m_nodeInputMap["label"] = &m_inputLabel;
     m_nodeInputMap["prob"] = &m_inputProb;
@@ -61,5 +62,41 @@ void SoftmaxCE::EvalOutputInternal()
 
     m_output.GetSpan()[0] /=
         -static_cast<float>(m_inputLabel.InputNode()->Shape()[1]);
+}
+
+void SoftmaxCE::BackwardOpLabel(const Node* dy)
+{
+    m_inputProb.InputNode()->EvalOutput();
+    EvalGradient(dy);
+
+    const float factor =
+        -m_gradient.GetSpan()[0] / m_inputProb.InputNode()->Shape()[1];
+
+    for (std::size_t index = 0,
+                     maxIndex = m_inputProb.InputNode()->Gradient().Length();
+         index < maxIndex; ++index)
+    {
+        m_inputLabel.InputNode()->Gradient()[index] +=
+            factor * std::log(m_inputProb.InputNode()->Output()[index] + 1e-4f);
+    }
+}
+
+void SoftmaxCE::BackwardOpProb(const Node* dy)
+{
+    m_inputLabel.InputNode()->EvalOutput();
+    m_inputProb.InputNode()->EvalOutput();
+    EvalGradient(dy);
+
+    const float factor =
+        -m_gradient.GetSpan()[0] / m_inputProb.InputNode()->Shape()[1];
+
+    for (std::size_t index = 0,
+                     maxIndex = m_inputProb.InputNode()->Gradient().Length();
+         index < maxIndex; ++index)
+    {
+        m_inputProb.InputNode()->Gradient()[index] +=
+            factor * m_inputLabel.InputNode()->Output()[index] /
+            (m_inputProb.InputNode()->Output()[index] + 1e-4f);
+    }
 }
 }  // namespace CubbyDNN::Node

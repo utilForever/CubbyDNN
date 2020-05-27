@@ -5,7 +5,7 @@ namespace CubbyDNN::Node
 ReLU::ReLU(Core::Graph* graph, std::string_view name, float _alpha)
     : Node(graph, name),
       alpha(_alpha),
-      m_inputLogit(this, "logit", [this](const auto* dy) { (void)dy; })
+      m_inputLogit(this, "logit", [this](const auto* dy) { BackwardOp(dy); })
 {
     m_nodeInputMap["logit"] = &m_inputLogit;
 }
@@ -43,6 +43,25 @@ void ReLU::EvalOutputInternal()
     {
         m_output.GetSpan()[index] =
             rectify(m_inputLogit.InputNode()->Output()[index], alpha);
+    }
+}
+
+void ReLU::BackwardOp(const Node* dy)
+{
+    m_inputLogit.InputNode()->EvalOutput();
+    EvalGradient(dy);
+
+    const auto rectify = [](float value, float alpha, float gradient) {
+        return value < 0.0f ? alpha * gradient : gradient;
+    };
+
+    for (std::size_t index = 0,
+                     maxIndex = m_inputLogit.InputNode()->Gradient().Length();
+         index < maxIndex; ++index)
+    {
+        m_inputLogit.InputNode()->Gradient()[index] +=
+            rectify(m_inputLogit.InputNode()->Output()[index], alpha,
+                    m_gradient.GetSpan()[index]);
     }
 }
 }  // namespace CubbyDNN::Node

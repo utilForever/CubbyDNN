@@ -27,6 +27,8 @@ class ReLU final : public Node
     void EvalShapeInternal() override;
     void EvalOutputInternal() override;
 
+    void BackwardOp(const Node* dy);
+
     NodeInput m_inputLogit;
 };
 }  // namespace CubbyDNN::Node

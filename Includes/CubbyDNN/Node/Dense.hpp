@@ -25,6 +25,10 @@ class Dense final : public Node
     void EvalShapeInternal() override;
     void EvalOutputInternal() override;
 
+    void BackwardOpInput(const Node* dy);
+    void BackwardOpWeight(const Node* dy);
+    void BackwardOpBias(const Node* dy);
+
     NodeInput m_input;
     NodeInput m_inputWeight;
     NodeInput m_inputBias;

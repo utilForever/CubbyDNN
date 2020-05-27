@@ -6,9 +6,10 @@ namespace CubbyDNN::Node
 {
 Dense::Dense(Core::Graph* graph, std::string_view name)
     : Node(graph, name),
-      m_input(this, "input", [this](const auto* dy) { (void)dy; }),
-      m_inputWeight(this, "weight", [this](const auto* dy) { (void)dy; }),
-      m_inputBias(this, "bias", [this](const auto* dy) { (void)dy; })
+      m_input(this, "input", [this](const auto* dy) { BackwardOpInput(dy); }),
+      m_inputWeight(this, "weight",
+                    [this](const auto* dy) { BackwardOpWeight(dy); }),
+      m_inputBias(this, "bias", [this](const auto* dy) { BackwardOpBias(dy); })
 {
     m_nodeInputMap["input"] = &m_input;
     m_nodeInputMap["weight"] = &m_inputWeight;
@@ -88,5 +89,34 @@ void Dense::EvalOutputInternal()
         m_input.InputNode()->Shape()[0], m_shape[1], m_shape[0],
         m_input.InputNode()->EvalOutput().Output(),
         m_inputWeight.InputNode()->EvalOutput().Output(), m_output.GetSpan());
+}
+
+void Dense::BackwardOpInput(const Node* dy)
+{
+    Compute::GEMM::dMultiplyAddLeft(
+        m_input.InputNode()->Shape()[0], m_shape[1], m_shape[0],
+        EvalGradient(dy).Gradient(),
+        m_inputWeight.InputNode()->EvalOutput().Output(),
+        m_input.InputNode()->Gradient());
+}
+
+void Dense::BackwardOpWeight(const Node* dy)
+{
+    Compute::GEMM::dMultiplyAddRight(
+        m_input.InputNode()->Shape()[0], m_shape[1], m_shape[0],
+        EvalGradient(dy).Gradient(), m_input.InputNode()->EvalOutput().Output(),
+        m_inputWeight.InputNode()->Gradient());
+}
+
+void Dense::BackwardOpBias(const Node* dy)
+{
+    EvalGradient(dy);
+
+    for (std::size_t index = 0, maxIndex = m_shape[1], width = m_shape[0];
+         index < maxIndex; ++index)
+    {
+        m_inputBias.InputNode()->Gradient().AccumulateFrom(
+            Gradient().SubSpan(index * width));
+    }
 }
 }  // namespace CubbyDNN::Node

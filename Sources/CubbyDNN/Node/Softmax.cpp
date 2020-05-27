@@ -6,7 +6,7 @@ Softmax::Softmax(Core::Graph* graph, std::string_view name,
                  const std::vector<bool>& _groupAxis)
     : Node(graph, name),
       groupAxis(_groupAxis),
-      m_inputLogit(this, "logit", [this](const auto* dy) { (void)dy; })
+      m_inputLogit(this, "logit", [this](const auto* dy) { BackwardOp(dy); })
 {
     m_nodeInputMap["logit"] = &m_inputLogit;
 }
@@ -42,11 +42,11 @@ void Softmax::EvalShapeInternal()
             "The length of 'group axis' must be equal to the rank of 'logit'");
     }
 
-    std::vector<std::size_t> multipliedShape(1);
-    for (std::size_t index = 0, maxIndex = m_shape.Rank() - 1; index < maxIndex;
+    std::vector<std::size_t> multipliedShape = { 1 };
+    for (std::size_t index = 0, maxIndex = shape.Rank() - 1; index < maxIndex;
          ++index)
     {
-        multipliedShape.emplace_back(multipliedShape.back() * m_shape[index]);
+        multipliedShape.emplace_back(multipliedShape.back() * shape[index]);
     }
 
     m_indexFactorList.clear();
@@ -62,7 +62,7 @@ void Softmax::EvalShapeInternal()
         else
         {
             m_indexFactorList.emplace_back(
-                m_shape[index], multipliedShape[index],
+                shape[index], multipliedShape[index],
                 !m_indexFactorList.empty()
                     ? std::get<0>(m_indexFactorList.back()) *
                           std::get<2>(m_indexFactorList.back())
@@ -147,6 +147,8 @@ void Softmax::EvalOutputInternal()
         return result;
     };
 
+    m_summation.GetSpan().FillZero();
+
     for (std::size_t index = 0,
                      maxIndex = m_inputLogit.InputNode()->Output().Length();
          index < maxIndex; ++index)
@@ -167,6 +169,91 @@ void Softmax::EvalOutputInternal()
         m_output.GetSpan()[index] =
             m_summation.GetSpan()[reduceIndex(index)] *
             std::exp(m_inputLogit.InputNode()->Output()[index] - maxInput);
+    }
+}
+
+void Softmax::BackwardOp(const Node* dy)
+{
+    EvalOutput();
+    EvalGradient(dy);
+
+    if (groupAxis.empty())
+    {
+        float sum = 0.0f;
+
+        for (std::size_t index = 0, maxIndex = m_output.Size();
+             index < maxIndex; ++index)
+        {
+            sum += m_gradient.GetSpan()[index] * m_output.GetSpan()[index];
+        }
+
+        for (std::size_t index = 0, maxIndex = m_output.Size();
+             index < maxIndex; ++index)
+        {
+            m_inputLogit.InputNode()->Gradient()[index] +=
+                m_output.GetSpan()[index] * (m_gradient.GetSpan()[index] - sum);
+        }
+
+        return;
+    }
+
+    if (groupAxis.size() == 1)
+    {
+        if (groupAxis[0])
+        {
+            float sum = 0.0f;
+
+            for (std::size_t index = 0, maxIndex = m_output.Size();
+                 index < maxIndex; ++index)
+            {
+                sum += m_gradient.GetSpan()[index] * m_output.GetSpan()[index];
+            }
+
+            for (std::size_t index = 0, maxIndex = m_output.Size();
+                 index < maxIndex; ++index)
+            {
+                m_inputLogit.InputNode()->Gradient()[index] +=
+                    m_output.GetSpan()[index] *
+                    (m_gradient.GetSpan()[index] - sum);
+            }
+        }
+        else
+        {
+            m_inputLogit.InputNode()->Gradient().FillZero();
+        }
+
+        return;
+    }
+
+    auto reduceIndex = [this](std::size_t index) {
+        std::size_t result = 0;
+
+        for (const auto& indexFactorTuple : m_indexFactorList)
+        {
+            result += index / std::get<1>(indexFactorTuple) %
+                      std::get<0>(indexFactorTuple) *
+                      std::get<2>(indexFactorTuple);
+        }
+
+        return result;
+    };
+
+    m_summation.GetSpan().FillZero();
+
+    for (std::size_t index = 0, maxIndex = m_output.Size(); index < maxIndex;
+         ++index)
+    {
+        m_summation.GetSpan()[reduceIndex(index)] +=
+            m_gradient.GetSpan()[index] * m_output.GetSpan()[index];
+    }
+
+    for (std::size_t index = 0, maxIndex = m_output.Size(); index < maxIndex;
+         ++index)
+    {
+        m_inputLogit.InputNode()->Gradient()[index] +=
+            m_output.GetSpan()[index] *
+            (m_gradient.GetSpan()[index] -
+             m_summation.GetSpan()[reduceIndex(index)]);
     }
 }
 }  // namespace CubbyDNN::Node
