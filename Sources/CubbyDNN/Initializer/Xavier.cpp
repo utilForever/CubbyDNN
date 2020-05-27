@@ -11,6 +11,9 @@ Xavier::Xavier(std::mt19937_64::result_type seed, std::size_t fanIn,
 
 void Xavier::operator()(Core::Span<float> span)
 {
-    (void)span;
+    for (auto& value : span)
+    {
+        value = m_dist(m_engine);
+    }
 }
 }  // namespace CubbyDNN::Initializer

@@ -9,6 +9,6 @@ Constant::Constant(float constant) : m_constant(constant)
 
 void Constant::operator()(Core::Span<float> span)
 {
-    (void)span;
+    span.FillScalar(m_constant);
 }
 }  // namespace CubbyDNN::Initializer
