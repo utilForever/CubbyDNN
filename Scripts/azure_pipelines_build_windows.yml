@@ -2,10 +2,30 @@ steps:
   - checkout: self
     fetchDepth: 2
     submodules: true
+  - task: Cache@2
+    displayName: Cache vcpkg
+    inputs:
+      key: 'vcpkg|"$(Agent.OS)"|2'
+      path: './vcpkg'
+      cacheHitVar: CACHE_RESTORED
+  - script: |
+      git clone https://github.com/Microsoft/vcpkg
+      cd vcpkg
+      .\bootstrap-vcpkg.bat
+    condition: ne(variables.CACHE_RESTORED, 'true')
+    displayName: Install vcpkg
+  - script: |
+      cd vcpkg
+      .\vcpkg update
+      .\vcpkg install curl:x64-windows
+      .\vcpkg install zlib:x64-windows
+      .\vcpkg integrate install
+    condition: ne(variables.CACHE_RESTORED, 'true')
+    displayName: Install packages
   - script: |
       md build
       cd build
-      cmake .. -G "Visual Studio 15 2017 Win64"
+      cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake
   - task: VSBuild@1
     inputs:
       solution: 'D:\a\1\s\build\CubbyDNN.sln'
