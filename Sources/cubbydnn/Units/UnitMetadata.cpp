@@ -9,8 +9,10 @@
 namespace CubbyDNN::Graph
 {
 UnitMetaData::UnitMetaData(
-    UnitId unitId, std::vector<Shape> internalVariableShapeVector,
-    std::vector<std::unique_ptr<Initializer>> initializerVector,
+    UnitId unitId,
+    std::unordered_map<std::string, Shape> internalVariableShapeMap,
+    std::unordered_map<std::string, std::unique_ptr<Initializer>>
+    initializerVector,
     std::vector<Shape> inputShapeVector, Shape outputShape,
     std::vector<UnitId> inputUnitIdVector,
     std::vector<UnitId> outputUnitIdVector, NumberSystem numericType,
@@ -19,7 +21,7 @@ UnitMetaData::UnitMetaData(
       PadSize(padSize),
       Device(std::move(device)),
       m_unitId(std::move(unitId)),
-      m_internalVariableShapeVector(std::move(internalVariableShapeVector)),
+      m_internalVariableShapeMap(std::move(internalVariableShapeMap)),
       m_initializerVector(std::move(initializerVector)),
       m_inputShapeVector(std::move(inputShapeVector)),
       m_outputShape(std::move(outputShape)),
@@ -53,14 +55,14 @@ std::vector<UnitId> UnitMetaData::OutputUnitVector() const
     return m_outputUnitVector;
 }
 
-const std::vector<std::unique_ptr<Initializer>>& UnitMetaData::
-InitializerVector() const
+const std::unique_ptr<Initializer>& UnitMetaData::
+GetInitializer(const std::string& name) const
 {
-    return m_initializerVector;
+    return m_initializerVector.at(name);
 }
 
-std::vector<Shape> UnitMetaData::InternalVariableShapeVector() const
+Shape UnitMetaData::GetShape(const std::string& name) const
 {
-    return m_internalVariableShapeVector;
+    return m_internalVariableShapeMap.at(name);
 }
 }
