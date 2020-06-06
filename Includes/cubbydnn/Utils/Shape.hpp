@@ -20,6 +20,7 @@ public:
     ~Shape() = default;
 
     Shape(std::initializer_list<std::size_t> shape);
+    Shape(std::vector<std::size_t> shape);
 
     Shape(const Shape& shape) = default;
     Shape(Shape&& shape) noexcept;
@@ -99,6 +100,8 @@ public:
     Shape& Reshape(std::initializer_list<std::size_t> newShape);
 
     Shape& Transpose();
+
+    Shape GetTransposedShape();
 
 private:
     std::vector<std::size_t> m_shapeVector;

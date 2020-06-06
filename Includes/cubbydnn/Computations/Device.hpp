@@ -20,6 +20,7 @@ enum class DeviceType
 class Device
 {
 public:
+    Device() = default;
     Device(std::size_t id, DeviceType type, std::string name,
            std::size_t padByteSize = 0);
     ~Device() = default;

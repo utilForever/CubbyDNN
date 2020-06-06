@@ -22,7 +22,12 @@ public:
     Optimizer& operator=(const Optimizer& optimizer) = default;
     Optimizer& operator=(Optimizer&& optimizer) noexcept = default;
 
-    virtual void Optimize(Tensor& tensor) = 0;
+    virtual void Optimize(Tensor& tensor, Tensor& delta) = 0;
+};
+
+class SGD : Optimizer
+{
+    SGD(float delta);
 };
 }
 

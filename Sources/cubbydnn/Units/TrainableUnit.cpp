@@ -8,12 +8,20 @@
 
 namespace CubbyDNN::Graph
 {
-TrainableUnit::TrainableUnit(std::vector<Tensor> trainableTensorMap,
-                             std::unique_ptr<Computation::Optimizer> optimizer)
+TrainableUnit::TrainableUnit(
+    std::unordered_map<std::string, Tensor> trainableTensorMap,
+    std::unique_ptr<Computation::Optimizer> optimizer)
     : m_trainableTensorMap(std::move(trainableTensorMap)),
       m_optimizer(std::move(optimizer))
 {
 }
+
+TrainableUnit::TrainableUnit(
+    std::unordered_map<std::string, Tensor> trainableTensorMap)
+    : m_trainableTensorMap(std::move(trainableTensorMap))
+{
+}
+
 
 TrainableUnit& TrainableUnit::operator=(TrainableUnit&& trainableUnit) noexcept
 {
@@ -22,5 +30,4 @@ TrainableUnit& TrainableUnit::operator=(TrainableUnit&& trainableUnit) noexcept
 
     return *this;
 }
-
 }
