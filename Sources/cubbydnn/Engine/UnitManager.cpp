@@ -7,7 +7,6 @@
 
 #include <cubbydnn/Engine/UnitManager.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
-#include <cubbydnn/Units/HiddenComputableUnits/ActivationUnit.hpp>
 
 namespace CubbyDNN::Graph
 {

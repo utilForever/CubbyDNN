@@ -8,21 +8,21 @@
 #define CUBBYDNN_ACTIVATION_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
+#include <cubbydnn/Units/TrainableUnit.hpp>
 #include <cubbydnn/Computations/Activations/ActivationFunc.hpp>
 #include <cubbydnn/Units/UnitMetadata.hpp>
 
 
-
 namespace CubbyDNN::Graph
 {
-class ActivationUnit : public ComputableUnit
+class ActivationUnit : public ComputableUnit, public TrainableUnit
 {
 public:
     ActivationUnit(UnitId unitId, NumberSystem numberSystem,
                    Tensor forwardInput, std::vector<Tensor> backwardInputVector,
                    Tensor forwardOutput, Tensor backwardOutput,
-                   Tensor backwardTemp,
-                   std::unique_ptr<Compute::ActivationFunc> activationFunc);
+                   std::unordered_map<std::string, Tensor> trainableUnit,
+                   std::string activationName);
     ~ActivationUnit() = default;
 
 
@@ -32,8 +32,7 @@ public:
     ActivationUnit& operator=(ActivationUnit&& activationUnit) noexcept;
 
     static ActivationUnit CreateUnit(const UnitMetaData& unitMetaData,
-                                     std::unique_ptr<Compute::ActivationFunc>
-                                     activationFunc);
+                                     std::string activationName);
 
     void Forward() override;
 
@@ -44,8 +43,7 @@ public:
     void AsyncBackward(std::promise<bool> promise) override;
 
 private:
-    std::unique_ptr<Compute::ActivationFunc> m_activationFunc;
-    Tensor m_backwardTemp;
+    std::string m_activationName;
 };
 } // namespace CubbyDNN::Graph
 
