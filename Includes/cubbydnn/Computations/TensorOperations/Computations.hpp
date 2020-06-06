@@ -9,13 +9,25 @@
 
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <cubbydnn/Computations/Activations/ActivationFunc.hpp>
-#include <memory>
-
 
 namespace CubbyDNN::Compute
 {
-void Multiply(const Tensor& inputA, const Tensor& inputB,
-              Tensor& output);
+void MultiplyAdd(const Tensor& inputA, const Tensor& inputB,
+                 const Tensor& inputC, Tensor& output, bool transposeA,
+                 bool transposeB);
+//
+// void BatchMultiply(const Tensor& inputA, const Tensor& batchedInputB,
+//                    Tensor& output,
+//                    bool transposeA = false, bool transposeB = false);
+
+//! Broadcasts inputA to inputB
+//! \param inputA : input to be broadcasted
+//! \param inputB : input to receive broadcasted operation
+void BroadcastMultiply(const Tensor& inputA, const Tensor& inputB,
+                       Tensor& output, std::size_t dim);
+
+void Multiply(Tensor& inputA,Tensor& inputB,
+              Tensor& output, bool transposeA = false, bool transposeB = false);
 
 void Add(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
@@ -26,18 +38,15 @@ void Add(const std::vector<Tensor>& tensorVector, Tensor& output);
 
 //! Returns mean of input tensor from axis
 //! This function assumes the highest dimension is for batch
-void BatchMean(const Tensor& tensor, std::size_t idx, Tensor& output);
+//! \param idx : index that indicates end of batch
+void BatchMean(Tensor& tensor, Tensor& output, std::size_t idx);
 
 void Transpose(const Tensor& input, Tensor& output);
 
 void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output);
 
-void ScalarMul(const Tensor& input, float toMul, Tensor& output);
+void ScalarMul(const Tensor& input, Tensor& output, float toMul);
 
-void ActivationForward(const Tensor& input, Tensor& output,
-                       std::unique_ptr<ActivationFunc>& activation);
-
-void ActivationBackward(const Tensor& input, Tensor& output,
-                        std::unique_ptr<ActivationFunc>& activation);
+void ScalarMul(Tensor& tensor, float toMul);
 } // namespace CubbyDNN
 #endif

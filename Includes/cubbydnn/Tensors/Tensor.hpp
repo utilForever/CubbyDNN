@@ -19,6 +19,7 @@ namespace CubbyDNN
 class Tensor
 {
 public:
+    Tensor() = default;
     Tensor(Shape shape, Compute::Device device,
            NumberSystem numberSystem = NumberSystem::Float);
 
@@ -61,7 +62,7 @@ public:
         return *(static_cast<T*>(DataPtr.get()) + offset);
     }
 
-    std::size_t GetPaddedNumCols() const
+    std::size_t GetColumnElementSize() const
     {
         return numPaddedColumn;
     }

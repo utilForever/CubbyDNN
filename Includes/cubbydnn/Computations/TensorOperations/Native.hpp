@@ -22,6 +22,9 @@ public:
         const auto inputShape = input.TensorShape;
         const auto outputShape = output.TensorShape;
 
+        const std::size_t colDataSizeInput = input.GetColumnElementSize();
+        const std::size_t colDataSizeOutput = output.GetColumnElementSize();
+
         const auto batchSize = inputShape.NumMatrices();
 
         const auto numRows = inputShape.NumRows();
@@ -30,10 +33,10 @@ public:
         for (std::size_t batch = 0; batch < batchSize; ++batch)
             for (std::size_t i = 0; i < numRows; ++i)
                 for (std::size_t j = 0; j < numCols; ++j)
-                    static_cast<T*>(output.DataPtr.get())[i * numCols + j] =
-                        function(
-                            static_cast<T*>(input.DataPtr.get())[i * numCols + j
-                            ]);
+                    static_cast<T*>(
+                            output.DataPtr.get())[i * colDataSizeOutput + j] =
+                        function(static_cast<T*>(
+                            input.DataPtr.get())[i * colDataSizeInput + j]);
     }
 
     template <typename T>
@@ -44,10 +47,16 @@ public:
         const auto inputShapeB = inputB.TensorShape;
         const auto outputShape = output.TensorShape;
 
+        const std::size_t colDataSizeA = inputA.GetColumnElementSize();
+        const std::size_t colDataSizeB = inputB.GetColumnElementSize();
+        const std::size_t colDataSizeOutput = output.GetColumnElementSize();
+
         const auto numRows = inputShapeA.NumRows();
         const auto numCols = inputShapeA.NumCols();
         const auto batchSize = inputShapeA.NumMatrices();
-        const auto matrixSize = numRows * numCols;
+        const auto matrixSizeA = numRows * colDataSizeA;
+        const auto matrixSizeB = numRows * colDataSizeB;
+        const auto matrixSizeOutput = numRows * colDataSizeOutput;
 
         const T* inputPtrA = static_cast<T*>(inputA.DataPtr.get());
         const T* inputPtrB = static_cast<T*>(inputB.DataPtr.get());
@@ -57,9 +66,12 @@ public:
             for (std::size_t i = 0; i < numRows; ++i)
                 for (std::size_t j = 0; j < numCols; ++j)
                 {
-                    outputPtr[batchIdx * matrixSize + i * numCols + j] =
-                        inputPtrA[batchIdx * matrixSize + i * numCols + j] +
-                        inputPtrB[batchIdx * matrixSize + i * numCols + j];
+                    outputPtr[batchIdx * matrixSizeOutput +
+                              i * colDataSizeOutput + j] =
+                        inputPtrA[batchIdx * matrixSizeA + i * colDataSizeA +
+                                  j] +
+                        inputPtrB[batchIdx * matrixSizeB + i * colDataSizeB +
+                                  j];
                 }
     }
 
@@ -69,10 +81,14 @@ public:
         const auto tensorShape = tensor.TensorShape;
         const auto addShape = toAdd.TensorShape;
 
+        const std::size_t colDataSizeInput = tensor.GetColumnElementSize();
+        const std::size_t colDataSizeAdd = toAdd.GetColumnElementSize();
+
         const auto numRows = tensorShape.NumRows();
         const auto numCols = tensorShape.NumCols();
         const auto batchSize = tensorShape.NumMatrices();
-        const auto matrixSize = numRows * numCols;
+        const auto matrixSizeTensor = numRows * colDataSizeInput;
+        const auto matrixSizeAdd = numRows * colDataSizeAdd;
 
         T* tensorPtr = static_cast<T*>(tensor.DataPtr.get());
         const T* addPtr = static_cast<T*>(toAdd.DataPtr.get());
@@ -81,8 +97,10 @@ public:
             for (std::size_t i = 0; i < numRows; ++i)
                 for (std::size_t j = 0; j < numCols; ++j)
                 {
-                    tensorPtr[batchIdx * matrixSize + i * numCols + j] =
-                        addPtr[batchIdx * matrixSize + i * numCols + j];
+                    tensorPtr[batchIdx * matrixSizeTensor +
+                              i * colDataSizeInput + j] +=
+                        addPtr[batchIdx * matrixSizeAdd + i * colDataSizeAdd +
+                               j];
                 }
     }
 
@@ -90,19 +108,18 @@ public:
     static void BatchMean(const Tensor& input, std::size_t idx, Tensor& output)
     {
         std::size_t interval = 1;
-        for (int i = input.TensorShape.Dim() - 1; i > static_cast<int>(idx);
-             --i)
+        for (auto i = input.TensorShape.Dim() - 1; i > idx; --i)
             if (i == input.TensorShape.Dim() - 1)
-                interval *= input.GetPaddedNumCols();
+                interval *= input.GetColumnElementSize();
             else
                 interval *= input.TensorShape.At(i);
 
         std::size_t batchSize = 1;
         for (std::size_t i = 0; i <= idx; ++i)
             if (i == input.TensorShape.Dim() - 1)
-                interval *= input.GetPaddedNumCols();
+                batchSize *= input.GetColumnElementSize();
             else
-                interval *= input.TensorShape.At(i);
+                batchSize *= input.TensorShape.At(i);
 
         const T* tensorPtr = static_cast<T*>(input.DataPtr.get());
         T* outputPtr = static_cast<T*>(output.DataPtr.get());
@@ -116,26 +133,28 @@ public:
         }
 
         for (std::size_t elementIdx = 0; elementIdx < interval; ++elementIdx)
-            outputPtr[elementIdx] /= batchSize;
+            outputPtr[elementIdx] /= static_cast<T>(batchSize);
     }
 
+    // TODO : Fix this to in-place transpose
     template <typename T, std::size_t blockSize = 32>
     static void TensorMul(const Tensor& inputA, const Tensor& inputB,
-                          Tensor& output)
+                          Tensor& output, bool transposeA, bool transposeB)
     {
         const auto inputShapeA = inputA.TensorShape;
         const auto inputShapeB = inputB.TensorShape;
         const auto outputShape = output.TensorShape;
 
+        const std::size_t colDataSizeA = inputA.GetColumnElementSize();
+        const std::size_t colDataSizeB = inputB.GetColumnElementSize();
+        const std::size_t colDataSizeOutput = output.GetColumnElementSize();
+
         const auto batchSize = inputShapeA.NumMatrices();
-        const auto matrixSizeA = inputShapeA.NumRows() * inputShapeA.NumCols();
-        const auto matrixSizeB = inputShapeB.NumRows() * inputShapeB.NumCols();
-        const auto matrixSizeOutput =
-            outputShape.NumRows() * outputShape.NumCols();
+        const auto matrixSizeA = inputShapeA.NumRows() * colDataSizeA;
+        const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
+        const auto matrixSizeOutput = outputShape.NumRows() * colDataSizeOutput;
 
         const auto numRowsA = inputShapeA.NumRows();
-        const auto numColsA = inputShapeA.NumCols();
-
         const auto numRowsB = inputShapeB.NumRows();
         const auto numColsB = inputShapeB.NumCols();
 
@@ -164,15 +183,25 @@ public:
                         for (std::size_t i = ii; i < i_lim; i++)
                             for (std::size_t j = jj; j < j_lim; j++)
                                 for (std::size_t k = kk; k < k_lim; k++)
-                                    outputPtr[
-                                            batchIdx * matrixSizeOutput + i *
-                                            numColsB + j] +=
-                                        inputAPtr[
-                                            batchIdx * matrixSizeA + i *
-                                            numColsA + k] *
-                                        inputBPtr[
-                                            batchIdx * matrixSizeB + k *
-                                            numColsB + j];
+                                {
+                                    T valA =
+                                        transposeA
+                                            ? inputAPtr[batchIdx * matrixSizeA +
+                                                        k * colDataSizeA + i]
+                                            : inputAPtr[batchIdx * matrixSizeA +
+                                                        i * colDataSizeA + k];
+
+                                    T valB =
+                                        transposeB
+                                            ? inputBPtr[batchIdx * matrixSizeB +
+                                                        j * colDataSizeB + k]
+                                            : inputBPtr[batchIdx * matrixSizeB +
+                                                        k * colDataSizeB + j];
+
+                                    outputPtr[batchIdx * matrixSizeOutput +
+                                              i * colDataSizeB + j] +=
+                                        valA + valB;
+                                }
                     }
     }
 
@@ -181,10 +210,13 @@ public:
     {
         const auto shape = input.TensorShape;
 
+        const std::size_t colDataSizeInput = input.GetColumnElementSize();
+        const std::size_t colDataSizeOutput = output.GetColumnElementSize();
+
         const auto numRows = shape.NumRows();
         const auto numCols = shape.NumCols();
 
-        const auto matrixSize = numRows * numCols;
+        const auto matrixSize = numRows * colDataSizeInput;
         const auto batchSize = shape.NumMatrices();
 
         const T* inputPtr = static_cast<T*>(input.DataPtr.get());
@@ -206,9 +238,10 @@ public:
 
                     for (std::size_t i = ii; i < i_lim; i++)
                         for (std::size_t j = jj; j < j_lim; j++)
-                            outputPtr[batchIdx * matrixSize + j * numRows + i] =
-                                inputPtr[batchIdx * matrixSize + i * numCols + j
-                                ];
+                            outputPtr[batchIdx * matrixSize +
+                                      j * colDataSizeOutput + i] =
+                                inputPtr[batchIdx * matrixSize +
+                                         i * colDataSizeInput + j];
                 }
         }
     }
@@ -219,10 +252,16 @@ public:
     {
         const auto shape = inputA.TensorShape;
 
-        const auto numRows = shape.NumRows();
-        const auto numCols = inputA.GetPaddedNumCols();
+        const std::size_t colDataSizeA = inputA.GetColumnElementSize();
+        const std::size_t colDataSizeB = inputB.GetColumnElementSize();
+        const std::size_t colDataSizeOutput = output.GetColumnElementSize();
 
-        const auto matrixSize = numRows * numCols;
+        const auto numRows = shape.NumRows();
+        const auto numCols = shape.NumCols();
+
+        const auto matrixSizeA = numRows * colDataSizeA;
+        const auto matrixSizeB = numRows * colDataSizeB;
+        const auto matrixSizeOutput = numRows * colDataSizeOutput;
         const auto batchSize = shape.NumMatrices();
 
         const T* inputPtrA = static_cast<T*>(inputA.DataPtr.get());
@@ -233,12 +272,57 @@ public:
             for (std::size_t i = 0; i < numRows; ++i)
                 for (std::size_t j = 0; j < numCols; ++j)
                 {
-                    outputPtr[batchIdx * matrixSize + i * numCols + j] =
-                        inputPtrA[batchIdx * matrixSize + i * numCols + j] *
-                        inputPtrB[batchIdx * matrixSize + i * numCols + j];
+                    outputPtr[batchIdx * matrixSizeOutput +
+                              i * colDataSizeOutput + j] =
+                        inputPtrA[batchIdx * matrixSizeA + i * colDataSizeA +
+                                  j] *
+                        inputPtrB[batchIdx * matrixSizeB + i * colDataSizeB +
+                                  j];
+                }
+    }
+
+    template <typename T>
+    static void ScalarMul(Tensor& tensor, T toMul)
+    {
+        const auto shape = tensor.TensorShape;
+        const auto totalSize = shape.NumMatrices() * shape.NumRows() *
+                               tensor.GetColumnElementSize();
+
+        T* dataPtr = static_cast<T*>(tensor.DataPtr.get());
+        for (std::size_t i = 0; i < totalSize; ++i)
+        {
+            dataPtr[i] *= toMul;
+        }
+    }
+
+    template <typename T>
+    static void ScalarMul(const Tensor& input, Tensor& output, T toMul)
+    {
+        const auto inputShape = input.TensorShape;
+
+        const std::size_t colDataSizeInput = input.GetColumnElementSize();
+        const std::size_t colDataSizeOutput = output.GetColumnElementSize();
+
+        const auto numRows = inputShape.NumRows();
+        const auto numCols = inputShape.NumCols();
+        const auto batchSize = inputShape.NumMatrices();
+        const auto matrixSizeInput = numRows * colDataSizeInput;
+        const auto matrixSizeOutput = numRows * colDataSizeOutput;
+
+        T* outputPtr = static_cast<T*>(output.DataPtr.get());
+        const T* inputPtr = static_cast<T*>(input.DataPtr.get());
+
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            for (std::size_t i = 0; i < numRows; ++i)
+                for (std::size_t j = 0; j < numCols; ++j)
+                {
+                    outputPtr[batchIdx * matrixSizeOutput +
+                              i * colDataSizeOutput + j] =
+                        inputPtr[batchIdx * matrixSizeInput +
+                                 i * colDataSizeInput + j] *
+                        toMul;
                 }
     }
 };
 } // namespace CubbyDNN
-
 #endif  // CUBBYDNN_COMPUTETENSOR_HPP

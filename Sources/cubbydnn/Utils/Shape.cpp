@@ -23,6 +23,16 @@ Shape::Shape(std::initializer_list<std::size_t> shape)
         m_shapeVector.emplace_back(1);
 }
 
+Shape::Shape(std::vector<std::size_t> shape)
+    : m_shapeVector(std::move(shape))
+{
+    for (auto i : m_shapeVector)
+        if (i == 0)
+            throw std::runtime_error("zero dimension is not allowed");
+    if (m_shapeVector.size() == 1)
+        m_shapeVector.emplace_back(1);
+}
+
 Shape::Shape(Shape&& shape) noexcept
     : m_shapeVector(std::move(shape.m_shapeVector))
 {
@@ -153,5 +163,14 @@ Shape& Shape::Transpose()
     m_shapeVector.at(0) = m_shapeVector.at(1);
     m_shapeVector.at(1) = temp;
     return *this;
+}
+
+Shape Shape::GetTransposedShape()
+{
+    std::vector<std::size_t> shapeVector = m_shapeVector;
+    const auto temp = shapeVector.at(0);
+    shapeVector.at(0) = shapeVector.at(1);
+    shapeVector.at(1) = temp;
+    return Shape(shapeVector);
 }
 } // namespace CubbyDNN

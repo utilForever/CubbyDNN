@@ -37,8 +37,9 @@ private:
 
 public:
     template <typename T>
-    static void TensorMul(const Tensor& inputA, const Tensor& inputB,
-                          Tensor& output)
+    static void TensorMul(Tensor& inputA, Tensor& inputB,
+                          Tensor& output, bool transposeA,
+                          bool transposeB)
     {
         const auto inputShapeA = inputA.TensorShape;
         const auto inputShapeB = inputB.TensorShape;
@@ -46,9 +47,9 @@ public:
 
         const auto batchSize = inputShapeA.NumMatrices();
 
-        std::size_t colDataSizeA = inputA.GetPaddedNumCols();
-        std::size_t colDataSizeB = inputB.GetPaddedNumCols();
-        std::size_t colDataSizeOutput = output.GetPaddedNumCols();
+        std::size_t colDataSizeA = inputA.GetColumnElementSize();
+        std::size_t colDataSizeB = inputB.GetColumnElementSize();
+        std::size_t colDataSizeOutput = output.GetColumnElementSize();
 
         const auto matrixSizeA = inputShapeA.NumRows() * colDataSizeA;
         const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
@@ -61,12 +62,12 @@ public:
         if (inputA.Device.PadSize() > 0)
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             {
-                const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
+                CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
                     inputPtrA + batchIdx * matrixSizeA,
                     inputShapeA.NumRows(), inputShapeA.NumCols(),
                     colDataSizeA);
 
-                const CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
+                CustomMatrix<T, aligned, padded, blaze::rowMajor> B(
                     inputPtrB + batchIdx * matrixSizeB,
                     inputShapeB.NumRows(), inputShapeB.NumCols(),
                     colDataSizeB);
@@ -76,23 +77,33 @@ public:
                     outputShape.NumRows(), outputShape.NumCols(),
                     colDataSizeOutput);
 
+                if (transposeA)
+                    A = blaze::trans(A);
+                if (transposeB)
+                    B = blaze::trans(B);
+
                 Out = A * B;
             }
         else
         {
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             {
-                const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
+                CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> A(
                     inputPtrA + batchIdx * matrixSizeA,
                     inputShapeA.NumRows(), inputShapeA.NumCols());
 
-                const CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> B(
+                CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> B(
                     inputPtrB + batchIdx * matrixSizeB,
                     inputShapeB.NumRows(), inputShapeB.NumCols());
 
                 CustomMatrix<T, unaligned, unpadded, blaze::rowMajor> Out(
                     outputPtr + batchIdx * matrixSizeOut,
                     outputShape.NumRows(), outputShape.NumCols());
+
+                if (transposeA)
+                    A = blaze::trans(A);
+                if (transposeB)
+                    B = blaze::trans(B);
 
                 Out = A * B;
             }
@@ -109,9 +120,9 @@ public:
 
         const auto batchSize = inputShapeA.NumMatrices();
 
-        std::size_t colDataSizeA = inputA.GetPaddedNumCols();
-        std::size_t colDataSizeB = inputB.GetPaddedNumCols();
-        std::size_t colDataSizeOutput = output.GetPaddedNumCols();
+        std::size_t colDataSizeA = inputA.GetColumnElementSize();
+        std::size_t colDataSizeB = inputB.GetColumnElementSize();
+        std::size_t colDataSizeOutput = output.GetColumnElementSize();
 
         const auto matrixSizeA = inputShapeA.NumRows() * colDataSizeA;
         const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
@@ -167,8 +178,8 @@ public:
 
         const auto batchSize = inputShapeA.NumMatrices();
 
-        std::size_t colDataSizeA = tensor.GetPaddedNumCols();
-        std::size_t colDataSizeOutput = toAdd.GetPaddedNumCols();
+        std::size_t colDataSizeA = tensor.GetColumnElementSize();
+        std::size_t colDataSizeOutput = toAdd.GetColumnElementSize();
 
         const auto matrixSizeA = inputShapeA.NumRows() * colDataSizeA;
         const auto matrixSizeOut = outputShape.NumRows() * colDataSizeOutput;
@@ -204,30 +215,30 @@ public:
     }
 
     template <typename T>
-    static void BatchMean(const Tensor& input, std::size_t idx, Tensor& output)
+    static void BatchMean(Tensor& input, std::size_t idx, Tensor& output)
     {
         std::size_t interval = 1;
-        for (int i = input.TensorShape.Dim() - 1; i > static_cast<int>(idx);
+        for (std::size_t i = input.TensorShape.Dim() - 1; i > idx;
              --i)
             if (i == input.TensorShape.Dim() - 1)
-                interval *= input.GetPaddedNumCols();
+                interval *= input.GetColumnElementSize();
             else
                 interval *= input.TensorShape.At(i);
 
         std::size_t batchSize = 1;
         for (std::size_t i = 0; i <= idx; ++i)
             if (i == input.TensorShape.Dim() - 1)
-                interval *= input.GetPaddedNumCols();
+                interval *= input.GetColumnElementSize();
             else
                 interval *= input.TensorShape.At(i);
 
-        const auto colDataSizeA = input.GetPaddedNumCols();
-        const auto colDataSizeOutput = output.GetPaddedNumCols();
+        const auto colDataSizeA = input.GetColumnElementSize();
+        const auto colDataSizeOutput = output.GetColumnElementSize();
 
         const auto inputShape = input.TensorShape;
         const auto outputShape = output.TensorShape;
 
-        const T* inputPtr = static_cast<T*>(input.DataPtr.get());
+        T* inputPtr = static_cast<T*>(input.DataPtr.get());
         T* outputPtr = static_cast<T*>(output.DataPtr.get());
 
         CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
@@ -236,14 +247,16 @@ public:
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
-            const CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
+            CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
                 inputPtr + batchSize * interval,
                 inputShape.NumRows() * batchSize,
                 inputShape.NumCols(), colDataSizeA);
+
+            Out += A;
         }
 
         for (std::size_t elementIdx = 0; elementIdx < interval; ++elementIdx)
-            outputPtr[elementIdx] /= batchSize;
+            outputPtr[elementIdx] /= static_cast<T>(batchSize);
     }
 
     template <typename T>
@@ -252,8 +265,8 @@ public:
         const auto inputShape = input.TensorShape;
         const auto outputShape = output.TensorShape;
 
-        std::size_t colDataSizeInput = input.GetPaddedNumCols();
-        std::size_t colDataSizeOutput = output.GetPaddedNumCols();
+        std::size_t colDataSizeInput = input.GetColumnElementSize();
+        std::size_t colDataSizeOutput = output.GetColumnElementSize();
 
         const auto matrixSizeInput = inputShape.NumRows() * colDataSizeInput;
         const auto matrixSizeOutput = outputShape.NumRows() * colDataSizeOutput;
@@ -295,6 +308,19 @@ public:
 
                 Out = blaze::trans(A);
             }
+    }
+
+    template <typename T>
+    static void ScalarMul(Tensor& input, T toMul)
+    {
+        const auto tensorShape = input.TensorShape;
+        const auto colDataSizeInput = input.GetColumnElementSize();
+
+        T* inputPtr = static_cast<T*>(input.DataPtr.get());
+        CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
+            inputPtr, tensorShape.NumRows(), tensorShape.NumCols(),
+            colDataSizeInput);
+        A *= toMul;
     }
 };
 } // namespace CubbyDNN

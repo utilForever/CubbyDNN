@@ -18,9 +18,9 @@ class DenseUnit : public ComputableUnit, public TrainableUnit
 public:
     DenseUnit(UnitId unitId, NumberSystem numberSystem, Tensor forwardInput,
               std::vector<Tensor> backwardInputVector, Tensor forwardOutput,
-              Tensor backwardOutput, std::vector<Tensor> trainableUnit,
-              std::unique_ptr<Computation::Optimizer> optimizer,
-              Tensor weightTranspose);
+              Tensor backwardOutput,
+              std::unordered_map<std::string, Tensor> trainableUnit,
+              std::unique_ptr<Computation::Optimizer> optimizer);
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& denseUnit) = delete;
@@ -39,9 +39,6 @@ public:
     void Backward() override;
 
     void AsyncBackward(std::promise<bool> promise) override;
-
-private:
-    Tensor m_transposedWeight;
 };
 } // namespace CubbyDNN
 

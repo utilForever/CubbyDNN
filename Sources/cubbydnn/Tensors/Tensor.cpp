@@ -94,8 +94,8 @@ void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
     const auto batchSize = sourceShape.NumMatrices();
     const auto numRows = sourceShape.NumRows();
     const auto numCols = sourceShape.NumCols();
-    const auto sourceColSize = source.GetPaddedNumCols();
-    const auto destColSize = destination.GetPaddedNumCols();
+    const auto sourceColSize = source.GetColumnElementSize();
+    const auto destColSize = destination.GetColumnElementSize();
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
