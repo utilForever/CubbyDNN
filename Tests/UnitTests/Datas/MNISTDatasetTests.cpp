@@ -3,8 +3,6 @@
 
 #include <CubbyDNN/Datas/Dataset/MNISTDataset.hpp>
 
-#include <filesystem>
-
 using namespace CubbyDNN;
 
 TEST_CASE("[MNISTDataset] - Load Data Set")

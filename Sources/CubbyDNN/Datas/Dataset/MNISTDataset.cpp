@@ -2,7 +2,13 @@
 
 #include <CubbyDNN/Utils/Downloader.hpp>
 
+#if defined(_WIN32) || defined(_WIN64) || defined(__APPLE__)
 #include <filesystem>
+namespace filesystem = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace filesystem = std::experimental::filesystem;
+#endif
 #include <fstream>
 
 namespace
@@ -42,9 +48,9 @@ MNISTDataset::MNISTDataset(const std::string& root, bool train, bool download)
 
     if (download)
     {
-        if (!std::filesystem::exists(root))
+        if (!filesystem::exists(root))
         {
-            std::filesystem::create_directories(root);
+            filesystem::create_directories(root);
         }
 
         std::ofstream train_images(train_images_path + ".gz");
