@@ -11,7 +11,7 @@ matrix:
         - sh Scripts/travis_build_docker.sh
     # Test OS X 10.12 + Xcode 9 + clang
     - os: osx
-      osx_image: xcode9
+      osx_image: xcode12
       compiler: clang
       script:
         - sh Scripts/travis_build.sh
