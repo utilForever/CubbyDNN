@@ -32,7 +32,7 @@ bool Downloader::DownloadData(const std::string& url, std::ostream& stream)
 
     CURLcode result = curl_easy_perform(curlHandle);
 
-    return result == CURLE_OK && stream.rdbuf()->in_avail();
+    return result == CURLE_OK;
 }
 
 bool Downloader::UnGzip(const std::string& gzFilename,
