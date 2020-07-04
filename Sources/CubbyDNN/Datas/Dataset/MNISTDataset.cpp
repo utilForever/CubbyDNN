@@ -53,7 +53,7 @@ MNISTDataset::MNISTDataset(const std::string& root, bool train, bool download)
             filesystem::create_directories(root);
         }
 
-        std::ofstream train_images(train_images_path + ".gz");
+        std::ofstream train_images(train_images_path + ".gz", std::ios::binary);
         if (!Downloader::DownloadData(
                 "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz",
                 train_images))
@@ -62,7 +62,7 @@ MNISTDataset::MNISTDataset(const std::string& root, bool train, bool download)
         if (!Downloader::UnGzip(train_images_path + ".gz", train_images_path))
             throw std::runtime_error("Cannot extract train images");
 
-        std::ofstream train_labels(train_labels_path + ".gz");
+        std::ofstream train_labels(train_labels_path + ".gz", std::ios::binary);
         if (!Downloader::DownloadData(
                 "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz",
                 train_labels))
@@ -71,7 +71,7 @@ MNISTDataset::MNISTDataset(const std::string& root, bool train, bool download)
         if (!Downloader::UnGzip(train_labels_path + ".gz", train_labels_path))
             throw std::runtime_error("Cannot extract train labels");
 
-        std::ofstream test_images(test_images_path + ".gz");
+        std::ofstream test_images(test_images_path + ".gz", std::ios::binary);
         if (!Downloader::DownloadData(
                 "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz",
                 test_images))
@@ -80,7 +80,7 @@ MNISTDataset::MNISTDataset(const std::string& root, bool train, bool download)
         if (!Downloader::UnGzip(test_images_path + ".gz", test_images_path))
             throw std::runtime_error("Cannot extract test images");
 
-        std::ofstream test_labels(test_labels_path + ".gz");
+        std::ofstream test_labels(test_labels_path + ".gz", std::ios::binary);
         if (!Downloader::DownloadData(
                 "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz",
                 test_labels))
