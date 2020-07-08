@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_UNITID_HPP
 #define CUBBYDNN_UNITID_HPP
 #include <cubbydnn/Utils/SharedPtr.hpp>
-#include <string_view>
+#include <unordered_map>
 
 namespace CubbyDNN::Graph
 {
@@ -19,10 +19,11 @@ enum class UnitBaseType
     Copy,
 };
 
+
 class UnitType
 {
 public:
-    UnitType(UnitBaseType type, std::string_view name);
+    UnitType(UnitBaseType type, std::string_view typeName);
     UnitType(UnitBaseType type, std::string_view name,
              SharedPtr<UnitType> baseUnit);
     ~UnitType() = default;
@@ -57,15 +58,14 @@ public:
 
 private:
     std::string m_typeName;
-};
 
+};
 struct UnitId
 {
     bool operator==(const UnitId& unitId) const
     {
-        return Type == unitId.Type
-               && Id == unitId.Id
-               && UnitName == unitId.UnitName;
+        return Type == unitId.Type && Id == unitId.Id &&
+               UnitName == unitId.UnitName;
     }
 
     UnitType Type;

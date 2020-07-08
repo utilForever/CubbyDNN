@@ -41,9 +41,11 @@ ActivationUnit& ActivationUnit::operator=(
     return *this;
 }
 
-ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData,
-                                          std::string activationName)
+ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData)
 {
+    std::string activationName =
+        unitMetaData.Parameters.GetStringParam("activationName");
+
     Tensor forwardInputTensor(unitMetaData.InputShapeVector().at(0),
                               unitMetaData.Device, unitMetaData.NumericType);
 

@@ -10,6 +10,7 @@
 #include <cubbydnn/Units/ComputableUnit.hpp>
 #include <unordered_map>
 #include <cubbydnn/Units/UnitMetadata.hpp>
+#include <cubbydnn/Units/HiddenComputableUnits/ActivationUnits/ActivationUnit.hpp>
 
 namespace CubbyDNN::Graph
 {
@@ -24,8 +25,15 @@ public:
     UnitManager& operator=(const UnitManager& unitManager) = delete;
     UnitManager& operator=(UnitManager&& unitManager) noexcept;
 
-    template <typename... Ts>
-    void AppendUnit(const UnitMetaData& unitMetaData, Ts ... type);
+    void AppendUnit(const UnitMetaData& unitMetaData);
+
+    Shape GetUnitOutputShape(std::size_t id)
+    {
+        return m_unitMetaDataMap[id]->OutputShape();
+    }
+
+    void Compile(const std::string& optimizerName,
+                 const ParameterPack& optimizerParameters);
 
     virtual void Forward(std::size_t cycle);
 
@@ -41,6 +49,11 @@ private:
     //! Copies backward outputs of subject unit to backward inputs of destination units with direct connection
     void m_backwardCopy(std::size_t subjectUnitKey);
 
+    void m_connectUnits();
+
+    [[nodiscard]] std::unique_ptr<Compute::Optimizer> m_makeOptimizer(
+        const std::string& optimizerName,
+        const ParameterPack& parameters) const;
 
     std::unordered_map<std::size_t, std::unique_ptr<UnitMetaData>>
     m_unitMetaDataMap;

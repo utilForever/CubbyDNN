@@ -18,7 +18,36 @@ ComputableUnit::ComputableUnit(UnitId unitId, NumberSystem numberSystem,
       ForwardOutput(std::move(forwardOutput)),
       BackwardOutputVector(std::move(backwardOutputVector)),
       m_unitId(std::move(unitId)),
-      m_numericType(numberSystem){
+      m_numericType(numberSystem)
+{
+    for (const auto& tensor : ForwardInputVector)
+    {
+        if (tensor.NumericType != m_numericType)
+        {
+            throw std::invalid_argument("Number system mismatch");
+        }
+    }
+
+    for (const auto& tensor : BackwardOutputVector)
+    {
+        if (tensor.NumericType != m_numericType)
+        {
+            throw std::invalid_argument("Number system mismatch");
+        }
+    }
+
+    for (const auto& tensor : BackwardInputVector)
+    {
+        if (tensor.NumericType != m_numericType)
+        {
+            throw std::invalid_argument("Number system mismatch");
+        }
+    }
+
+    if (ForwardOutput.NumericType != m_numericType)
+    {
+        throw std::invalid_argument("Number system mismatch");
+    }
 }
 
 ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept

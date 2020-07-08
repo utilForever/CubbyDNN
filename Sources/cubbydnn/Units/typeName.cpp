@@ -4,36 +4,36 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Units/UnitType.hpp>
+#include <cubbydnn/Units/typeName.hpp>
 
 namespace CubbyDNN::Graph
 {
-UnitType::UnitType(UnitBaseType type, std::string_view typeName)
+typeName::typeName(UnitBaseType type, std::string_view name)
     : BaseType(type),
-      m_typeName(typeName)
+      m_typeName(name)
 {
 }
 
-UnitType::UnitType(UnitBaseType type, std::string_view name,
-               SharedPtr<UnitType> baseUnit)
+typeName::typeName(UnitBaseType type, std::string_view name,
+               SharedPtr<typeName> baseUnit)
     : BaseUnit(std::move(baseUnit)),
       BaseType(type),
       m_typeName(name)
 {
 }
 
-bool UnitType::operator==(const UnitType& unitType) const
+bool typeName::operator==(const typeName& unitType) const
 {
     return BaseType == unitType.BaseType &&
            m_typeName == unitType.m_typeName;
 }
 
-bool UnitType::operator!=(const UnitType& unitType) const
+bool typeName::operator!=(const typeName& unitType) const
 {
     return !(*this == unitType);
 }
 
-bool UnitType::IsBaseOf(const UnitType& baseUnit, const UnitType& derivedUnit)
+bool typeName::IsBaseOf(const typeName& baseUnit, const typeName& derivedUnit)
 {
     if (!derivedUnit.BaseUnit.Get())
     {

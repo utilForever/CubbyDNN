@@ -8,8 +8,9 @@
 #define CUBBYDNN_OPTIMIZER_HPP
 
 #include <cubbydnn/Tensors/Tensor.hpp>
+#include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 
-namespace CubbyDNN::Computation
+namespace CubbyDNN::Compute
 {
 class Optimizer
 {
@@ -25,9 +26,24 @@ public:
     virtual void Optimize(Tensor& tensor, Tensor& delta) = 0;
 };
 
-class SGD : Optimizer
+class SGD : public Optimizer
 {
-    SGD(float delta);
+public:
+    SGD(float epsilon)
+        : m_epsilon(epsilon)
+    {
+    }
+
+    ~SGD();
+
+    void Optimize(Tensor& tensor, Tensor& delta) override
+    {
+        ScalarMul(delta, m_epsilon);
+        Add(tensor, delta);
+    }
+
+private:
+    float m_epsilon;
 };
 }
 

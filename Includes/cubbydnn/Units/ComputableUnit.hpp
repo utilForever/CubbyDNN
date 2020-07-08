@@ -8,12 +8,13 @@
 #define CUBBYDNN_COMPUTABLEUNIT_HPP
 
 #include <cubbydnn/Tensors/Tensor.hpp>
-#include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Units/UnitType.hpp>
+#include <cubbydnn/Units/UnitMetadata.hpp>
 #include <future>
 
 namespace CubbyDNN::Graph
 {
+
 class ComputableUnit
 {
 public:

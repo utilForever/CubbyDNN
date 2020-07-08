@@ -9,6 +9,7 @@
 
 #include <cubbydnn/Computations/Initializers/InitializerType.hpp>
 #include <cubbydnn/Engine/UnitManager.hpp>
+#include <cubbydnn/Computations/Optimizers/Optimizer.hpp>
 
 namespace CubbyDNN::Graph
 {
@@ -19,27 +20,35 @@ public:
     Model(NumberSystem numberSystem);
 
     UnitId PlaceHolder(const Shape& shape,
-                       const std::string& name = "placeHolder");
+                       const std::string& name, Compute::Device device);
+
     //! \param input : unit ID of previous unit
     //! \param units : size of output perceptrons
-    //! \param activation : type of activation to use
-    //! \param kernelInitializer : initializer of the kernel
+    //! \param weightInitializer : initializer of the kernel
     //! \param biasInitializer : initializer of the bias
-    //! \param dropoutProb : percentage of units to dropout
     //! \param name : name of this unit
-    UnitId Dense(const UnitId& input, std::size_t units, Activation activation,
-                 std::unique_ptr<Initializer> kernelInitializer,
+    //! \param device : device to execute this unit
+    UnitId Dense(const UnitId& input, std::size_t units,
+                 std::unique_ptr<Initializer> weightInitializer,
                  std::unique_ptr<Initializer> biasInitializer,
-                 float dropoutProb = 0.0, const std::string& name = "Dense");
+                 const std::string& name,
+                 Compute::Device device);
+
+    UnitId Dropout(const UnitId& input, float keepRate);
+
+    UnitId Activation(const UnitId& input, const std::string& activationName,
+                      const std::string& name, Compute::Device device);
 
     UnitId Reshape(const UnitId& input, const Shape& shape,
                    const std::string& name = "ReshapeUnit");
 
     //! OptimizerType, Loss function
-    void Compile(const UnitId& outputUnitId, OptimizerType optimizer, Loss loss);
+    void Compile(const UnitId& outputUnitId,
+                 std::unique_ptr<Compute::Optimizer> optimizer,
+                 std::string lossName);
 
     //! Trains the graph with given optimizer and loss function
-    void Fit(std::size_t epochs);
+    void Train(std::size_t epochs);
 
     void Predict();
 
@@ -49,6 +58,8 @@ private:
 
     NumberSystem m_numericType;
     UnitManager m_unitManager;
+
+    std::size_t m_id = 0;
 };
 } // namespace CubbyDNN
 

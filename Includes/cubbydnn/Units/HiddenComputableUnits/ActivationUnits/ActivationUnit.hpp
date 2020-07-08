@@ -31,8 +31,7 @@ public:
     ActivationUnit& operator=(const ActivationUnit& activationUnit) = delete;
     ActivationUnit& operator=(ActivationUnit&& activationUnit) noexcept;
 
-    static ActivationUnit CreateUnit(const UnitMetaData& unitMetaData,
-                                     std::string activationName);
+    static ActivationUnit CreateUnit(const UnitMetaData& unitMetaData);
 
     void Forward() override;
 

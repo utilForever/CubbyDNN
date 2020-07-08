@@ -8,6 +8,7 @@
 #include <cubbydnn/Engine/UnitManager.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
 
+
 namespace CubbyDNN::Graph
 {
 UnitManager::UnitManager(UnitManager&& unitManager) noexcept
@@ -23,23 +24,39 @@ UnitManager& UnitManager::operator=(UnitManager&& unitManager) noexcept
     return *this;
 }
 
-template <typename... Ts>
-void UnitManager::AppendUnit(const UnitMetaData& unitMetaData,
-                             Ts ... type)
+void UnitManager::AppendUnit(const UnitMetaData& unitMetaData)
 {
     const auto unitId = unitMetaData.Id();
-    if (unitId.Type.Name() == "Dense")
-    {
-        m_unitMap[unitId.Id] =
-            std::make_unique<DenseUnit>(
-                DenseUnit::CreateUnit(unitMetaData, type...));
-    }
-    if (unitId.Type.Name() == "Activation")
-    {
-        m_unitMap[unitId.Id] = std::make_unique<ActivationUnit>(
-            ActivationUnit::CreateUnit(unitMetaData, type...));
-    }
+
     m_unitMetaDataMap[unitId.Id] = std::make_unique<UnitMetaData>(unitMetaData);
+}
+
+void UnitManager::Compile(const std::string& optimizerName,
+                          const ParameterPack& optimizerParameters)
+{
+    m_connectUnits();
+
+    for (auto& [key, metaDataPtr] : m_unitMetaDataMap)
+    {
+        const auto unitId = metaDataPtr->Id();
+        auto type = unitId.Type;
+
+        if (type.Name() == "PlaceHolder")
+        {
+        }
+        else if (type.Name() == "Dense")
+        {
+            DenseUnit::CreateUnit(
+                *metaDataPtr,
+                m_makeOptimizer(optimizerName, optimizerParameters));
+        }
+        else if (type.Name() == "Activation")
+        {
+            ActivationUnit::CreateUnit(*metaDataPtr);
+        }
+        else
+            throw std::runtime_error("UnImplemented unit type");
+    }
 }
 
 void UnitManager::Forward(std::size_t cycle)
@@ -149,5 +166,32 @@ void UnitManager::m_backwardCopy(std::size_t subjectUnitKey)
         }
         index += 1;
     }
+}
+
+void UnitManager::m_connectUnits()
+{
+    for (auto& [key, metaDataPtr] : m_unitMetaDataMap)
+    {
+        auto unitId = metaDataPtr->Id();
+        const auto& inputPtrVector = metaDataPtr->InputUnitVector();
+        //! Analyzes dependency between units
+        for (const auto& inputUnitId : inputPtrVector)
+        {
+            metaDataPtr->AppendOutputUnitId(inputUnitId);
+        }
+    }
+}
+
+
+std::unique_ptr<Compute::Optimizer> UnitManager::m_makeOptimizer(
+    const std::string& optimizerName, const ParameterPack& parameters) const
+{
+    if (optimizerName == "SGD")
+    {
+        auto optimizer = std::make_unique<Compute::SGD>(
+            parameters.GetFloatingPointParam("epsilon"));
+        return std::move(optimizer);
+    }
+    throw std::runtime_error("Unsupported optimizer type");
 }
 }
