@@ -30,8 +30,8 @@ void ReLU<T>::Apply(Tensor& input, Tensor& output) const
     const auto matrixSize = numRows * colDataSize;
     const auto matrixSizeOutput = numRows * colDataSizeOutput;
 
-    const T* inputPtr = static_cast<T*>(input.DataPtr.get());
-    T* outputPtr = static_cast<T*>(output.DataPtr.get());
+    const T* inputPtr = static_cast<T*>(input.DataPtr);
+    T* outputPtr = static_cast<T*>(output.DataPtr);
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         for (std::size_t i = 0; i < numRows; ++i)
@@ -47,7 +47,7 @@ void ReLU<T>::Apply(Tensor& input, Tensor& output) const
 template <typename T>
 void ReLU<T>::ApplyDerivative(Tensor& input, Tensor& output) const
 {
-   // ActivationFunc<T>::m_checkArguments({ input, output });
+    // ActivationFunc<T>::m_checkArguments({ input, output });
     const auto inputShape = input.TensorShape;
     const auto outputShape = output.TensorShape;
 
@@ -60,8 +60,8 @@ void ReLU<T>::ApplyDerivative(Tensor& input, Tensor& output) const
     const auto matrixSize = numRows * colDataSize;
     const auto matrixSizeOutput = numRows * colDataSizeOutput;
 
-    const T* inputPtr = static_cast<T*>(input.DataPtr.get());
-    T* outputPtr = static_cast<T*>(output.DataPtr.get());
+    const T* inputPtr = static_cast<T*>(input.DataPtr);
+    T* outputPtr = static_cast<T*>(output.DataPtr);
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         for (std::size_t i = 0; i < numRows; ++i)
@@ -91,8 +91,8 @@ void SoftMax<T>::Apply(Tensor& input, Tensor& output) const
     const auto matrixSize = numRows * colDataSize;
     const auto matrixSizeOutput = numRows * colDataSizeOutput;
 
-    const T* inputPtr = static_cast<T*>(input.DataPtr.get());
-    T* outputPtr = static_cast<T*>(output.DataPtr.get());
+    const T* inputPtr = static_cast<T*>(input.DataPtr);
+    T* outputPtr = static_cast<T*>(output.DataPtr);
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
@@ -133,8 +133,8 @@ void SoftMax<T>::ApplyDerivative(Tensor& input, Tensor& output) const
     const auto matrixSize = numRows * colDataSize;
     const auto matrixSizeOutput = numRows * colDataSizeOutput;
 
-    const T* inputPtr = static_cast<T*>(input.DataPtr.get());
-    T* outputPtr = static_cast<T*>(output.DataPtr.get());
+    const T* inputPtr = static_cast<T*>(input.DataPtr);
+    T* outputPtr = static_cast<T*>(output.DataPtr);
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {

@@ -4,6 +4,7 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+
 #include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 
@@ -14,7 +15,7 @@ DenseUnit::DenseUnit(UnitId unitId, NumberSystem numberSystem,
                      std::vector<Tensor> backwardInputVector,
                      Tensor forwardOutput, Tensor backwardOutput,
                      std::unordered_map<std::string, Tensor> trainableUnit,
-                     std::unique_ptr<Computation::Optimizer> optimizer)
+                     std::unique_ptr<Compute::Optimizer> optimizer)
     : ComputableUnit(std::move(unitId), numberSystem,
                      { std::move(forwardInput) },
                      std::move(backwardInputVector), std::move(forwardOutput),
@@ -38,7 +39,7 @@ DenseUnit& DenseUnit::operator=(DenseUnit&& denseUnit) noexcept
 }
 
 DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
-                                std::unique_ptr<Computation::Optimizer>
+                                std::unique_ptr<Compute::Optimizer>
                                 optimizer)
 {
     const auto unitId = unitMetaData.Id();
@@ -89,7 +90,7 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
 
     auto denseUnit = DenseUnit(
         unitId, unitMetaData.NumericType, std::move(forwardInputTensor),
-        std::move(backwardInputVector), std::move(forwardOutputTensor),
+        { std::move(backwardInputVector) }, std::move(forwardOutputTensor),
         std::move(backwardOutputTensor),
         { { "weight", std::move(weightTensor) },
           { "bias", std::move(biasTensor) },

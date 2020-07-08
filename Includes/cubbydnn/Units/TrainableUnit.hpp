@@ -18,7 +18,7 @@ class TrainableUnit
 {
 public:
     TrainableUnit(std::unordered_map<std::string, Tensor> trainableTensorMap,
-                  std::unique_ptr<Computation::Optimizer> optimizer);
+                  std::unique_ptr<Compute::Optimizer> optimizer);
 
     TrainableUnit(std::unordered_map<std::string, Tensor> trainableTensorMap);
 
@@ -37,7 +37,7 @@ public:
 
 protected:
     std::unordered_map<std::string, Tensor> m_trainableTensorMap;
-    std::unique_ptr<Computation::Optimizer> m_optimizer = nullptr;
+    std::unique_ptr<Compute::Optimizer> m_optimizer = nullptr;
 };
 }
 

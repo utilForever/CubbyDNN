@@ -31,7 +31,7 @@ void UnitManager::AppendUnit(const UnitMetaData& unitMetaData)
     m_unitMetaDataMap[unitId.Id] = std::make_unique<UnitMetaData>(unitMetaData);
 }
 
-void UnitManager::Compile(const std::string& optimizerName,
+void UnitManager::Compile(std::string optimizerName,
                           const ParameterPack& optimizerParameters)
 {
     m_connectUnits();

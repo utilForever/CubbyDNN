@@ -32,7 +32,7 @@ public:
         return m_unitMetaDataMap[id]->OutputShape();
     }
 
-    void Compile(const std::string& optimizerName,
+    void Compile(std::string optimizerName,
                  const ParameterPack& optimizerParameters);
 
     virtual void Forward(std::size_t cycle);

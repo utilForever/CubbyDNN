@@ -15,7 +15,6 @@ class ActivationFunc
 {
 public:
     ActivationFunc() = default;
-    virtual ~ActivationFunc() = default;
 
     ActivationFunc(const ActivationFunc& activationFunction) = default;
     ActivationFunc(ActivationFunc&& activationFunction) noexcept
@@ -24,6 +23,7 @@ public:
     = default;
     ActivationFunc& operator=(ActivationFunc&& activationFunction) noexcept
     = default;
+    virtual ~ActivationFunc() = default;
 
     virtual void Apply(Tensor& input, Tensor& output) const = 0;
 
@@ -57,7 +57,6 @@ class ReLU : public ActivationFunc<T>
 {
 public:
     ReLU() = default;
-    virtual ~ReLU() = default;
 
     ReLU(const ReLU& reLU) = default;
     ReLU(ReLU&& reLU) noexcept = default;
@@ -67,6 +66,7 @@ public:
 
     void ApplyDerivative(Tensor& input,
                          Tensor& output) const override;
+   ~ReLU() override = default;
 
 private:
     [[nodiscard]] static T m_apply(T data)
@@ -89,7 +89,7 @@ class SoftMax : public ActivationFunc<T>
 {
 public:
     SoftMax() = default;
-    virtual ~SoftMax() = default;
+   ~SoftMax() override = default;
 
     SoftMax(const SoftMax& softMax) = default;
     SoftMax(SoftMax&& softMax) noexcept = default;

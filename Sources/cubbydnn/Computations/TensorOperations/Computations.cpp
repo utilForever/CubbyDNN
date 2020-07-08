@@ -11,17 +11,6 @@
 
 namespace CubbyDNN::Compute
 {
-// void MultiplyAdd(const Tensor& inputA, const Tensor& inputB,
-//                  const Tensor& inputC, Tensor& output, bool transposeA,
-//                  bool transposeB)
-// {
-// }
-//
-// void BatchMultiply(const Tensor& inputA, const Tensor& batchedInputB,
-//                    Tensor& output, bool transposeA,
-//                    bool transposeB)
-// {
-// }
 
 void Multiply(Tensor& inputA, Tensor& inputB,
               Tensor& output, bool transposeA, bool transposeB)

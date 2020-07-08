@@ -7,6 +7,7 @@
 #ifndef CUBBYDNN_TENSOR_DATA_HPP
 #define CUBBYDNN_TENSOR_DATA_HPP
 
+#include <memory>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Computations/Device.hpp>
 
@@ -23,12 +24,12 @@ public:
     Tensor(Shape shape, Compute::Device device,
            NumberSystem numberSystem = NumberSystem::Float);
 
-    ~Tensor() = default;
+    ~Tensor();
 
     Tensor(const Tensor& tensor);
     Tensor(Tensor&& tensor) noexcept;
     /// move assignment operator
-    Tensor& operator=(const Tensor& tensor) = delete;
+    Tensor& operator=(const Tensor& tensor);
     Tensor& operator=(Tensor&& tensor) noexcept;
 
     //! If both tensors are on same device, data is moved rather than copied
@@ -59,7 +60,7 @@ public:
                 multiplier *= TensorShape.At(idx);
         }
 
-        return *(static_cast<T*>(DataPtr.get()) + offset);
+        return *(static_cast<T*>(DataPtr) + offset);
     }
 
     std::size_t GetColumnElementSize() const
@@ -68,7 +69,7 @@ public:
     }
 
     /// Data vector which possesses actual data
-    SharedPtr<void> DataPtr;
+    void* DataPtr;
     /// Shape of this tensorData
     Shape TensorShape;
     NumberSystem NumericType = NumberSystem::Float;
@@ -78,6 +79,16 @@ public:
 
 private:
     std::size_t numPaddedColumn = 0;
+
+    [[nodiscard]] std::size_t getDataSize()
+    {
+        std::size_t size = 1;
+        for(std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
+        {
+            size *= i;
+        }
+        return size * m_getPaddedColumnSize();
+    }
 
     std::size_t m_getPaddedColumnSize() const
     {

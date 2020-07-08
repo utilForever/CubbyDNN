@@ -20,7 +20,7 @@ public:
               std::vector<Tensor> backwardInputVector, Tensor forwardOutput,
               Tensor backwardOutput,
               std::unordered_map<std::string, Tensor> trainableUnit,
-              std::unique_ptr<Computation::Optimizer> optimizer);
+              std::unique_ptr<Compute::Optimizer> optimizer);
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& denseUnit) = delete;
@@ -30,7 +30,7 @@ public:
 
     static DenseUnit CreateUnit(
         const UnitMetaData& unitMetaData,
-        std::unique_ptr<Computation::Optimizer> optimizer);
+        std::unique_ptr<Compute::Optimizer> optimizer);
 
     void Forward() override;
 

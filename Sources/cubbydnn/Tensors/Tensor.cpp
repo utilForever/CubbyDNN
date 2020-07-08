@@ -27,24 +27,46 @@ Tensor::Tensor(Shape shape, Compute::Device device, NumberSystem numberSystem)
         void* ptr = static_cast<void*>(new float[totalSize]);
         for (std::size_t i = 0; i < totalSize; ++i)
             *(static_cast<float*>(ptr) + i) = 0;
-        DataPtr = SharedPtr<void>::Make(ptr);
+        DataPtr = ptr;
     }
     else if (NumericType == NumberSystem::Int)
     {
         void* ptr = static_cast<void*>(new int[totalSize]);
         for (std::size_t i = 0; i < totalSize; ++i)
             *(static_cast<int*>(ptr) + i) = 0;
-        DataPtr = SharedPtr<void>::Make(ptr);
+        DataPtr = ptr;
     }
 }
 
-
+// Perform deep copy
 Tensor::Tensor(const Tensor& tensor)
-    : DataPtr(tensor.DataPtr),
-      TensorShape(tensor.TensorShape),
+    : TensorShape(tensor.TensorShape),
       NumericType(tensor.NumericType),
       Device(tensor.Device)
 {
+    auto dataSize = getDataSize();
+    if (NumericType == NumberSystem::Float)
+    {
+        dataSize *= sizeof(float);
+        DataPtr = new float[dataSize];
+    }
+    else
+    {
+        dataSize *= sizeof(int);
+        DataPtr = new float[dataSize];
+    }
+    for (std::size_t i = 0; i < dataSize; ++i)
+    {
+        std::memcpy(DataPtr, tensor.DataPtr, dataSize);
+    }
+}
+
+Tensor::~Tensor()
+{
+    if (NumericType == NumberSystem::Float)
+        delete[] static_cast<float*>(DataPtr);
+    else
+        delete[] static_cast<int*>(DataPtr);
 }
 
 Tensor::Tensor(Tensor&& tensor) noexcept
@@ -55,9 +77,33 @@ Tensor::Tensor(Tensor&& tensor) noexcept
 {
 }
 
+Tensor& Tensor::operator=(const Tensor& tensor)
+{
+    auto dataSize = getDataSize();
+    if (NumericType == NumberSystem::Float)
+    {
+        dataSize *= sizeof(float);
+        DataPtr = new float[dataSize];
+    }
+    else
+    {
+        dataSize *= sizeof(int);
+        DataPtr = new float[dataSize];
+    }
+    for (std::size_t i = 0; i < dataSize; ++i)
+    {
+        std::memcpy(DataPtr, tensor.DataPtr, dataSize);
+    }
+
+    TensorShape = tensor.TensorShape;
+    NumericType = tensor.NumericType;
+    return *this;
+}
+
+
 Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 {
-    DataPtr = std::move(tensor.DataPtr);
+    DataPtr = tensor.DataPtr;
     TensorShape = tensor.TensorShape;
     NumericType = tensor.NumericType;
     return *this;
@@ -104,20 +150,20 @@ void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
             {
                 if (numericType == NumberSystem::Float)
                     static_cast<float*>(
-                            destination.DataPtr.get())[
+                            destination.DataPtr)[
                             batchIdx * (destColSize * numRows) +
                             destColSize * rowIdx + colIdx] =
                         static_cast<float*>(
-                            source.DataPtr.get())[
+                            source.DataPtr)[
                             batchIdx * (sourceColSize * numRows) +
                             sourceColSize * rowIdx + colIdx];
                 else
                     static_cast<int*>(
-                            destination.DataPtr.get())[
+                            destination.DataPtr)[
                             batchIdx * (destColSize * numRows) +
                             destColSize * rowIdx + colIdx] =
                         static_cast<int*>(
-                            source.DataPtr.get())[
+                            source.DataPtr)[
                             batchIdx * (sourceColSize * numRows) +
                             sourceColSize * rowIdx + colIdx];
             }

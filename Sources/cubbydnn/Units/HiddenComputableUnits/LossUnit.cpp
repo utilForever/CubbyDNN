@@ -47,7 +47,7 @@ void LossUnit::Forward()
         const auto loss = lossFunc->Apply(forwardInput, label);
 
         Tensor& lossOutput = ForwardOutput;
-        *(static_cast<float*>(lossOutput.DataPtr.Get())) = loss;
+        *(static_cast<float*>(lossOutput.DataPtr)) = loss;
     }
     else
     {
@@ -56,7 +56,7 @@ void LossUnit::Forward()
         const auto loss = lossFunc->Apply(forwardInput, label);
 
         Tensor& lossOutput = ForwardOutput;
-        *(static_cast<float*>(lossOutput.DataPtr.Get())) = loss;
+        *static_cast<int*>(lossOutput.DataPtr) = loss;
     }
 }
 

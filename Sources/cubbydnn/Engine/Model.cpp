@@ -5,8 +5,7 @@
 // property of any third parties.
 
 #include <cubbydnn/Engine/Model.hpp>
-
-#include "cubbydnn/Computations/Optimizers/Optimizer.hpp"
+#include <cubbydnn/Computations/Optimizers/Optimizer.hpp>
 
 
 namespace CubbyDNN::Graph

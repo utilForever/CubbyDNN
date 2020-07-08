@@ -21,7 +21,7 @@ void SimpleMnistTest()
 
    id = model.Activation(id, "ReLU", "act1", device);
 
-   model.Compile(id, std::make_unique<Computation::SGD>(0.01), "MSE");
+   model.Compile(id, std::make_unique<Compute::SGD>(0.01), "MSE");
 
    model.Train(100);
 }

@@ -10,7 +10,7 @@ namespace CubbyDNN::Graph
 {
 TrainableUnit::TrainableUnit(
     std::unordered_map<std::string, Tensor> trainableTensorMap,
-    std::unique_ptr<Computation::Optimizer> optimizer)
+    std::unique_ptr<Compute::Optimizer> optimizer)
     : m_trainableTensorMap(std::move(trainableTensorMap)),
       m_optimizer(std::move(optimizer))
 {

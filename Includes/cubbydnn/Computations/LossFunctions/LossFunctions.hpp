@@ -31,24 +31,21 @@ public:
                                  Tensor& delta) const = 0;
 
 protected:
-    static void m_checkArguments(std::vector<const Tensor&> arguments)
+    static void m_checkArguments(const Tensor& inputA, const Tensor& inputB)
     {
-        const auto shape = arguments.at(0).TensorShape;
-        const auto numericType = arguments.at(0).NumericType;
-        const auto device = arguments.at(0).Device;
+        const auto shape = inputA.TensorShape;
+        const auto numericType = inputA.NumericType;
+        const auto device = inputA.Device;
 
-        for (const auto& tensor : arguments)
-        {
-            if (tensor.TensorShape != shape)
-                throw std::invalid_argument(
-                    "Loss - Tensor shape mismatch");
+        if (inputA.TensorShape != inputB.TensorShape)
+            throw std::invalid_argument(
+                "Loss - Tensor shape mismatch");
 
-            if (tensor.NumericType != numericType)
-                throw std::invalid_argument("Loss  - Numeric type mismatch");
+        if (inputA.NumericType != inputB.NumericType)
+            throw std::invalid_argument("Loss  - Numeric type mismatch");
 
-            if (tensor.Device != device)
-                throw std::invalid_argument("Loss - Device mismatch");
-        }
+        if (inputA.Device != inputB.Device)
+            throw std::invalid_argument("Loss - Device mismatch");
     }
 };
 
@@ -56,8 +53,12 @@ template <typename T>
 class MSE : public Loss<T>
 {
 public:
-    MSE() = default;
-    ~MSE() = default;
+    MSE()
+        : Loss<T>()
+    {
+    }
+
+    ~MSE() override = default;
 
     MSE(const MSE& mse) = default;
     MSE(MSE&& mse) noexcept = default;
@@ -66,7 +67,7 @@ public:
 
     [[nodiscard]] T Apply(Tensor& input, const Tensor& label) const override
     {
-        Loss<T>::m_checkArguments({ input, label });
+        Loss<T>::m_checkArguments(input, label);
 
         const auto inputShape = input.TensorShape;
         const auto outputShape = label.TensorShape;
@@ -80,8 +81,8 @@ public:
         const auto matrixSizeInput = numRows * colDataSizeInput;
         const auto matrixSizeOutput = numRows * colDataSizeLabel;
 
-        const T* inputPtr = static_cast<T*>(input.DataPtr.get());
-        T* outputPtr = static_cast<T*>(label.DataPtr.get());
+        const T* inputPtr = static_cast<T*>(input.DataPtr);
+        T* outputPtr = static_cast<T*>(label.DataPtr);
 
         T batchSum = 0;
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -90,14 +91,15 @@ public:
                 T sum = 0;
                 for (std::size_t j = 0; j < numCols; ++j)
                 {
-                    sum += std::pow(outputPtr[batchIdx * matrixSizeOutput +
-                                              i * colDataSizeLabel + j] -
-                                    inputPtr[batchIdx * matrixSizeInput +
-                                             i * colDataSizeInput + j], 2);
+                    auto temp = outputPtr[batchIdx * matrixSizeOutput +
+                                          i * colDataSizeLabel + j] -
+                                inputPtr[batchIdx * matrixSizeInput +
+                                         i * colDataSizeInput + j];
+                    sum += temp * temp;
                 }
                 batchSum += sum;
             }
-        batchSum /= batchSize * numRows();
+        batchSum /= static_cast<T>(batchSize * numRows);
 
         return batchSum;
     }
@@ -105,7 +107,7 @@ public:
     void ApplyDerivative(const Tensor& label, const Tensor& prevInput,
                          Tensor& delta) const override
     {
-        Loss<T>::m_checkArguments({ delta, prevInput, label });
+        Loss<T>::m_checkArguments(prevInput, label);
 
         const auto deltaShape = delta.TensorShape;
         const auto labelShape = label.TensorShape;
@@ -121,9 +123,9 @@ public:
         const auto matrixSizeDelta = numRows * colDataSizeDelta;
         const auto matrixSizeLabel = numRows * colDataSizeLabel;
 
-        const T* deltaPtr = static_cast<T*>(delta.DataPtr.get());
-        const T* prevInputPtr = static_cast<T*>(prevInput.DataPtr.get());
-        T* labelPtr = static_cast<T*>(label.DataPtr.get());
+        T* deltaPtr = static_cast<T*>(delta.DataPtr);
+        const T* prevInputPtr = static_cast<T*>(prevInput.DataPtr);
+        const T* labelPtr = static_cast<T*>(label.DataPtr);
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
             for (std::size_t i = 0; i < numRows; ++i)
