@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_UNITMETADATA_HPP
 #define CUBBYDNN_UNITMETADATA_HPP
 
-#include <cubbydnn/Units/unitType.hpp>
+#include <cubbydnn/Units/UnitType.hpp>
 #include <cubbydnn/Utils/Shape.hpp>
 #include <cubbydnn/Utils/Declarations.hpp>
 #include <cubbydnn/Computations/Initializers/InitializerType.hpp>
@@ -20,8 +20,8 @@ namespace CubbyDNN::Graph
 class ParameterPack
 {
 public:
-    ParameterPack();
-    ~ParameterPack();
+    ParameterPack() = default;
+    ~ParameterPack() = default;
 
     ParameterPack(const ParameterPack& parameterPack) = default;
     ParameterPack(ParameterPack&& parameterPack) noexcept = default;
@@ -32,15 +32,11 @@ public:
                   std::unordered_map<std::string, float> floatingPointParams,
                   std::unordered_map<std::string, std::string> stringParams);
 
-    ParameterPack(std::unordered_map<std::string, int> integerParams);
-    ParameterPack( std::unordered_map<std::string, float> floatingPointParams);
-    ParameterPack(std::unordered_map<std::string, std::string> stringParams);
+    [[nodiscard]] int GetIntegerParam(const std::string& name) const;
 
-    int GetIntegerParam(std::string name) const;
+    [[nodiscard]] float GetFloatingPointParam(const std::string& name) const;
 
-    float GetFloatingPointParam(std::string name) const;
-
-    std::string GetStringParam(std::string name) const;
+    [[nodiscard]] std::string GetStringParam(const std::string& name) const;
 
 private:
     std::unordered_map<std::string, int> m_integerParameters;
@@ -55,7 +51,7 @@ public:
         UnitId unitId,
         std::unordered_map<std::string, Shape> internalVariableShapeMap,
         std::unordered_map<std::string, std::unique_ptr<Initializer>>
-        initializerVector,
+        initializerMap,
         std::vector<Shape> inputShapeVector, Shape outputShape,
         std::vector<UnitId> inputUnitIdVector,
         NumberSystem numericType, Compute::Device device);
@@ -65,7 +61,7 @@ public:
         UnitId unitId,
         std::unordered_map<std::string, Shape> internalVariableShapeMap,
         std::unordered_map<std::string, std::unique_ptr<Initializer>>
-        initializerVector,
+        initializerMap,
         std::vector<Shape> inputShapeVector, Shape outputShape,
         std::vector<UnitId> inputUnitIdVector, ParameterPack params,
         NumberSystem numericType,
@@ -73,10 +69,11 @@ public:
 
     ~UnitMetaData() = default;
 
-    UnitMetaData(const UnitMetaData& unitMetaData) = default;
-    UnitMetaData(UnitMetaData&& unitMetaData) noexcept = default;
-    UnitMetaData& operator=(const UnitMetaData& unitMetaData) = default;
-    UnitMetaData& operator=(UnitMetaData&& unitMetaData) noexcept = default;
+    UnitMetaData(const UnitMetaData& unitMetaData) = delete;
+
+    UnitMetaData(UnitMetaData&& unitMetaData) noexcept;
+    UnitMetaData& operator=(const UnitMetaData& unitMetaData) = delete;
+    UnitMetaData& operator=(UnitMetaData&& unitMetaData) noexcept;
 
     void AppendOutputUnitId(UnitId unitId);
 
@@ -105,7 +102,7 @@ private:
     UnitId m_unitId;
     std::unordered_map<std::string, Shape> m_internalVariableShapeMap;
     std::unordered_map<std::string, std::unique_ptr<Initializer>>
-    m_initializerVector;
+    m_initializerMap;
 
     std::vector<Shape> m_inputShapeVector;
     Shape m_outputShape;

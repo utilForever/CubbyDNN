@@ -8,7 +8,6 @@
 #define CUBBYDNN_COMPUTE_LOSSFUNCTIONS_HPP
 
 #include <cubbydnn/Tensors/Tensor.hpp>
-#include <cmath>
 
 namespace CubbyDNN::Compute
 {
@@ -34,7 +33,6 @@ protected:
     static void m_checkArguments(const Tensor& inputA, const Tensor& inputB)
     {
         const auto shape = inputA.TensorShape;
-        const auto numericType = inputA.NumericType;
         const auto device = inputA.Device;
 
         if (inputA.TensorShape != inputB.TensorShape)

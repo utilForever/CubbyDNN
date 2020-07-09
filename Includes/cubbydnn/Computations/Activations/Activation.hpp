@@ -16,7 +16,6 @@ namespace CubbyDNN::Compute
 template <typename T>
 void ReLU<T>::Apply(Tensor& input, Tensor& output) const
 {
-    //ActivationFunc<T>::m_checkArguments({ input, output });
 
     const auto inputShape = input.TensorShape;
     const auto outputShape = output.TensorShape;
@@ -47,7 +46,6 @@ void ReLU<T>::Apply(Tensor& input, Tensor& output) const
 template <typename T>
 void ReLU<T>::ApplyDerivative(Tensor& input, Tensor& output) const
 {
-    // ActivationFunc<T>::m_checkArguments({ input, output });
     const auto inputShape = input.TensorShape;
     const auto outputShape = output.TensorShape;
 
@@ -78,7 +76,6 @@ void ReLU<T>::ApplyDerivative(Tensor& input, Tensor& output) const
 template <typename T>
 void SoftMax<T>::Apply(Tensor& input, Tensor& output) const
 {
-    //ActivationFunc<T>::m_checkArguments({ input, output });
     const auto inputShape = input.TensorShape;
     const auto outputShape = output.TensorShape;
 
@@ -119,8 +116,6 @@ void SoftMax<T>::Apply(Tensor& input, Tensor& output) const
 template <typename T>
 void SoftMax<T>::ApplyDerivative(Tensor& input, Tensor& output) const
 {
-    //ActivationFunc<T>::m_checkArguments({ input, output });
-
     const auto inputShape = input.TensorShape;
     const auto outputShape = output.TensorShape;
 

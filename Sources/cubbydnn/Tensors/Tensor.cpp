@@ -5,6 +5,7 @@
 // property of any third parties.
 
 #include <cassert>
+#include <cstring>
 #include <cubbydnn/Tensors/Tensor.hpp>
 #include <iostream>
 

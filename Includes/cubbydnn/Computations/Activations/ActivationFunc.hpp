@@ -31,25 +31,25 @@ public:
                                  Tensor& output) const = 0;
 
 protected:
-    static void m_checkArguments(std::vector<const Tensor&> arguments)
-    {
-        const auto shape = arguments.at(0).TensorShape;
-        const auto numericType = arguments.at(0).NumericType;
-        const auto device = arguments.at(0).Device;
-        for (const auto& tensor : arguments)
-        {
-            if (tensor.TensorShape != shape)
-                throw std::invalid_argument(
-                    "Activation - Tensor shape mismatch");
-
-            if (tensor.NumericType != numericType)
-                throw std::invalid_argument(
-                    "Activation  - Numeric type mismatch");
-
-            if (tensor.Device != device)
-                throw std::invalid_argument("Activation - Device mismatch");
-        }
-    }
+    // static void m_checkArguments(std::vector<const Tensor&> arguments)
+    // {
+    //     const auto shape = arguments.at(0).TensorShape;
+    //     const auto numericType = arguments.at(0).NumericType;
+    //     const auto device = arguments.at(0).Device;
+    //     for (const auto& tensor : arguments)
+    //     {
+    //         if (tensor.TensorShape != shape)
+    //             throw std::invalid_argument(
+    //                 "Activation - Tensor shape mismatch");
+    //
+    //         if (tensor.NumericType != numericType)
+    //             throw std::invalid_argument(
+    //                 "Activation  - Numeric type mismatch");
+    //
+    //         if (tensor.Device != device)
+    //             throw std::invalid_argument("Activation - Device mismatch");
+    //     }
+    // }
 };
 
 template <typename T>

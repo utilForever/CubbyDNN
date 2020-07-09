@@ -15,13 +15,13 @@ namespace CubbyDNN::Compute
 class ActivationWrapper
 {
 public:
-    static const ActivationFunc<float>* GetFloatActivation(
+    static const std::unique_ptr<ActivationFunc<float>>& GetFloatActivation(
         std::string name)
     {
         return m_floatActivationMap.at(name);
     }
 
-    static const ActivationFunc<int>* GetIntegerActivation(
+    static const std::unique_ptr<ActivationFunc<int>>& GetIntegerActivation(
         std::string name)
     {
         return m_integerActivationMap.at(name);
@@ -29,21 +29,17 @@ public:
 
     static void Initialize()
     {
-        m_floatActivationMap = {
-            { "ReLU", new ReLU<float>() },
-            { "SoftMax", new SoftMax<float>() },
-        };
+        m_floatActivationMap["ReLU"] = std::make_unique<ReLU<float>>();
+        m_floatActivationMap["SoftMax"] = std::make_unique<SoftMax<float>>();
 
-        m_integerActivationMap = {
-            { "ReLU", new ReLU<int>() },
-            { "SoftMax", new SoftMax<int>() },
-        };
+        m_integerActivationMap["ReLU"] = std::make_unique<ReLU<int>>();
+        m_integerActivationMap["SoftMax"] = std::make_unique<SoftMax<int>>();
     }
 
 private:
-    static std::unordered_map<std::string, ActivationFunc<float>*>
+    static std::unordered_map<std::string, std::unique_ptr<ActivationFunc<float>>>
     m_floatActivationMap;
-    static std::unordered_map<std::string, ActivationFunc<int>*>
+    static std::unordered_map<std::string, std::unique_ptr<ActivationFunc<int>>>
     m_integerActivationMap;
 };
 }

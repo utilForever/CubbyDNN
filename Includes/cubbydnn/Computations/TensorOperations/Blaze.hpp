@@ -55,9 +55,9 @@ public:
         const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
         const auto matrixSizeOut = outputShape.NumRows() * colDataSizeOutput;
 
-        T* inputPtrA = static_cast<T*>(inputA.DataPtr.get());
-        T* inputPtrB = static_cast<T*>(inputB.DataPtr.get());
-        T* outputPtr = static_cast<T*>(output.DataPtr.get());
+        T* inputPtrA = static_cast<T*>(inputA.DataPtr);
+        T* inputPtrB = static_cast<T*>(inputB.DataPtr);
+        T* outputPtr = static_cast<T*>(output.DataPtr);
 
         if (inputA.Device.PadSize() > 0)
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -128,9 +128,9 @@ public:
         const auto matrixSizeB = inputShapeB.NumRows() * colDataSizeB;
         const auto matrixSizeOut = outputShape.NumRows() * colDataSizeOutput;
 
-        T* inputPtrA = static_cast<T*>(inputA.DataPtr.get());
-        T* inputPtrB = static_cast<T*>(inputB.DataPtr.get());
-        T* outputPtr = static_cast<T*>(output.DataPtr.get());
+        T* inputPtrA = static_cast<T*>(inputA.DataPtr);
+        T* inputPtrB = static_cast<T*>(inputB.DataPtr);
+        T* outputPtr = static_cast<T*>(output.DataPtr);
 
         if (inputA.Device.PadSize() > 0)
         {
@@ -184,8 +184,8 @@ public:
         const auto matrixSizeA = inputShapeA.NumRows() * colDataSizeA;
         const auto matrixSizeOut = outputShape.NumRows() * colDataSizeOutput;
 
-        T* inputPtrA = static_cast<T*>(tensor.DataPtr.get());
-        T* outputPtr = static_cast<T*>(toAdd.DataPtr.get());
+        T* inputPtrA = static_cast<T*>(tensor.DataPtr);
+        T* outputPtr = static_cast<T*>(toAdd.DataPtr);
 
         if (tensor.Device.PadSize() > 0)
         {
@@ -238,8 +238,8 @@ public:
         const auto inputShape = input.TensorShape;
         const auto outputShape = output.TensorShape;
 
-        T* inputPtr = static_cast<T*>(input.DataPtr.get());
-        T* outputPtr = static_cast<T*>(output.DataPtr.get());
+        T* inputPtr = static_cast<T*>(input.DataPtr);
+        T* outputPtr = static_cast<T*>(output.DataPtr);
 
         CustomMatrix<T, aligned, padded, blaze::rowMajor> Out(
             outputPtr, outputShape.NumRows() * batchSize, outputShape.NumCols(),
@@ -272,8 +272,8 @@ public:
         const auto matrixSizeOutput = outputShape.NumRows() * colDataSizeOutput;
         const auto batchSize = inputShape.NumMatrices();
 
-        T* inputPtr = static_cast<T*>(input.DataPtr.get());
-        T* outputPtr = static_cast<T*>(output.DataPtr.get());
+        T* inputPtr = static_cast<T*>(input.DataPtr);
+        T* outputPtr = static_cast<T*>(output.DataPtr);
 
         if (input.Device.PadSize() > 0)
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -316,7 +316,7 @@ public:
         const auto tensorShape = input.TensorShape;
         const auto colDataSizeInput = input.GetColumnElementSize();
 
-        T* inputPtr = static_cast<T*>(input.DataPtr.get());
+        T* inputPtr = static_cast<T*>(input.DataPtr);
         CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
             inputPtr, tensorShape.NumRows(), tensorShape.NumCols(),
             colDataSizeInput);

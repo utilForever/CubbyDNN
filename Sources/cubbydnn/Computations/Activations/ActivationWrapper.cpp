@@ -9,10 +9,10 @@
 
 namespace CubbyDNN::Compute
 {
-std::unordered_map<std::string, ActivationFunc<float>*>
+std::unordered_map<std::string, std::unique_ptr<ActivationFunc<float>>>
 ActivationWrapper::m_floatActivationMap;
 
 
-std::unordered_map<std::string, ActivationFunc<int>*>
+std::unordered_map<std::string, std::unique_ptr<ActivationFunc<int>>>
 ActivationWrapper::m_integerActivationMap;
 }

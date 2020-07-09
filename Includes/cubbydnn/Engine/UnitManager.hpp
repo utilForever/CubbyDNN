@@ -25,7 +25,7 @@ public:
     UnitManager& operator=(const UnitManager& unitManager) = delete;
     UnitManager& operator=(UnitManager&& unitManager) noexcept;
 
-    void AppendUnit(const UnitMetaData& unitMetaData);
+    void AppendUnit(UnitMetaData&& unitMetaData);
 
     Shape GetUnitOutputShape(std::size_t id)
     {

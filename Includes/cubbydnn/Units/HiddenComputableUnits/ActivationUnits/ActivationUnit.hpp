@@ -9,7 +9,6 @@
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
 #include <cubbydnn/Units/TrainableUnit.hpp>
-#include <cubbydnn/Computations/Activations/ActivationFunc.hpp>
 #include <cubbydnn/Units/UnitMetadata.hpp>
 
 

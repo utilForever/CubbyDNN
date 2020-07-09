@@ -5,8 +5,6 @@
 // property of any third parties.
 
 #include <cubbydnn/Engine/Model.hpp>
-#include <cubbydnn/Computations/Optimizers/Optimizer.hpp>
-
 
 namespace CubbyDNN::Graph
 {
@@ -14,11 +12,11 @@ UnitId Model::PlaceHolder(const Shape& shape, const std::string& name,
                           Compute::Device device)
 {
     UnitId subjectUnitId{ UnitType(UnitBaseType::Source, name) };
-    const UnitMetaData unitMetaData(subjectUnitId, {}, {}, 
-        {}, shape, {}, {},
-                                    m_numericType,
-                                    std::move(device));
-    m_unitManager.AppendUnit(unitMetaData);
+    UnitMetaData unitMetaData(subjectUnitId, {}, {},
+                              {}, shape, {}, {},
+                              m_numericType,
+                              std::move(device));
+    m_unitManager.AppendUnit(std::move(unitMetaData));
     return subjectUnitId;
 }
 
@@ -40,9 +38,11 @@ UnitId Model::Dense(const UnitId& input, std::size_t units,
     auto outputShape = previousOutputShape;
     outputShape.SetNumRows(units);
 
-    std::unordered_map<std::string, std::unique_ptr<Initializer>> initializerMap
-        = { { "weight", std::move(weightInitializer) },
-            { "bias", std::move(biasInitializer) } };
+    std::unordered_map<std::string, std::unique_ptr<Initializer>>
+        initializerMap;
+
+    initializerMap["weight"] = std::move(weightInitializer);
+    initializerMap["bias"] = std::move(biasInitializer);
 
     UnitMetaData unitMetaData(subjectUnitId,
                               { { "weight", weightShape },
@@ -52,7 +52,7 @@ UnitId Model::Dense(const UnitId& input, std::size_t units,
                               { input }, {}, m_numericType,
                               std::move(device));
 
-    m_unitManager.AppendUnit(unitMetaData);
+    m_unitManager.AppendUnit(std::move(unitMetaData));
     return subjectUnitId;
 }
 
@@ -62,21 +62,21 @@ UnitId Model::Activation(const UnitId& input, const std::string& activationName,
     UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, name), m_id++, name };
     const auto previousOutputShape = m_unitManager.GetUnitOutputShape(input.Id);
 
-    const UnitMetaData unitMetaData(subjectUnitId, {}, {},
-                                    { previousOutputShape },
-                                    { previousOutputShape }, { input },
-                                    ParameterPack(
-                                        { { "activationName", activationName } }),
-                                    m_numericType,
-                                    std::move(device));
+    UnitMetaData unitMetaData(subjectUnitId, {}, {},
+                              { previousOutputShape },
+                              { previousOutputShape }, { input },
+                              ParameterPack({}, {},
+                                            { { "activationName", activationName } }),
+                              m_numericType,
+                              std::move(device));
 
-    m_unitManager.AppendUnit(unitMetaData);
+    m_unitManager.AppendUnit(std::move(unitMetaData));
     return subjectUnitId;
 }
 
-void Model::Compile(const UnitId& outputUnitId,
-                    std::unique_ptr<Compute::Optimizer> optimizer,
-                    std::string lossName)
-{
-}
+// void Model::Compile(const UnitId& outputUnitId,
+//                     std::unique_ptr<Compute::Optimizer> optimizer,
+//                     std::string lossName)
+// {
+// }
 } // namespace CubbyDNN

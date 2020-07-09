@@ -8,12 +8,40 @@
 
 namespace CubbyDNN::Graph
 {
+ParameterPack::ParameterPack(std::unordered_map<std::string, int> integerParams,
+                             std::unordered_map<std::string, float>
+                             floatingPointParams,
+                             std::unordered_map<std::string, std::string>
+                             stringParams)
+    : m_integerParameters(std::move(integerParams)),
+      m_floatingPointParameters(std::move(floatingPointParams)),
+      m_stringParameters(std::move(stringParams))
+{
+}
+
+
+int ParameterPack::GetIntegerParam(const std::string& name) const
+{
+    return m_integerParameters.at(name);
+}
+
+float ParameterPack::GetFloatingPointParam(const std::string& name) const
+{
+    return m_floatingPointParameters.at(name);
+}
+
+std::string ParameterPack::GetStringParam(const std::string& name) const
+{
+    return m_stringParameters.at(name);
+}
+
+
 UnitMetaData::UnitMetaData(UnitId unitId,
                            std::unordered_map<std::string, Shape>
                            internalVariableShapeMap,
                            std::unordered_map<
                                std::string, std::unique_ptr<Initializer>>
-                           initializerVector,
+                           initializerMap,
                            std::vector<Shape> inputShapeVector,
                            Shape outputShape,
                            std::vector<UnitId> inputUnitIdVector,
@@ -23,7 +51,7 @@ UnitMetaData::UnitMetaData(UnitId unitId,
       Device(std::move(device)),
       m_unitId(std::move(unitId)),
       m_internalVariableShapeMap(std::move(internalVariableShapeMap)),
-      m_initializerVector(std::move(initializerVector)),
+      m_initializerMap(std::move(initializerMap)),
       m_inputShapeVector(std::move(inputShapeVector)),
       m_outputShape(std::move(outputShape)),
       m_inputUnitIdVector(std::move(inputUnitIdVector))
@@ -35,7 +63,7 @@ UnitMetaData::UnitMetaData(
     UnitId unitId,
     std::unordered_map<std::string, Shape> internalVariableShapeMap,
     std::unordered_map<std::string, std::unique_ptr<Initializer>>
-    initializerVector,
+    initializerMap,
     std::vector<Shape> inputShapeVector, Shape outputShape,
     std::vector<UnitId> inputUnitIdVector, ParameterPack params,
     NumberSystem numericType, Compute::Device device)
@@ -44,12 +72,44 @@ UnitMetaData::UnitMetaData(
       Device(std::move(device)),
       m_unitId(std::move(unitId)),
       m_internalVariableShapeMap(std::move(internalVariableShapeMap)),
-      m_initializerVector(std::move(initializerVector)),
+      m_initializerMap(std::move(initializerMap)),
       m_inputShapeVector(std::move(inputShapeVector)),
       m_outputShape(std::move(outputShape)),
       m_inputUnitIdVector(std::move(inputUnitIdVector))
 {
 }
+
+UnitMetaData::UnitMetaData(UnitMetaData&& unitMetaData) noexcept
+    : Parameters(std::move(unitMetaData.Parameters)),
+      NumericType(unitMetaData.NumericType),
+      Device(std::move(unitMetaData.Device)),
+      m_unitId(std::move(unitMetaData.m_unitId)),
+      m_internalVariableShapeMap(
+          std::move(unitMetaData.m_internalVariableShapeMap)),
+      m_initializerMap(std::move(unitMetaData.m_initializerMap)),
+      m_inputShapeVector(std::move(unitMetaData.m_inputShapeVector)),
+      m_outputShape(std::move(unitMetaData.m_outputShape)),
+      m_inputUnitIdVector(std::move(unitMetaData.m_inputUnitIdVector)),
+      m_outputUnitIdVector(std::move(unitMetaData.m_outputUnitIdVector))
+{
+}
+
+UnitMetaData& UnitMetaData::operator=(UnitMetaData&& unitMetaData) noexcept
+{
+    Parameters = std::move(unitMetaData.Parameters);
+    NumericType = unitMetaData.NumericType;
+    Device = std::move(unitMetaData.Device);
+    m_unitId = std::move(unitMetaData.m_unitId);
+    m_internalVariableShapeMap =
+        std::move(unitMetaData.m_internalVariableShapeMap);
+    m_initializerMap = std::move(unitMetaData.m_initializerMap);
+    m_inputShapeVector = std::move(unitMetaData.m_inputShapeVector);
+    m_outputShape = std::move(unitMetaData.m_outputShape);
+    m_inputUnitIdVector = std::move(unitMetaData.m_inputUnitIdVector);
+    m_outputUnitIdVector = std::move(unitMetaData.m_outputUnitIdVector);
+    return *this;
+}
+
 
 void UnitMetaData::AppendOutputUnitId(UnitId unitId)
 {
@@ -90,7 +150,7 @@ std::vector<UnitId> UnitMetaData::OutputUnitVector() const
 const std::unique_ptr<Initializer>& UnitMetaData::
 GetInitializer(const std::string& name) const
 {
-    return m_initializerVector.at(name);
+    return m_initializerMap.at(name);
 }
 
 Shape UnitMetaData::GetShape(const std::string& name) const

@@ -24,11 +24,12 @@ UnitManager& UnitManager::operator=(UnitManager&& unitManager) noexcept
     return *this;
 }
 
-void UnitManager::AppendUnit(const UnitMetaData& unitMetaData)
+void UnitManager::AppendUnit(UnitMetaData&& unitMetaData)
 {
     const auto unitId = unitMetaData.Id();
 
-    m_unitMetaDataMap[unitId.Id] = std::make_unique<UnitMetaData>(unitMetaData);
+    m_unitMetaDataMap[unitId.Id] = std::make_unique<UnitMetaData>(
+        std::move(unitMetaData));
 }
 
 void UnitManager::Compile(std::string optimizerName,

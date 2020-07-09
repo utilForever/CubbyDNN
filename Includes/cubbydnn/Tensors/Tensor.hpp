@@ -7,7 +7,6 @@
 #ifndef CUBBYDNN_TENSOR_DATA_HPP
 #define CUBBYDNN_TENSOR_DATA_HPP
 
-#include <memory>
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 #include <cubbydnn/Computations/Device.hpp>
 
@@ -50,7 +49,7 @@ public:
         int idx = columnIdx;
         std::size_t multiplier = 1;
         std::size_t offset = 0;
-        for (; shapeIdx >= 0 && idx != index.size();
+        for (; shapeIdx >= 0 && idx != static_cast<int>(index.size());
                --shapeIdx, --idx)
         {
             offset += multiplier * index.at(idx);
