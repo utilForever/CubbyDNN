@@ -6,7 +6,6 @@
 
 #include "GraphSynchronizationTest.hpp"
 #include <cubbydnn/Engine/Model.hpp>
-#include "gtest/gtest.h"
 
 namespace GraphTest
 {

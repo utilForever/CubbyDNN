@@ -5,13 +5,13 @@
 // property of any third parties.
 
 #include "TaskQueueTest.hpp"
-#include <gtest/gtest.h>
 #include <atomic>
 #include <cubbydnn/Utils/SpinLockQueue.hpp>
 #include <functional>
 #include <thread>
 #include <vector>
 #include <random>
+#include <doctest/doctest.h>
 
 namespace CubbyDNN
 {
@@ -68,7 +68,7 @@ void TaskQueueTest(int workers)
     while (count != desired)
         std::this_thread::yield();
 
-    EXPECT_EQ(count, desired);
+    CHECK(count == desired);
 
     for (std::size_t i = 0; i < threadVector.size(); ++i)
     {

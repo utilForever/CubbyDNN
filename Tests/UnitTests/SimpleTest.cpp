@@ -1,8 +1,11 @@
-#include "gtest/gtest.h"
+#include <iostream>
 #include <SimpleTest.hpp>
 
-TEST(SimpleTest, Add)
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest.h>
+
+TEST_CASE("Simple test")
 {
-    EXPECT_EQ(5, Add(2, 3));
+    CHECK(5 == Add(2, 3));
     std::cout << "called Test" << std::endl;
 }

@@ -7,13 +7,17 @@ set(root_dir ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 # Includes
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../Includes
         ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries
+)
+
+#Added by Justin
+include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../Includes
 )
 
 # Sources
 file(GLOB header_dir
-        ${root_dir}/Includes/cubbydnn)
+        ${root_dir}/Includes/CubbyDNN)
 
 file(GLOB_RECURSE headers
         ${header_dir}/*.hpp)
@@ -23,7 +27,7 @@ file(GLOB_RECURSE sources
 
 # Build library
 add_library(${target}
-    ${sources} "Units/UnitType.cpp" "Engine/UnitManager.cpp")
+    ${sources})
 
 # Project options
 set_target_properties(${target}

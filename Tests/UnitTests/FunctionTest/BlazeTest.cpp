@@ -5,10 +5,10 @@
 // property of any third parties.
 
 #include "BlazeTest.hpp"
-#include "gtest/gtest.h"
 
 #include <array>
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
+#include <doctest.h>
 
 namespace CubbyDNN::Test
 {
@@ -54,7 +54,7 @@ void TestBlazeMul()
                 auto ans = answer[i][j];
                 auto num = output.At<float>({ batchIdx, i, j });
 
-                EXPECT_EQ(ans, num);
+                CHECK(ans == num);
             }
         }
 }
@@ -89,7 +89,7 @@ void TestBlazeMul2()
             for (std::size_t j = 0; j < size; j++)
             {
                 const auto num = output.At<float>({ batchIdx, i, j });
-                EXPECT_EQ(num, 4 * size);
+                CHECK(num == 4 * size);
             }
         }
 }
@@ -124,7 +124,7 @@ void TestBlazeAdd()
             for (std::size_t j = 0; j < colSize; j++)
             {
                 const auto num = output.At<float>({ batch, i, j });
-                EXPECT_EQ(num, 8);
+                CHECK(num == 8);
             }
         }
 }
@@ -159,27 +159,27 @@ void TestBlazeDot()
             for (std::size_t j = 0; j < colSize; j++)
             {
                 const auto num = output.At<float>({ batch, i, j });
-                EXPECT_EQ(num, 16);
+                CHECK(num == 16);
             }
         }
 }
 
-TEST(BlazeOpTest, MatMul1)
+TEST_CASE("Blaze simpleMatmul1")
 {
     TestBlazeMul();
 }
 
-TEST(BlazeOpTest, MatMul2)
+TEST_CASE("Blaze simpleMatmul2")
 {
     TestBlazeMul2();
 }
 
-TEST(BlazeOpTest, MatAdd)
+TEST_CASE("Blaze simpleMatAdd")
 {
     TestBlazeAdd();
 }
 
-TEST(BlazeOpTest, MatDot)
+TEST_CASE("Blaze MatDot")
 {
     TestBlazeDot();
 }

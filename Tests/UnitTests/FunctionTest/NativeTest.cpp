@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #include "NativeTest.hpp"
-#include "gtest/gtest.h"
+#include "doctest.h"
 
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <array>
@@ -55,7 +55,7 @@ void TestMatMul()
                 auto ans = answer[i][j];
                 auto num = output.At<float>({ batchIdx, i, j });
 
-                EXPECT_EQ(ans, num);
+                CHECK(ans == num);
             }
         }
 }
@@ -92,7 +92,7 @@ void TestMatMul2()
             for (std::size_t j = 0; j < size; j++)
             {
                 const auto num = output.At<float>({ batchIdx, i, j });
-                EXPECT_EQ(num, 4 * size);
+                CHECK(num == 4 * size);
             }
         }
 }
@@ -129,7 +129,7 @@ void TestMatAdd()
             for (std::size_t j = 0; j < colSize; j++)
             {
                 const auto num = output.At<float>({ batch, i, j });
-                EXPECT_EQ(num, 8);
+                CHECK(num == 8);
             }
         }
 }
@@ -164,29 +164,29 @@ void TestMatDot()
             for (std::size_t j = 0; j < colSize; j++)
             {
                 const auto num = output.At<float>({ batch, i, j });
-                EXPECT_EQ(num, 16);
+                CHECK(num == 16);
             }
         }
 }
 
-TEST(NativeOpTest, MatMul1)
+TEST_CASE("Simple matmul 1")
 {
     TestMatMul();
 }
 
-TEST(NativeOpTest, MatMul2)
+TEST_CASE("Simple matmul 2")
 {
     TestMatMul2();
 }
 
 
-TEST(NativeOpTest, MatAdd)
+TEST_CASE("MatAdd")
 {
     TestMatAdd();
 }
 
 
-TEST(NativeOpTest, MatDot)
+TEST_CASE("Matdot")
 {
     TestMatDot();
 }

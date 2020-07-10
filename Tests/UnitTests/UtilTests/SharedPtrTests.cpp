@@ -3,12 +3,11 @@
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
-
 #include "SharedPtrTests.hpp"
-#include "gtest/gtest.h"
-
+#include <doctest.h>
 #include <deque>
 #include <thread>
+#include <vector>
 
 namespace CubbyDNN
 {
@@ -42,10 +41,9 @@ void ConcurrentCopy(int spawnNum, int numCopy)
             std::thread(std::move(CopyAndDestruct), shared, numCopy, &stop));
     }
 
-    while (shared.GetCurrentRefCount() < spawnNum * (numCopy + 1) + 1)
-        ;
+    while (shared.GetCurrentRefCount() < spawnNum * (numCopy + 1) + 1);
 
-    EXPECT_EQ(shared.GetCurrentRefCount(), spawnNum * (numCopy + 1) + 1);
+    CHECK(shared.GetCurrentRefCount() == spawnNum * (numCopy + 1) + 1);
     stop = true;
 
     for (auto& thread : threadPool)
@@ -55,20 +53,20 @@ void ConcurrentCopy(int spawnNum, int numCopy)
     }
 
     /// Only 1 refCount should be left at the end
-    EXPECT_EQ(shared.GetCurrentRefCount(), 1);
+    CHECK(shared.GetCurrentRefCount() == 1);
 }
 
-// TEST(ConcurrentCopy_basic, ConcurrentCopy)
-// {
-//     //! Spawn 10 threads and copy SharedPtr
-//     //! Check if reference counter successfully returns 1 at the end
-//     ConcurrentCopy(10, 100);
-// }
-//
-// TEST(ConcurrentCopy_RefLimit, ConcurrentCopy)
-// {
-//     //! Spawn 100 threads and copy SharedPtr
-//     //!  Check if reference counter successfully returns 1 at the end
-//     ConcurrentCopy(100, 100);
-// }
-}  // namespace CubbyDNN
+TEST_CASE("ConcurrentCopy - small")
+{
+    //! Spawn 10 threads and copy SharedPtr
+    //! Check if reference counter successfully returns 1 at the end
+    ConcurrentCopy(10, 100);
+}
+
+TEST_CASE("ConcurrentCopy - large")
+{
+    //! Spawn 100 threads and copy SharedPtr
+    //!  Check if reference counter successfully returns 1 at the end
+    ConcurrentCopy(100, 100);
+}
+} // namespace CubbyDNN

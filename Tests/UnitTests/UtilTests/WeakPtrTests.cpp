@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #include "WeakPtrTests.hpp"
-#include "gtest/gtest.h"
+#include <doctest/doctest.h>
 
 namespace CubbyDNN
 {
@@ -16,12 +16,11 @@ void SimpleOwnershipTransfer()
     const auto ptr2 = weakPtr.Lock();
     *ptr2.operator->() += 1;
 
-    EXPECT_EQ(*sharedPtr.operator->(), 2);
+    CHECK(*sharedPtr.operator->() == 2);
 }
 
-TEST(SimpleOwnsershipTransfer, WeakPtrTest)
+TEST_CASE("Weakptr - OwnershipTransfer")
 {
     SimpleOwnershipTransfer();
 }
-
 }
