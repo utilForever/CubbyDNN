@@ -9,7 +9,6 @@
 
 #include <cubbydnn/Computations/Initializers/InitializerType.hpp>
 #include <cubbydnn/Engine/UnitManager.hpp>
-#include <cubbydnn/Computations/Optimizers/Optimizer.hpp>
 
 namespace CubbyDNN::Graph
 {
@@ -17,7 +16,7 @@ namespace CubbyDNN::Graph
 class Model
 {
 public:
-    Model(NumberSystem numberSystem);
+    Model(NumberSystem numericType);
 
     UnitId PlaceHolder(const Shape& shape,
                        const std::string& name, Compute::Device device);
@@ -43,9 +42,7 @@ public:
                    const std::string& name = "ReshapeUnit");
 
     //! OptimizerType, Loss function
-    void Compile(const UnitId& outputUnitId,
-                 std::unique_ptr<Compute::Optimizer> optimizer,
-                 std::string lossName);
+    void Compile(const std::string& optimizer, ParameterPack optimizerParams);
 
     //! Trains the graph with given optimizer and loss function
     void Train(std::size_t epochs);

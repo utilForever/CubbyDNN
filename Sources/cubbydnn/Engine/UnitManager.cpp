@@ -32,7 +32,7 @@ void UnitManager::AppendUnit(UnitMetaData&& unitMetaData)
         std::move(unitMetaData));
 }
 
-void UnitManager::Compile(std::string optimizerName,
+void UnitManager::Compile(const std::string& optimizerName,
                           const ParameterPack& optimizerParameters)
 {
     m_connectUnits();
@@ -173,12 +173,12 @@ void UnitManager::m_connectUnits()
 {
     for (auto& [key, metaDataPtr] : m_unitMetaDataMap)
     {
-        auto unitId = metaDataPtr->Id();
+        const auto unitId = metaDataPtr->Id();
         const auto& inputPtrVector = metaDataPtr->InputUnitVector();
         //! Analyzes dependency between units
         for (const auto& inputUnitId : inputPtrVector)
         {
-            metaDataPtr->AppendOutputUnitId(inputUnitId);
+            m_unitMetaDataMap[inputUnitId.Id]->AppendOutputUnitId(unitId);
         }
     }
 }

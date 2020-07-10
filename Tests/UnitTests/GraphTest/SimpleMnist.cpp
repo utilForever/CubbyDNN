@@ -16,13 +16,15 @@ void SimpleMnistTest()
     Graph::Model model(NumberSystem::Float);
     auto id = model.PlaceHolder({ 100, 3, 3 }, "input", device);
 
-   id = model.Dense(id, 10, std::make_unique<XavierNormal>(),
-                std::make_unique<HeNormal>(), "dense1", device);
+    id = model.Dense(id, 10, std::make_unique<XavierNormal>(),
+                     std::make_unique<HeNormal>(), "dense1", device);
 
-   id = model.Activation(id, "ReLU", "act1", device);
+    id = model.Activation(id, "ReLU", "act1", device);
 
-   //model.Compile(id, std::make_unique<Compute::SGD>(0.01), "MSE");
+    model.Compile("MSE", 
+        Graph::ParameterPack({},
+            { { "epsilon", 0.01f } }, {}));
 
-   model.Train(100);
+    //model.Train(100);
 }
 }

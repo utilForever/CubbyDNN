@@ -15,8 +15,8 @@ namespace CubbyDNN::Compute
 class Optimizer
 {
 public:
-    Optimizer();
-    virtual ~Optimizer();
+    Optimizer() = default;
+    virtual ~Optimizer() = default;
 
     Optimizer(const Optimizer& optimizer) = default;
     Optimizer(Optimizer&& optimizer) noexcept = default;
@@ -34,7 +34,7 @@ public:
     {
     }
 
-    ~SGD();
+    ~SGD() = default;
 
     void Optimize(Tensor& tensor, Tensor& delta) override
     {

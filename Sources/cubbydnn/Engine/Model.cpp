@@ -8,6 +8,11 @@
 
 namespace CubbyDNN::Graph
 {
+Model::Model(NumberSystem numericType)
+    : m_numericType(numericType)
+{
+}
+
 UnitId Model::PlaceHolder(const Shape& shape, const std::string& name,
                           Compute::Device device)
 {
@@ -74,9 +79,8 @@ UnitId Model::Activation(const UnitId& input, const std::string& activationName,
     return subjectUnitId;
 }
 
-// void Model::Compile(const UnitId& outputUnitId,
-//                     std::unique_ptr<Compute::Optimizer> optimizer,
-//                     std::string lossName)
-// {
-// }
+void Model::Compile(const std::string& optimizer, ParameterPack optimizerParams)
+{
+    m_unitManager.Compile(optimizer, optimizerParams);
+}
 } // namespace CubbyDNN

@@ -22,7 +22,6 @@ enum class NumberSystem
 //! This represents the execution state of computable Unit
 struct UnitState
 {
-    explicit UnitState();
     /// State number of current
     std::atomic<std::size_t> ForwardStateCount = 0;
     std::atomic<std::size_t> BackwardStateCount = 0;
