@@ -6,8 +6,9 @@
 
 #include "WeakPtrTests.hpp"
 #include <doctest/doctest.h>
+#include <cubbydnn/Utils/WeakPtr.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Test
 {
 void SimpleOwnershipTransfer()
 {
@@ -19,8 +20,4 @@ void SimpleOwnershipTransfer()
     CHECK(*sharedPtr.operator->() == 2);
 }
 
-TEST_CASE("Weakptr - OwnershipTransfer")
-{
-    SimpleOwnershipTransfer();
-}
 }

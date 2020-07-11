@@ -169,25 +169,4 @@ void TestMatDot()
         }
 }
 
-TEST_CASE("Simple matmul 1")
-{
-    TestMatMul();
-}
-
-TEST_CASE("Simple matmul 2")
-{
-    TestMatMul2();
-}
-
-
-TEST_CASE("MatAdd")
-{
-    TestMatAdd();
-}
-
-
-TEST_CASE("Matdot")
-{
-    TestMatDot();
-}
 } // namespace CubbyDNN

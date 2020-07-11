@@ -24,9 +24,7 @@
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f242e156_002Df3fa_002D4ff1_002D8f6c_002D48680a86e2a6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="MatAdd" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::BlazeOpTest.MatAdd&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::BlazeOpTest.MatDot&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::BlazeOpTest.MatMul2&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=fce4f2c0_002D12ad_002D4490_002D894b_002D189a172422fb/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="MatAdd #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;

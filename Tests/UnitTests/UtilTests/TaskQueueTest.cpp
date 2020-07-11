@@ -11,9 +11,9 @@
 #include <thread>
 #include <vector>
 #include <random>
-#include <doctest/doctest.h>
+#include <doctest.h>
 
-namespace CubbyDNN
+namespace CubbyDNN::Tests
 {
 void StressTask()
 {
@@ -82,8 +82,4 @@ void TaskQueueTest(int workers)
     }
 }
 
-// TEST(TaskQueueTest, UtilTest)
-// {
-//     TaskQueueTest(12);
-// }
 } // namespace CubbyDNN

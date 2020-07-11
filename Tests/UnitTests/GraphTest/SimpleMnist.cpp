@@ -5,10 +5,11 @@
 // property of any third parties.
 
 #include "SimpleMnist.hpp"
-
 #include <cubbydnn/Engine/Model.hpp>
 
-namespace CubbyDNN
+#include "cubbydnn/Computations/LossFunctions/LossFunctions.hpp"
+
+namespace CubbyDNN::Test
 {
 void SimpleMnistTest()
 {
@@ -21,10 +22,13 @@ void SimpleMnistTest()
 
     id = model.Activation(id, "ReLU", "act1", device);
 
+    auto loss = Compute::MSE<float>();
+
     model.Compile("MSE", 
         Graph::ParameterPack({},
             { { "epsilon", 0.01f } }, {}));
 
     //model.Train(100);
 }
+
 }

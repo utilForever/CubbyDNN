@@ -5,9 +5,8 @@
 // property of any third parties.
 
 #pragma once
-#include <cubbydnn/Utils/WeakPtr.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Test
 {
 void SimpleOwnershipTransfer();
 

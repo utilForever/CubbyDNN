@@ -9,7 +9,7 @@
 
 #include <cubbydnn/Utils/SharedPtr.hpp>
 
-namespace CubbyDNN
+namespace CubbyDNN::Test
 {
 void CopyAndDestruct(const SharedPtr<int>& sharedPtr, int numCopy, bool* stop);
 

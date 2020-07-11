@@ -164,23 +164,4 @@ void TestBlazeDot()
         }
 }
 
-TEST_CASE("Blaze simpleMatmul1")
-{
-    TestBlazeMul();
-}
-
-TEST_CASE("Blaze simpleMatmul2")
-{
-    TestBlazeMul2();
-}
-
-TEST_CASE("Blaze simpleMatAdd")
-{
-    TestBlazeAdd();
-}
-
-TEST_CASE("Blaze MatDot")
-{
-    TestBlazeDot();
-}
 } // namespace CubbyDNN::Test

@@ -9,7 +9,7 @@
 #include <thread>
 #include <vector>
 
-namespace CubbyDNN
+namespace CubbyDNN::Test
 {
 void CopyAndDestruct(const SharedPtr<int>& sharedPtr, int numCopy, bool* stop)
 {
@@ -56,17 +56,5 @@ void ConcurrentCopy(int spawnNum, int numCopy)
     CHECK(shared.GetCurrentRefCount() == 1);
 }
 
-TEST_CASE("ConcurrentCopy - small")
-{
-    //! Spawn 10 threads and copy SharedPtr
-    //! Check if reference counter successfully returns 1 at the end
-    ConcurrentCopy(10, 100);
-}
 
-TEST_CASE("ConcurrentCopy - large")
-{
-    //! Spawn 100 threads and copy SharedPtr
-    //!  Check if reference counter successfully returns 1 at the end
-    ConcurrentCopy(100, 100);
-}
 } // namespace CubbyDNN
