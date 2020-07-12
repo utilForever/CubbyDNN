@@ -4,9 +4,10 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-
 #include <cubbydnn/Engine/UnitManager.hpp>
 #include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
+#include <cubbydnn/Units/SinkComputableUnits/LossUnit.hpp>
+#include <cubbydnn/Units/SourceComputableUnits/ConstantUnit.hpp>
 
 
 namespace CubbyDNN::Graph
@@ -28,7 +29,7 @@ void UnitManager::AppendUnit(UnitMetaData&& unitMetaData)
 {
     const auto unitId = unitMetaData.Id();
 
-    m_unitMetaDataMap[unitId.Id] = std::make_unique<UnitMetaData>(
+    m_unitMetaDataMap[unitId] = std::make_unique<UnitMetaData>(
         std::move(unitMetaData));
 }
 
@@ -42,21 +43,64 @@ void UnitManager::Compile(const std::string& optimizerName,
         const auto unitId = metaDataPtr->Id();
         auto type = unitId.Type;
 
-        if (type.Name() == "PlaceHolder")
+        if (type.Name() == "DataLoader")
         {
+            throw std::runtime_error("Not implemented");
+            continue;
         }
-        else if (type.Name() == "Dense")
+        if (type.Name() == "Dense")
         {
-            DenseUnit::CreateUnit(
+            auto unit = DenseUnit::CreateUnit(
                 *metaDataPtr,
                 m_makeOptimizer(optimizerName, optimizerParameters));
+            m_unitMap[metaDataPtr->Id()] =
+                std::make_unique<DenseUnit>(std::move(unit));
+            continue;
         }
-        else if (type.Name() == "Activation")
+        if (type.Name() == "Dropout")
         {
-            ActivationUnit::CreateUnit(*metaDataPtr);
+            throw std::runtime_error("Not implemented");
+            continue;
         }
-        else
-            throw std::runtime_error("UnImplemented unit type");
+        if (type.Name() == "Activation")
+        {
+            auto unit = ActivationUnit::CreateUnit(*metaDataPtr);
+            m_unitMap[metaDataPtr->Id()] =
+                std::make_unique<ActivationUnit>(std::move(unit));
+            continue;
+        }
+        if (type.Name() == "Reshape")
+        {
+            throw std::runtime_error("Not implemented");
+            continue;
+        }
+        if (type.Name() == "Loss")
+        {
+            auto unit = LossUnit::CreateUnit(*metaDataPtr);
+            m_unitMap[metaDataPtr->Id()] =
+                std::make_unique<LossUnit>(std::move(unit));
+            continue;
+        }
+        if (type.Name() == "Constant")
+        {
+            auto unit = ConstantUnit::CreateUnit(*metaDataPtr);
+            m_unitMap[metaDataPtr->Id()] =
+                std::make_unique<ConstantUnit>(std::move(unit));
+
+            continue;
+        }
+        if (type.Name() == "Multiply")
+        {
+            throw std::runtime_error("Not implemented");
+            continue;
+        }
+        if (type.Name() == "Add")
+        {
+            throw std::runtime_error("Not implemented");
+            continue;
+        }
+
+        throw std::runtime_error("No matching unit type");
     }
 }
 
@@ -82,7 +126,7 @@ void UnitManager::Backward(std::size_t cycle)
 
 void UnitManager::AsyncForward(std::size_t cycle)
 {
-    std::unordered_map<std::size_t, std::future<bool>> futureVector;
+    std::unordered_map<UnitId, std::future<bool>> futureVector;
     futureVector.reserve(10);
 
     for (const auto& [key, unitPtr] : m_unitMap)
@@ -104,7 +148,7 @@ void UnitManager::AsyncForward(std::size_t cycle)
 
 void UnitManager::AsyncBackward(std::size_t cycle)
 {
-    std::unordered_map<std::size_t, std::future<bool>> futureVector;
+    std::unordered_map<UnitId, std::future<bool>> futureVector;
     futureVector.reserve(10);
 
     for (const auto& [key, unitPtr] : m_unitMap)
@@ -124,34 +168,36 @@ void UnitManager::AsyncBackward(std::size_t cycle)
     }
 }
 
-void UnitManager::m_forwardCopy(std::size_t subjectUnitKey)
+void UnitManager::m_forwardCopy(const UnitId& subjectUnitId)
 {
-    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitKey];
-    for (const auto& unitId : sourceMetaData->OutputUnitVector())
+    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
+    auto& subjectOutputTensor = m_unitMap[subjectUnitId]->ForwardOutput;
+
+    for (const auto& outputUnitId : sourceMetaData->OutputUnitVector())
     {
-        auto& outputTensor = m_unitMap[subjectUnitKey]->ForwardOutput;
-        auto& nextInputTensorVector = m_unitMap[unitId.Id]->ForwardInputVector;
+        auto& nextInputTensorVector = m_unitMap[outputUnitId]->
+            ForwardInputVector;
         for (auto& destTensor : nextInputTensorVector)
         {
-            Tensor::ForwardTensor(outputTensor, destTensor);
-            outputTensor.ForwardState.fetch_add(1);
+            Tensor::ForwardTensor(subjectOutputTensor, destTensor);
+            subjectOutputTensor.ForwardState.fetch_add(1);
             destTensor.ForwardState.fetch_add(1);
         }
     }
 }
 
-void UnitManager::m_backwardCopy(std::size_t subjectUnitKey)
+void UnitManager::m_backwardCopy(const UnitId& subjectUnitId)
 {
-    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitKey];
+    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
     int index = 0;
-    for (const auto& unitId : sourceMetaData->InputUnitVector())
+    for (const auto& subjectInputUnitId : sourceMetaData->InputUnitVector())
     {
-        auto& outputTensor = m_unitMap[subjectUnitKey]->BackwardOutputVector[
+        auto& outputTensor = m_unitMap[subjectUnitId]->BackwardOutputVector[
             index];
-        auto& nextBackwardInputTensorVector = m_unitMap[unitId.Id]->
+        auto& nextBackwardInputTensorVector = m_unitMap[subjectInputUnitId]->
             BackwardInputVector;
         auto nextBackwardInputUnitVector =
-            m_unitMetaDataMap[unitId.Id]->OutputUnitVector();
+            m_unitMetaDataMap[subjectInputUnitId]->OutputUnitVector();
 
         for (std::size_t i = 0; i < nextBackwardInputTensorVector.size(); ++i)
         {
@@ -178,7 +224,7 @@ void UnitManager::m_connectUnits()
         //! Analyzes dependency between units
         for (const auto& inputUnitId : inputPtrVector)
         {
-            m_unitMetaDataMap[inputUnitId.Id]->AppendOutputUnitId(unitId);
+            m_unitMetaDataMap[inputUnitId]->AppendOutputUnitId(unitId);
         }
     }
 }
