@@ -36,6 +36,13 @@ LossUnit& LossUnit::operator=(LossUnit&& lossUnit) noexcept
     return *this;
 }
 
+// LossUnit LossUnit::CreateUnit(const UnitMetaData& unitMetaData)
+// {
+//     Tensor(unitMetaData.InputShapeVector().at(0), unitMetaData.InputShapeVector)
+//     LossUnit(unitMetaData.Id(), unitMetaData.NumericType, )
+// }
+
+
 void LossUnit::Forward()
 {
     Tensor& forwardInput = ForwardInputVector.at(0);
@@ -60,6 +67,32 @@ void LossUnit::Forward()
     }
 }
 
+void LossUnit::AsyncForward(std::promise<bool> promise)
+{
+    Tensor& forwardInput = ForwardInputVector.at(0);
+    const Tensor& label = BackwardInputVector.at(0);
+    if (m_numericType == NumberSystem::Float)
+    {
+        const auto& lossFunc =
+            Compute::LossFunctionWrapper::GetFloatLoss(m_lossName);
+        const auto loss = lossFunc->Apply(forwardInput, label);
+
+        Tensor& lossOutput = ForwardOutput;
+        *(static_cast<float*>(lossOutput.DataPtr)) = loss;
+    }
+    else
+    {
+        const auto& lossFunc =
+            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossName);
+        const auto loss = lossFunc->Apply(forwardInput, label);
+
+        Tensor& lossOutput = ForwardOutput;
+        *static_cast<int*>(lossOutput.DataPtr) = loss;
+    }
+    promise.set_value(true);
+}
+
+
 void LossUnit::Backward()
 {
     const Tensor& prevInput = ForwardInputVector.at(0);
@@ -78,5 +111,26 @@ void LossUnit::Backward()
             Compute::LossFunctionWrapper::GetIntegerLoss(m_lossName);
         lossFunc->ApplyDerivative(label, prevInput, delta);
     }
+}
+
+void LossUnit::AsyncBackward(std::promise<bool> promise)
+{
+    const Tensor& prevInput = ForwardInputVector.at(0);
+    const Tensor& label = BackwardInputVector.at(0);
+    Tensor& delta = BackwardOutputVector.at(0);
+
+    if (m_numericType == NumberSystem::Float)
+    {
+        const auto& lossFunc =
+            Compute::LossFunctionWrapper::GetFloatLoss(m_lossName);
+        lossFunc->ApplyDerivative(label, prevInput, delta);
+    }
+    else
+    {
+        const auto& lossFunc =
+            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossName);
+        lossFunc->ApplyDerivative(label, prevInput, delta);
+    }
+    promise.set_value(true);
 }
 }

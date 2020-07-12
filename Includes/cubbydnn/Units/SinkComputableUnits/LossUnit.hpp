@@ -24,6 +24,8 @@ public:
     LossUnit& operator=(const LossUnit& lossUnit) = delete;
     LossUnit& operator=(LossUnit&& lossUnit) noexcept;
 
+    static LossUnit CreateUnit(const UnitMetaData& unitMetaData);
+
     void Forward() override;
 
     void AsyncForward(std::promise<bool> promise) override;

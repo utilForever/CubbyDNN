@@ -12,17 +12,17 @@
 namespace CubbyDNN::Compute
 {
 template <typename T>
-class Loss
+class BaseLoss
 {
 public:
 
-    Loss() = default;
-    virtual ~Loss() = default;
+    BaseLoss() = default;
+    virtual ~BaseLoss() = default;
 
-    Loss(const Loss& loss) = default;
-    Loss(Loss&& loss) noexcept = default;
-    Loss& operator=(const Loss& loss) = default;
-    Loss& operator=(Loss&& loss) noexcept = default;
+    BaseLoss(const BaseLoss& loss) = default;
+    BaseLoss(BaseLoss&& loss) noexcept = default;
+    BaseLoss& operator=(const BaseLoss& loss) = default;
+    BaseLoss& operator=(BaseLoss&& loss) noexcept = default;
 
     [[nodiscard]] virtual T Apply(Tensor& input, const Tensor& label) const = 0;
 
@@ -37,22 +37,22 @@ protected:
 
         if (inputA.TensorShape != inputB.TensorShape)
             throw std::invalid_argument(
-                "Loss - Tensor shape mismatch");
+                "BaseLoss - Tensor shape mismatch");
 
         if (inputA.NumericType != inputB.NumericType)
-            throw std::invalid_argument("Loss  - Numeric type mismatch");
+            throw std::invalid_argument("BaseLoss  - Numeric type mismatch");
 
         if (inputA.Device != inputB.Device)
-            throw std::invalid_argument("Loss - Device mismatch");
+            throw std::invalid_argument("BaseLoss - Device mismatch");
     }
 };
 
 template <typename T>
-class MSE : public Loss<T>
+class MSE : public BaseLoss<T>
 {
 public:
     MSE()
-        : Loss<T>()
+        : BaseLoss<T>()
     {
     }
 
@@ -65,7 +65,7 @@ public:
 
     [[nodiscard]] T Apply(Tensor& input, const Tensor& label) const override
     {
-        Loss<T>::m_checkArguments(input, label);
+        BaseLoss<T>::m_checkArguments(input, label);
 
         const auto inputShape = input.TensorShape;
         const auto outputShape = label.TensorShape;
@@ -105,7 +105,7 @@ public:
     void ApplyDerivative(const Tensor& label, const Tensor& prevInput,
                          Tensor& delta) const override
     {
-        Loss<T>::m_checkArguments(prevInput, label);
+        BaseLoss<T>::m_checkArguments(prevInput, label);
 
         const auto deltaShape = delta.TensorShape;
         const auto labelShape = label.TensorShape;

@@ -15,13 +15,13 @@ namespace CubbyDNN::Compute
 class LossFunctionWrapper
 {
 public:
-    const static std::unique_ptr<Loss<float>>& GetFloatLoss(
+    const static std::unique_ptr<BaseLoss<float>>& GetFloatLoss(
         const std::string& name)
     {
         return m_floatLossMap.at(name);
     }
 
-    const static std::unique_ptr<Loss<int>>& GetIntegerLoss(
+    const static std::unique_ptr<BaseLoss<int>>& GetIntegerLoss(
         const std::string& name)
     {
         return m_integerLossMap.at(name);
@@ -35,10 +35,10 @@ public:
 
 private:
     static std::unordered_map<std::string,
-                              std::unique_ptr<Loss<float>>>
+                              std::unique_ptr<BaseLoss<float>>>
     m_floatLossMap;
 
-    static std::unordered_map<std::string, std::unique_ptr<Loss<int>>>
+    static std::unordered_map<std::string, std::unique_ptr<BaseLoss<int>>>
     m_integerLossMap;
 };
 }
