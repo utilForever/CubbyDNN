@@ -13,15 +13,12 @@ namespace CubbyDNN
 {
 Tensor::Tensor(Shape shape, Compute::Device device, NumberSystem numberSystem)
     : TensorShape(std::move(shape)),
-      NumericType(numberSystem),
-      Device(std::move(device))
+      Device(std::move(device)),
+      NumericType(numberSystem)
 {
-    if (numberSystem == NumberSystem::Float)
-        numPaddedColumn = m_getPaddedColumnSize();
-    else
-        numPaddedColumn = m_getPaddedColumnSize();
+    m_paddedColumnSize = m_getPaddedColumnSize();
     const auto totalSize = (TensorShape.Size() / TensorShape.NumCols()) *
-                           numPaddedColumn;
+                           m_paddedColumnSize;
 
     if (NumericType == NumberSystem::Float)
     {
@@ -39,11 +36,50 @@ Tensor::Tensor(Shape shape, Compute::Device device, NumberSystem numberSystem)
     }
 }
 
+Tensor::Tensor(Shape shape, Compute::Device device, std::vector<float> data)
+    : TensorShape(std::move(shape)),
+      Device(std::move(device)),
+      NumericType(NumberSystem::Float)
+{
+    m_paddedColumnSize = m_getPaddedColumnSize();
+    const auto totalSize =
+        (TensorShape.Size() / TensorShape.NumCols()) * m_paddedColumnSize;
+    void* ptr = static_cast<void*>(new float[totalSize]);
+
+    for (std::size_t i = 0; i < TensorShape.Size() / TensorShape.NumCols(); ++i)
+        for (std::size_t j = 0; j < m_paddedColumnSize; ++j)
+        {
+            const auto index = m_paddedColumnSize * i + j;
+            *(static_cast<float*>(ptr) + index) = data.at(index);
+        }
+    DataPtr = ptr;
+}
+
+Tensor::Tensor(Shape shape, Compute::Device device, std::vector<int> data)
+    : TensorShape(std::move(shape)),
+      Device(std::move(device)),
+      NumericType(NumberSystem::Int)
+{
+    m_paddedColumnSize = m_getPaddedColumnSize();
+    const auto totalSize =
+        (TensorShape.Size() / TensorShape.NumCols()) * m_paddedColumnSize;
+    void* ptr = static_cast<void*>(new int[totalSize]);
+
+    for (std::size_t i = 0; i < TensorShape.Size() / TensorShape.NumCols(); ++i)
+        for (std::size_t j = 0; j < m_paddedColumnSize; ++j)
+        {
+            const auto index = m_paddedColumnSize * i + j;
+            *(static_cast<int*>(ptr) + index) = data.at(index);
+        }
+    DataPtr = ptr;
+}
+
+
 // Perform deep copy
 Tensor::Tensor(const Tensor& tensor)
     : TensorShape(tensor.TensorShape),
-      NumericType(tensor.NumericType),
-      Device(tensor.Device)
+      Device(tensor.Device),
+      NumericType(tensor.NumericType)
 {
     auto dataSize = getDataSize();
     if (NumericType == NumberSystem::Float)
@@ -64,22 +100,30 @@ Tensor::Tensor(const Tensor& tensor)
 
 Tensor::~Tensor()
 {
-    if (NumericType == NumberSystem::Float)
-        delete[] static_cast<float*>(DataPtr);
-    else
-        delete[] static_cast<int*>(DataPtr);
+    if (DataPtr != nullptr)
+    {
+        if (NumericType == NumberSystem::Float)
+            delete[] static_cast<float*>(DataPtr);
+        else
+            delete[] static_cast<int*>(DataPtr);
+    }
 }
 
 Tensor::Tensor(Tensor&& tensor) noexcept
-    : DataPtr(std::move(tensor.DataPtr)),
+    : DataPtr(tensor.DataPtr),
       TensorShape(std::move(tensor.TensorShape)),
-      NumericType(tensor.NumericType),
-      Device(std::move(tensor.Device))
+      Device(std::move(tensor.Device)),
+      NumericType(tensor.NumericType)
+
 {
+    tensor.DataPtr = nullptr;
 }
 
 Tensor& Tensor::operator=(const Tensor& tensor)
 {
+    if (this == &tensor)
+        return *this;
+
     auto dataSize = getDataSize();
     if (NumericType == NumberSystem::Float)
     {
@@ -107,6 +151,7 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     DataPtr = tensor.DataPtr;
     TensorShape = tensor.TensorShape;
     NumericType = tensor.NumericType;
+    tensor.DataPtr = nullptr;
     return *this;
 }
 

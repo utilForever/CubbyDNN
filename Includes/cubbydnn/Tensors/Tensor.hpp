@@ -23,6 +23,9 @@ public:
     Tensor(Shape shape, Compute::Device device,
            NumberSystem numberSystem = NumberSystem::Float);
 
+    Tensor(Shape shape, Compute::Device device, std::vector<float> data);
+    Tensor(Shape shape, Compute::Device device, std::vector<int> data);
+
     ~Tensor();
 
     Tensor(const Tensor& tensor);
@@ -54,7 +57,7 @@ public:
         {
             offset += multiplier * index.at(idx);
             if (idx == columnIdx && Device.PadSize() > 0)
-                multiplier = numPaddedColumn;
+                multiplier = m_paddedColumnSize;
             else
                 multiplier *= TensorShape.At(idx);
         }
@@ -64,25 +67,26 @@ public:
 
     std::size_t GetColumnElementSize() const
     {
-        return numPaddedColumn;
+        return m_paddedColumnSize;
     }
 
     /// Data vector which possesses actual data
-    void* DataPtr;
+    void* DataPtr = nullptr;
     /// Shape of this tensorData
     Shape TensorShape;
-    NumberSystem NumericType = NumberSystem::Float;
     Compute::Device Device;
+    NumberSystem NumericType;
+
     std::atomic<std::size_t> ForwardState = 0;
     std::atomic<std::size_t> BackwardState = 0;
 
 private:
-    std::size_t numPaddedColumn = 0;
+    std::size_t m_paddedColumnSize = 0;
 
     [[nodiscard]] std::size_t getDataSize()
     {
         std::size_t size = 1;
-        for(std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
+        for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
         {
             size *= i;
         }
