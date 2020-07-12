@@ -73,8 +73,7 @@ UnitId Model::Activation(const UnitId& input, const std::string& activationName,
                               m_numericType,
                               std::move(device),
                               Parameter(
-                                  {}, {}, {
-                                      { "activationName", activationName } }));
+                                  { { "activationName", activationName } }));
 
     m_unitManager.AppendUnit(std::move(unitMetaData));
     return subjectUnitId;
@@ -82,6 +81,9 @@ UnitId Model::Activation(const UnitId& input, const std::string& activationName,
 
 UnitId Model::Constant(Tensor tensor, const std::string& name)
 {
+    if (tensor.NumericType != m_numericType)
+        throw std::invalid_argument(
+            "Numeric type of given tensor and graph must be identical");
     UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "Dense"), m_id++,
                           name };
     UnitMetaData unitMetaData(subjectUnitId, {}, {},
@@ -97,6 +99,41 @@ void Model::Compile(const std::string& optimizer,
 {
     m_unitManager.Compile(optimizer, optimizerParams);
 }
+
+UnitId Model::Loss(const UnitId& prediction, const UnitId& label,
+                   std::string lossType,
+                   const std::string& name, Compute::Device device)
+{
+    UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "Loss"), m_id++, name };
+    const auto predictionShape = m_unitManager.GetUnitOutputShape(prediction);
+    const auto labelShape = m_unitManager.GetUnitOutputShape(label);
+
+    UnitMetaData unitMetaData(
+        subjectUnitId, {}, {},
+        { { "prediction", predictionShape }, { "label", labelShape } }, Shape(),
+        { { "prediction", prediction }, { "label", label } }, m_numericType,
+        std::move(device), Parameter({ { "lossType", lossType } }));
+
+    return subjectUnitId;
+}
+
+// UnitId Model::Loss(const UnitId& prediction, const UnitId& label,
+//                    const std::string& name, Compute::Device device,
+//                    std::unique_ptr<Compute::BaseLoss<float>> customLoss)
+// {
+//     UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "Loss"), m_id++, name };
+//     const auto predictionShape = m_unitManager.GetUnitOutputShape(prediction);
+//     const auto labelShape = m_unitManager.GetUnitOutputShape(label);
+//
+//     UnitMetaData unitMetaData(
+//         subjectUnitId, {}, {},
+//         { { "prediction", predictionShape }, { "label", labelShape } }, Shape(),
+//         { { "prediction", prediction }, { "label", label } }, m_numericType,
+//         std::move(device));
+//
+//     return subjectUnitId;
+// }
+
 
 void Model::Train(std::size_t epochs, bool async)
 {

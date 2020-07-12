@@ -43,11 +43,11 @@ public:
     UnitId Reshape(const UnitId& input, const Shape& shape,
                    const std::string& name = "ReshapeUnit");
 
-    UnitId Loss(const UnitId& input, const UnitId& label, std::string lossType,
+    UnitId Loss(const UnitId& prediction, const UnitId& label, std::string lossType,
                 const std::string& name, Compute::Device device);
 
     UnitId Loss(
-        const UnitId& input, const UnitId& label, const std::string& name,
+        const UnitId& prediction, const UnitId& label, const std::string& name,
         Compute::Device device,
         std::unique_ptr<Compute::BaseLoss<float>> customLoss);
 

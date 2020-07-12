@@ -18,7 +18,6 @@ public:
              Tensor label, Tensor delta, std::string lossName);
     ~LossUnit() = default;
 
-
     LossUnit(const LossUnit& lossUnit) = delete;
     LossUnit(LossUnit&& lossUnit) noexcept;
     LossUnit& operator=(const LossUnit& lossUnit) = delete;

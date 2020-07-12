@@ -46,7 +46,6 @@ void UnitManager::Compile(const std::string& optimizerName,
         if (type.Name() == "DataLoader")
         {
             throw std::runtime_error("Not implemented");
-            continue;
         }
         if (type.Name() == "Dense")
         {
@@ -60,7 +59,6 @@ void UnitManager::Compile(const std::string& optimizerName,
         if (type.Name() == "Dropout")
         {
             throw std::runtime_error("Not implemented");
-            continue;
         }
         if (type.Name() == "Activation")
         {
@@ -72,7 +70,6 @@ void UnitManager::Compile(const std::string& optimizerName,
         if (type.Name() == "Reshape")
         {
             throw std::runtime_error("Not implemented");
-            continue;
         }
         if (type.Name() == "Loss")
         {
@@ -91,12 +88,10 @@ void UnitManager::Compile(const std::string& optimizerName,
         if (type.Name() == "Multiply")
         {
             throw std::runtime_error("Not implemented");
-            continue;
         }
         if (type.Name() == "Add")
         {
             throw std::runtime_error("Not implemented");
-            continue;
         }
 
         throw std::runtime_error("No matching unit type");
