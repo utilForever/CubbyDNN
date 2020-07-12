@@ -47,12 +47,20 @@ public:
     //! Throws runtime exception if unit is not ready to be executed
     //! This includes copying the result to input of next unit
     virtual void Forward() = 0;
+
+    //! Executes the Forward activation asynchronously. Sets promise to 'true' if
+    //! operation is completed
+    //! \param promise : promise is set true internally if operation is completed
     virtual void AsyncForward(
         std::promise<bool> promise) = 0;
     //! Execute Backward-propagating operation
     //! Throws runtime exception if unit is not ready to be executed
     //! This includes copying the result to input of previous unit
     virtual void Backward() = 0;
+
+    //! Executes the Backward  activation asynchronously. Sets promise to 'true'
+    //! if operation is completed
+    //! \param promise : promise is set true internally if operation is completed
     virtual void AsyncBackward(
         std::promise<bool> promise) = 0;
 

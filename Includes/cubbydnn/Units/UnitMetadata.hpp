@@ -79,6 +79,13 @@ public:
 
     void SetOutputUnitIdVector(std::vector<UnitId> unitIdVector);
 
+    //! Used to add internal tensor if required
+    //! \param key : key to store the tensor
+    //! \param tensor: tensor to store
+    void AddInternalTensor(const std::string& key, Tensor tensor);
+
+    [[nodiscard]] const Tensor& GetInternalTensor(const std::string& key) const;
+
     [[nodiscard]] UnitId Id() const;
 
     [[nodiscard]] std::vector<Shape> InputShapeVector() const;
@@ -103,6 +110,7 @@ private:
     std::unordered_map<std::string, Shape> m_internalVariableShapeMap;
     std::unordered_map<std::string, std::unique_ptr<Initializer>>
     m_initializerMap;
+    std::unordered_map<std::string, Tensor> m_internalTensorMap;
 
     std::vector<Shape> m_inputShapeVector;
     Shape m_outputShape;

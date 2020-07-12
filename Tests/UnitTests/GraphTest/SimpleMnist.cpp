@@ -6,29 +6,30 @@
 
 #include "SimpleMnist.hpp"
 #include <cubbydnn/Engine/Model.hpp>
-
-#include "cubbydnn/Computations/LossFunctions/LossFunctions.hpp"
+#include <cubbydnn/Computations/LossFunctions/LossFunctions.hpp>
 
 namespace CubbyDNN::Test
 {
 void SimpleMnistTest()
 {
     const Compute::Device device(0, Compute::DeviceType::Cpu, " myDevice");
+
     Graph::Model model(NumberSystem::Float);
-    auto id = model.PlaceHolder({ 100, 3, 3 }, "input", device);
+
+    auto id = model.DataLoader({ 100, 3, 3 }, "input data loader", device);
+    auto labelId = model.DataLoader({ 100, 3, 3 }, "label loader", device);
 
     id = model.Dense(id, 10, std::make_unique<XavierNormal>(),
                      std::make_unique<HeNormal>(), "dense1", device);
 
     id = model.Activation(id, "ReLU", "act1", device);
 
-    auto loss = Compute::MSE<float>();
+    id = model.Loss(id, labelId, "MSE", "loss", device);
 
-    model.Compile("MSE", 
-        Graph::ParameterPack({},
-            { { "epsilon", 0.01f } }, {}));
+    model.Compile("MSE",
+                  Graph::ParameterPack({},
+                                       { { "epsilon", 0.01f } }, {}));
 
-    //model.Train(100);
+    model.Train(100);
 }
-
 }

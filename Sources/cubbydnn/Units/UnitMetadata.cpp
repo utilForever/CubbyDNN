@@ -122,6 +122,16 @@ void UnitMetaData::SetOutputUnitIdVector(std::vector<UnitId> unitIdVector)
     m_outputUnitIdVector = std::move(unitIdVector);
 }
 
+void UnitMetaData::AddInternalTensor(const std::string& key, Tensor tensor)
+{
+    m_internalTensorMap[key] = std::move(tensor);
+}
+
+const Tensor& UnitMetaData::GetInternalTensor(const std::string& key) const
+{
+    return m_internalTensorMap.at(key);
+}
+
 UnitId UnitMetaData::Id() const
 {
     return m_unitId;

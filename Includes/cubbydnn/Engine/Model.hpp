@@ -10,6 +10,8 @@
 #include <cubbydnn/Computations/Initializers/InitializerType.hpp>
 #include <cubbydnn/Engine/UnitManager.hpp>
 
+#include <cubbydnn/Computations/LossFunctions/LossFunctions.hpp>
+
 namespace CubbyDNN::Graph
 {
 //! Singleton class for maintaining threads that execute the program
@@ -18,8 +20,8 @@ class Model
 public:
     Model(NumberSystem numericType);
 
-    UnitId PlaceHolder(const Shape& shape,
-                       const std::string& name, Compute::Device device);
+    UnitId DataLoader(const Shape& shape,
+                      const std::string& name, Compute::Device device);
 
     //! \param input : unit ID of previous unit
     //! \param units : size of output perceptrons
@@ -41,11 +43,26 @@ public:
     UnitId Reshape(const UnitId& input, const Shape& shape,
                    const std::string& name = "ReshapeUnit");
 
-    //! OptimizerType, Loss function
-    void Compile(const std::string& optimizer, ParameterPack optimizerParams);
+    UnitId Loss(const UnitId& input, const UnitId& label, std::string lossType,
+                const std::string& name, Compute::Device device);
+
+    UnitId Loss(
+        const UnitId& input, const UnitId& label, const std::string& name,
+        Compute::Device device,
+        std::unique_ptr<Compute::BaseLoss<float>> customLoss);
+
+    UnitId Constant(Tensor tensor, const std::string& name);
+
+    UnitId Multiply(const UnitId& inputA, const UnitId& inputB);
+
+    UnitId Add(const UnitId& inputA, const UnitId& inputB);
+
+    //! OptimizerType, BaseLoss function
+    void Compile(const std::string& optimizer,
+                 ParameterPack optimizerParams) noexcept;
 
     //! Trains the graph with given optimizer and loss function
-    void Train(std::size_t epochs);
+    void Train(std::size_t epochs, bool async = false);
 
     void Predict();
 

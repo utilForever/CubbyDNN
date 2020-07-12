@@ -60,6 +60,7 @@ private:
     std::string m_typeName;
 
 };
+
 struct UnitId
 {
     bool operator==(const UnitId& unitId) const
@@ -72,7 +73,21 @@ struct UnitId
     std::size_t Id;
     std::string UnitName;
 };
-;
+
 } // namespace CubbyDNN
 
+//! Add template specialization for UnitId hash
+namespace std
+{
+template <>
+struct hash<CubbyDNN::Graph::UnitId>
+{
+    std::size_t operator()(CubbyDNN::Graph::UnitId const& s) const noexcept
+    {
+        const std::size_t h1 = std::hash<std::string>{}(s.UnitName);
+        const std::size_t h2 = std::hash<std::size_t>{}(s.Id);
+        return h1 ^ (h2 << 1);  // or use boost::hash_combine
+    }
+};
+};  // namespace std
 #endif
