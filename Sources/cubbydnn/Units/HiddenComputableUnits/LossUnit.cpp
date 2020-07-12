@@ -11,9 +11,9 @@
 namespace CubbyDNN::Graph
 {
 LossUnit::LossUnit(UnitId unitId, NumberSystem numberSystem,
-                   Tensor forwardInput, Tensor label, Tensor delta,
+                   Tensor prediction, Tensor label, Tensor delta,
                    std::string lossName)
-    : ComputableUnit(unitId, numberSystem, { std::move(forwardInput) },
+    : ComputableUnit(std::move(unitId), numberSystem, { std::move(prediction) },
                      { std::move(label) },
                      Tensor(Shape({ 1, 1 }),
                             Compute::Device(0, Compute::DeviceType::Cpu,
@@ -31,16 +31,27 @@ LossUnit::LossUnit(LossUnit&& lossUnit) noexcept
 
 LossUnit& LossUnit::operator=(LossUnit&& lossUnit) noexcept
 {
-    ComputableUnit::operator=(std::move(lossUnit));
     m_lossName = std::move(lossUnit.m_lossName);
+    ComputableUnit::operator=(std::move(lossUnit));
     return *this;
 }
 
-// LossUnit LossUnit::CreateUnit(const UnitMetaData& unitMetaData)
-// {
-//     Tensor(unitMetaData.InputShapeVector().at(0), unitMetaData.InputShapeVector)
-//     LossUnit(unitMetaData.Id(), unitMetaData.NumericType, )
-// }
+LossUnit LossUnit::CreateUnit(const UnitMetaData& unitMetaData)
+{
+    auto predictionTensor = Tensor(unitMetaData.GetInputShape("prediction"),
+                                   unitMetaData.Device,
+                                   unitMetaData.NumericType);
+    auto labelTensor = Tensor(unitMetaData.GetInputShape("label"),
+                              unitMetaData.Device, unitMetaData.NumericType);
+    auto backwardOutputTensor =
+        Tensor(unitMetaData.GetInputShape("prediction"), unitMetaData.Device,
+               unitMetaData.NumericType);
+
+    return LossUnit(unitMetaData.Id(), unitMetaData.NumericType,
+                    std::move(predictionTensor),
+                    std::move(labelTensor), std::move(backwardOutputTensor),
+                    unitMetaData.Params.GetStringParam("lossName"));
+}
 
 
 void LossUnit::Forward()

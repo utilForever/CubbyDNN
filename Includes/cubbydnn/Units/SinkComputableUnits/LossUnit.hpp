@@ -14,7 +14,7 @@ namespace CubbyDNN::Graph
 class LossUnit : public ComputableUnit
 {
 public:
-    LossUnit(UnitId unitId, NumberSystem numberSystem, Tensor forwardInput,
+    LossUnit(UnitId unitId, NumberSystem numberSystem, Tensor prediction,
              Tensor label, Tensor delta, std::string lossName);
     ~LossUnit() = default;
 

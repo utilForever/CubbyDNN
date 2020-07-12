@@ -59,7 +59,7 @@ public:
 
     //! OptimizerType, BaseLoss function
     void Compile(const std::string& optimizer,
-                 ParameterPack optimizerParams) noexcept;
+                 Parameter optimizerParams) noexcept;
 
     //! Trains the graph with given optimizer and loss function
     void Train(std::size_t epochs, bool async = false);

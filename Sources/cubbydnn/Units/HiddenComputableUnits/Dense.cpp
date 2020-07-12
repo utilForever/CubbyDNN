@@ -44,7 +44,7 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
 {
     const auto unitId = unitMetaData.Id();
 
-    Tensor forwardInputTensor(unitMetaData.InputShapeVector().at(0),
+    Tensor forwardInputTensor(unitMetaData.GetInputShape("input"),
                               unitMetaData.Device,
                               unitMetaData.NumericType);
 
@@ -60,11 +60,11 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
     Tensor forwardOutputTensor(unitMetaData.OutputShape(),
                                unitMetaData.Device, unitMetaData.NumericType);
 
-    Tensor backwardOutputTensor(unitMetaData.InputShapeVector().at(0),
+    Tensor backwardOutputTensor(unitMetaData.GetInputShape("input"),
                                 unitMetaData.Device, unitMetaData.NumericType);
 
-    auto weightShape = unitMetaData.GetShape("weight");
-    auto biasShape = unitMetaData.GetShape("bias");
+    auto weightShape = unitMetaData.GetInternalVariableShape("weight");
+    auto biasShape = unitMetaData.GetInternalVariableShape("bias");
 
     Tensor weightTensor(weightShape,
                         unitMetaData.Device, unitMetaData.NumericType);

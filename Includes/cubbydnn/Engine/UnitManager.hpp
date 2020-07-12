@@ -35,7 +35,7 @@ public:
     }
 
     void Compile(const std::string& optimizerName,
-                 const ParameterPack& optimizerParameters);
+                 const Parameter& optimizerParameters);
 
     virtual void Forward(std::size_t cycle);
 
@@ -55,7 +55,7 @@ private:
 
     [[nodiscard]] std::unique_ptr<Compute::Optimizer> m_makeOptimizer(
         const std::string& optimizerName,
-        const ParameterPack& parameters) const;
+        const Parameter& parameters) const;
 
     std::unordered_map<UnitId, std::unique_ptr<UnitMetaData>>
     m_unitMetaDataMap;

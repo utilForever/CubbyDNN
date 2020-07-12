@@ -44,9 +44,9 @@ ActivationUnit& ActivationUnit::operator=(
 ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData)
 {
     std::string activationName =
-        unitMetaData.Parameters.GetStringParam("activationName");
+        unitMetaData.Params.GetStringParam("activationName");
 
-    Tensor forwardInputTensor(unitMetaData.InputShapeVector().at(0),
+    Tensor forwardInputTensor(unitMetaData.GetInputShape("input"),
                               unitMetaData.Device, unitMetaData.NumericType);
 
     std::vector<Tensor> backwardInputVector;
@@ -61,7 +61,7 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData)
     Tensor forwardOutputTensor(unitMetaData.OutputShape(),
                                unitMetaData.Device, unitMetaData.NumericType);
 
-    Tensor backwardOutputTensor(unitMetaData.InputShapeVector().at(0),
+    Tensor backwardOutputTensor(unitMetaData.GetInputShape("input"),
                                 unitMetaData.Device, unitMetaData.NumericType);
 
     Tensor backwardTempTensor(unitMetaData.OutputShape(),

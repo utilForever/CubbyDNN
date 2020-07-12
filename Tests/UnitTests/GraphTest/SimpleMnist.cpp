@@ -27,7 +27,7 @@ void SimpleMnistTest()
     id = model.Loss(id, labelId, "MSE", "loss", device);
 
     model.Compile("MSE",
-                  Graph::ParameterPack({},
+                  Graph::Parameter({},
                                        { { "epsilon", 0.01f } }, {}));
 
     model.Train(100);

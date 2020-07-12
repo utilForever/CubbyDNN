@@ -16,9 +16,9 @@ Model::Model(NumberSystem numericType)
 UnitId Model::DataLoader(const Shape& shape, const std::string& name,
                          Compute::Device device)
 {
-    UnitId subjectUnitId{ UnitType(UnitBaseType::Source, name) };
+    UnitId subjectUnitId{ UnitType(UnitBaseType::Source, name), m_id++, name };
     UnitMetaData unitMetaData(subjectUnitId, {}, {},
-                              {}, shape, {}, {},
+                              {}, shape, {},
                               m_numericType,
                               std::move(device));
     m_unitManager.AppendUnit(std::move(unitMetaData));
@@ -53,8 +53,8 @@ UnitId Model::Dense(const UnitId& input, std::size_t units,
                               { { "weight", weightShape },
                                 { "bias", biasShape } },
                               std::move(initializerMap),
-                              { previousOutputShape }, outputShape,
-                              { input }, {}, m_numericType,
+                              { { "input", previousOutputShape } }, outputShape,
+                              { { "input", input } }, m_numericType,
                               std::move(device));
 
     m_unitManager.AppendUnit(std::move(unitMetaData));
@@ -68,12 +68,13 @@ UnitId Model::Activation(const UnitId& input, const std::string& activationName,
     const auto previousOutputShape = m_unitManager.GetUnitOutputShape(input);
 
     UnitMetaData unitMetaData(subjectUnitId, {}, {},
-                              { previousOutputShape },
-                              { previousOutputShape }, { input },
-                              ParameterPack({}, {},
-                                            { { "activationName", activationName } }),
+                              { { "input", previousOutputShape } },
+                              { previousOutputShape }, { { "input", input } },
                               m_numericType,
-                              std::move(device));
+                              std::move(device),
+                              Parameter(
+                                  {}, {}, {
+                                      { "activationName", activationName } }));
 
     m_unitManager.AppendUnit(std::move(unitMetaData));
     return subjectUnitId;
@@ -92,7 +93,7 @@ UnitId Model::Constant(Tensor tensor, const std::string& name)
 }
 
 void Model::Compile(const std::string& optimizer,
-                    ParameterPack optimizerParams) noexcept
+                    Parameter optimizerParams) noexcept
 {
     m_unitManager.Compile(optimizer, optimizerParams);
 }

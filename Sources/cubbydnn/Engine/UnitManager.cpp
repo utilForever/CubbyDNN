@@ -34,7 +34,7 @@ void UnitManager::AppendUnit(UnitMetaData&& unitMetaData)
 }
 
 void UnitManager::Compile(const std::string& optimizerName,
-                          const ParameterPack& optimizerParameters)
+                          const Parameter& optimizerParameters)
 {
     m_connectUnits();
 
@@ -86,7 +86,6 @@ void UnitManager::Compile(const std::string& optimizerName,
             auto unit = ConstantUnit::CreateUnit(*metaDataPtr);
             m_unitMap[metaDataPtr->Id()] =
                 std::make_unique<ConstantUnit>(std::move(unit));
-
             continue;
         }
         if (type.Name() == "Multiply")
@@ -190,7 +189,7 @@ void UnitManager::m_backwardCopy(const UnitId& subjectUnitId)
 {
     const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
     int index = 0;
-    for (const auto& subjectInputUnitId : sourceMetaData->InputUnitVector())
+    for (const auto& [key, subjectInputUnitId] : sourceMetaData->InputUnitMap())
     {
         auto& outputTensor = m_unitMap[subjectUnitId]->BackwardOutputVector[
             index];
@@ -217,12 +216,11 @@ void UnitManager::m_backwardCopy(const UnitId& subjectUnitId)
 
 void UnitManager::m_connectUnits()
 {
-    for (auto& [key, metaDataPtr] : m_unitMetaDataMap)
+    for (auto& [subjectKey, metaDataPtr] : m_unitMetaDataMap)
     {
         const auto unitId = metaDataPtr->Id();
-        const auto& inputPtrVector = metaDataPtr->InputUnitVector();
         //! Analyzes dependency between units
-        for (const auto& inputUnitId : inputPtrVector)
+        for (const auto& [inputKey, inputUnitId] : metaDataPtr->InputUnitMap())
         {
             m_unitMetaDataMap[inputUnitId]->AppendOutputUnitId(unitId);
         }
@@ -231,7 +229,7 @@ void UnitManager::m_connectUnits()
 
 
 std::unique_ptr<Compute::Optimizer> UnitManager::m_makeOptimizer(
-    const std::string& optimizerName, const ParameterPack& parameters) const
+    const std::string& optimizerName, const Parameter& parameters) const
 {
     if (optimizerName == "SGD")
     {

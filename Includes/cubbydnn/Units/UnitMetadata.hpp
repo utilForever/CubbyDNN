@@ -17,20 +17,20 @@
 
 namespace CubbyDNN::Graph
 {
-class ParameterPack
+class Parameter
 {
 public:
-    ParameterPack() = default;
-    ~ParameterPack() = default;
+    Parameter() = default;
+    ~Parameter() = default;
 
-    ParameterPack(const ParameterPack& parameterPack) = default;
-    ParameterPack(ParameterPack&& parameterPack) noexcept = default;
-    ParameterPack& operator=(const ParameterPack& parameterPack) = default;
-    ParameterPack& operator=(ParameterPack&& parameterPack) noexcept = default;
+    Parameter(const Parameter& parameterPack) = default;
+    Parameter(Parameter&& parameterPack) noexcept = default;
+    Parameter& operator=(const Parameter& parameterPack) = default;
+    Parameter& operator=(Parameter&& parameterPack) noexcept = default;
 
-    ParameterPack(std::unordered_map<std::string, int> integerParams,
-                  std::unordered_map<std::string, float> floatingPointParams,
-                  std::unordered_map<std::string, std::string> stringParams);
+    Parameter(std::unordered_map<std::string, int> integerParams,
+              std::unordered_map<std::string, float> floatingPointParams,
+              std::unordered_map<std::string, std::string> stringParams);
 
     [[nodiscard]] int GetIntegerParam(const std::string& name) const;
 
@@ -52,23 +52,12 @@ public:
         std::unordered_map<std::string, Shape> internalVariableShapeMap,
         std::unordered_map<std::string, std::unique_ptr<Initializer>>
         initializerMap,
-        std::vector<Shape> inputShapeVector, Shape outputShape,
-        std::vector<UnitId> inputUnitIdVector,
-        NumberSystem numericType, Compute::Device device);
-
-
-    UnitMetaData(
-        UnitId unitId,
-        std::unordered_map<std::string, Shape> internalVariableShapeMap,
-        std::unordered_map<std::string, std::unique_ptr<Initializer>>
-        initializerMap,
-        std::vector<Shape> inputShapeVector, Shape outputShape,
-        std::vector<UnitId> inputUnitIdVector, ParameterPack params,
-        NumberSystem numericType,
-        Compute::Device device);
+        std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
+        std::unordered_map<std::string, UnitId> inputUnitIdMap,
+        NumberSystem numericType, Compute::Device device,
+        Parameter params = Parameter());
 
     ~UnitMetaData() = default;
-
     UnitMetaData(const UnitMetaData& unitMetaData) = delete;
 
     UnitMetaData(UnitMetaData&& unitMetaData) noexcept;
@@ -84,26 +73,23 @@ public:
     //! \param tensor: tensor to store
     void AddInternalTensor(const std::string& key, Tensor tensor);
 
-    [[nodiscard]] const Tensor& GetInternalTensor(const std::string& key) const;
-
     [[nodiscard]] UnitId Id() const;
 
-    [[nodiscard]] std::vector<Shape> InputShapeVector() const;
+    [[nodiscard]] const Tensor& GetInternalTensor(const std::string& key) const;
+
+    [[nodiscard]] Shape GetInputShape(const std::string& key) const;
 
     [[nodiscard]] Shape OutputShape() const;
 
-    [[nodiscard]] std::vector<UnitId> InputUnitVector() const;
+    [[nodiscard]] std::unordered_map<std::string, UnitId>
+    InputUnitMap() const;
 
     [[nodiscard]] std::vector<UnitId> OutputUnitVector() const;
 
     [[nodiscard]] const std::unique_ptr<Initializer>& GetInitializer(
         const std::string& name) const;
 
-    [[nodiscard]] Shape GetShape(const std::string& name) const;
-
-    ParameterPack Parameters = ParameterPack();
-    NumberSystem NumericType;
-    Compute::Device Device;
+    [[nodiscard]] Shape GetInternalVariableShape(const std::string& name) const;
 
 private:
     UnitId m_unitId;
@@ -112,11 +98,18 @@ private:
     m_initializerMap;
     std::unordered_map<std::string, Tensor> m_internalTensorMap;
 
-    std::vector<Shape> m_inputShapeVector;
+    //! Input names and their shape
+    std::unordered_map<std::string, Shape> m_inputShapeMap;
     Shape m_outputShape;
-
-    std::vector<UnitId> m_inputUnitIdVector;
+    //! Input names and their unitId
+    //! key of inputShapeMap and inputUnitIdMap must be identical
+    std::unordered_map<std::string, UnitId> m_inputUnitMap;
     std::vector<UnitId> m_outputUnitIdVector;
+
+public:
+    NumberSystem NumericType;
+    Compute::Device Device;
+    Parameter Params = Parameter();
 };
 }
 #endif
