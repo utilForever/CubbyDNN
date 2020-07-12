@@ -19,6 +19,20 @@ Parameter::Parameter(std::unordered_map<std::string, int> integerParams,
 {
 }
 
+Parameter::Parameter(std::unordered_map<std::string, int> integerParams)
+    : m_integerParameters(std::move(integerParams))
+{
+}
+
+Parameter::Parameter(std::unordered_map<std::string, float> floatingPointParams)
+    : m_floatingPointParameters(std::move(floatingPointParams))
+{
+}
+
+Parameter::Parameter(std::unordered_map<std::string, std::string> stringParams)
+    : m_stringParameters(std::move(stringParams))
+{
+}
 
 int Parameter::GetIntegerParam(const std::string& name) const
 {

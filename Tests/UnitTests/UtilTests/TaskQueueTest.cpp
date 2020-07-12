@@ -30,7 +30,6 @@ void StressTask()
             num /= 2;
 }
 
-
 void TaskQueueTest(int workers)
 {
     const auto desired = 100;

@@ -6,7 +6,6 @@
 
 #include "SimpleMnist.hpp"
 #include <cubbydnn/Engine/Model.hpp>
-#include <cubbydnn/Computations/LossFunctions/LossFunctions.hpp>
 
 namespace CubbyDNN::Test
 {
@@ -15,6 +14,9 @@ void SimpleMnistTest()
     const Compute::Device device(0, Compute::DeviceType::Cpu, " myDevice");
 
     Graph::Model model(NumberSystem::Float);
+
+    Tensor tensor({ 1, 10 }, device, std::vector<float>(10, 1));
+    Tensor inputTensor({ 1, 10 }, device, std::vector<float>(10, 3));
 
     auto id = model.DataLoader({ 100, 3, 3 }, "input data loader", device);
     auto labelId = model.DataLoader({ 100, 3, 3 }, "label loader", device);
@@ -26,9 +28,7 @@ void SimpleMnistTest()
 
     id = model.Loss(id, labelId, "MSE", "loss", device);
 
-    model.Compile("MSE",
-                  Graph::Parameter({},
-                                       { { "epsilon", 0.01f } }, {}));
+    model.Compile("MSE", Graph::Parameter({}, { { "epsilon", 0.01f } }, {}));
 
     model.Train(100);
 }

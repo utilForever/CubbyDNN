@@ -32,6 +32,10 @@ public:
               std::unordered_map<std::string, float> floatingPointParams,
               std::unordered_map<std::string, std::string> stringParams);
 
+    Parameter(std::unordered_map<std::string, int> integerParams);
+    Parameter(std::unordered_map<std::string, float> floatingPointParams);
+    Parameter(std::unordered_map<std::string, std::string> stringParams);
+
     [[nodiscard]] int GetIntegerParam(const std::string& name) const;
 
     [[nodiscard]] float GetFloatingPointParam(const std::string& name) const;
