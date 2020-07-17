@@ -173,7 +173,7 @@ void UnitManager::m_forwardCopy(const UnitId& subjectUnitId)
             ForwardInputVector;
         for (auto& destTensor : nextInputTensorVector)
         {
-            Tensor::ForwardTensor(subjectOutputTensor, destTensor);
+            Tensor::ForwardTensorData(subjectOutputTensor, destTensor);
             subjectOutputTensor.ForwardState.fetch_add(1);
             destTensor.ForwardState.fetch_add(1);
         }
@@ -200,7 +200,7 @@ void UnitManager::m_backwardCopy(const UnitId& subjectUnitId)
             {
                 auto& destTensor =
                     nextBackwardInputTensorVector.at(i);
-                Tensor::ForwardTensor(outputTensor, destTensor);
+                Tensor::ForwardTensorData(outputTensor, destTensor);
                 outputTensor.BackwardState.fetch_add(1);
                 destTensor.BackwardState.fetch_add(1);
             }

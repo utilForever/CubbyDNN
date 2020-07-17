@@ -86,7 +86,7 @@ Tensor::Tensor(const Tensor& tensor)
 {
     if (m_hasOwnership)
     {
-        auto dataSize = getDataSize();
+        auto dataSize = GetElementSize();
         if (NumericType == NumberSystem::Float)
         {
             dataSize *= sizeof(float);
@@ -125,27 +125,23 @@ Tensor& Tensor::operator=(const Tensor& tensor)
     if (this == &tensor)
         return *this;
 
-    if (tensor.m_hasOwnership)
-    {
-        auto dataSize = getDataSize();
-        if (NumericType == NumberSystem::Float)
-        {
-            dataSize *= sizeof(float);
-            DataPtr = new float[dataSize];
-        }
-        else
-        {
-            dataSize *= sizeof(int);
-            DataPtr = new float[dataSize];
-        }
-        for (std::size_t i = 0; i < dataSize; ++i)
-        {
-            std::memcpy(DataPtr, tensor.DataPtr, dataSize);
-        }
-    }
-
     TensorShape = tensor.TensorShape;
     NumericType = tensor.NumericType;
+
+    if (tensor.m_hasOwnership)
+    {
+        const auto elementSize = GetElementSize();
+        if (!m_hasOwnership)
+        {
+            if (NumericType == NumberSystem::Float)
+                DataPtr = static_cast<void*>(new float[elementSize]);
+            else
+                DataPtr = static_cast<void*>(new int[elementSize]);
+        }
+
+        std::memcpy(DataPtr, tensor.DataPtr, GetDataSize());
+    }
+
     m_hasOwnership.exchange(true, std::memory_order_release);
     return *this;
 }
@@ -220,6 +216,15 @@ void Tensor::CopyTensorData(const Tensor& source, Tensor& destination)
     const auto numCols = sourceShape.NumCols();
     const auto sourceColSize = source.GetColumnElementSize();
     const auto destColSize = destination.GetColumnElementSize();
+
+    const auto elementSize = destination.GetElementSize();
+    if (!destination.m_hasOwnership)
+    {
+        if (destination.NumericType == NumberSystem::Float)
+            destination.DataPtr = static_cast<void*>(new float[elementSize]);
+        else
+            destination.DataPtr = static_cast<void*>(new int[elementSize]);
+    }
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
