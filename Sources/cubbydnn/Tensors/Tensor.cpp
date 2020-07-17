@@ -106,13 +106,7 @@ Tensor::Tensor(const Tensor& tensor)
 
 Tensor::~Tensor()
 {
-    if (m_hasOwnership)
-    {
-        if (NumericType == NumberSystem::Float)
-            delete[] static_cast<float*>(DataPtr);
-        else
-            delete[] static_cast<int*>(DataPtr);
-    }
+    m_freeData();
 }
 
 Tensor::Tensor(Tensor&& tensor) noexcept
@@ -131,7 +125,7 @@ Tensor& Tensor::operator=(const Tensor& tensor)
     if (this == &tensor)
         return *this;
 
-    if (m_hasOwnership)
+    if (tensor.m_hasOwnership)
     {
         auto dataSize = getDataSize();
         if (NumericType == NumberSystem::Float)
@@ -152,22 +146,27 @@ Tensor& Tensor::operator=(const Tensor& tensor)
 
     TensorShape = tensor.TensorShape;
     NumericType = tensor.NumericType;
+    m_hasOwnership.exchange(true, std::memory_order_release);
     return *this;
 }
 
 
 Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 {
-    m_hasOwnership.exchange(false, std::memory_order_acquire);
-    DataPtr = tensor.DataPtr;
     TensorShape = tensor.TensorShape;
     NumericType = tensor.NumericType;
-    tensor.DataPtr = nullptr;
+    if (tensor.m_hasOwnership)
+    {
+        tensor.m_hasOwnership.exchange(false, std::memory_order_acquire);
+        DataPtr = tensor.DataPtr;
+        tensor.DataPtr = nullptr;
+        m_hasOwnership.exchange(true, std::memory_order_release);
+    }
     return *this;
 }
 
 
-void Tensor::ForwardTensor(const Tensor& source, Tensor& destination)
+void Tensor::ForwardTensorData(Tensor& source, Tensor& destination)
 {
     if (source.TensorShape != destination.TensorShape)
         throw std::runtime_error("Information of each tensor should be same");
@@ -175,22 +174,44 @@ void Tensor::ForwardTensor(const Tensor& source, Tensor& destination)
         throw std::runtime_error("NumberSystem of two tensors does not match");
 
     if (source.Device == destination.Device)
-        MoveTensor(source, destination);
+        MoveTensorData(source, destination);
     else
-        CopyTensor(source, destination);
+        CopyTensorData(source, destination);
 }
 
-void Tensor::MoveTensor(const Tensor& source, Tensor& destination)
+void Tensor::MoveTensorData(Tensor& source, Tensor& destination)
 {
     if (source.Device != destination.Device)
         throw std::invalid_argument(
             "Device type of source and destination tensor must be same when "
-            "moving between tensors");
+            "moving data between tensors");
+
+    if (source.TensorShape != destination.TensorShape)
+        throw std::invalid_argument(
+            "Shape mismatch between source and destination tensors");
+
+    if (!source.m_hasOwnership)
+        throw std::runtime_error(
+            "Source tensor does not have ownership of the data");
+
+    //! Deallocate data in destination if it already has allocated data to prevent memory leaks
+    if (destination.m_hasOwnership)
+        destination.m_freeData();
+
     destination.DataPtr = source.DataPtr;
+    source.m_hasOwnership.exchange(false, std::memory_order_acquire);
+    source.DataPtr = nullptr;
 }
 
-void Tensor::CopyTensor(const Tensor& source, Tensor& destination)
+void Tensor::CopyTensorData(const Tensor& source, Tensor& destination)
 {
+    if (source.TensorShape != destination.TensorShape)
+        throw std::invalid_argument(
+            "Shape mismatch between source and destination tensors");
+
+    if (!source.m_hasOwnership)
+        throw std::runtime_error(
+            "Source tensor does not have ownership of the data");
     const auto numericType = source.NumericType;
     const auto sourceShape = source.TensorShape;
     const auto destShape = destination.TensorShape;

@@ -35,11 +35,11 @@ public:
     Tensor& operator=(Tensor&& tensor) noexcept;
 
     //! If both tensors are on same device, data is moved rather than copied
-    static void ForwardTensor(const Tensor& source, Tensor& destination);
+    static void ForwardTensorData(Tensor& source, Tensor& destination);
 
-    static void MoveTensor(const Tensor& source, Tensor& destination);
+    static void MoveTensorData(Tensor& source, Tensor& destination);
 
-    static void CopyTensor(const Tensor& source, Tensor& destination);
+    static void CopyTensorData(const Tensor& source, Tensor& destination);
 
     template <typename T>
     T& At(std::vector<std::size_t> index)
@@ -82,14 +82,14 @@ public:
 
 private:
     std::size_t m_paddedColumnSize = 0;
-   std::atomic<bool> m_hasOwnership = false;
+    std::atomic<bool> m_hasOwnership = false;
 
     [[nodiscard]] std::size_t getDataSize()
     {
         std::size_t size = 1;
         for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
         {
-            size *= i;
+            size *= TensorShape.At(i);
         }
         return size * m_getPaddedColumnSize();
     }
@@ -110,6 +110,18 @@ private:
             ++i;
 
         return padUnitSize * i;
+    }
+
+    void m_freeData()
+    {
+        if (m_hasOwnership)
+        {
+            m_hasOwnership.exchange(false, std::memory_order_acquire);
+            if (NumericType == NumberSystem::Float)
+                delete[] static_cast<float*>(DataPtr);
+            else
+                delete[] static_cast<int*>(DataPtr);
+        }
     }
 };
 } // namespace CubbyDNN
