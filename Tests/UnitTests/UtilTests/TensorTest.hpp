@@ -10,8 +10,9 @@ void TensorCopyTest();
 
 void TensorMoveTest();
 
-void TensorForwardTest();
+void TensorForwardTestWithCopy();
+
+void TensorForwardTestWithMove();
 
 void TensorSimultaneousForwardTest();
-
 }

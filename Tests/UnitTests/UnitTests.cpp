@@ -5,6 +5,7 @@
 #include "UtilTests/SharedPtrTests.hpp"
 #include "UtilTests/WeakPtrTests.hpp"
 #include "GraphTest/SimpleMnist.hpp"
+#include "UtilTests/TensorTest.hpp"
 #include <doctest.h>
 #include <iostream>
 
@@ -19,6 +20,26 @@ TEST_CASE("Simple test")
 TEST_CASE("SimpleMnist")
 {
     SimpleMnistTest();
+}
+
+TEST_CASE("Tensor test")
+{
+    SUBCASE("Tensor Copy test")
+    {
+        TensorCopyTest();
+    }
+    SUBCASE("Tensor Move test")
+    {
+        TensorMoveTest();
+    }
+    SUBCASE("Tensor forward by copy")
+    {
+        TensorForwardTestWithCopy();
+    }
+    SUBCASE("Tensor forward by move")
+    {
+        TensorForwardTestWithMove();
+    }
 }
 
 // TEST_CASE("Simple matmul 1")
