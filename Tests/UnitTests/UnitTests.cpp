@@ -16,10 +16,10 @@ TEST_CASE("Simple test")
     std::cout << "called Test" << std::endl;
 }
 
-// TEST_CASE("SimpleMnist")
-// {
-//     SimpleMnistTest();
-// }
+TEST_CASE("SimpleMnist")
+{
+    SimpleMnistTest();
+}
 
 // TEST_CASE("Simple matmul 1")
 // {

@@ -75,6 +75,7 @@ UnitMetaData::UnitMetaData(UnitMetaData&& unitMetaData) noexcept
       m_internalVariableShapeMap(
           std::move(unitMetaData.m_internalVariableShapeMap)),
       m_initializerMap(std::move(unitMetaData.m_initializerMap)),
+      m_internalTensorMap(std::move(unitMetaData.m_internalTensorMap)),
       m_inputShapeMap(std::move(unitMetaData.m_inputShapeMap)),
       m_outputShape(std::move(unitMetaData.m_outputShape)),
       m_inputUnitMap(std::move(unitMetaData.m_inputUnitMap)),
@@ -94,6 +95,7 @@ UnitMetaData& UnitMetaData::operator=(UnitMetaData&& unitMetaData) noexcept
     m_internalVariableShapeMap =
         std::move(unitMetaData.m_internalVariableShapeMap);
     m_initializerMap = std::move(unitMetaData.m_initializerMap);
+    m_internalTensorMap = std::move(unitMetaData.m_internalTensorMap);
     m_inputShapeMap = std::move(unitMetaData.m_inputShapeMap);
     m_outputShape = std::move(unitMetaData.m_outputShape);
     m_inputUnitMap = std::move(unitMetaData.m_inputUnitMap);

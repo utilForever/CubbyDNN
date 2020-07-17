@@ -34,6 +34,7 @@ Tensor::Tensor(Shape shape, Compute::Device device, NumberSystem numberSystem)
             *(static_cast<int*>(ptr) + i) = 0;
         DataPtr = ptr;
     }
+    m_hasOwnership.exchange(true, std::memory_order_release);
 }
 
 Tensor::Tensor(Shape shape, Compute::Device device, std::vector<float> data)
@@ -53,6 +54,7 @@ Tensor::Tensor(Shape shape, Compute::Device device, std::vector<float> data)
             *(static_cast<float*>(ptr) + index) = data.at(index);
         }
     DataPtr = ptr;
+    m_hasOwnership.exchange(true, std::memory_order_release);
 }
 
 Tensor::Tensor(Shape shape, Compute::Device device, std::vector<int> data)
@@ -72,6 +74,7 @@ Tensor::Tensor(Shape shape, Compute::Device device, std::vector<int> data)
             *(static_cast<int*>(ptr) + index) = data.at(index);
         }
     DataPtr = ptr;
+    m_hasOwnership.exchange(true, std::memory_order_release);
 }
 
 
@@ -81,26 +84,29 @@ Tensor::Tensor(const Tensor& tensor)
       Device(tensor.Device),
       NumericType(tensor.NumericType)
 {
-    auto dataSize = getDataSize();
-    if (NumericType == NumberSystem::Float)
+    if (m_hasOwnership)
     {
-        dataSize *= sizeof(float);
-        DataPtr = new float[dataSize];
-    }
-    else
-    {
-        dataSize *= sizeof(int);
-        DataPtr = new float[dataSize];
-    }
-    for (std::size_t i = 0; i < dataSize; ++i)
-    {
-        std::memcpy(DataPtr, tensor.DataPtr, dataSize);
+        auto dataSize = getDataSize();
+        if (NumericType == NumberSystem::Float)
+        {
+            dataSize *= sizeof(float);
+            DataPtr = new float[dataSize];
+        }
+        else
+        {
+            dataSize *= sizeof(int);
+            DataPtr = new float[dataSize];
+        }
+        for (std::size_t i = 0; i < dataSize; ++i)
+        {
+            std::memcpy(DataPtr, tensor.DataPtr, dataSize);
+        }
     }
 }
 
 Tensor::~Tensor()
 {
-    if (DataPtr != nullptr)
+    if (m_hasOwnership)
     {
         if (NumericType == NumberSystem::Float)
             delete[] static_cast<float*>(DataPtr);
@@ -116,6 +122,7 @@ Tensor::Tensor(Tensor&& tensor) noexcept
       NumericType(tensor.NumericType)
 
 {
+    m_hasOwnership.exchange(false, std::memory_order_acquire);
     tensor.DataPtr = nullptr;
 }
 
@@ -124,20 +131,23 @@ Tensor& Tensor::operator=(const Tensor& tensor)
     if (this == &tensor)
         return *this;
 
-    auto dataSize = getDataSize();
-    if (NumericType == NumberSystem::Float)
+    if (m_hasOwnership)
     {
-        dataSize *= sizeof(float);
-        DataPtr = new float[dataSize];
-    }
-    else
-    {
-        dataSize *= sizeof(int);
-        DataPtr = new float[dataSize];
-    }
-    for (std::size_t i = 0; i < dataSize; ++i)
-    {
-        std::memcpy(DataPtr, tensor.DataPtr, dataSize);
+        auto dataSize = getDataSize();
+        if (NumericType == NumberSystem::Float)
+        {
+            dataSize *= sizeof(float);
+            DataPtr = new float[dataSize];
+        }
+        else
+        {
+            dataSize *= sizeof(int);
+            DataPtr = new float[dataSize];
+        }
+        for (std::size_t i = 0; i < dataSize; ++i)
+        {
+            std::memcpy(DataPtr, tensor.DataPtr, dataSize);
+        }
     }
 
     TensorShape = tensor.TensorShape;
@@ -148,6 +158,7 @@ Tensor& Tensor::operator=(const Tensor& tensor)
 
 Tensor& Tensor::operator=(Tensor&& tensor) noexcept
 {
+    m_hasOwnership.exchange(false, std::memory_order_acquire);
     DataPtr = tensor.DataPtr;
     TensorShape = tensor.TensorShape;
     NumericType = tensor.NumericType;

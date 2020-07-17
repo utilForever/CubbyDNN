@@ -18,8 +18,8 @@ void SimpleMnistTest()
     Tensor tensor({ 1, 10 }, device, std::vector<float>(10, 1));
     Tensor inputTensor({ 1, 10 }, device, std::vector<float>(10, 3));
 
-    auto id = model.DataLoader({ 100, 3, 3 }, "input data loader", device);
-    auto labelId = model.DataLoader({ 100, 3, 3 }, "label loader", device);
+    auto id = model.Constant(tensor, "input");
+    auto labelId = model.Constant(inputTensor, "label");
 
     id = model.Dense(id, 10, std::make_unique<XavierNormal>(),
                      std::make_unique<HeNormal>(), "dense1", device);
@@ -28,7 +28,8 @@ void SimpleMnistTest()
 
     id = model.Loss(id, labelId, "MSE", "loss", device);
 
-    model.Compile("MSE", Graph::Parameter({}, { { "epsilon", 0.01f } }, {}));
+    model.Compile("SGD",
+                  Graph::Parameter({}, { { "epsilon", 0.01f } }, {}));
 
     model.Train(100);
 }

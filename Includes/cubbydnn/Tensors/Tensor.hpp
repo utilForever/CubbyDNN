@@ -82,6 +82,7 @@ public:
 
 private:
     std::size_t m_paddedColumnSize = 0;
+   std::atomic<bool> m_hasOwnership = false;
 
     [[nodiscard]] std::size_t getDataSize()
     {

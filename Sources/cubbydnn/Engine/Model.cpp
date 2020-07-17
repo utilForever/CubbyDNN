@@ -16,7 +16,8 @@ Model::Model(NumberSystem numericType)
 UnitId Model::DataLoader(const Shape& shape, const std::string& name,
                          Compute::Device device)
 {
-    UnitId subjectUnitId{ UnitType(UnitBaseType::Source, name), m_id++, name };
+    UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "DataLoader"), m_id++,
+                          name };
     UnitMetaData unitMetaData(subjectUnitId, {}, {},
                               {}, shape, {},
                               m_numericType,
@@ -64,7 +65,8 @@ UnitId Model::Dense(const UnitId& input, std::size_t units,
 UnitId Model::Activation(const UnitId& input, const std::string& activationName,
                          const std::string& name, Compute::Device device)
 {
-    UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, name), m_id++, name };
+    UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Activation"), m_id++,
+                          name };
     const auto previousOutputShape = m_unitManager.GetUnitOutputShape(input);
 
     UnitMetaData unitMetaData(subjectUnitId, {}, {},
@@ -84,7 +86,7 @@ UnitId Model::Constant(Tensor tensor, const std::string& name)
     if (tensor.NumericType != m_numericType)
         throw std::invalid_argument(
             "Numeric type of given tensor and graph must be identical");
-    UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "Dense"), m_id++,
+    UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "Constant"), m_id++,
                           name };
     UnitMetaData unitMetaData(subjectUnitId, {}, {},
                               {}, tensor.TensorShape, {},

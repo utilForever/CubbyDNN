@@ -22,6 +22,6 @@ ConstantUnit::ConstantUnit(ConstantUnit&& constantUnit) noexcept
 ConstantUnit ConstantUnit::CreateUnit(const UnitMetaData& unitMetaData)
 {
     return ConstantUnit(unitMetaData.Id(),
-                        std::move(unitMetaData.GetInternalTensor("constant")));
+                        unitMetaData.GetInternalTensor("constant"));
 }
 }
