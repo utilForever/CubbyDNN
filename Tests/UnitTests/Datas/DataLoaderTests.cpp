@@ -4,29 +4,9 @@
 #include <CubbyDNN/Datas/DataLoader.hpp>
 #include <CubbyDNN/Datas/Dataset.hpp>
 
+#include "TestDataset.hpp"
+
 using namespace CubbyDNN;
-
-class TestDataset : public Dataset<TestDataset, std::tuple<FloatTensor, long>>
-{
- public:
-    OutputType Get(std::size_t index) const override
-    {
-        static std::tuple<FloatTensor, long> arr[] = {
-            std::make_tuple<FloatTensor, long>({ 1, 1, 1, 1 }, 10),
-            std::make_tuple<FloatTensor, long>({ 2, 2, 2, 2 }, 20),
-            std::make_tuple<FloatTensor, long>({ 3, 3, 3, 3 }, 30),
-            std::make_tuple<FloatTensor, long>({ 4, 4, 4, 4 }, 40),
-            std::make_tuple<FloatTensor, long>({ 5, 5, 5, 5 }, 50)
-        };
-
-        return arr[index];
-    }
-
-    std::size_t GetSize() const override
-    {
-        return 5;
-    }
-};
 
 TEST_CASE("[DataLoader] - Big batchsize than dataset size")
 {
