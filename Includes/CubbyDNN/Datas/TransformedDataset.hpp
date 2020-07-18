@@ -24,7 +24,7 @@ class TransformedDataset final
         return m_transform(m_dataset.Get(index));
     }
 
-    std::size_t GetSize() const
+    std::size_t GetSize() const override
     {
         return m_dataset.GetSize();
     }
