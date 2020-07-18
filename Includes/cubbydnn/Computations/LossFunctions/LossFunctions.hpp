@@ -97,7 +97,7 @@ public:
                 }
                 batchSum += sum;
             }
-        batchSum /= static_cast<T>(batchSize * numRows);
+        batchSum /= (2 * static_cast<T>(batchSize * numRows));
 
         return batchSum;
     }

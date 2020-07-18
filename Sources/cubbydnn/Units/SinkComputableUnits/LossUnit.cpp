@@ -120,9 +120,9 @@ void LossUnit::AsyncForward(std::promise<bool> promise)
 
 void LossUnit::Backward()
 {
-    const Tensor& prediction = ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ForwardInputMap.at(m_labelUnitId);
-    Tensor& delta = BackwardOutputMap.at(m_predictionUnitId);
+    const auto& prediction = ForwardInputMap.at(m_predictionUnitId);
+    const auto& label = ForwardInputMap.at(m_labelUnitId);
+    auto& delta = BackwardOutputMap.at(m_predictionUnitId);
 
     if (m_numericType == NumberSystem::Float)
     {
@@ -142,9 +142,9 @@ void LossUnit::Backward()
 
 void LossUnit::AsyncBackward(std::promise<bool> promise)
 {
-    const Tensor& prevInput = ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ForwardInputMap.at(m_labelUnitId);
-    Tensor& delta = BackwardOutputMap.at(m_predictionUnitId);
+    const auto& prevInput = ForwardInputMap.at(m_predictionUnitId);
+    const auto& label = ForwardInputMap.at(m_labelUnitId);
+    auto& delta = BackwardOutputMap.at(m_predictionUnitId);
 
     if (m_numericType == NumberSystem::Float)
     {

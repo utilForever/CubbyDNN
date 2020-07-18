@@ -99,14 +99,18 @@ void ActivationUnit::Backward()
     const auto& activationFunc =
         Compute::ActivationWrapper::GetFloatActivation(m_activationType);
     const Zeros zeroInitializer;
-    zeroInitializer.Initialize(m_trainableTensorMap["backwardTemp"]);
+    auto& backwardTemp = m_trainableTensorMap.at("backwardTemp");
+    auto& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
+
+    zeroInitializer.Initialize(backwardTemp);
     for (const auto& [unitId, tensor] : BackwardInputMap)
-        Compute::Add(m_trainableTensorMap["backwardTemp"], tensor);
+        Compute::Add(backwardTemp, tensor);
+    Compute::ScalarMul(backwardTemp,
+                       1.0f / static_cast<float>(BackwardInputMap.size()));
     activationFunc->ApplyDerivative(ForwardInputMap.at(m_sourceUnitId),
-                                    BackwardOutputMap.at(m_sourceUnitId));
-    Compute::Dot(m_trainableTensorMap["backwardTemp"],
-                 BackwardOutputMap.at(m_sourceUnitId),
-                 BackwardOutputMap.at(m_sourceUnitId));
+                                    backwardOutput);
+    Compute::Dot(backwardTemp,
+                 backwardOutput, backwardOutput);
 }
 
 void ActivationUnit::AsyncBackward(std::promise<bool> promise)
@@ -114,14 +118,17 @@ void ActivationUnit::AsyncBackward(std::promise<bool> promise)
     const auto& activationFunc =
         Compute::ActivationWrapper::GetFloatActivation(m_activationType);
     const Zeros zeroInitializer;
-    zeroInitializer.Initialize(m_trainableTensorMap["backwardTemp"]);
+    auto& backwardTemp = m_trainableTensorMap.at("backwardTemp");
+    auto& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
+
+    zeroInitializer.Initialize(backwardTemp);
     for (const auto& [unitId, tensor] : BackwardInputMap)
-        Compute::Add(m_trainableTensorMap["backwardTemp"], tensor);
+        Compute::Add(backwardTemp, tensor);
+    Compute::ScalarMul(backwardTemp,
+                       1.0f / static_cast<float>(BackwardInputMap.size()));
     activationFunc->ApplyDerivative(ForwardInputMap.at(m_sourceUnitId),
-                                    BackwardOutputMap.at(m_sourceUnitId));
-    Compute::Dot(m_trainableTensorMap["backwardTemp"],
-                 BackwardOutputMap.at(m_sourceUnitId),
-                 BackwardOutputMap.at(m_sourceUnitId));
+                                    backwardOutput);
+    Compute::Dot(backwardTemp, backwardOutput, backwardOutput);
 
     promise.set_value(true);
 }
