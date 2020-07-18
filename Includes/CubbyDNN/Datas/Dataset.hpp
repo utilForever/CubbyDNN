@@ -17,8 +17,8 @@ class Dataset
 
     virtual ~Dataset() = default;
 
-    virtual OutputType Get(std::size_t index) const = 0;
-    std::vector<OutputType> GetBatch(const std::vector<std::size_t>& indicies) const
+    virtual OutputType Get(std::size_t index) = 0;
+    std::vector<OutputType> GetBatch(const std::vector<std::size_t>& indicies)
     {
         std::vector<OutputType> batch(indicies.size());
 
