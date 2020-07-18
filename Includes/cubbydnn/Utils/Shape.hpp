@@ -36,6 +36,8 @@ public:
 
     void Expand(std::size_t rank);
 
+    void Expand(std::size_t idx, std::size_t rank);
+
     void Shrink();
 
     void Squeeze();
@@ -75,7 +77,7 @@ public:
         if (m_shapeVector.size() < 2)
             throw std::invalid_argument(
                 "SetNumRows requires dimension larger than 1");
-        m_shapeVector.at(1) = row;
+        m_shapeVector.at(Dim() - 2) = row;
     }
 
     void SetNumCols(std::size_t col)
@@ -83,7 +85,7 @@ public:
         if (m_shapeVector.empty())
             throw std::invalid_argument(
                 "SetNumRows requires dimension larger than 0");
-        m_shapeVector.at(0) = col;
+        m_shapeVector.at(Dim() - 1) = col;
     }
 
     Shape& ChangeDimension(std::size_t axis, std::size_t value)
@@ -101,7 +103,7 @@ public:
 
     Shape& Transpose();
 
-    Shape GetTransposedShape();
+    Shape GetTransposedShape() const;
 
 private:
     std::vector<std::size_t> m_shapeVector;

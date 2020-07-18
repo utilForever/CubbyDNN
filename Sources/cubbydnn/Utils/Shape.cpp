@@ -99,6 +99,7 @@ void Shape::Expand(std::size_t rank)
         m_shapeVector.emplace_back(1);
 }
 
+
 void Shape::Shrink()
 {
     while (!m_shapeVector.empty() && m_shapeVector.back() == 1)
@@ -165,7 +166,7 @@ Shape& Shape::Transpose()
     return *this;
 }
 
-Shape Shape::GetTransposedShape()
+Shape Shape::GetTransposedShape() const
 {
     std::vector<std::size_t> shapeVector = m_shapeVector;
     const auto temp = shapeVector.at(0);

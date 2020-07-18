@@ -5,6 +5,9 @@
 // property of any third parties.
 
 #include <cubbydnn/Engine/Model.hpp>
+#include <cubbydnn/Computations/Activations/ActivationWrapper.hpp>
+#include <cubbydnn/Computations/LossFunctions/LossFunctionWrapper.hpp>
+
 
 namespace CubbyDNN::Graph
 {
@@ -37,9 +40,10 @@ UnitId Model::Dense(const UnitId& input, std::size_t units,
     const auto previousOutputShape = m_unitManager.GetUnitOutputShape(input);
     auto weightShape = previousOutputShape;
     weightShape.SetNumRows(units);
+    weightShape.SetNumCols(previousOutputShape.NumRows());
     auto biasShape = weightShape;
-    biasShape.SetNumCols(1);
     biasShape.SetNumRows(units);
+    biasShape.SetNumCols(1);
 
     auto outputShape = previousOutputShape;
     outputShape.SetNumRows(units);
@@ -99,6 +103,8 @@ UnitId Model::Constant(Tensor tensor, const std::string& name)
 void Model::Compile(const std::string& optimizer,
                     Parameter optimizerParams) noexcept
 {
+    Compute::ActivationWrapper::Initialize();
+    Compute::LossFunctionWrapper::Initialize();
     m_unitManager.Compile(optimizer, optimizerParams);
 }
 

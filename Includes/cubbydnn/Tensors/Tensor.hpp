@@ -80,7 +80,7 @@ public:
         return size * m_getPaddedColumnSize();
     }
 
-    [[nodiscard]] std::size_t GetDataSize() const
+    [[nodiscard]] std::size_t GetDataByteSize() const
     {
         if (NumericType == NumberSystem::Float)
             return GetElementSize() * sizeof(float);

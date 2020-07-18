@@ -53,11 +53,11 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData)
                               unitMetaData.Device, unitMetaData.NumericType);
 
     std::unordered_map<UnitId, Tensor> backwardInputMap;
-    for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
+    for (const auto& backwardInputUnitId : unitMetaData.OutputUnitVector())
     {
         Tensor tensor(unitMetaData.OutputShape(),
                       unitMetaData.Device, unitMetaData.NumericType);
-        backwardInputMap[sourceUnitId] = std::move(tensor);
+        backwardInputMap[backwardInputUnitId] = std::move(tensor);
     }
 
     Tensor forwardOutputTensor(unitMetaData.OutputShape(),
