@@ -135,6 +135,12 @@ Shape UnitMetaData::GetInputShape(const std::string& key) const
     return m_inputShapeMap.at(key);
 }
 
+UnitId UnitMetaData::GetInputUnitId(const std::string& key) const
+{
+    return m_inputUnitMap.at(key);
+}
+
+
 Shape UnitMetaData::OutputShape() const
 {
     return m_outputShape;

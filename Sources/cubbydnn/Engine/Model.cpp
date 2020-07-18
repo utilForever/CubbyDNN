@@ -115,6 +115,7 @@ UnitId Model::Loss(const UnitId& prediction, const UnitId& label,
         { { "prediction", predictionShape }, { "label", labelShape } }, Shape(),
         { { "prediction", prediction }, { "label", label } }, m_numericType,
         std::move(device), Parameter({ { "lossType", lossType } }));
+    m_unitManager.AppendUnit(std::move(unitMetaData));
 
     return subjectUnitId;
 }

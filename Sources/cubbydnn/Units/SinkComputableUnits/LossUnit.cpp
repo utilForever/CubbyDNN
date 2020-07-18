@@ -10,34 +10,47 @@
 
 namespace CubbyDNN::Graph
 {
-LossUnit::LossUnit(UnitId unitId, NumberSystem numberSystem,
-                   Tensor prediction, Tensor label, Tensor delta,
-                   std::string lossName)
-    : ComputableUnit(std::move(unitId), numberSystem, { std::move(prediction) },
-                     { std::move(label) },
+LossUnit::LossUnit(const UnitId& unitId, const UnitId& predictionUnitId,
+                   const UnitId& labelUnitId,
+                   Tensor predictionTensor,
+                   Tensor labelTensor,
+                   Tensor backwardOutputTensor,
+                   std::string lossType,
+                   NumberSystem numberSystem)
+    : ComputableUnit(unitId, numberSystem,
+                     { { predictionUnitId, std::move(predictionTensor) },
+                       { labelUnitId, std::move(labelTensor) } },
+                     {},
                      Tensor(Shape({ 1, 1 }),
                             Compute::Device(0, Compute::DeviceType::Cpu,
-                                            "lossOutput")),
-                     { std::move(delta) }),
-      m_lossName(std::move(lossName))
+                                            "none")),
+                     { { predictionUnitId, std::move(backwardOutputTensor) } }),
+      m_lossType(std::move(lossType)),
+      m_predictionUnitId(predictionUnitId),
+      m_labelUnitId(labelUnitId)
 {
 }
 
 LossUnit::LossUnit(LossUnit&& lossUnit) noexcept
     : ComputableUnit(std::move(lossUnit)),
-      m_lossName(std::move(lossUnit.m_lossName))
+      m_lossType(std::move(lossUnit.m_lossType)),
+      m_predictionUnitId(std::move(lossUnit.m_predictionUnitId)),
+      m_labelUnitId(std::move(lossUnit.m_labelUnitId))
 {
 }
 
-LossUnit& LossUnit::operator=(LossUnit&& lossUnit) noexcept
+LossUnit& LossUnit::operator=(LossUnit&& lossUnit)
+noexcept
 {
-    m_lossName = std::move(lossUnit.m_lossName);
+    m_lossType = std::move(lossUnit.m_lossType);
     ComputableUnit::operator=(std::move(lossUnit));
     return *this;
 }
 
 LossUnit LossUnit::CreateUnit(const UnitMetaData& unitMetaData)
 {
+    auto predictionUnitId = unitMetaData.GetInputUnitId("prediction");
+    auto labelUnitId = unitMetaData.GetInputUnitId("label");
     auto predictionTensor = Tensor(unitMetaData.GetInputShape("prediction"),
                                    unitMetaData.Device,
                                    unitMetaData.NumericType);
@@ -47,22 +60,23 @@ LossUnit LossUnit::CreateUnit(const UnitMetaData& unitMetaData)
         Tensor(unitMetaData.GetInputShape("prediction"), unitMetaData.Device,
                unitMetaData.NumericType);
 
-    return LossUnit(unitMetaData.Id(), unitMetaData.NumericType,
-                    std::move(predictionTensor),
-                    std::move(labelTensor), std::move(backwardOutputTensor),
-                    unitMetaData.Params.GetStringParam("lossName"));
+    return LossUnit(unitMetaData.Id(), predictionUnitId, labelUnitId,
+                    predictionTensor, labelTensor,
+                    backwardOutputTensor,
+                    unitMetaData.Params.GetStringParam("lossType"),
+                    NumberSystem::Float);
 }
 
 
 void LossUnit::Forward()
 {
-    Tensor& forwardInput = ForwardInputVector.at(0);
-    const Tensor& label = BackwardInputVector.at(0);
+    Tensor& prediction = ForwardInputMap.at(m_predictionUnitId);
+    const Tensor& label = ForwardInputMap.at(m_labelUnitId);
     if (m_numericType == NumberSystem::Float)
     {
         const auto& lossFunc =
-            Compute::LossFunctionWrapper::GetFloatLoss(m_lossName);
-        const auto loss = lossFunc->Apply(forwardInput, label);
+            Compute::LossFunctionWrapper::GetFloatLoss(m_lossType);
+        const auto loss = lossFunc->Apply(prediction, label);
 
         Tensor& lossOutput = ForwardOutput;
         *(static_cast<float*>(lossOutput.DataPtr)) = loss;
@@ -70,8 +84,8 @@ void LossUnit::Forward()
     else
     {
         const auto& lossFunc =
-            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossName);
-        const auto loss = lossFunc->Apply(forwardInput, label);
+            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossType);
+        const auto loss = lossFunc->Apply(prediction, label);
 
         Tensor& lossOutput = ForwardOutput;
         *static_cast<int*>(lossOutput.DataPtr) = loss;
@@ -80,13 +94,13 @@ void LossUnit::Forward()
 
 void LossUnit::AsyncForward(std::promise<bool> promise)
 {
-    Tensor& forwardInput = ForwardInputVector.at(0);
-    const Tensor& label = BackwardInputVector.at(0);
+    Tensor& prediction = ForwardInputMap.at(m_predictionUnitId);
+    const Tensor& label = ForwardInputMap.at(m_labelUnitId);
     if (m_numericType == NumberSystem::Float)
     {
         const auto& lossFunc =
-            Compute::LossFunctionWrapper::GetFloatLoss(m_lossName);
-        const auto loss = lossFunc->Apply(forwardInput, label);
+            Compute::LossFunctionWrapper::GetFloatLoss(m_lossType);
+        const auto loss = lossFunc->Apply(prediction, label);
 
         Tensor& lossOutput = ForwardOutput;
         *(static_cast<float*>(lossOutput.DataPtr)) = loss;
@@ -94,8 +108,8 @@ void LossUnit::AsyncForward(std::promise<bool> promise)
     else
     {
         const auto& lossFunc =
-            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossName);
-        const auto loss = lossFunc->Apply(forwardInput, label);
+            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossType);
+        const auto loss = lossFunc->Apply(prediction, label);
 
         Tensor& lossOutput = ForwardOutput;
         *static_cast<int*>(lossOutput.DataPtr) = loss;
@@ -106,41 +120,45 @@ void LossUnit::AsyncForward(std::promise<bool> promise)
 
 void LossUnit::Backward()
 {
-    const Tensor& prevInput = ForwardInputVector.at(0);
-    const Tensor& label = BackwardInputVector.at(0);
-    Tensor& delta = BackwardOutputVector.at(0);
+    const Tensor& prediction = ForwardInputMap.at(m_predictionUnitId);
+    const Tensor& label = ForwardInputMap.at(m_labelUnitId);
+    Tensor& delta = BackwardOutputMap.at(m_predictionUnitId);
 
     if (m_numericType == NumberSystem::Float)
     {
         const auto& lossFunc =
-            Compute::LossFunctionWrapper::GetFloatLoss(m_lossName);
-        lossFunc->ApplyDerivative(label, prevInput, delta);
+            Compute::LossFunctionWrapper::GetFloatLoss(m_lossType);
+        lossFunc->ApplyDerivative(
+            label, prediction, delta);
     }
     else
     {
         const auto& lossFunc =
-            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossName);
-        lossFunc->ApplyDerivative(label, prevInput, delta);
+            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossType);
+        lossFunc->ApplyDerivative(
+            label, prediction, delta);
     }
 }
 
 void LossUnit::AsyncBackward(std::promise<bool> promise)
 {
-    const Tensor& prevInput = ForwardInputVector.at(0);
-    const Tensor& label = BackwardInputVector.at(0);
-    Tensor& delta = BackwardOutputVector.at(0);
+    const Tensor& prevInput = ForwardInputMap.at(m_predictionUnitId);
+    const Tensor& label = ForwardInputMap.at(m_labelUnitId);
+    Tensor& delta = BackwardOutputMap.at(m_predictionUnitId);
 
     if (m_numericType == NumberSystem::Float)
     {
         const auto& lossFunc =
-            Compute::LossFunctionWrapper::GetFloatLoss(m_lossName);
-        lossFunc->ApplyDerivative(label, prevInput, delta);
+            Compute::LossFunctionWrapper::GetFloatLoss(m_lossType);
+        lossFunc->ApplyDerivative(
+            label, prevInput, delta);
     }
     else
     {
         const auto& lossFunc =
-            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossName);
-        lossFunc->ApplyDerivative(label, prevInput, delta);
+            Compute::LossFunctionWrapper::GetIntegerLoss(m_lossType);
+        lossFunc->ApplyDerivative(
+            label, prevInput, delta);
     }
     promise.set_value(true);
 }

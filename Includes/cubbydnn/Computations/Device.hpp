@@ -21,7 +21,7 @@ class Device
 {
 public:
     Device() = default;
-    Device(std::size_t id, DeviceType type, std::string name,
+    Device(int id, DeviceType type, std::string name,
            std::size_t padByteSize = 0);
     ~Device() = default;
 
@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    std::size_t m_id;
+    int m_id;
     DeviceType m_type;
     std::string m_name;
     std::size_t m_padByteSize;

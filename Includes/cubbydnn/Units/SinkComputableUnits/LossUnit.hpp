@@ -14,8 +14,19 @@ namespace CubbyDNN::Graph
 class LossUnit : public ComputableUnit
 {
 public:
-    LossUnit(UnitId unitId, NumberSystem numberSystem, Tensor prediction,
-             Tensor label, Tensor delta, std::string lossName);
+    //! \param unitId : subject UnitId
+    //! \param predictionUnitId : unitId for prediction
+    //! \param labelUnitId : unitId for label
+    //! \param predictionTensor : tensor connected to prediction input unit
+    //! \param labelTensor : tensor connected to label input unit
+    //! \param backwardOutputTensor : tensor that outputs back propagation data to prediction unit
+    //! \param lossType : Type of loss function to use
+    //! \param numberSystem : number system to use
+    LossUnit(const UnitId& unitId, const UnitId& predictionUnitId,
+             const UnitId& labelUnitId,
+             Tensor predictionTensor, Tensor labelTensor,
+             Tensor backwardOutputTensor, std::string lossType,
+             NumberSystem numberSystem);
     ~LossUnit() = default;
 
     LossUnit(const LossUnit& lossUnit) = delete;
@@ -34,7 +45,9 @@ public:
     void AsyncBackward(std::promise<bool> promise) override;
 
 private:
-    std::string m_lossName;
+    std::string m_lossType;
+    UnitId m_predictionUnitId;
+    UnitId m_labelUnitId;
 };
 }
 

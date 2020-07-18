@@ -83,6 +83,8 @@ public:
 
     [[nodiscard]] Shape GetInputShape(const std::string& key) const;
 
+    [[nodiscard]] UnitId GetInputUnitId(const std::string& key) const;
+
     [[nodiscard]] Shape OutputShape() const;
 
     [[nodiscard]] std::unordered_map<std::string, UnitId>

@@ -9,7 +9,7 @@
 
 namespace CubbyDNN::Compute
 {
-Device::Device(std::size_t id, DeviceType type, std::string name,
+Device::Device(int id, DeviceType type, std::string name,
                std::size_t padByteSize)
     : m_id(id),
       m_type(type),

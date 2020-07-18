@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_ACTIVATION_HPP
-#define CUBBYDNN_ACTIVATION_HPP
+#ifndef CUBBYDNN_GRAPH_ACTIVATIONUNIT_HPP
+#define CUBBYDNN_GRAPH_ACTIVATIONUNIT_HPP
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
 #include <cubbydnn/Units/TrainableUnit.hpp>
@@ -17,13 +17,13 @@ namespace CubbyDNN::Graph
 class ActivationUnit : public ComputableUnit, public TrainableUnit
 {
 public:
-    ActivationUnit(UnitId unitId, NumberSystem numberSystem,
-                   Tensor forwardInput, std::vector<Tensor> backwardInputVector,
+    ActivationUnit(const UnitId& unitId, const UnitId& sourceUnitId,
+                   Tensor forwardInput,
+                   std::unordered_map<UnitId, Tensor> backwardInputVector,
                    Tensor forwardOutput, Tensor backwardOutput,
                    std::unordered_map<std::string, Tensor> trainableUnit,
-                   std::string activationName);
+                   std::string activationType, NumberSystem numberSystem);
     ~ActivationUnit() = default;
-
 
     ActivationUnit(const ActivationUnit& activationUnit) = delete;
     ActivationUnit(ActivationUnit&& activationUnit) noexcept;
@@ -41,7 +41,8 @@ public:
     void AsyncBackward(std::promise<bool> promise) override;
 
 private:
-    std::string m_activationName;
+    std::string m_activationType;
+    UnitId m_sourceUnitId;
 };
 } // namespace CubbyDNN::Graph
 

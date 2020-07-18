@@ -200,7 +200,7 @@ public:
 
                                     outputPtr[batchIdx * matrixSizeOutput +
                                               i * colDataSizeB + j] +=
-                                        valA + valB;
+                                        valA *valB;
                                 }
                     }
     }

@@ -58,7 +58,6 @@ public:
 
 private:
     std::string m_typeName;
-
 };
 
 struct UnitId
@@ -69,11 +68,15 @@ struct UnitId
                UnitName == unitId.UnitName;
     }
 
+    bool operator!=(const UnitId& unitId) const
+    {
+        return !(*this == unitId);
+    }
+
     UnitType Type;
     std::size_t Id;
     std::string UnitName;
 };
-
 } // namespace CubbyDNN
 
 //! Add template specialization for UnitId hash
@@ -86,8 +89,8 @@ struct hash<CubbyDNN::Graph::UnitId>
     {
         const std::size_t h1 = std::hash<std::string>{}(s.UnitName);
         const std::size_t h2 = std::hash<std::size_t>{}(s.Id);
-        return h1 ^ (h2 << 1);  // or use boost::hash_combine
+        return h1 ^ (h2 << 1); // or use boost::hash_combine
     }
 };
-};  // namespace std
+}; // namespace std
 #endif

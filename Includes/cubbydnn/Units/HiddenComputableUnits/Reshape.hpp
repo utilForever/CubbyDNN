@@ -29,13 +29,13 @@ class ReshapeUnit : public ComputableUnit
 
     void Forward() override
     {
-        Tensor::ForwardTensor(ForwardInputVector.at(0),
+        Tensor::ForwardTensorData(ForwardInputVector.at(0),
                            ForwardOutput);
     }
 
     void Backward() override
     {
-        Tensor::ForwardTensor(BackwardOutputVector.at(0),
+        Tensor::ForwardTensorData(BackwardOutputVector.at(0),
                            BackwardInputVector.at(0));
     }
 };

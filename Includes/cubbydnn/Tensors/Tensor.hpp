@@ -94,8 +94,7 @@ public:
     Compute::Device Device;
     NumberSystem NumericType;
 
-    std::atomic<std::size_t> ForwardState = 0;
-    std::atomic<std::size_t> BackwardState = 0;
+    std::atomic<std::size_t> State = 0;
 
 private:
     std::size_t m_paddedColumnSize = 0;

@@ -33,6 +33,6 @@ endif()
 set(CMAKE_MACOSX_RPATH ON)
 
 # Project modules
-add_subdirectory(Sources/CubbyDNN)
+add_subdirectory(Sources/cubbydnn)
 add_subdirectory(Tests/UnitTests)
 add_subdirectory(Libraries/doctest)

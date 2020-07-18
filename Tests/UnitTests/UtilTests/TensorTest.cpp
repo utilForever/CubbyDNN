@@ -7,7 +7,6 @@
 #include "TensorTest.hpp"
 #include<cubbydnn/Tensors/Tensor.hpp>
 #include <doctest.h>
-#include <iostream>
 
 namespace CubbyDNN::Test
 {

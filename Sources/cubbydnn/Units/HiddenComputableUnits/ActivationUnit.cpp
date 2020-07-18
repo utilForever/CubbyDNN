@@ -10,33 +10,34 @@
 
 namespace CubbyDNN::Graph
 {
-ActivationUnit::ActivationUnit(UnitId unitId, NumberSystem numberSystem,
-                               Tensor forwardInput,
-                               std::vector<Tensor> backwardInputVector,
-                               Tensor forwardOutput,
-                               Tensor backwardOutput,
-                               std::unordered_map<std::string, Tensor>
-                               trainableUnit,
-                               std::string activationName)
-    : ComputableUnit(unitId, numberSystem, { std::move(forwardInput) },
+ActivationUnit::ActivationUnit(
+    const UnitId& unitId, const UnitId& sourceUnitId, Tensor forwardInput,
+    std::unordered_map<UnitId, Tensor> backwardInputVector,
+    Tensor forwardOutput, Tensor backwardOutput,
+    std::unordered_map<std::string, Tensor> trainableUnit,
+    std::string activationType, NumberSystem numberSystem)
+    : ComputableUnit(unitId, numberSystem,
+                     { { sourceUnitId, std::move(forwardInput) } },
                      std::move(backwardInputVector), std::move(forwardOutput),
-                     { std::move(backwardOutput) }),
+                     { { sourceUnitId, std::move(backwardOutput) } }),
       TrainableUnit(std::move(trainableUnit)),
-      m_activationName(std::move(activationName))
+      m_activationType(std::move(activationType)),
+      m_sourceUnitId(sourceUnitId)
 {
 }
 
 ActivationUnit::ActivationUnit(ActivationUnit&& activationUnit) noexcept
     : ComputableUnit(std::move(activationUnit)),
       TrainableUnit(std::move(activationUnit)),
-      m_activationName(std::move(activationUnit.m_activationName))
+      m_activationType(std::move(activationUnit.m_activationType)),
+      m_sourceUnitId(std::move(activationUnit.m_sourceUnitId))
 {
 }
 
 ActivationUnit& ActivationUnit::operator=(
     ActivationUnit&& activationUnit) noexcept
 {
-    m_activationName = std::move(activationUnit.m_activationName);
+    m_activationType = std::move(activationUnit.m_activationType);
     ComputableUnit::operator=(std::move(activationUnit));
     return *this;
 }
@@ -46,16 +47,17 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData)
     std::string activationName =
         unitMetaData.Params.GetStringParam("activationName");
 
+    auto sourceUnitId = unitMetaData.GetInputUnitId("input");
+
     Tensor forwardInputTensor(unitMetaData.GetInputShape("input"),
                               unitMetaData.Device, unitMetaData.NumericType);
 
-    std::vector<Tensor> backwardInputVector;
-    backwardInputVector.reserve(unitMetaData.OutputUnitVector().size());
+    std::unordered_map<UnitId, Tensor> backwardInputMap;
     for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
     {
         Tensor tensor(unitMetaData.OutputShape(),
                       unitMetaData.Device, unitMetaData.NumericType);
-        backwardInputVector.emplace_back(std::move(tensor));
+        backwardInputMap[sourceUnitId] = std::move(tensor);
     }
 
     Tensor forwardOutputTensor(unitMetaData.OutputShape(),
@@ -68,10 +70,11 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData)
                               unitMetaData.Device, unitMetaData.NumericType);
 
     auto activationUnit = ActivationUnit(
-        unitMetaData.Id(), unitMetaData.NumericType,
-        std::move(forwardInputTensor), std::move(backwardInputVector),
+        unitMetaData.Id(), sourceUnitId,
+        std::move(forwardInputTensor), std::move(backwardInputMap),
         std::move(forwardOutputTensor), std::move(backwardOutputTensor),
-        { { "backwardTemp", backwardTempTensor } }, std::move(activationName));
+        { { "backwardTemp", backwardTempTensor } },
+        std::move(activationName), unitMetaData.NumericType);
 
     return activationUnit;
 }
@@ -79,45 +82,46 @@ ActivationUnit ActivationUnit::CreateUnit(const UnitMetaData& unitMetaData)
 void ActivationUnit::Forward()
 {
     const auto& activationFunc = Compute::ActivationWrapper::GetFloatActivation(
-        m_activationName);
-    activationFunc->Apply(ForwardInputVector.at(0), ForwardOutput);
+        m_activationType);
+    activationFunc->Apply(ForwardInputMap.at(m_sourceUnitId), ForwardOutput);
 }
 
 void ActivationUnit::AsyncForward(std::promise<bool> promise)
 {
     const auto& activationFunc =
-        Compute::ActivationWrapper::GetFloatActivation(m_activationName);
-    activationFunc->Apply(ForwardInputVector.at(0), ForwardOutput);
+        Compute::ActivationWrapper::GetFloatActivation(m_activationType);
+    activationFunc->Apply(ForwardInputMap.at(m_sourceUnitId), ForwardOutput);
     promise.set_value(true);
 }
 
 void ActivationUnit::Backward()
 {
     const auto& activationFunc =
-        Compute::ActivationWrapper::GetFloatActivation(m_activationName);
+        Compute::ActivationWrapper::GetFloatActivation(m_activationType);
     const Zeros zeroInitializer;
     zeroInitializer.Initialize(m_trainableTensorMap["backwardTemp"]);
-    for (const auto& tensor : BackwardInputVector)
+    for (const auto& [unitId, tensor] : BackwardInputMap)
         Compute::Add(m_trainableTensorMap["backwardTemp"], tensor);
-    activationFunc->ApplyDerivative(ForwardInputVector.at(0),
-                                    BackwardOutputVector.at(0));
+    activationFunc->ApplyDerivative(ForwardInputMap.at(m_sourceUnitId),
+                                    BackwardOutputMap.at(m_sourceUnitId));
     Compute::Dot(m_trainableTensorMap["backwardTemp"],
-                 BackwardOutputVector.at(0),
-                 BackwardOutputVector.at(0));
+                 BackwardOutputMap.at(m_sourceUnitId),
+                 BackwardOutputMap.at(m_sourceUnitId));
 }
 
 void ActivationUnit::AsyncBackward(std::promise<bool> promise)
 {
     const auto& activationFunc =
-        Compute::ActivationWrapper::GetFloatActivation(m_activationName);
+        Compute::ActivationWrapper::GetFloatActivation(m_activationType);
     const Zeros zeroInitializer;
     zeroInitializer.Initialize(m_trainableTensorMap["backwardTemp"]);
-    for (const auto& tensor : BackwardInputVector)
+    for (const auto& [unitId, tensor] : BackwardInputMap)
         Compute::Add(m_trainableTensorMap["backwardTemp"], tensor);
-    activationFunc->ApplyDerivative(ForwardInputVector.at(0),
-                                    BackwardOutputVector.at(0));
+    activationFunc->ApplyDerivative(ForwardInputMap.at(m_sourceUnitId),
+                                    BackwardOutputMap.at(m_sourceUnitId));
     Compute::Dot(m_trainableTensorMap["backwardTemp"],
-                 BackwardOutputVector.at(0), BackwardOutputVector.at(0));
+                 BackwardOutputMap.at(m_sourceUnitId),
+                 BackwardOutputMap.at(m_sourceUnitId));
 
     promise.set_value(true);
 }

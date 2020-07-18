@@ -10,23 +10,26 @@
 
 namespace CubbyDNN::Graph
 {
-DenseUnit::DenseUnit(UnitId unitId, NumberSystem numberSystem,
+DenseUnit::DenseUnit(const UnitId& unitId, const UnitId& sourceUnitId,
                      Tensor forwardInput,
-                     std::vector<Tensor> backwardInputVector,
+                     std::unordered_map<UnitId, Tensor> backwardInputMap,
                      Tensor forwardOutput, Tensor backwardOutput,
                      std::unordered_map<std::string, Tensor> trainableUnit,
-                     std::unique_ptr<Compute::Optimizer> optimizer)
-    : ComputableUnit(std::move(unitId), numberSystem,
-                     { std::move(forwardInput) },
-                     std::move(backwardInputVector), std::move(forwardOutput),
-                     { std::move(backwardOutput) }),
-      TrainableUnit(std::move(trainableUnit), std::move(optimizer))
+                     std::unique_ptr<Compute::Optimizer> optimizer,
+                     NumberSystem numberSystem)
+    : ComputableUnit(unitId, numberSystem,
+                     { { sourceUnitId, std::move(forwardInput) } },
+                     std::move(backwardInputMap), std::move(forwardOutput),
+                     { { sourceUnitId, std::move(backwardOutput) } }),
+      TrainableUnit(std::move(trainableUnit), std::move(optimizer)),
+      m_sourceUnitId(sourceUnitId)
 {
 }
 
 DenseUnit::DenseUnit(DenseUnit&& denseUnit) noexcept
     : ComputableUnit(std::move(denseUnit)),
-      TrainableUnit(std::move(denseUnit))
+      TrainableUnit(std::move(denseUnit)),
+      m_sourceUnitId(std::move(denseUnit.m_sourceUnitId))
 {
 }
 
@@ -43,18 +46,19 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
                                 optimizer)
 {
     const auto unitId = unitMetaData.Id();
+    auto sourceUnitId = unitMetaData.GetInputUnitId("input");
 
     Tensor forwardInputTensor(unitMetaData.GetInputShape("input"),
                               unitMetaData.Device,
                               unitMetaData.NumericType);
 
-    std::vector<Tensor> backwardInputVector;
+    std::unordered_map<UnitId, Tensor> backwardInputVector;
     backwardInputVector.reserve(unitMetaData.OutputUnitVector().size());
-    for (std::size_t i = 0; i < unitMetaData.OutputUnitVector().size(); ++i)
+    for (const auto& outputUnitId : unitMetaData.OutputUnitVector())
     {
         Tensor tensor(unitMetaData.OutputShape(),
                       unitMetaData.Device, unitMetaData.NumericType);
-        backwardInputVector.emplace_back(std::move(tensor));
+        backwardInputVector[outputUnitId] = std::move(tensor);
     }
 
     Tensor forwardOutputTensor(unitMetaData.OutputShape(),
@@ -82,21 +86,23 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
     Tensor transposedWeight(weightShape.Transpose(),
                             unitMetaData.Device, unitMetaData.NumericType);
 
-    Shape batchMeanDeltaShape{ backwardInputVector.at(0).TensorShape[0],
-                               backwardInputVector.at(0).TensorShape[1] };
+    Shape batchMeanDeltaShape{
+        backwardInputVector.at(sourceUnitId).TensorShape[0],
+        backwardInputVector.at(sourceUnitId).TensorShape[1] };
 
     Tensor batchMeanDelta(batchMeanDeltaShape, unitMetaData.Device,
                           unitMetaData.NumericType);
 
     auto denseUnit = DenseUnit(
-        unitId, unitMetaData.NumericType, std::move(forwardInputTensor),
+        unitId, sourceUnitId,
+        std::move(forwardInputTensor),
         { std::move(backwardInputVector) }, std::move(forwardOutputTensor),
         std::move(backwardOutputTensor),
         { { "weight", std::move(weightTensor) },
           { "bias", std::move(biasTensor) },
           { "weightTranspose", std::move(transposedWeight) },
           { "batchMeanDelta", std::move(batchMeanDelta) } },
-        std::move(optimizer));
+        std::move(optimizer), unitMetaData.NumericType);
 
     return denseUnit;
 }
@@ -104,7 +110,7 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
 
 void DenseUnit::Forward()
 {
-    Tensor& input = ForwardInputVector.at(0);
+    Tensor& input = ForwardInputMap.at(m_sourceUnitId);
 
     Compute::Multiply(m_trainableTensorMap["weight"], input,
                       ForwardOutput);
@@ -113,7 +119,7 @@ void DenseUnit::Forward()
 
 void DenseUnit::AsyncForward(std::promise<bool> promise)
 {
-    Tensor& input = ForwardInputVector.at(0);
+    Tensor& input = ForwardInputMap.at(m_sourceUnitId);
 
     Compute::Multiply(m_trainableTensorMap["weight"], input,
                       ForwardOutput);
@@ -130,16 +136,16 @@ void DenseUnit::Backward()
     auto& biasUpdate = m_trainableTensorMap["biasUpdate"];
     const auto batchSize = weight.TensorShape.NumCols();
 
-    auto& previousForwardInput = ForwardInputVector.at(0);
-    auto& backwardOutput = BackwardOutputVector.at(0);
+    auto& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
+    auto& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
 
     Tensor& delta = m_trainableTensorMap["delta"];
-    for (Tensor& gradient : BackwardInputVector)
+    for (auto& [unitId, gradient] : BackwardInputMap)
     {
         Compute::Add(delta, gradient);
     }
 
-    Compute::ScalarMul(delta, 1.0f / BackwardInputVector.size());
+    Compute::ScalarMul(delta, 1.0f / BackwardInputMap.size());
     Compute::Multiply(weight, delta,
                       backwardOutput, true, false);
 
@@ -160,16 +166,16 @@ void DenseUnit::AsyncBackward(std::promise<bool> promise)
     auto& biasUpdate = m_trainableTensorMap["biasUpdate"];
     const auto batchSize = weight.TensorShape.NumCols();
 
-    auto& previousForwardInput = ForwardInputVector.at(0);
-    auto& backwardOutput = BackwardOutputVector.at(0);
+    auto& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
+    auto& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
 
     Tensor& delta = m_trainableTensorMap["delta"];
-    for (Tensor& gradient : BackwardInputVector)
+    for (auto& [unitId, gradient] : BackwardInputMap)
     {
         Compute::Add(delta, gradient);
     }
 
-    Compute::ScalarMul(delta, 1.0f / BackwardInputVector.size());
+    Compute::ScalarMul(delta, 1.0f / BackwardInputMap.size());
     Compute::Multiply(weight, delta, backwardOutput, true, false);
 
     Compute::Multiply(delta, previousForwardInput, weightUpdate, false, true);

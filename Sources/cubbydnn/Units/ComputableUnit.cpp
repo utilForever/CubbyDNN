@@ -8,53 +8,45 @@
 
 namespace CubbyDNN::Graph
 {
-ComputableUnit::ComputableUnit(UnitId unitId, NumberSystem numberSystem,
-                               std::vector<Tensor> forwardInputVector,
-                               std::vector<Tensor> backwardInputVector,
-                               Tensor forwardOutput,
-                               std::vector<Tensor> backwardOutputVector)
-    : ForwardInputVector(std::move(forwardInputVector)),
-      BackwardInputVector(std::move(backwardInputVector)),
+ComputableUnit::ComputableUnit(
+    UnitId subjectUnitId, NumberSystem numberSystem,
+    std::unordered_map<UnitId, Tensor> forwardInputMap,
+    std::unordered_map<UnitId, Tensor> backwardInputMap, Tensor forwardOutput,
+    std::unordered_map<UnitId, Tensor> backwardOutputMap)
+    : ForwardInputMap(std::move(forwardInputMap)),
+      BackwardInputMap(std::move(backwardInputMap)),
       ForwardOutput(std::move(forwardOutput)),
-      BackwardOutputVector(std::move(backwardOutputVector)),
-      m_unitId(std::move(unitId)),
+      BackwardOutputMap(std::move(backwardOutputMap)),
+      m_unitId(std::move(subjectUnitId)),
       m_numericType(numberSystem)
 {
-    for (const auto& tensor : ForwardInputVector)
+    for (const auto& [unitId, tensor] : ForwardInputMap)
     {
         if (tensor.NumericType != m_numericType)
-        {
             throw std::invalid_argument("Number system mismatch");
-        }
     }
 
-    for (const auto& tensor : BackwardOutputVector)
+    for (const auto& [unitId, tensor] : BackwardOutputMap)
     {
         if (tensor.NumericType != m_numericType)
-        {
             throw std::invalid_argument("Number system mismatch");
-        }
     }
 
-    for (const auto& tensor : BackwardInputVector)
+    for (const auto& [unitId, tensor] : BackwardInputMap)
     {
         if (tensor.NumericType != m_numericType)
-        {
             throw std::invalid_argument("Number system mismatch");
-        }
     }
 
     if (ForwardOutput.NumericType != m_numericType)
-    {
         throw std::invalid_argument("Number system mismatch");
-    }
 }
 
 ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
-    : ForwardInputVector(std::move(computableUnit.ForwardInputVector)),
-      BackwardInputVector(std::move(computableUnit.BackwardInputVector)),
+    : ForwardInputMap(std::move(computableUnit.ForwardInputMap)),
+      BackwardInputMap(std::move(computableUnit.BackwardInputMap)),
       ForwardOutput(std::move(computableUnit.ForwardOutput)),
-      BackwardOutputVector(std::move(computableUnit.BackwardOutputVector)),
+      BackwardOutputMap(std::move(computableUnit.BackwardOutputMap)),
       m_unitId(std::move(computableUnit.m_unitId)),
       m_numericType(computableUnit.m_numericType)
 {
@@ -63,10 +55,10 @@ ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
 ComputableUnit& ComputableUnit::operator=(
     ComputableUnit&& computableUnit) noexcept
 {
-    ForwardInputVector = std::move(computableUnit.ForwardInputVector);
-    BackwardInputVector = std::move(computableUnit.BackwardInputVector);
+    ForwardInputMap = std::move(computableUnit.ForwardInputMap);
+    BackwardInputMap = std::move(computableUnit.BackwardInputMap);
     ForwardOutput = std::move(computableUnit.ForwardOutput);
-    BackwardOutputVector = std::move(computableUnit.BackwardOutputVector);
+    BackwardOutputMap = std::move(computableUnit.BackwardOutputMap);
     m_unitId = std::move(computableUnit.m_unitId);
     m_numericType = computableUnit.m_numericType;
     return *this;
@@ -74,28 +66,28 @@ ComputableUnit& ComputableUnit::operator=(
 
 bool ComputableUnit::IsForwardReady(std::size_t cycle) const
 {
-    for (const auto& tensor : ForwardInputVector)
+    for (const auto& [unitId, tensor] : ForwardInputMap)
     {
-        if (tensor.ForwardState != cycle)
+        if (tensor.State != cycle)
             return false;
     }
 
-    if (ForwardOutput.ForwardState != cycle)
+    if (ForwardOutput.State != cycle)
         return false;
     return true;
 }
 
 bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
 {
-    for (const auto& tensor : BackwardInputVector)
+    for (const auto& [unitId, tensor] : BackwardInputMap)
     {
-        if (tensor.BackwardState != cycle)
+        if (tensor.State != cycle)
             return false;
     }
 
-    for (const auto& tensor : BackwardOutputVector)
+    for (const auto& [unitId, tensor] : BackwardOutputMap)
     {
-        if (tensor.BackwardState != cycle)
+        if (tensor.State != cycle)
             return false;
     }
     return true;
@@ -105,10 +97,17 @@ bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
 void ComputableUnit::m_updateForwardState()
 {
     m_unitState.ForwardStateCount.fetch_add(1);
+    for (auto& [unitId, tensor] : ForwardInputMap)
+        tensor.State.fetch_add(1);
+    ForwardOutput.State.fetch_add(1);
 }
 
 void ComputableUnit::m_updateBackwardState()
 {
     m_unitState.BackwardStateCount.fetch_add(1);
+    for (auto& [unitId, tensor] : BackwardInputMap)
+        tensor.State.fetch_add(1);
+    for (auto& [unitId, tensor] : BackwardOutputMap)
+        tensor.State.fetch_add(1);
 }
 } // namespace CubbyDNN

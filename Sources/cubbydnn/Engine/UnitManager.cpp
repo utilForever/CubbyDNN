@@ -104,6 +104,7 @@ void UnitManager::Forward(std::size_t cycle)
     {
         if (unitPtr->IsForwardReady(cycle))
             unitPtr->Forward();
+
         m_forwardCopy(key);
     }
 }
@@ -162,6 +163,28 @@ void UnitManager::AsyncBackward(std::size_t cycle)
     }
 }
 
+bool UnitManager::m_isForwardCopyReady(
+    const UnitId& subjectUnitId)
+{
+    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
+    auto& subjectOutputTensor = m_unitMap[subjectUnitId]->ForwardOutput;
+
+    for (const auto& outputUnitId : sourceMetaData->OutputUnitVector())
+    {
+        auto& nextInputTensorMap =
+            m_unitMap[outputUnitId]->ForwardInputMap;
+        for (auto& [unitId, destTensor] : nextInputTensorMap)
+        {
+            if (unitId != subjectUnitId)
+                continue;
+            if (subjectOutputTensor.State != destTensor.State + 1)
+                return false;
+        }
+    }
+    return true;
+}
+
+
 void UnitManager::m_forwardCopy(const UnitId& subjectUnitId)
 {
     const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
@@ -169,13 +192,15 @@ void UnitManager::m_forwardCopy(const UnitId& subjectUnitId)
 
     for (const auto& outputUnitId : sourceMetaData->OutputUnitVector())
     {
-        auto& nextInputTensorVector = m_unitMap[outputUnitId]->
-            ForwardInputVector;
-        for (auto& destTensor : nextInputTensorVector)
+        auto& nextInputTensorMap = m_unitMap[outputUnitId]->
+            ForwardInputMap;
+        for (auto& [unitId, destTensor] : nextInputTensorMap)
         {
+            if (unitId != subjectUnitId)
+                continue;
             Tensor::ForwardTensorData(subjectOutputTensor, destTensor);
-            subjectOutputTensor.ForwardState.fetch_add(1);
-            destTensor.ForwardState.fetch_add(1);
+            subjectOutputTensor.State.fetch_add(1);
+            destTensor.State.fetch_add(1);
         }
     }
 }
@@ -186,23 +211,20 @@ void UnitManager::m_backwardCopy(const UnitId& subjectUnitId)
     int index = 0;
     for (const auto& [key, subjectInputUnitId] : sourceMetaData->InputUnitMap())
     {
-        auto& outputTensor = m_unitMap[subjectUnitId]->BackwardOutputVector[
-            index];
-        auto& nextBackwardInputTensorVector = m_unitMap[subjectInputUnitId]->
-            BackwardInputVector;
+        auto& outputTensor = m_unitMap[subjectUnitId]->BackwardOutputMap[
+            subjectInputUnitId];
+        auto& nextBackwardInputTensorMap = m_unitMap[subjectInputUnitId]->
+            BackwardInputMap;
         auto nextBackwardInputUnitVector =
             m_unitMetaDataMap[subjectInputUnitId]->OutputUnitVector();
 
-        for (std::size_t i = 0; i < nextBackwardInputTensorVector.size(); ++i)
+        for (auto& [targetUnitId, destTensor] : nextBackwardInputTensorMap)
         {
-            auto targetUnitId = nextBackwardInputUnitVector.at(i);
             if (targetUnitId == sourceMetaData->Id())
             {
-                auto& destTensor =
-                    nextBackwardInputTensorVector.at(i);
                 Tensor::ForwardTensorData(outputTensor, destTensor);
-                outputTensor.BackwardState.fetch_add(1);
-                destTensor.BackwardState.fetch_add(1);
+                outputTensor.State.fetch_add(1);
+                destTensor.State.fetch_add(1);
             }
         }
         index += 1;
