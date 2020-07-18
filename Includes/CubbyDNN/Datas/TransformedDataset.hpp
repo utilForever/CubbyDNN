@@ -6,7 +6,9 @@
 namespace CubbyDNN
 {
 template <class DatasetT, class TransformT>
-class TransformedDataset final : public Dataset<typename TransformT::OutputType>
+class TransformedDataset final
+    : public Dataset<TransformedDataset<DatasetT, TransformT>,
+                     typename TransformT::OutputType>
 {
  public:
     using InputType = typename TransformT::InputType;
@@ -17,9 +19,14 @@ class TransformedDataset final : public Dataset<typename TransformT::OutputType>
     {
     }
 
-    OutputType Get(std::size_t index) const override
+    OutputType Get(std::size_t index) override
     {
         return m_transform(m_dataset.Get(index));
+    }
+
+    std::size_t GetSize() const
+    {
+        return m_dataset.GetSize();
     }
 
  private:
