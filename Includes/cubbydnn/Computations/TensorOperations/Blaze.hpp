@@ -218,19 +218,23 @@ public:
     static void BatchMean(Tensor& input, std::size_t idx, Tensor& output)
     {
         std::size_t interval = 1;
-        for (std::size_t i = input.TensorShape.Dim() - 1; i > idx;
+        std::size_t rowInterval = 1;
+        for (std::size_t i = input.TensorShape.Dim() - 1; i >= idx;
              --i)
             if (i == input.TensorShape.Dim() - 1)
                 interval *= input.GetColumnElementSize();
             else
+            {
                 interval *= input.TensorShape.At(i);
+                rowInterval *= input.TensorShape.At(i);
+            }
 
         std::size_t batchSize = 1;
-        for (std::size_t i = 0; i <= idx; ++i)
+        for (std::size_t i = 0; i < idx; ++i)
             if (i == input.TensorShape.Dim() - 1)
-                interval *= input.GetColumnElementSize();
+                batchSize *= input.GetColumnElementSize();
             else
-                interval *= input.TensorShape.At(i);
+                batchSize *= input.TensorShape.At(i);
 
         const auto colDataSizeA = input.GetColumnElementSize();
         const auto colDataSizeOutput = output.GetColumnElementSize();
@@ -248,15 +252,14 @@ public:
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             CustomMatrix<T, aligned, padded, blaze::rowMajor> A(
-                inputPtr + batchSize * interval,
-                inputShape.NumRows() * batchSize,
+                inputPtr + batchIdx * interval,
+                inputShape.NumRows() * rowInterval,
                 inputShape.NumCols(), colDataSizeA);
 
             Out += A;
         }
 
-        for (std::size_t elementIdx = 0; elementIdx < interval; ++elementIdx)
-            outputPtr[elementIdx] /= static_cast<T>(batchSize);
+        Out /= static_cast<T>(batchSize);
     }
 
     template <typename T>

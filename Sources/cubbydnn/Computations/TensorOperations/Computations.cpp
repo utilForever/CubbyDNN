@@ -11,9 +11,8 @@
 
 namespace CubbyDNN::Compute
 {
-
 void Multiply(Tensor& inputA, Tensor& inputB,
-              Tensor& output, bool transposeA, bool transposeB)
+              Tensor& output, bool transposeA, bool transposeB, bool broadCast)
 {
     if (inputA.NumericType != inputB.NumericType ||
         inputA.NumericType != output.NumericType)
@@ -37,9 +36,31 @@ void Multiply(Tensor& inputA, Tensor& inputB,
         inputShapeB.NumCols() != output.TensorShape.NumCols())
         throw std::invalid_argument("Multiply - Tensor shape mismatch");
 
-    if (inputShapeA.NumMatrices() != inputShapeB.NumMatrices() ||
-        inputShapeB.NumMatrices() != output.TensorShape.NumMatrices())
-        throw std::invalid_argument("Multiply - batch size mismatch");
+    if (broadCast)
+    {
+        const auto batchSizeA = inputShapeA.NumMatrices();
+        const auto batchSizeB = inputShapeB.NumMatrices();
+        const auto batchSize =
+            batchSizeA > batchSizeB ? batchSizeA : batchSizeB;
+
+        if (output.TensorShape.NumMatrices() != batchSize)
+            throw std::invalid_argument(
+                "Multiply - Mismatch between maximum input batch size and "
+                "output batch size");
+
+        if (batchSize % batchSizeA != 0 || batchSize % batchSizeB != 0)
+            throw std::invalid_argument(
+                "Multiply - input with larger batch size is not multiple of "
+                "input "
+                "with smaller batch size - failed to broadcast");
+    }
+    else
+    {
+        if (inputShapeA.NumMatrices() != inputShapeB.NumMatrices()
+            || inputShapeA.NumMatrices() != output.TensorShape.NumMatrices())
+            throw std::invalid_argument(
+                "Multiply - Mismatch between batch size");
+    }
 
     const auto numberSystem = inputA.NumericType;
     const auto deviceType = inputA.Device;
@@ -68,23 +89,33 @@ void Multiply(Tensor& inputA, Tensor& inputB,
     }
 }
 
-void BatchMean(Tensor& tensor, Tensor& output, std::size_t idx)
+void Shrink(Tensor& tensor, Tensor& output, int index)
 {
     if (tensor.NumericType != output.NumericType)
         throw std::invalid_argument(
-            "BatchMean - Number system mismatches between tensors");
+            "Shrink - Number system mismatches between tensors");
 
     if (tensor.Device != output.Device)
-        throw std::invalid_argument("BatchMean = Device mismatch");
+        throw std::invalid_argument("Shrink = Device mismatch");
 
-    std::size_t i = 0;
-    while (tensor.TensorShape.Dim() - i != idx)
+    int idx;
+    if (index < 0)
+        idx = static_cast<int>(tensor.TensorShape.Dim()) -
+              static_cast<int>(output.TensorShape.Dim());
+    else
+        idx = static_cast<int>(tensor.TensorShape.Dim()) - (index + 1);
+
+    if (idx < 0)
+        throw std::invalid_argument("invalid given index to shrink");
+
+    std::size_t i = 1;
+    while (tensor.TensorShape.Dim() - i >= static_cast<std::size_t>(idx))
     {
         const auto tensorIdx = tensor.TensorShape.Dim() - i;
         const auto outputIdx = output.TensorShape.Dim() - i;
         if (tensor.TensorShape.At(tensorIdx) !=
             output.TensorShape.At(outputIdx))
-            throw std::invalid_argument("BatchMean - Shape mismatch");
+            throw std::invalid_argument("Shrink - Shape mismatch");
         ++i;
     }
 
@@ -105,7 +136,7 @@ void BatchMean(Tensor& tensor, Tensor& output, std::size_t idx)
 }
 
 void Add(const Tensor& inputA, const Tensor& inputB,
-         Tensor& output)
+         Tensor& output, bool broadCast)
 {
     if (inputA.NumericType != inputB.NumericType ||
         inputA.NumericType != output.NumericType)
@@ -120,9 +151,31 @@ void Add(const Tensor& inputA, const Tensor& inputB,
         inputB.TensorShape != output.TensorShape)
         throw std::invalid_argument("Add - Tensor shape mismatch");
 
-    if (inputA.TensorShape.NumMatrices() != inputB.TensorShape.NumMatrices() ||
-        inputB.TensorShape.NumMatrices() != output.TensorShape.NumMatrices())
-        throw std::invalid_argument("Add - Batch size mismatch");
+    if (broadCast)
+    {
+        const auto batchSizeA = inputA.TensorShape.NumMatrices();
+        const auto batchSizeB = inputB.TensorShape.NumMatrices();
+        const auto batchSize =
+            batchSizeA > batchSizeB ? batchSizeA : batchSizeB;
+
+        if (output.TensorShape.NumMatrices() != batchSize)
+            throw std::invalid_argument(
+                "Add - Mismatch between maximum input batch size and output "
+                "batch size");
+
+        if (batchSize % batchSizeA != 0 || batchSize % batchSizeB != 0)
+            throw std::invalid_argument(
+                "Add - input with larger batch size is not multiple of input "
+                "with smaller batch size - failed to broadcast");
+    }
+    else
+    {
+        if (inputA.TensorShape.NumMatrices() !=
+            inputB.TensorShape.NumMatrices() ||
+            inputB.TensorShape.NumMatrices() !=
+            output.TensorShape.NumMatrices())
+            throw std::invalid_argument("Add - Batch size mismatch");
+    }
 
     const auto numberSystem = inputA.NumericType;
     const auto deviceType = inputA.Device;
@@ -147,7 +200,7 @@ void Add(const Tensor& inputA, const Tensor& inputB,
     }
 }
 
-void Add(Tensor& tensor, const Tensor& toAdd)
+void Add(Tensor& tensor, const Tensor& toAdd, bool broadCast)
 {
     if (toAdd.NumericType != tensor.NumericType)
         throw std::invalid_argument(
@@ -159,8 +212,21 @@ void Add(Tensor& tensor, const Tensor& toAdd)
     if (toAdd.TensorShape != tensor.TensorShape)
         throw std::invalid_argument("Add - Tensor shape mismatch");
 
-    if (toAdd.TensorShape.NumMatrices() != tensor.TensorShape.NumMatrices())
-        throw std::invalid_argument("Add - Batch size mismatch");
+    if (broadCast)
+    {
+        if (tensor.TensorShape.NumMatrices() < toAdd.TensorShape.NumMatrices())
+            throw std::invalid_argument(
+                "Add - tensor must have equal or larger batch size size than toAdd");
+        if (tensor.TensorShape.NumMatrices() % toAdd.TensorShape.NumMatrices()
+            != 0)
+            throw std::invalid_argument(
+                "Add - batch size of given tensor is not multiple of batch size of tensor to Add - failed to broadcast");
+    }
+    else
+    {
+        if (toAdd.TensorShape.NumMatrices() != tensor.TensorShape.NumMatrices())
+            throw std::invalid_argument("Add - Batch size mismatch");
+    }
 
     const auto numberSystem = toAdd.NumericType;
     const auto deviceType = toAdd.Device;
@@ -185,19 +251,17 @@ void Add(Tensor& tensor, const Tensor& toAdd)
     }
 }
 
-void Add(const std::vector<Tensor>& tensorVector, Tensor& output)
-{
-    if (tensorVector.empty())
-        return;
-
-    const Zeros zeroInitializer;
-    zeroInitializer.Initialize(output);
-
-    Tensor::CopyTensorData(tensorVector.at(0), output);
-
-    for (const auto& tensor : tensorVector)
-        Add(output, tensor);
-}
+// void Add(const std::vector<Tensor>& tensorVector, Tensor& output)
+// {
+//     if (tensorVector.empty())
+//         return;
+//
+//     const Zeros zeroInitializer;
+//     zeroInitializer.Initialize(output);
+//
+//     for (const auto& tensor : tensorVector)
+//         Add(output, tensor);
+// }
 
 void Transpose(const Tensor& input, Tensor& output)
 {
@@ -238,7 +302,8 @@ void Transpose(const Tensor& input, Tensor& output)
     }
 }
 
-void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
+void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output,
+         bool broadCast)
 {
     if (inputA.NumericType != inputB.NumericType ||
         inputA.NumericType != output.NumericType)
@@ -252,9 +317,31 @@ void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output)
         inputB.TensorShape != output.TensorShape)
         throw std::invalid_argument("Dot - Tensor shape mismatch");
 
-    if (inputA.TensorShape.NumMatrices() != inputB.TensorShape.NumMatrices() ||
-        inputB.TensorShape.NumMatrices() != output.TensorShape.NumMatrices())
-        throw std::invalid_argument("Dot - Batch size mismatch");
+    if (broadCast)
+    {
+        const auto batchSizeA = inputA.TensorShape.NumMatrices();
+        const auto batchSizeB = inputB.TensorShape.NumMatrices();
+        const auto batchSize =
+            batchSizeA > batchSizeB ? batchSizeA : batchSizeB;
+
+        if (output.TensorShape.NumMatrices() != batchSize)
+            throw std::invalid_argument(
+                "Dot - Mismatch between maximum input batch size and output "
+                "batch size");
+
+        if (batchSize % batchSizeA != 0 || batchSize % batchSizeB != 0)
+            throw std::invalid_argument(
+                "Dot - input with larger batch size is not multiple of input "
+                "with smaller batch size - failed to broadcast");
+    }
+    else
+    {
+        if (inputA.TensorShape.NumMatrices() !=
+            inputB.TensorShape.NumMatrices() ||
+            inputB.TensorShape.NumMatrices() !=
+            output.TensorShape.NumMatrices())
+            throw std::invalid_argument("Dot - Batch size mismatch");
+    }
 
     const auto numberSystem = inputA.NumericType;
     const auto device = inputA.Device;
