@@ -61,13 +61,30 @@ public:
             else
                 multiplier *= TensorShape.At(idx);
         }
-
-        return *(static_cast<T*>(DataPtr) + offset);
+        T& val = *(static_cast<T*>(DataPtr) + offset);
+        return val;
     }
 
     std::size_t GetColumnElementSize() const
     {
         return m_paddedColumnSize;
+    }
+
+    [[nodiscard]] std::size_t GetElementSize() const
+    {
+        std::size_t size = 1;
+        for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
+        {
+            size *= TensorShape.At(i);
+        }
+        return size * m_getPaddedColumnSize();
+    }
+
+    [[nodiscard]] std::size_t GetDataSize() const
+    {
+        if (NumericType == NumberSystem::Float)
+            return GetElementSize() * sizeof(float);
+        return GetElementSize() * sizeof(int);
     }
 
     /// Data vector which possesses actual data
@@ -84,15 +101,6 @@ private:
     std::size_t m_paddedColumnSize = 0;
     std::atomic<bool> m_hasOwnership = false;
 
-    [[nodiscard]] std::size_t getDataSize()
-    {
-        std::size_t size = 1;
-        for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
-        {
-            size *= TensorShape.At(i);
-        }
-        return size * m_getPaddedColumnSize();
-    }
 
     std::size_t m_getPaddedColumnSize() const
     {

@@ -193,7 +193,7 @@ void Add(const std::vector<Tensor>& tensorVector, Tensor& output)
     const Zeros zeroInitializer;
     zeroInitializer.Initialize(output);
 
-    Tensor::CopyTensor(tensorVector.at(0), output);
+    Tensor::CopyTensorData(tensorVector.at(0), output);
 
     for (const auto& tensor : tensorVector)
         Add(output, tensor);

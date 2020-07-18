@@ -7,6 +7,7 @@
 #include "TensorTest.hpp"
 #include<cubbydnn/Tensors/Tensor.hpp>
 #include <doctest.h>
+#include <iostream>
 
 namespace CubbyDNN::Test
 {
@@ -96,11 +97,12 @@ void TensorForwardTestWithCopy()
 
     Tensor::ForwardTensorData(tensor2, tensor1);
 
+    auto ans = 0;
     for (std::size_t i = 0; i < 10; ++i)
         for (std::size_t j = 0; j < 3; ++j)
             for (std::size_t k = 0; k < 5; ++k)
             {
-                CHECK(static_cast<float>(i) ==
+                CHECK(static_cast<float>(ans++) ==
                     tensor1.At<float>({i,j,k}));
             }
 }
