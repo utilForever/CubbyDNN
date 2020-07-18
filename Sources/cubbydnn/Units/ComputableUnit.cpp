@@ -68,7 +68,7 @@ bool ComputableUnit::IsForwardReady(std::size_t cycle) const
 {
     for (const auto& [unitId, tensor] : ForwardInputMap)
     {
-        if (tensor.State != cycle)
+        if (tensor.State != cycle + 1)
             return false;
     }
 
@@ -81,7 +81,7 @@ bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
 {
     for (const auto& [unitId, tensor] : BackwardInputMap)
     {
-        if (tensor.State != cycle)
+        if (tensor.State != cycle + 1)
             return false;
     }
 
@@ -94,19 +94,15 @@ bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
 }
 
 
-void ComputableUnit::m_updateForwardState()
+void ComputableUnit::UpdateForwardState()
 {
     m_unitState.ForwardStateCount.fetch_add(1);
-    for (auto& [unitId, tensor] : ForwardInputMap)
-        tensor.State.fetch_add(1);
     ForwardOutput.State.fetch_add(1);
 }
 
-void ComputableUnit::m_updateBackwardState()
+void ComputableUnit::UpdateBackwardState()
 {
     m_unitState.BackwardStateCount.fetch_add(1);
-    for (auto& [unitId, tensor] : BackwardInputMap)
-        tensor.State.fetch_add(1);
     for (auto& [unitId, tensor] : BackwardOutputMap)
         tensor.State.fetch_add(1);
 }

@@ -101,21 +101,56 @@ void UnitManager::Compile(const std::string& optimizerName,
 void UnitManager::Forward(std::size_t cycle)
 {
     for (const auto& [key, unitPtr] : m_unitMap)
-    {
-        if (unitPtr->IsForwardReady(cycle))
-            unitPtr->Forward();
+        if (key.Type.BaseType == UnitBaseType::Source)
+            for (auto& [unitId, tensor] : unitPtr->ForwardInputMap)
+                tensor.State.fetch_add(1);
 
-        m_forwardCopy(key);
+    bool done = false;
+    while (!done)
+    {
+        done = true;
+        for (const auto& [key, unitPtr] : m_unitMap)
+        {
+            if (unitPtr->IsForwardReady(cycle))
+            {
+                unitPtr->Forward();
+                unitPtr->UpdateForwardState();
+                done = false;
+            }
+            if (m_isForwardCopyReady(key))
+            {
+                m_forwardCopy(key);
+                done = false;
+            }
+        }
     }
 }
 
 void UnitManager::Backward(std::size_t cycle)
 {
     for (const auto& [key, unitPtr] : m_unitMap)
+        if (key.Type.BaseType == UnitBaseType::Sink)
+            for (auto& [unitId, tensor] : unitPtr->ForwardInputMap)
+                tensor.State.fetch_add(1);
+
+    bool done = false;
+    while (!done)
     {
-        if (unitPtr->IsBackwardReady(cycle))
-            unitPtr->Backward();
-        m_backwardCopy(key);
+        done = true;
+        for (const auto& [key, unitPtr] : m_unitMap)
+        {
+            if (unitPtr->IsBackwardReady(cycle))
+            {
+                unitPtr->Backward();
+                unitPtr->UpdateBackwardState();
+                done = false;
+            }
+            if (m_isBackwardCopyReady(key))
+            {
+                m_backwardCopy(key);
+                done = false;
+            }
+        }
     }
 }
 
@@ -184,6 +219,30 @@ bool UnitManager::m_isForwardCopyReady(
     return true;
 }
 
+bool UnitManager::m_isBackwardCopyReady(const UnitId& subjectUnitId)
+{
+    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
+    for (const auto& [key, subjectInputUnitId] : sourceMetaData->InputUnitMap())
+    {
+        auto& outputTensor =
+            m_unitMap[subjectUnitId]->BackwardOutputMap[subjectInputUnitId];
+        auto& nextBackwardInputTensorMap =
+            m_unitMap[subjectInputUnitId]->BackwardInputMap;
+        auto nextBackwardInputUnitVector =
+            m_unitMetaDataMap[subjectInputUnitId]->OutputUnitVector();
+
+        for (auto& [targetUnitId, destTensor] : nextBackwardInputTensorMap)
+        {
+            if (targetUnitId == sourceMetaData->Id())
+            {
+                if (outputTensor.State + 1 != destTensor.State)
+                    return false;
+            }
+        }
+    }
+    return true;
+}
+
 
 void UnitManager::m_forwardCopy(const UnitId& subjectUnitId)
 {
@@ -208,7 +267,6 @@ void UnitManager::m_forwardCopy(const UnitId& subjectUnitId)
 void UnitManager::m_backwardCopy(const UnitId& subjectUnitId)
 {
     const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
-    int index = 0;
     for (const auto& [key, subjectInputUnitId] : sourceMetaData->InputUnitMap())
     {
         auto& outputTensor = m_unitMap[subjectUnitId]->BackwardOutputMap[
@@ -227,7 +285,6 @@ void UnitManager::m_backwardCopy(const UnitId& subjectUnitId)
                 destTensor.State.fetch_add(1);
             }
         }
-        index += 1;
     }
 }
 

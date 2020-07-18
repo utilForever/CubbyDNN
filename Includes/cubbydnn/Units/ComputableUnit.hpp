@@ -73,6 +73,10 @@ public:
     //! \return : True if ready False if not
     [[nodiscard]] bool IsBackwardReady(std::size_t cycle) const;
 
+    void UpdateForwardState();
+
+    void UpdateBackwardState();
+
     //! vector of input tensors used to compute forward propagation
     std::unordered_map<UnitId, Tensor> ForwardInputMap;
     //! vector of output tensors used to compute back propagation
@@ -83,10 +87,6 @@ public:
     std::unordered_map<UnitId, Tensor> BackwardOutputMap;
 
 protected:
-    void m_updateForwardState();
-
-    void m_updateBackwardState();
-
     UnitId m_unitId;
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
     UnitState m_unitState;
