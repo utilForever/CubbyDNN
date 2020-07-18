@@ -109,7 +109,7 @@ bool MNISTDataset::IsTrain() const
     return m_isTrain;
 }
 
-MNISTDataset::OutputType MNISTDataset::Get(std::size_t index) const
+MNISTDataset::OutputType MNISTDataset::Get(std::size_t index)
 {
     return { m_images[index], m_labels[index] };
 }

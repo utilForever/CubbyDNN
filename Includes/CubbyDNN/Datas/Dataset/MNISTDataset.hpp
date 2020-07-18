@@ -3,19 +3,20 @@
 
 #include <CubbyDNN/Datas/Dataset.hpp>
 #include <CubbyDNN/Datas/Image.hpp>
+#include <CubbyDNN/Datas/SimpleData.hpp>
 
 #include <string>
 #include <tuple>
 
 namespace CubbyDNN
 {
-class MNISTDataset final : public Dataset<MNISTDataset, std::tuple<Image, long>>
+class MNISTDataset final : public Dataset<MNISTDataset, SimpleData<Image, long>>
 {
  public:
     MNISTDataset(const std::string& root, bool train, bool download);
 
     bool IsTrain() const;
-    OutputType Get(std::size_t index) const override;
+    OutputType Get(std::size_t index) override;
     std::size_t GetSize() const override;
 
  private:
