@@ -147,8 +147,10 @@ void Add(const Tensor& inputA, const Tensor& inputB,
         inputB.Device != output.Device)
         throw std::invalid_argument("Add - Device mismatch");
 
-    if (inputA.TensorShape != inputB.TensorShape ||
-        inputB.TensorShape != output.TensorShape)
+    if (inputA.TensorShape.NumRows() != inputB.TensorShape.NumRows() ||
+        inputA.TensorShape.NumCols() != inputB.TensorShape.NumCols() ||
+        inputA.TensorShape.NumRows() != output.TensorShape.NumRows() ||
+        inputA.TensorShape.NumCols() != output.TensorShape.NumCols())
         throw std::invalid_argument("Add - Tensor shape mismatch");
 
     if (broadCast)
@@ -209,7 +211,8 @@ void Add(Tensor& tensor, const Tensor& toAdd, bool broadCast)
     if (toAdd.Device != tensor.Device)
         throw std::invalid_argument("Add - Device mismatch");
 
-    if (toAdd.TensorShape != tensor.TensorShape)
+    if (toAdd.TensorShape.NumRows() != tensor.TensorShape.NumRows()
+        || toAdd.TensorShape.NumCols() != tensor.TensorShape.NumCols())
         throw std::invalid_argument("Add - Tensor shape mismatch");
 
     if (broadCast)
@@ -313,9 +316,11 @@ void Dot(const Tensor& inputA, const Tensor& inputB, Tensor& output,
     if (inputA.Device != inputB.Device || inputB.Device != output.Device)
         throw std::invalid_argument("Dot - Device mismatch");
 
-    if (inputA.TensorShape != inputB.TensorShape ||
-        inputB.TensorShape != output.TensorShape)
-        throw std::invalid_argument("Dot - Tensor shape mismatch");
+    if (inputA.TensorShape.NumRows() != inputB.TensorShape.NumRows() ||
+        inputA.TensorShape.NumCols() != inputB.TensorShape.NumCols() ||
+        inputA.TensorShape.NumRows() != output.TensorShape.NumRows() ||
+        inputA.TensorShape.NumCols() != output.TensorShape.NumCols())
+        throw std::invalid_argument("Add - Tensor shape mismatch");
 
     if (broadCast)
     {

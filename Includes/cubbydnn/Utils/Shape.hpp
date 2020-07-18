@@ -60,16 +60,16 @@ public:
 
     [[nodiscard]] std::size_t NumRows() const
     {
-        if (m_shapeVector.size() < 2)
+        if (Dim() < 2)
             return 1;
-        return m_shapeVector.at(m_shapeVector.size() - 2);
+        return m_shapeVector.at(Dim() - 2);
     }
 
     [[nodiscard]] std::size_t NumCols() const
     {
         if (m_shapeVector.empty())
             return 0;
-        return m_shapeVector.at(m_shapeVector.size() - 1);
+        return m_shapeVector.at(Dim() - 1);
     }
 
     void SetNumRows(std::size_t row)

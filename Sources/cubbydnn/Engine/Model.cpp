@@ -38,12 +38,10 @@ UnitId Model::Dense(const UnitId& input, std::size_t units,
     UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Dense"), m_id++,
                           name };
     const auto previousOutputShape = m_unitManager.GetUnitOutputShape(input);
-    auto weightShape = previousOutputShape;
-    weightShape.SetNumRows(units);
-    weightShape.SetNumCols(previousOutputShape.NumRows());
-    auto biasShape = weightShape;
-    biasShape.SetNumRows(units);
-    biasShape.SetNumCols(1);
+
+    Shape weightShape(
+        { units, previousOutputShape.NumRows() });
+    Shape biasShape({ units, 1 });
 
     auto outputShape = previousOutputShape;
     outputShape.SetNumRows(units);

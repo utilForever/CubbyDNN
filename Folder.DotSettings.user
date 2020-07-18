@@ -1,111 +1,65 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=01194b5a_002D33f9_002D41a7_002Da9d6_002De269afe919c2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Tensor test" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Tensor test&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=01748b05_002Db7eb_002D4fc8_002D8429_002D95e73fa1fe88/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="MatMul1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::NativeOpTest.MatMul1&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=0f124c39_002D523c_002D4342_002D81ee_002D8860c049b527/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #6" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=08b90d73_002D201c_002D4cfc_002Da5dd_002Df181d542091b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4b540ca9_002Df0bd_002D4b94_002D8a00_002D8a0555776343/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4edf0cb5_002D84eb_002D4e1b_002Dbe36_002D68b3ca7386c6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #6" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4e0988ec_002D8c7c_002D4c83_002Da1a3_002D43997c94bf6f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="MatMul1 #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::NativeOpTest.MatMul1&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::BlazeOpTest.MatMul1&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::BlazeOpTest.MatDot&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::BlazeOpTest.MatAdd&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=580b8730_002D687a_002D4d40_002Da083_002Dad4727b81a22/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Simple matmul 1 #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Simple matmul 1&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=64b925ec_002D4ccf_002D44ed_002Db2c1_002D2ca0ebf1b5d9/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Simple matmul 1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Simple matmul 1&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6b595ff8_002D9c04_002D4719_002Dabd8_002D4bdb483b52c4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Tensor test&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6d834e69_002Dcc58_002D4583_002Db783_002D512af42b5b61/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6dbbe00f_002De338_002D4fd5_002D9886_002D222a9981339a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Tensor test #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Tensor test&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=76319377_002Dd0e6_002D4378_002Da19e_002Dd7866ba84233/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Tensor test #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Or&gt;&#xD;
-    &lt;TestAncestor&gt;&#xD;
-      &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Tensor test&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Simple matmul 1&lt;/TestId&gt;&#xD;
-    &lt;/TestAncestor&gt;&#xD;
-    &lt;And&gt;&#xD;
-      &lt;TestAncestor&gt;&#xD;
-        &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
-      &lt;/TestAncestor&gt;&#xD;
-      &lt;Project Location="C:\Users\user\Desktop\Files\projects\CubbyDNN" Presentation="&amp;lt;CubbyDNN&amp;gt;" /&gt;&#xD;
-    &lt;/And&gt;&#xD;
-  &lt;/Or&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8b739ec5_002D2b98_002D49f9_002D935f_002D415d5e809ac3/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="MatAdd #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::MatAdd&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8f2f5439_002De718_002D4cd2_002Dad56_002Dd2b496cce4ff/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="MatMul1 #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;GTest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::NativeOpTest.MatMul1&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c10f6551_002D82ed_002D4515_002D9f98_002D61a675266320/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Tensor test #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Tensor test&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=caee7020_002D6c21_002D4d7e_002Dba5a_002D0f83ebb24dcf/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e24a6dab_002D962f_002D4c7e_002Da07d_002D276fafa468f6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Multiplication" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Multiplication&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Matdot&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Native matrix Multiplication&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Native matix addition&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Tensor test&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e77f7a82_002D2528_002D4e7c_002D89e0_002D8d9d46698324/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=87db1a36_002Ddbd5_002D4d77_002Da775_002Dca2700bfcd1b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f242e156_002Df3fa_002D4ff1_002D8f6c_002D48680a86e2a6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="MatAdd" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=89875329_002D8f71_002D4b57_002D9f07_002Dbebaa5457012/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8a6d973e_002D144c_002D4db9_002D9178_002D2278308b67cc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #13" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Not&gt;&#xD;
+    &lt;Project Location="C:\Users\user\Desktop\Files\projects\CubbyDNN" Presentation="&amp;lt;CubbyDNN&amp;gt;" /&gt;&#xD;
+  &lt;/Not&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d087227a_002D203e_002D448f_002Daa70_002Dac0226865ce8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=edf934dc_002D175f_002D40c8_002Da66c_002Daf4296276c65/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	</wpf:ResourceDictionary>

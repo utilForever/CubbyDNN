@@ -79,6 +79,9 @@ bool ComputableUnit::IsForwardReady(std::size_t cycle) const
 
 bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
 {
+    if (BackwardOutputMap.empty())
+        return false;
+
     for (const auto& [unitId, tensor] : BackwardInputMap)
     {
         if (tensor.State != cycle + 1)

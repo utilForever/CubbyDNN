@@ -15,8 +15,8 @@ void SimpleMnistTest()
 
     Graph::Model model(NumberSystem::Float);
 
-    Tensor tensor({ 10, 1 }, device, std::vector<float>(10, 1));
-    Tensor inputTensor({ 10, 1 }, device, std::vector<float>(10, 3));
+    Tensor tensor({ 10, 10, 1 }, device, std::vector<float>(500, 1));
+    Tensor inputTensor({ 10, 10, 1 }, device, std::vector<float>(500, 3));
 
     auto id = model.Constant(tensor, "input");
     auto labelId = model.Constant(inputTensor, "label");

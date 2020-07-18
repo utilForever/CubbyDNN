@@ -168,10 +168,9 @@ Shape& Shape::Transpose()
 
 Shape Shape::GetTransposedShape() const
 {
-    std::vector<std::size_t> shapeVector = m_shapeVector;
-    const auto temp = shapeVector.at(0);
-    shapeVector.at(0) = shapeVector.at(1);
-    shapeVector.at(1) = temp;
-    return Shape(shapeVector);
+    Shape shape(m_shapeVector);
+    shape.SetNumRows(NumCols());
+    shape.SetNumCols(NumRows());
+    return shape;
 }
 } // namespace CubbyDNN

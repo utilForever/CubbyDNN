@@ -79,8 +79,14 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
     const auto& biasInitializer = unitMetaData.GetInitializer("bias");
     biasInitializer->Initialize(biasTensor);
 
-    Tensor weightUpdate(weightShape,
-                        unitMetaData.Device, unitMetaData.NumericType);
+    Shape weightUpdateShape = forwardInputTensor.TensorShape;
+    weightUpdateShape.SetNumRows(weightShape.NumRows());
+    weightUpdateShape.SetNumCols(weightShape.NumCols());
+    Tensor weightUpdate(weightUpdateShape, unitMetaData.Device,
+                        unitMetaData.NumericType);
+
+    Tensor shrinkedWeightUpdate(weightShape,
+                                unitMetaData.Device, unitMetaData.NumericType);
 
     Tensor biasUpdate(Shape({ weightShape.NumRows(), 1 }), unitMetaData.Device,
                       unitMetaData.NumericType);
@@ -96,6 +102,7 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
         { { "weight", std::move(weightTensor) },
           { "bias", std::move(biasTensor) },
           { "weightUpdate", std::move(weightUpdate) },
+          { "shrinkedWeightUpdate", std::move(shrinkedWeightUpdate) },
           { "biasUpdate", std::move(biasUpdate) },
           { "delta", delta } },
         std::move(optimizer), unitMetaData.NumericType);
@@ -129,6 +136,7 @@ void DenseUnit::Backward()
     auto& weight = m_trainableTensorMap["weight"];
     auto& bias = m_trainableTensorMap["bias"];
     auto& weightUpdate = m_trainableTensorMap["weightUpdate"];
+    auto& shrinkedWeightUpdate = m_trainableTensorMap["shrinkedWeightUpdate"];
     auto& biasUpdate = m_trainableTensorMap["biasUpdate"];
     const Zeros zeroInitializer;
 
@@ -147,10 +155,10 @@ void DenseUnit::Backward()
                       backwardOutput, true, false, true);
     Compute::Multiply(delta, previousForwardInput, weightUpdate, false,
                       true, false);
-    Compute::Shrink(delta, weightUpdate);
+    Compute::Shrink(weightUpdate, shrinkedWeightUpdate);
     Compute::Shrink(delta, biasUpdate, 0);
 
-    m_optimizer->Optimize(weight, weightUpdate);
+    m_optimizer->Optimize(weight, shrinkedWeightUpdate);
     m_optimizer->Optimize(bias, biasUpdate);
 }
 

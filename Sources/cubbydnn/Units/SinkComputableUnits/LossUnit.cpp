@@ -4,6 +4,7 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+#include <iostream>
 #include <cubbydnn/Units/SinkComputableUnits/LossUnit.hpp>
 
 #include <cubbydnn/Computations/LossFunctions/LossFunctionWrapper.hpp>
@@ -89,6 +90,7 @@ void LossUnit::Forward()
 
         Tensor& lossOutput = ForwardOutput;
         *static_cast<int*>(lossOutput.DataPtr) = loss;
+        std::cout << loss << std::endl;
     }
 }
 
