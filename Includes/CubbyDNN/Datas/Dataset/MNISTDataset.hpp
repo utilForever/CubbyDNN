@@ -6,7 +6,6 @@
 #include <CubbyDNN/Datas/SimpleData.hpp>
 
 #include <string>
-#include <tuple>
 
 namespace CubbyDNN
 {

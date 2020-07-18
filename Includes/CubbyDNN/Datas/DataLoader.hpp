@@ -90,7 +90,7 @@ std::optional<typename DataLoader<Dataset>::Batch> DataLoader<Dataset>::Next()
 
     const auto batch = m_dataset->GetBatch(indices);
 
-    const std::size_t inputSize = std::get<0>(batch[0]).size();
+    const std::size_t inputSize = batch[0].Data.size();
 
     FloatTensor input(m_batchSize * inputSize);
     LongTensor target(m_batchSize);
