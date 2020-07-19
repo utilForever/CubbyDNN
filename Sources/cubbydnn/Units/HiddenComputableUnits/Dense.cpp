@@ -5,6 +5,7 @@
 // property of any third parties.
 
 
+#include <iostream>
 #include <cubbydnn/Units/HiddenComputableUnits/Dense.hpp>
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 
@@ -115,18 +116,20 @@ void DenseUnit::Forward()
 {
     Tensor& input = ForwardInputMap.at(m_sourceUnitId);
 
-    Compute::Multiply(m_trainableTensorMap["weight"], input,
+    Compute::Multiply(m_trainableTensorMap.at("weight"), input,
                       ForwardOutput, false, false, true);
-    Compute::Add(ForwardOutput, m_trainableTensorMap["bias"], true);
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at("bias"), true);
 }
 
 void DenseUnit::AsyncForward(std::promise<bool> promise)
 {
+    const Zeros zeroInitializer;
+    zeroInitializer.Initialize(ForwardOutput);
     Tensor& input = ForwardInputMap.at(m_sourceUnitId);
 
-    Compute::Multiply(m_trainableTensorMap["weight"], input, ForwardOutput,
+    Compute::Multiply(m_trainableTensorMap.at("weight"), input, ForwardOutput,
                       false, false, true);
-    Compute::Add(ForwardOutput, m_trainableTensorMap["bias"], true);
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at("bias"), true);
     promise.set_value(true);
 }
 
@@ -138,17 +141,16 @@ void DenseUnit::Backward()
     auto& weightUpdate = m_trainableTensorMap["weightUpdate"];
     auto& shrinkedWeightUpdate = m_trainableTensorMap["shrinkedWeightUpdate"];
     auto& biasUpdate = m_trainableTensorMap["biasUpdate"];
-    const Zeros zeroInitializer;
-
     auto& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
     auto& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
+    auto& delta = m_trainableTensorMap["delta"];
 
-    Tensor& delta = m_trainableTensorMap["delta"];
+    const Zeros zeroInitializer;
     zeroInitializer.Initialize(delta);
+
     for (auto& [unitId, gradient] : BackwardInputMap)
-    {
         Compute::Add(delta, gradient);
-    }
+
     Compute::ScalarMul(delta, 1.0f / BackwardInputMap.size());
 
     Compute::Multiply(weight, delta,
@@ -160,6 +162,11 @@ void DenseUnit::Backward()
 
     m_optimizer->Optimize(weight, shrinkedWeightUpdate);
     m_optimizer->Optimize(bias, biasUpdate);
+    for (std::size_t i = 0; i < weight.GetElementSize(); ++i)
+    {
+        const auto data = *(static_cast<float*>(weight.DataPtr) + i);
+        std::cout << data << std::endl;
+    }
 }
 
 void DenseUnit::AsyncBackward(std::promise<bool> promise)

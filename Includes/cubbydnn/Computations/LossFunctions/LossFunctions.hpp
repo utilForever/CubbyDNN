@@ -80,7 +80,7 @@ public:
         const auto matrixSizeOutput = numRows * colDataSizeLabel;
 
         const T* inputPtr = static_cast<T*>(input.DataPtr);
-        T* outputPtr = static_cast<T*>(label.DataPtr);
+        T* labelPtr = static_cast<T*>(label.DataPtr);
 
         T batchSum = 0;
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
@@ -89,10 +89,12 @@ public:
                 T sum = 0;
                 for (std::size_t j = 0; j < numCols; ++j)
                 {
-                    auto temp = outputPtr[batchIdx * matrixSizeOutput +
-                                          i * colDataSizeLabel + j] -
-                                inputPtr[batchIdx * matrixSizeInput +
-                                         i * colDataSizeInput + j];
+                    const auto inputVal = inputPtr[batchIdx * matrixSizeInput +
+                                                   i * colDataSizeInput + j];
+                    const auto labelVal =
+                        labelPtr[batchIdx * matrixSizeOutput +
+                                 i * colDataSizeLabel + j];
+                    auto temp = labelVal - inputVal;
                     sum += temp * temp;
                 }
                 batchSum += sum;
@@ -130,13 +132,16 @@ public:
             {
                 for (std::size_t j = 0; j < numCols; ++j)
                 {
-                    deltaPtr[batchIdx * matrixSizeDelta + i * colDataSizeDelta +
-                             j] = labelPtr[batchIdx * matrixSizeLabel +
-                                           i * colDataSizeLabel + j] -
-                                  prevInputPtr[
-                                      batchIdx * matrixSizeInput + i *
-                                      colDataSizeInput +
-                                      j];
+                    const auto difference =
+                        labelPtr[batchIdx * matrixSizeLabel +
+                                 i * colDataSizeLabel + j] -
+                        prevInputPtr[
+                            batchIdx * matrixSizeInput + i *
+                            colDataSizeInput +
+                            j];
+
+                    deltaPtr[batchIdx * matrixSizeDelta +
+                             i * colDataSizeDelta + j] = difference;
                 }
             }
     }

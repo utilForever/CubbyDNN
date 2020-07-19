@@ -9,13 +9,16 @@
 namespace CubbyDNN::Graph
 {
 ConstantUnit::ConstantUnit(UnitId unitId, Tensor tensor)
-    : ComputableUnit(std::move(unitId), tensor.NumericType, {},
-                     {}, std::move(tensor), {})
+    : ComputableUnit(std::move(unitId), tensor.NumericType, {}, {},
+                     Tensor(tensor.TensorShape, tensor.Device,
+                            tensor.NumericType), {}),
+      m_value(tensor)
 {
 }
 
 ConstantUnit::ConstantUnit(ConstantUnit&& constantUnit) noexcept
-    : ComputableUnit(std::move(constantUnit))
+    : ComputableUnit(std::move(constantUnit)),
+      m_value(std::move(constantUnit.m_value))
 {
 }
 

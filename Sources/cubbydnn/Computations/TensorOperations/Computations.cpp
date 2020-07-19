@@ -11,7 +11,7 @@
 
 namespace CubbyDNN::Compute
 {
-void Multiply(Tensor& inputA, Tensor& inputB,
+void Multiply(const Tensor& inputA, const Tensor& inputB,
               Tensor& output, bool transposeA, bool transposeB, bool broadCast)
 {
     if (inputA.NumericType != inputB.NumericType ||
@@ -62,6 +62,9 @@ void Multiply(Tensor& inputA, Tensor& inputB,
                 "Multiply - Mismatch between batch size");
     }
 
+    const Zeros zeroInitializer;
+    zeroInitializer.Initialize(output);
+
     const auto numberSystem = inputA.NumericType;
     const auto deviceType = inputA.Device;
 
@@ -70,9 +73,6 @@ void Multiply(Tensor& inputA, Tensor& inputB,
         if (deviceType.Type() == DeviceType::Cpu)
             Native::TensorMul<float>(inputA, inputB, output, transposeA,
                                      transposeB);
-        else if (deviceType.Type() == DeviceType::Blaze)
-            Blaze::TensorMul<float>(inputA, inputB, output, transposeA,
-                                    transposeB);
         else
             throw std::invalid_argument("Not implemented");
     }
@@ -81,9 +81,6 @@ void Multiply(Tensor& inputA, Tensor& inputB,
         if (deviceType.Type() == DeviceType::Cpu)
             Native::TensorMul<int>(inputA, inputB, output, transposeA,
                                    transposeB);
-        else if (deviceType.Type() == DeviceType::Blaze)
-            Blaze::TensorMul<int>(inputA, inputB, output, transposeA,
-                                  transposeB);
         else
             throw std::invalid_argument("Not implemented");
     }
@@ -118,6 +115,9 @@ void Shrink(Tensor& tensor, Tensor& output, int index)
             throw std::invalid_argument("Shrink - Shape mismatch");
         ++i;
     }
+
+    const Zeros zeroInitializer;
+    zeroInitializer.Initialize(output);
 
     if (tensor.NumericType == NumberSystem::Float)
     {

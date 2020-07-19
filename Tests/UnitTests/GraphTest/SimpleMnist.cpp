@@ -29,7 +29,7 @@ void SimpleMnistTest()
     id = model.Loss(id, labelId, "MSE", "loss", device);
 
     model.Compile("SGD",
-                  Graph::Parameter({}, { { "epsilon", 0.01f } }, {}));
+                  Graph::Parameter({}, { { "epsilon", 0.001f } }, {}));
 
     model.Train(100);
 }

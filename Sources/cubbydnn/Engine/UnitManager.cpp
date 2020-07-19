@@ -201,21 +201,22 @@ void UnitManager::AsyncBackward(std::size_t cycle)
 }
 
 bool UnitManager::m_isForwardCopyReady(
-    const UnitId& subjectUnitId)
+    const UnitId& subjectUnitId) const
 {
-    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
+    const auto& sourceMetaData = m_unitMetaDataMap.at(subjectUnitId);
     if (sourceMetaData->Id().Type.BaseType == UnitBaseType::Sink)
         return false;
 
-    auto& subjectOutputTensor = m_unitMap[subjectUnitId]->ForwardOutput;
+    const auto& subjectOutputTensor = m_unitMap
+                                      .at(subjectUnitId)->ForwardOutput;
 
     for (const auto& outputUnitId : sourceMetaData->OutputUnitVector())
     {
-        auto& nextInputTensorMap =
-            m_unitMap[outputUnitId]->ForwardInputMap;
-        for (auto& [unitId, destTensor] : nextInputTensorMap)
+        const auto& nextInputTensorMap =
+            m_unitMap.at(outputUnitId)->ForwardInputMap;
+        for (const auto& [targetUnitId, destTensor] : nextInputTensorMap)
         {
-            if (unitId == subjectUnitId)
+            if (targetUnitId == subjectUnitId)
             {
                 if (subjectOutputTensor.State != destTensor.State + 1)
                     return false;
@@ -225,25 +226,24 @@ bool UnitManager::m_isForwardCopyReady(
     return true;
 }
 
-bool UnitManager::m_isBackwardCopyReady(const UnitId& subjectUnitId)
+bool UnitManager::m_isBackwardCopyReady(const UnitId& subjectUnitId) const
 {
-    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
+    const auto& sourceMetaData = m_unitMetaDataMap.at(subjectUnitId);
     if (sourceMetaData->Id().Type.BaseType == UnitBaseType::Source)
         return false;
 
     bool hasValidBackwardUnit = false;
-    for (const auto& [key, subjectInputUnitId] : sourceMetaData->InputUnitMap())
+    for (const auto& [unitId, outputTensor] : m_unitMap
+                                              .at(subjectUnitId)->
+                                              BackwardOutputMap)
     {
-        auto& outputTensor =
-            m_unitMap[subjectUnitId]->BackwardOutputMap[subjectInputUnitId];
-        auto& nextBackwardInputTensorMap =
-            m_unitMap[subjectInputUnitId]->BackwardInputMap;
-        auto nextBackwardInputUnitVector =
-            m_unitMetaDataMap[subjectInputUnitId]->OutputUnitVector();
+        const auto& nextBackwardInputTensorMap =
+            m_unitMap.at(unitId)->BackwardInputMap;
 
-        for (auto& [targetUnitId, destTensor] : nextBackwardInputTensorMap)
+        for (const auto& [targetUnitId, destTensor] : nextBackwardInputTensorMap
+        )
         {
-            if (targetUnitId == sourceMetaData->Id())
+            if (targetUnitId == subjectUnitId)
             {
                 hasValidBackwardUnit = true;
                 if (outputTensor.State != destTensor.State + 1)
@@ -264,31 +264,29 @@ void UnitManager::m_forwardCopy(const UnitId& subjectUnitId)
     {
         auto& nextInputTensorMap = m_unitMap[outputUnitId]->
             ForwardInputMap;
-        for (auto& [unitId, destTensor] : nextInputTensorMap)
+        for (auto& [targetUnitId, destTensor] : nextInputTensorMap)
         {
-            if (unitId != subjectUnitId)
-                continue;
-            Tensor::CopyTensorData(subjectOutputTensor, destTensor);
-            destTensor.State.fetch_add(1);
+            if (targetUnitId == subjectUnitId)
+            {
+                Tensor::CopyTensorData(subjectOutputTensor, destTensor);
+                destTensor.State.fetch_add(1);
+            }
         }
     }
 }
 
 void UnitManager::m_backwardCopy(const UnitId& subjectUnitId)
 {
-    const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
-    for (const auto& [key, subjectInputUnitId] : sourceMetaData->InputUnitMap())
+    for (const auto& [unitId, outputTensor] :
+         m_unitMap.at(subjectUnitId)->BackwardOutputMap)
     {
-        auto& outputTensor = m_unitMap[subjectUnitId]->BackwardOutputMap[
-            subjectInputUnitId];
-        auto& nextBackwardInputTensorMap = m_unitMap[subjectInputUnitId]->
-            BackwardInputMap;
-        auto nextBackwardInputUnitVector =
-            m_unitMetaDataMap[subjectInputUnitId]->OutputUnitVector();
+        auto& nextBackwardInputTensorMap =
+            m_unitMap.at(unitId)->BackwardInputMap;
 
-        for (auto& [targetUnitId, destTensor] : nextBackwardInputTensorMap)
+        for (auto& [targetUnitId, destTensor] :
+             nextBackwardInputTensorMap)
         {
-            if (targetUnitId == sourceMetaData->Id())
+            if (targetUnitId == subjectUnitId)
             {
                 Tensor::CopyTensorData(outputTensor, destTensor);
                 destTensor.State.fetch_add(1);

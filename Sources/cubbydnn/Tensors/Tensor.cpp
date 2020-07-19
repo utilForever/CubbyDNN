@@ -120,16 +120,8 @@ Tensor::Tensor(Tensor&& tensor) noexcept
 {
     if (tensor.m_hasOwnership)
     {
-        const auto elementSize = GetElementSize();
-        if (!m_hasOwnership)
-        {
-            if (NumericType == NumberSystem::Float)
-                DataPtr = static_cast<void*>(new float[elementSize]);
-            else
-                DataPtr = static_cast<void*>(new int[elementSize]);
-        }
-
-        std::memcpy(DataPtr, tensor.DataPtr, GetDataByteSize());
+        tensor.m_hasOwnership.exchange(false, std::memory_order_acquire);
+        tensor.DataPtr = nullptr;
         m_hasOwnership.exchange(true, std::memory_order_release);
     }
 }
@@ -166,12 +158,16 @@ Tensor& Tensor::operator=(Tensor&& tensor) noexcept
     TensorShape = tensor.TensorShape;
     NumericType = tensor.NumericType;
     Device = std::move(tensor.Device);
+
+    if (m_hasOwnership)
+        m_freeData();
+
     if (tensor.m_hasOwnership)
     {
-        tensor.m_hasOwnership.exchange(false, std::memory_order_acquire);
         DataPtr = tensor.DataPtr;
-        tensor.DataPtr = nullptr;
         m_hasOwnership.exchange(true, std::memory_order_release);
+        tensor.m_hasOwnership.exchange(false, std::memory_order_acquire);
+        tensor.DataPtr = nullptr;
     }
     return *this;
 }
@@ -210,6 +206,7 @@ void Tensor::MoveTensorData(Tensor& source, Tensor& destination)
         destination.m_freeData();
 
     destination.DataPtr = source.DataPtr;
+    destination.m_hasOwnership.exchange(true, std::memory_order_release);
     source.m_hasOwnership.exchange(false, std::memory_order_acquire);
     source.DataPtr = nullptr;
 }
@@ -247,14 +244,16 @@ void Tensor::CopyTensorData(const Tensor& source, Tensor& destination)
             for (std::size_t colIdx = 0; colIdx < numCols; ++colIdx)
             {
                 if (numericType == NumberSystem::Float)
+                {
+                    const auto sourceVal = static_cast<float*>(
+                        source.DataPtr)[batchIdx * (sourceColSize * numRows) +
+                                        sourceColSize * rowIdx + colIdx];
                     static_cast<float*>(
-                            destination.DataPtr)[
-                            batchIdx * (destColSize * numRows) +
-                            destColSize * rowIdx + colIdx] =
-                        static_cast<float*>(
-                            source.DataPtr)[
-                            batchIdx * (sourceColSize * numRows) +
-                            sourceColSize * rowIdx + colIdx];
+                            destination
+                            .DataPtr)[batchIdx * (destColSize * numRows) +
+                                      destColSize * rowIdx + colIdx] =
+                        sourceVal;
+                }
                 else
                     static_cast<int*>(
                             destination.DataPtr)[

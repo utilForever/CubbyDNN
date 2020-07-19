@@ -15,7 +15,7 @@ class ConstantUnit : public ComputableUnit
 {
 public:
     ConstantUnit(UnitId unitId, Tensor tensor);
-   ~ConstantUnit() override = default;
+    ~ConstantUnit() override = default;
 
     ConstantUnit(const ConstantUnit& constantUnit) = delete;
     ConstantUnit(ConstantUnit&& constantUnit) noexcept;
@@ -27,10 +27,12 @@ public:
 
     void Forward() override
     {
+        Tensor::CopyTensorData(m_value, ForwardOutput);
     }
 
     void AsyncForward(std::promise<bool> promise) override
     {
+        Tensor::CopyTensorData(m_value, ForwardOutput);
         promise.set_value(true);
     }
 
@@ -42,6 +44,9 @@ public:
     {
         promise.set_value(true);
     }
+
+private:
+    Tensor m_value;
 };
 }
 

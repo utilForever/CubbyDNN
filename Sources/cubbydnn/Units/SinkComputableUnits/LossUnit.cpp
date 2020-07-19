@@ -81,6 +81,7 @@ void LossUnit::Forward()
 
         Tensor& lossOutput = ForwardOutput;
         *(static_cast<float*>(lossOutput.DataPtr)) = loss;
+        std::cout << loss << std::endl;
     }
     else
     {
@@ -90,7 +91,6 @@ void LossUnit::Forward()
 
         Tensor& lossOutput = ForwardOutput;
         *static_cast<int*>(lossOutput.DataPtr) = loss;
-        std::cout << loss << std::endl;
     }
 }
 

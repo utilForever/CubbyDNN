@@ -27,7 +27,7 @@ void MultiplyAdd(const Tensor& inputA, const Tensor& inputB,
 void BroadcastMultiply(const Tensor& inputA, const Tensor& inputB,
                        Tensor& output, std::size_t dim);
 
-void Multiply(Tensor& inputA, Tensor& inputB,
+void Multiply(const Tensor& inputA,const Tensor& inputB,
               Tensor& output, bool transposeA = false, bool transposeB = false,
               bool broadCast = false);
 

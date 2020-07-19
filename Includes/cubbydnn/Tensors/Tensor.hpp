@@ -67,7 +67,7 @@ public:
 
     std::size_t GetColumnElementSize() const
     {
-        return m_paddedColumnSize;
+        return m_getPaddedColumnSize();
     }
 
     [[nodiscard]] std::size_t GetElementSize() const
