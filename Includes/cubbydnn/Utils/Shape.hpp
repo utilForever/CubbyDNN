@@ -60,16 +60,16 @@ public:
 
     [[nodiscard]] std::size_t NumRows() const
     {
-        if (Dim() < 2)
+        if (m_shapeVector.size() < 2)
             return 1;
-        return m_shapeVector.at(Dim() - 2);
+        return m_shapeVector.at(m_shapeVector.size() - 2);
     }
 
     [[nodiscard]] std::size_t NumCols() const
     {
         if (m_shapeVector.empty())
             return 0;
-        return m_shapeVector.at(Dim() - 1);
+        return m_shapeVector.at(m_shapeVector.size() - 1);
     }
 
     void SetNumRows(std::size_t row)
@@ -77,7 +77,7 @@ public:
         if (m_shapeVector.size() < 2)
             throw std::invalid_argument(
                 "SetNumRows requires dimension larger than 1");
-        m_shapeVector.at(Dim() - 2) = row;
+        m_shapeVector.at(m_shapeVector.size() - 2) = row;
     }
 
     void SetNumCols(std::size_t col)
@@ -85,7 +85,7 @@ public:
         if (m_shapeVector.empty())
             throw std::invalid_argument(
                 "SetNumRows requires dimension larger than 0");
-        m_shapeVector.at(Dim() - 1) = col;
+        m_shapeVector.at(m_shapeVector.size() - 1) = col;
     }
 
     Shape& ChangeDimension(std::size_t axis, std::size_t value)

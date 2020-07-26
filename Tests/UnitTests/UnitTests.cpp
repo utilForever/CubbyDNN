@@ -52,6 +52,10 @@ TEST_CASE("Native matrix Multiplication")
     {
         TestMatMul2();
     }
+    SUBCASE("Matmul with transpose")
+    {
+        TestMatMulWithTranspose();
+    }
 }
 
 TEST_CASE("Native matix addition")
@@ -62,6 +66,26 @@ TEST_CASE("Native matix addition")
 TEST_CASE("Matdot")
 {
     TestMatDot();
+}
+
+TEST_CASE("TestShrink")
+{
+    SUBCASE("Shrink1")
+    {
+        TestShrink();
+    }
+    SUBCASE("Shrink2")
+    {
+        TestShrink2();
+    }
+}
+
+TEST_CASE("TestScalarMul")
+{
+    SUBCASE("ScalarMul")
+    {
+        TestScalarMul();
+    }
 }
 
 

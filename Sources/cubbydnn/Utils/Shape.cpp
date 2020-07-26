@@ -19,8 +19,6 @@ Shape::Shape(std::initializer_list<std::size_t> shape)
     for (auto i : m_shapeVector)
         if (i == 0)
             throw std::runtime_error("zero dimension is not allowed");
-    if (m_shapeVector.size() == 1)
-        m_shapeVector.emplace_back(1);
 }
 
 Shape::Shape(std::vector<std::size_t> shape)
@@ -29,8 +27,6 @@ Shape::Shape(std::vector<std::size_t> shape)
     for (auto i : m_shapeVector)
         if (i == 0)
             throw std::runtime_error("zero dimension is not allowed");
-    if (m_shapeVector.size() == 1)
-        m_shapeVector.emplace_back(1);
 }
 
 Shape::Shape(Shape&& shape) noexcept
@@ -96,14 +92,18 @@ void Shape::Expand(std::size_t rank)
         return;
 
     while (m_shapeVector.size() != rank)
+    {
         m_shapeVector.emplace_back(1);
+    }
 }
 
 
 void Shape::Shrink()
 {
     while (!m_shapeVector.empty() && m_shapeVector.back() == 1)
+    {
         m_shapeVector.pop_back();
+    }
 }
 
 void Shape::Squeeze()
@@ -152,6 +152,9 @@ Shape& Shape::Reshape(std::initializer_list<std::size_t> newShape)
 
 std::size_t Shape::NumMatrices() const
 {
+    if (m_shapeVector.size() < 2)
+        return 1;
+
     std::size_t size = 1;
     for (std::size_t i = 0; i < m_shapeVector.size() - 2; ++i)
         size *= m_shapeVector.at(i);

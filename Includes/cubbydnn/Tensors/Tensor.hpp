@@ -47,7 +47,7 @@ public:
         if (index.size() != TensorShape.Dim())
             throw std::invalid_argument(
                 "Index must have same dimension with tensor shape");
-        const int columnIdx = static_cast<int>(TensorShape.Dim() - 1);
+        const int columnIdx = static_cast<int>(TensorShape.Dim()- 1);
         int shapeIdx = columnIdx;
         int idx = columnIdx;
         std::size_t multiplier = 1;
@@ -92,7 +92,7 @@ public:
     /// Shape of this tensorData
     Shape TensorShape;
     Compute::Device Device;
-    NumberSystem NumericType;
+    NumberSystem NumericType = NumberSystem::Float;
 
     std::atomic<std::size_t> State = 0;
 

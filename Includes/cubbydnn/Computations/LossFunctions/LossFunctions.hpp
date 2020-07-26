@@ -24,7 +24,7 @@ public:
     BaseLoss& operator=(const BaseLoss& loss) = default;
     BaseLoss& operator=(BaseLoss&& loss) noexcept = default;
 
-    [[nodiscard]] virtual T Apply(Tensor& input, const Tensor& label) const = 0;
+    [[nodiscard]] virtual T Apply(const Tensor& input, const Tensor& label) const = 0;
 
     virtual void ApplyDerivative(const Tensor& label, const Tensor& prevInput,
                                  Tensor& delta) const = 0;
@@ -63,7 +63,7 @@ public:
     MSE& operator=(const MSE& mse) = default;
     MSE& operator=(MSE&& mse) noexcept = default;
 
-    [[nodiscard]] T Apply(Tensor& input, const Tensor& label) const override
+    [[nodiscard]] T Apply(const Tensor& input, const Tensor& label) const override
     {
         BaseLoss<T>::m_checkArguments(input, label);
 
@@ -80,7 +80,7 @@ public:
         const auto matrixSizeOutput = numRows * colDataSizeLabel;
 
         const T* inputPtr = static_cast<T*>(input.DataPtr);
-        T* labelPtr = static_cast<T*>(label.DataPtr);
+        const T* labelPtr = static_cast<T*>(label.DataPtr);
 
         T batchSum = 0;
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)

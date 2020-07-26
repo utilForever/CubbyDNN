@@ -13,9 +13,17 @@ void TestMatMul();
 
 void TestMatMul2();
 
+void TestMatMulWithTranspose();
+
 void TestMatAdd();
 
 void TestMatDot();
+
+void TestShrink();
+
+void TestShrink2();
+
+void TestScalarMul();
 }
 
 #endif

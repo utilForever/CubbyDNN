@@ -41,11 +41,10 @@ void TestMatMul()
 
     Compute::Multiply(tensorA, tensorB, output);
 
-    std::array<std::array<float, 3>, 3> answer = {
-        { { 5.0f, 11.0f, 17.0f },
-          { 11.0f, 25.0f, 39.0f },
-          { 17.0f, 39.0f, 61.0f } }
-    };
+    std::array<std::array<float, 3>, 3> answer = { { { 5.0f, 11.0f, 17.0f },
+                                                     { 11.0f, 25.0f, 39.0f },
+                                                     { 17.0f, 39.0f,
+                                                       61.0f } } };
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         for (std::size_t i = 0; i < 3; i++)
@@ -67,10 +66,8 @@ void TestMatMul2()
     const auto batchSize = 3;
     const auto size = 150;
 
-    Tensor tensorA({ batchSize, size, size },
-                   device);
-    Tensor tensorB({ batchSize, size, size },
-                   device);
+    Tensor tensorA({ batchSize, size, size }, device);
+    Tensor tensorB({ batchSize, size, size }, device);
 
     Tensor output({ batchSize, size, size }, device);
 
@@ -96,6 +93,60 @@ void TestMatMul2()
             }
         }
 }
+
+void TestMatMulWithTranspose()
+{
+    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    const auto batchSize = 3;
+
+    Tensor tensorA({ batchSize, 3, 3 }, device);
+    Tensor tensorB({ batchSize, 3, 3 }, device);
+
+    Tensor output({ batchSize, 3, 3 }, device);
+
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    {
+        tensorA.At<float>({ batchIdx, 0, 0 }) = 1.0f;
+        tensorA.At<float>({ batchIdx, 0, 1 }) = 2.0f;
+        tensorA.At<float>({ batchIdx, 0, 2 }) = 3.0f;
+        tensorA.At<float>({ batchIdx, 1, 0 }) = 4.0f;
+        tensorA.At<float>({ batchIdx, 1, 1 }) = 5.0f;
+        tensorA.At<float>({ batchIdx, 1, 2 }) = 6.0f;
+        tensorA.At<float>({ batchIdx, 2, 0 }) = 7.0f;
+        tensorA.At<float>({ batchIdx, 2, 1 }) = 8.0f;
+        tensorA.At<float>({ batchIdx, 2, 2 }) = 9.0f;
+
+        tensorB.At<float>({ batchIdx, 0, 0 }) = 1.0f;
+        tensorB.At<float>({ batchIdx, 0, 1 }) = 2.0f;
+        tensorB.At<float>({ batchIdx, 0, 2 }) = 3.0f;
+        tensorB.At<float>({ batchIdx, 1, 0 }) = 4.0f;
+        tensorB.At<float>({ batchIdx, 1, 1 }) = 5.0f;
+        tensorB.At<float>({ batchIdx, 1, 2 }) = 6.0f;
+        tensorB.At<float>({ batchIdx, 2, 0 }) = 7.0f;
+        tensorB.At<float>({ batchIdx, 2, 1 }) = 8.0f;
+        tensorB.At<float>({ batchIdx, 2, 2 }) = 9.0f;
+    }
+
+    Compute::Multiply(tensorA, tensorB, output, false, true, false);
+
+    std::array<std::array<float, 3>, 3> answer = { { { 14.0f, 32.0f, 50.0f },
+                                                     { 32.0f, 77.0f, 122.0f },
+                                                     { 50.0f, 122.0f,
+                                                       194.0f } } };
+
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (std::size_t i = 0; i < 3; i++)
+        {
+            for (std::size_t j = 0; j < 3; j++)
+            {
+                auto ans = answer[i][j];
+                auto num = output.At<float>({ batchIdx, i, j });
+
+                CHECK(ans == num);
+            }
+        }
+}
+
 
 void TestMatAdd()
 {
@@ -169,4 +220,118 @@ void TestMatDot()
         }
 }
 
+void TestShrink()
+{
+    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    const auto batchSize = 3;
+
+    Tensor tensorA({ batchSize, 3, 3 }, device);
+    Tensor output({ 3, 3 }, device);
+
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    {
+        tensorA.At<float>({ batchIdx, 0, 0 }) = 1.0f;
+        tensorA.At<float>({ batchIdx, 0, 1 }) = 2.0f;
+        tensorA.At<float>({ batchIdx, 0, 2 }) = 3.0f;
+        tensorA.At<float>({ batchIdx, 1, 0 }) = 4.0f;
+        tensorA.At<float>({ batchIdx, 1, 1 }) = 5.0f;
+        tensorA.At<float>({ batchIdx, 1, 2 }) = 6.0f;
+        tensorA.At<float>({ batchIdx, 2, 0 }) = 7.0f;
+        tensorA.At<float>({ batchIdx, 2, 1 }) = 8.0f;
+        tensorA.At<float>({ batchIdx, 2, 2 }) = 9.0f;
+    }
+
+    Compute::Shrink(tensorA, output);
+
+    std::array<std::array<float, 3>, 3> answer = { { { 1.0f, 2.0f, 3.0f },
+                                                     { 4.0f, 5.0f, 6.0f },
+                                                     { 7.0f, 8.0f,
+                                                       9.0f } } };
+
+    for (std::size_t i = 0; i < 3; i++)
+    {
+        for (std::size_t j = 0; j < 3; j++)
+        {
+            auto ans = answer[i][j];
+            auto num = output.At<float>({ i, j });
+
+            CHECK(ans == num);
+        }
+    }
+}
+
+void TestShrink2()
+{
+    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    const auto batchSize = 3;
+
+    Tensor tensorA({ batchSize, 3, 3 }, device);
+    Tensor output({ 3 }, device);
+
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    {
+        tensorA.At<float>({ batchIdx, 0, 0 }) = 1.0f;
+        tensorA.At<float>({ batchIdx, 0, 1 }) = 2.0f;
+        tensorA.At<float>({ batchIdx, 0, 2 }) = 3.0f;
+        tensorA.At<float>({ batchIdx, 1, 0 }) = 4.0f;
+        tensorA.At<float>({ batchIdx, 1, 1 }) = 5.0f;
+        tensorA.At<float>({ batchIdx, 1, 2 }) = 6.0f;
+        tensorA.At<float>({ batchIdx, 2, 0 }) = 7.0f;
+        tensorA.At<float>({ batchIdx, 2, 1 }) = 8.0f;
+        tensorA.At<float>({ batchIdx, 2, 2 }) = 9.0f;
+    }
+
+    Compute::Shrink(tensorA, output);
+
+    std::array<float, 3> answer = { { 4.0f, 5.0f, 6.0f } };
+
+    for (std::size_t j = 0; j < 3; j++)
+    {
+        auto ans = answer[j];
+        auto num = output.At<float>({ j });
+
+        CHECK(ans == num);
+    }
+}
+
+void TestScalarMul()
+{
+    const Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    const auto batchSize = 3;
+
+    Tensor tensorA({ batchSize, 3, 3 }, device);
+
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    {
+        tensorA.At<float>({ batchIdx, 0, 0 }) = 1.0f;
+        tensorA.At<float>({ batchIdx, 0, 1 }) = 2.0f;
+        tensorA.At<float>({ batchIdx, 0, 2 }) = 3.0f;
+        tensorA.At<float>({ batchIdx, 1, 0 }) = 4.0f;
+        tensorA.At<float>({ batchIdx, 1, 1 }) = 5.0f;
+        tensorA.At<float>({ batchIdx, 1, 2 }) = 6.0f;
+        tensorA.At<float>({ batchIdx, 2, 0 }) = 7.0f;
+        tensorA.At<float>({ batchIdx, 2, 1 }) = 8.0f;
+        tensorA.At<float>({ batchIdx, 2, 2 }) = 9.0f;
+    }
+
+    Compute::ScalarMul(tensorA, 0.5f);
+
+    std::array<std::array<float, 3>, 3> answer = {
+        { { 0.5f, 1.0f, 1.5f },
+          { 2.0f, 2.5f, 3.0f },
+          { 3.5f, 4.0f, 4.5f } }
+    };
+    for (std::size_t batch = 0; batch < batchSize; ++batch)
+
+        for (std::size_t i = 0; i < 3; i++)
+        {
+            for (std::size_t j = 0; j < 3; j++)
+            {
+                auto ans = answer[i][j];
+                auto num = tensorA.At<float>({ batch, i, j });
+
+                CHECK(ans == num);
+            }
+        }
+}
 } // namespace CubbyDNN
