@@ -1,5 +1,5 @@
 # Target name
-set(target UnitTests)
+set(target GraphBasic)
 
 # Includes
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -10,23 +10,26 @@ file(GLOB sources
 
 # Build executable
 add_executable(${target}
-    ${sources}
-)
+    ${sources})
 
-# Project options{
+# Project options
 set_target_properties(${target}
     PROPERTIES
-        
     ${DEFAULT_PROJECT_OPTIONS}
 )
 
 # Compile options
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    add_definitions(-D_USE_MATH_DEFINES) # for M_PI
+endif ()
+
 target_compile_options(${target}
     PRIVATE
+
+    PUBLIC
     ${DEFAULT_COMPILE_OPTIONS}
-)
-target_compile_definitions(${target}
-    PRIVATE
+
+    INTERFACE
 )
 
 # Link libraries
