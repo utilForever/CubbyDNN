@@ -41,21 +41,6 @@ public:
 
     static void CopyTensorData(const Tensor& source, Tensor& destination);
 
-    // Tensor SubTensor(std::vector<std::size_t> index)
-    // {
-    //     std::size_t offset = 0;
-    //     for (std::size_t i = 0; i < index.size(); ++i)
-    //     {
-    //         offset += index.at(i) * TensorShape.At(i);
-    //     }
-    //
-    //     std::vector<std::size_t> newShapeVector;
-    //     for (std::size_t i = index.size(); i < TensorShape.Dim(); ++i)
-    //     {
-    //         newShapeVector = TensorShape
-    //     }
-    // }
-
     template <typename T>
     T& At(std::vector<std::size_t> index)
     {

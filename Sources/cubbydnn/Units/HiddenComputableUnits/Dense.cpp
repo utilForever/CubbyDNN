@@ -143,7 +143,6 @@ void DenseUnit::AsyncForward(std::promise<bool> promise)
     promise.set_value(true);
 }
 
-//TODO : Make it receive multiple backward inputs
 void DenseUnit::Backward()
 {
     auto& weight = m_trainableTensorMap["weight"];
@@ -173,25 +172,9 @@ void DenseUnit::Backward()
     Compute::ScalarMul(weightUpdate, 1.0f / batchSize);
     Compute::ScalarMul(biasUpdate, 1.0f / batchSize);
 
-    // for (std::size_t i = 0; i < weightUpdate.GetElementSize(); ++i)
-    // {
-    //     const auto data = *(static_cast<float*>(weightUpdate.DataPtr) + i);
-    //     std::cout << data << std::endl;
-    // }
-    // for (std::size_t i = 0; i < previousForwardInput.GetElementSize(); ++i)
-    // {
-    //     const auto data = *(static_cast<float*>(previousForwardInput.DataPtr) +
-    //                         i);
-    //     std::cout << data << std::endl;
-    // }
-
     m_optimizer->Optimize(weight, weightUpdate);
     m_optimizer->Optimize(bias, biasUpdate);
-    // for (std::size_t i = 0; i < weight.GetElementSize(); ++i)
-    // {
-    //     const auto data = *(static_cast<float*>(weight.DataPtr) + i);
-    //     std::cout << data << std::endl;
-    // }
+
 }
 
 void DenseUnit::AsyncBackward(std::promise<bool> promise)

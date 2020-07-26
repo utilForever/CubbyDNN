@@ -58,6 +58,8 @@ public:
 
     [[nodiscard]] std::size_t NumMatrices() const;
 
+    [[nodiscard]] std::size_t GetBatchSize() const;
+
     [[nodiscard]] std::size_t NumRows() const
     {
         if (m_shapeVector.size() < 2)
