@@ -48,6 +48,7 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
 {
     const auto unitId = unitMetaData.Id();
     auto sourceUnitId = unitMetaData.GetInputUnitId("input");
+    const auto batchSize = unitMetaData.OutputShape().NumCols();
 
     Tensor forwardInputTensor(unitMetaData.GetInputShape("input"),
                               unitMetaData.Device,
@@ -77,6 +78,9 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
 
     Tensor biasTensor(biasShape, unitMetaData.Device,
                       unitMetaData.NumericType);
+    Tensor biasMatrix(Shape({ biasShape.NumRows(), batchSize }),
+                      unitMetaData.Device, unitMetaData.NumericType);
+
     const auto& biasInitializer = unitMetaData.GetInitializer("bias");
     biasInitializer->Initialize(biasTensor);
 
@@ -86,10 +90,12 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
     Tensor weightUpdate(weightUpdateShape, unitMetaData.Device,
                         unitMetaData.NumericType);
 
-    Tensor shrinkedWeightUpdate(weightShape,
-                                unitMetaData.Device, unitMetaData.NumericType);
+    std::vector<float> oneVector(unitMetaData.OutputShape().NumCols(), 1);
 
-    Tensor biasUpdate(Shape({ weightShape.NumRows(), 1 }), unitMetaData.Device,
+    Tensor oneVect(Shape({ batchSize, 1 }), unitMetaData.Device,
+                   oneVector);
+
+    Tensor biasUpdate(biasShape, unitMetaData.Device,
                       unitMetaData.NumericType);
 
     Tensor delta(unitMetaData.OutputShape(), unitMetaData.Device,
@@ -102,8 +108,9 @@ DenseUnit DenseUnit::CreateUnit(const UnitMetaData& unitMetaData,
         std::move(backwardOutputTensor),
         { { "weight", std::move(weightTensor) },
           { "bias", std::move(biasTensor) },
+          { "biasMatrix", std::move(biasMatrix) },
           { "weightUpdate", std::move(weightUpdate) },
-          { "shrinkedWeightUpdate", std::move(shrinkedWeightUpdate) },
+          { "oneVector", std::move(oneVect) },
           { "biasUpdate", std::move(biasUpdate) },
           { "delta", delta } },
         std::move(optimizer), unitMetaData.NumericType);
@@ -118,7 +125,10 @@ void DenseUnit::Forward()
 
     Compute::Multiply(m_trainableTensorMap.at("weight"), input,
                       ForwardOutput, false, false, true);
-    Compute::Add(ForwardOutput, m_trainableTensorMap.at("bias"), true);
+    Compute::Multiply(
+        m_trainableTensorMap.at("bias"), m_trainableTensorMap.at("oneVector"),
+        m_trainableTensorMap.at("biasMatrix"), false, true, false);
+    Compute::Add(ForwardOutput, m_trainableTensorMap.at("biasMatrix"), true);
 }
 
 void DenseUnit::AsyncForward(std::promise<bool> promise)
@@ -139,11 +149,12 @@ void DenseUnit::Backward()
     auto& weight = m_trainableTensorMap["weight"];
     auto& bias = m_trainableTensorMap["bias"];
     auto& weightUpdate = m_trainableTensorMap["weightUpdate"];
-    auto& shrinkedWeightUpdate = m_trainableTensorMap["shrinkedWeightUpdate"];
     auto& biasUpdate = m_trainableTensorMap["biasUpdate"];
     auto& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
     auto& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
     auto& delta = m_trainableTensorMap["delta"];
+    auto& oneVector = m_trainableTensorMap["oneVector"];
+    const auto batchSize = previousForwardInput.TensorShape.NumRows();
 
     const Zeros zeroInitializer;
     zeroInitializer.Initialize(delta);
@@ -157,16 +168,30 @@ void DenseUnit::Backward()
                       backwardOutput, true, false, true);
     Compute::Multiply(delta, previousForwardInput, weightUpdate, false,
                       true, false);
-    Compute::Shrink(weightUpdate, shrinkedWeightUpdate);
-    Compute::Shrink(delta, biasUpdate, 0);
+    Compute::Multiply(delta, oneVector, biasUpdate, false, false, false);
 
-    m_optimizer->Optimize(weight, shrinkedWeightUpdate);
+    Compute::ScalarMul(weightUpdate, 1.0f / batchSize);
+    Compute::ScalarMul(biasUpdate, 1.0f / batchSize);
+
+    // for (std::size_t i = 0; i < weightUpdate.GetElementSize(); ++i)
+    // {
+    //     const auto data = *(static_cast<float*>(weightUpdate.DataPtr) + i);
+    //     std::cout << data << std::endl;
+    // }
+    // for (std::size_t i = 0; i < previousForwardInput.GetElementSize(); ++i)
+    // {
+    //     const auto data = *(static_cast<float*>(previousForwardInput.DataPtr) +
+    //                         i);
+    //     std::cout << data << std::endl;
+    // }
+
+    m_optimizer->Optimize(weight, weightUpdate);
     m_optimizer->Optimize(bias, biasUpdate);
-    for (std::size_t i = 0; i < weight.GetElementSize(); ++i)
-    {
-        const auto data = *(static_cast<float*>(weight.DataPtr) + i);
-        std::cout << data << std::endl;
-    }
+    // for (std::size_t i = 0; i < weight.GetElementSize(); ++i)
+    // {
+    //     const auto data = *(static_cast<float*>(weight.DataPtr) + i);
+    //     std::cout << data << std::endl;
+    // }
 }
 
 void DenseUnit::AsyncBackward(std::promise<bool> promise)

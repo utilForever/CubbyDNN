@@ -15,8 +15,8 @@ void SimpleMnistTest()
 
     Graph::Model model(NumberSystem::Float);
 
-    Tensor tensor({ 10, 10, 1 }, device, std::vector<float>(500, 1));
-    Tensor inputTensor({ 10, 10, 1 }, device, std::vector<float>(500, 3));
+    Tensor tensor({ 10, 10 }, device, std::vector<float>(100, 1));
+    Tensor inputTensor({10, 10 }, device, std::vector<float>(100, 3));
 
     auto id = model.Constant(tensor, "input");
     auto labelId = model.Constant(inputTensor, "label");
@@ -29,8 +29,8 @@ void SimpleMnistTest()
     id = model.Loss(id, labelId, "MSE", "loss", device);
 
     model.Compile("SGD",
-                  Graph::Parameter({}, { { "epsilon", 0.001f } }, {}));
+                  Graph::Parameter({}, { { "epsilon", 0.1f } }, {}));
 
-    model.Train(100);
+    model.Train(1000);
 }
 }

@@ -89,41 +89,41 @@ TEST_CASE("TestScalarMul")
 }
 
 
-TEST_CASE("Blaze simpleMatmul1")
-{
-    TestBlazeMul();
-}
-
-TEST_CASE("Blaze simpleMatmul2")
-{
-    TestBlazeMul2();
-}
-
-TEST_CASE("Blaze simpleMatAdd")
-{
-    TestBlazeAdd();
-}
-
-TEST_CASE("Blaze MatDot")
-{
-    TestBlazeDot();
-}
-
-TEST_CASE("ConcurrentCopy - small")
-{
-    //! Spawn 10 threads and copy SharedPtr
-    //! Check if reference counter successfully returns 1 at the end
-    ConcurrentCopy(10, 100);
-}
-
-TEST_CASE("ConcurrentCopy - large")
-{
-    //! Spawn 100 threads and copy SharedPtr
-    //!  Check if reference counter successfully returns 1 at the end
-    ConcurrentCopy(100, 100);
-}
-
-TEST_CASE("Weakptr - OwnershipTransfer")
-{
-    SimpleOwnershipTransfer();
-}
+// TEST_CASE("Blaze simpleMatmul1")
+// {
+//     TestBlazeMul();
+// }
+//
+// TEST_CASE("Blaze simpleMatmul2")
+// {
+//     TestBlazeMul2();
+// }
+//
+// TEST_CASE("Blaze simpleMatAdd")
+// {
+//     TestBlazeAdd();
+// }
+//
+// TEST_CASE("Blaze MatDot")
+// {
+//     TestBlazeDot();
+// }
+//
+// TEST_CASE("ConcurrentCopy - small")
+// {
+//     //! Spawn 10 threads and copy SharedPtr
+//     //! Check if reference counter successfully returns 1 at the end
+//     ConcurrentCopy(10, 100);
+// }
+//
+// TEST_CASE("ConcurrentCopy - large")
+// {
+//     //! Spawn 100 threads and copy SharedPtr
+//     //!  Check if reference counter successfully returns 1 at the end
+//     ConcurrentCopy(100, 100);
+// }
+//
+// TEST_CASE("Weakptr - OwnershipTransfer")
+// {
+//     SimpleOwnershipTransfer();
+// }

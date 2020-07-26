@@ -42,9 +42,7 @@ UnitId Model::Dense(const UnitId& input, std::size_t units,
     Shape weightShape(
         { units, previousOutputShape.NumRows() });
     Shape biasShape({ units, 1 });
-
-    auto outputShape = previousOutputShape;
-    outputShape.SetNumRows(units);
+    Shape outputShape({ units, previousOutputShape.NumCols() });
 
     std::unordered_map<std::string, std::unique_ptr<Initializer>>
         initializerMap;

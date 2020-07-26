@@ -321,8 +321,8 @@ void TestScalarMul()
           { 2.0f, 2.5f, 3.0f },
           { 3.5f, 4.0f, 4.5f } }
     };
-    for (std::size_t batch = 0; batch < batchSize; ++batch)
 
+    for (std::size_t batch = 0; batch < batchSize; ++batch)
         for (std::size_t i = 0; i < 3; i++)
         {
             for (std::size_t j = 0; j < 3; j++)

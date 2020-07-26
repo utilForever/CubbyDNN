@@ -30,7 +30,7 @@ class SGD : public Optimizer
 {
 public:
     SGD(float epsilon)
-        : m_epsilon(-epsilon)
+        : m_epsilon(epsilon)
     {
     }
 
