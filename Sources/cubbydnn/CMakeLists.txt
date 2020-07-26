@@ -55,7 +55,7 @@ target_link_libraries(${target}
         INTERFACE
         )
 
-option(WITH_BLAZE "Uses blaze for matrix computations" ON)
+option(WITH_BLAZE "Uses blaze for matrix computations" OFF)
 
 if(WITH_BLAZE)
     find_package(blaze)
