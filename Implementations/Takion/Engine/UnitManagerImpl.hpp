@@ -12,6 +12,7 @@
 #include <Takion/Units/HiddenComputableUnits/Dense.hpp>
 #include <Takion/Units/SinkComputableUnits/LossUnit.hpp>
 #include <Takion/Units/SourceComputableUnits/ConstantUnit.hpp>
+#include <Takion/Computations/Optimizers/Optimizer.hpp>
 
 namespace Takion::Graph
 {

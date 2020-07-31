@@ -1,15 +1,15 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_UNITID_HPP
-#define CUBBYDNN_UNITID_HPP
-#include <cubbydnn/Utils/SharedPtr.hpp>
+#ifndef TAKION_GRAPH_UNITID_HPP
+#define TAKION_GRAPH_UNITID_HPP
+#include <Takion/Utils/SharedPtr.hpp>
 #include <unordered_map>
 
-namespace Takion::Graph
+namespace takion::Graph
 {
 enum class UnitBaseType
 {
@@ -83,9 +83,9 @@ struct UnitId
 namespace std
 {
 template <>
-struct hash<Takion::Graph::UnitId>
+struct hash<takion::Graph::UnitId>
 {
-    std::size_t operator()(Takion::Graph::UnitId const& s) const noexcept
+    std::size_t operator()(takion::Graph::UnitId const& s) const noexcept
     {
         const std::size_t h1 = std::hash<std::string>{}(s.UnitName);
         const std::size_t h2 = std::hash<std::size_t>{}(s.Id);

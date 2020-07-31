@@ -4,67 +4,54 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#include <cubbydnn/Units/ComputableUnit.hpp>
+#ifndef TAKION_GRAPH_COMPUTABLEUNIT_IMPL_HPP
+#define TAKION_GRAPH_COMPUTABLEUNIT_IMPL_HPP
 
-namespace takion::Graph
+#include <Takion/Units/ComputableUnit.hpp>
+#include <Takion/Units/UnitType.hpp>
+
+namespace Takion::Graph
 {
-ComputableUnit::ComputableUnit(
-    UnitId subjectUnitId, NumberSystem numberSystem,
-    std::unordered_map<UnitId, Tensor> forwardInputMap,
-    std::unordered_map<UnitId, Tensor> backwardInputMap, Tensor forwardOutput,
-    std::unordered_map<UnitId, Tensor> backwardOutputMap)
+template <typename T>
+ComputableUnit<T>::ComputableUnit(
+    UnitId subjectUnitId,
+    std::unordered_map<UnitId, Tensor<T>> forwardInputMap,
+    std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
+    Tensor<T> forwardOutput,
+    std::unordered_map<UnitId, Tensor<T>> backwardOutputMap)
     : ForwardInputMap(std::move(forwardInputMap)),
       BackwardInputMap(std::move(backwardInputMap)),
       ForwardOutput(std::move(forwardOutput)),
       BackwardOutputMap(std::move(backwardOutputMap)),
-      m_unitId(std::move(subjectUnitId)),
-      m_numericType(numberSystem)
+      m_unitId(std::move(subjectUnitId))
 {
-    for (const auto& [unitId, tensor] : ForwardInputMap)
-    {
-        if (tensor.NumericType != m_numericType)
-            throw std::invalid_argument("Number system mismatch");
-    }
-
-    for (const auto& [unitId, tensor] : BackwardOutputMap)
-    {
-        if (tensor.NumericType != m_numericType)
-            throw std::invalid_argument("Number system mismatch");
-    }
-
-    for (const auto& [unitId, tensor] : BackwardInputMap)
-    {
-        if (tensor.NumericType != m_numericType)
-            throw std::invalid_argument("Number system mismatch");
-    }
-
-    if (ForwardOutput.NumericType != m_numericType)
-        throw std::invalid_argument("Number system mismatch");
 }
 
-ComputableUnit::ComputableUnit(ComputableUnit&& computableUnit) noexcept
+template <typename T>
+ComputableUnit<T>::ComputableUnit(ComputableUnit<T>&& computableUnit) noexcept
     : ForwardInputMap(std::move(computableUnit.ForwardInputMap)),
       BackwardInputMap(std::move(computableUnit.BackwardInputMap)),
       ForwardOutput(std::move(computableUnit.ForwardOutput)),
       BackwardOutputMap(std::move(computableUnit.BackwardOutputMap)),
-      m_unitId(std::move(computableUnit.m_unitId)),
-      m_numericType(computableUnit.m_numericType)
+      m_unitId(std::move(computableUnit.m_unitId))
 {
 }
 
-ComputableUnit& ComputableUnit::operator=(
-    ComputableUnit&& computableUnit) noexcept
+template <typename T>
+ComputableUnit<T>& ComputableUnit<T>::operator=(
+    ComputableUnit<T>&& computableUnit)
+noexcept
 {
     ForwardInputMap = std::move(computableUnit.ForwardInputMap);
     BackwardInputMap = std::move(computableUnit.BackwardInputMap);
     ForwardOutput = std::move(computableUnit.ForwardOutput);
     BackwardOutputMap = std::move(computableUnit.BackwardOutputMap);
     m_unitId = std::move(computableUnit.m_unitId);
-    m_numericType = computableUnit.m_numericType;
     return *this;
 }
 
-bool ComputableUnit::IsForwardReady(std::size_t cycle) const
+template <typename T>
+bool ComputableUnit<T>::IsForwardReady(std::size_t cycle) const
 {
     for (const auto& [unitId, tensor] : ForwardInputMap)
     {
@@ -77,7 +64,8 @@ bool ComputableUnit::IsForwardReady(std::size_t cycle) const
     return true;
 }
 
-bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
+template <typename T>
+bool ComputableUnit<T>::IsBackwardReady(std::size_t cycle) const
 {
     if (BackwardOutputMap.empty())
         return false;
@@ -96,17 +84,20 @@ bool ComputableUnit::IsBackwardReady(std::size_t cycle) const
     return true;
 }
 
-
-void ComputableUnit::UpdateForwardState()
+template <typename T>
+void ComputableUnit<T>::UpdateForwardState()
 {
     m_unitState.ForwardStateCount.fetch_add(1);
     ForwardOutput.State.fetch_add(1);
 }
 
-void ComputableUnit::UpdateBackwardState()
+template <typename T>
+void ComputableUnit<T>::UpdateBackwardState()
 {
     m_unitState.BackwardStateCount.fetch_add(1);
     for (auto& [unitId, tensor] : BackwardOutputMap)
         tensor.State.fetch_add(1);
 }
-} // namespace takion
+} // namespace Takion::Graph
+
+#endif

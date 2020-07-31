@@ -4,12 +4,12 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_SHAREDPTR_IMPL_HPP
-#define CUBBYDNN_SHAREDPTR_IMPL_HPP
+#ifndef TAKION_SHAREDPTR_IMPL_HPP
+#define TAKION_SHAREDPTR_IMPL_HPP
 
-#include <cubbydnn/Utils/SharedPtr-Decl.hpp>
+#include <Takion/Utils/SharedPtr-Decl.hpp>
 
-namespace Takion
+namespace takion
 {
 template <typename T>
 void SharedPtr<T>::m_delete() const
@@ -253,4 +253,4 @@ T* SharedPtr<T>::operator->() const
 }
 } // namespace Takion
 
-#endif  // CUBBYDNN_SHAREDPTR_IMPL_HPP
+#endif  // Takion_SHAREDPTR_IMPL_HPP

@@ -20,10 +20,10 @@ public:
     BaseLoss() = default;
     virtual ~BaseLoss() = default;
 
-    BaseLoss(const BaseLoss& loss) = default;
-    BaseLoss(BaseLoss&& loss) noexcept = default;
-    BaseLoss& operator=(const BaseLoss& loss) = default;
-    BaseLoss& operator=(BaseLoss&& loss) noexcept = default;
+    BaseLoss(const BaseLoss<T>& loss) = default;
+    BaseLoss(BaseLoss<T>&& loss) noexcept = default;
+    BaseLoss<T>& operator=(const BaseLoss<T>& loss) = default;
+    BaseLoss<T>& operator=(BaseLoss<T>&& loss) noexcept = default;
 
     [[nodiscard]] virtual T Apply(const Tensor& input,
                                   const Tensor& label) const = 0;

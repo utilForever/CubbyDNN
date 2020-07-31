@@ -4,11 +4,11 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_INITIALIZEROP_HPP
-#define CUBBYDNN_INITIALIZEROP_HPP
+#ifndef TAKION_INITIALIZEROP_HPP
+#define TAKION_INITIALIZEROP_HPP
 
 #include <cmath>
-#include <cubbydnn/Utils/Shape.hpp>
+#include <Takion/Utils/Shape.hpp>
 #include <random>
 
 namespace Takion

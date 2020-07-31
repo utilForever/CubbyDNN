@@ -9,9 +9,8 @@
 
 #include <Takion/Units/UnitMetadata.hpp>
 
-namespace Takion::Graph
+namespace takion::Graph
 {
-
 template <typename T>
 UnitMetaData<T>::UnitMetaData(
     UnitId unitId,
@@ -87,7 +86,7 @@ void UnitMetaData<T>::AddInternalTensor(const std::string& key, Tensor tensor)
 }
 
 template <typename T>
-const Tensor& UnitMetaData<T>::GetInternalTensor(const std::string& key) const
+const Tensor<T>& UnitMetaData<T>::GetInternalTensor(const std::string& key) const
 {
     return m_internalTensorMap.at(key);
 }

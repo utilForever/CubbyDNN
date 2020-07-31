@@ -8,8 +8,8 @@
 #define TAKION_UNITMANAGER_HPP
 
 #include <Takion/Units/ComputableUnit.hpp>
-#include <unordered_map>
 #include <Takion/Units/UnitMetadata.hpp>
+#include <unordered_map>
 
 namespace Takion::Graph
 {
@@ -59,7 +59,7 @@ private:
 
     std::unordered_map<UnitId, std::unique_ptr<UnitMetaData<T>>>
     m_unitMetaDataMap;
-    std::unordered_map<UnitId, std::unique_ptr<ComputableUnit>> m_unitMap;
+    std::unordered_map<UnitId, std::unique_ptr<ComputableUnit<T>>> m_unitMap;
 };
 } // namespace Takion::Graph
 

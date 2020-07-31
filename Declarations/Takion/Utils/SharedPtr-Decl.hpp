@@ -4,12 +4,12 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_SHAREDPTR_HPP
-#define CUBBYDNN_SHAREDPTR_HPP
+#ifndef TAKION_SHAREDPTR_HPP
+#define TAKION_SHAREDPTR_HPP
 
 #include <atomic>
 
-namespace Takion
+namespace takion
 {
 //! Shared m_objectPtr stores the actual m_objectPtr with atomic reference
 //! counter
@@ -135,7 +135,7 @@ public:
 
     auto& operator[](std::ptrdiff_t idx);
 
-   [[nodiscard]]  T* get() const noexcept
+    [[nodiscard]] T* get() const noexcept
     {
         return m_objectPtr;
     }

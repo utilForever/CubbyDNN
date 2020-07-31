@@ -1,33 +1,33 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_COMPUTABLEUNIT_HPP
-#define CUBBYDNN_COMPUTABLEUNIT_HPP
+#ifndef TAKION_COMPUTABLEUNIT_HPP
+#define TAKION_COMPUTABLEUNIT_HPP
 
-#include <cubbydnn/Tensors/Tensor.hpp>
-#include <cubbydnn/Units/UnitType.hpp>
-#include <cubbydnn/Units/UnitMetadata.hpp>
+#include <Takion/Tensors/TensorImpl.hpp>
+#include <Takion/Units/UnitMetaDataImpl.hpp>
+#include <Takion/Units/UnitType.hpp>
 #include <future>
 
-namespace Takion::Graph
+namespace takion::Graph
 {
+template <typename T>
 class ComputableUnit
 {
 public:
     //! \param subjectUnitId : id of the unit
-    //! \param numberSystem : number system to use
-    //! \param forwardInputMap : vector of input tensor for forward propagation
-    //! \param backwardInputMap : vector of input tensor for back propagation
+    //! \param forwardInputMap : vector of input Tensor<T> for forward propagation
+    //! \param backwardInputMap : vector of input Tensor<T> for back propagation
     //! \param forwardOutput : output of forward propagation
     //! \param backwardOutputMap : output of backward propagation
-    ComputableUnit(UnitId subjectUnitId, NumberSystem numberSystem,
-                   std::unordered_map<UnitId, Tensor> forwardInputMap,
-                   std::unordered_map<UnitId, Tensor> backwardInputMap,
-                   Tensor forwardOutput,
-                   std::unordered_map<UnitId, Tensor> backwardOutputMap
+    ComputableUnit(UnitId subjectUnitId, 
+                   std::unordered_map<UnitId, Tensor<T>> forwardInputMap,
+                   std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
+                   Tensor<T> forwardOutput,
+                   std::unordered_map<UnitId, Tensor<T>> backwardOutputMap
         );
     virtual ~ComputableUnit() = default;
 
@@ -77,22 +77,21 @@ public:
 
     void UpdateBackwardState();
 
-    //! vector of input tensors used to compute forward propagation
-    std::unordered_map<UnitId, Tensor> ForwardInputMap;
-    //! vector of output tensors used to compute back propagation
-    std::unordered_map<UnitId, Tensor> BackwardInputMap;
-    //! single output tensor of forward propagation
-    Tensor ForwardOutput;
-    //! single output tensor of back propagation
-    std::unordered_map<UnitId, Tensor> BackwardOutputMap;
+    //! vector of input Tensor<T>s used to compute forward propagation
+    std::unordered_map<UnitId, Tensor<T>> ForwardInputMap;
+    //! vector of output Tensor<T>s used to compute back propagation
+    std::unordered_map<UnitId, Tensor<T>> BackwardInputMap;
+    //! single output Tensor<T> of forward propagation
+    Tensor<T> ForwardOutput;
+    //! single output Tensor<T> of back propagation
+    std::unordered_map<UnitId, Tensor<T>> BackwardOutputMap;
 
 protected:
     UnitId m_unitId;
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
     UnitState m_unitState;
-    //! Number system for this unit to use
-    NumberSystem m_numericType;
+
 };
 }; // namespace Takion
 
-#endif  // CUBBYDNN_COMPUTABLEUNIT_HPP
+#endif  // takion_COMPUTABLEUNIT_HPP

@@ -7,8 +7,8 @@
 #ifndef CUBBYDNN_INITIALIZER_HPP
 #define CUBBYDNN_INITIALIZER_HPP
 
-#include <cubbydnn/Computations/Initializers/InitializerOp.hpp>
-#include <cubbydnn/Tensors/Tensor.hpp>
+#include <Takion/Computations/Initializers/InitializerOp.hpp>
+#include <Takion/Tensors/Tensor.hpp>
 
 namespace Takion
 {

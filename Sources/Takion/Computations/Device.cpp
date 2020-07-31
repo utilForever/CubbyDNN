@@ -3,11 +3,11 @@
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
-/
+
 #include <Takion/Computations/Device.hpp>
 #include <stdexcept>
 
-namespace Takion::Compute
+namespace takion::Compute
 {
 Device::Device(int id, DeviceType type, std::string name,
                std::size_t padByteSize)

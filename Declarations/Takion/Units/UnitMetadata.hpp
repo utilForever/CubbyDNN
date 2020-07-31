@@ -16,7 +16,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace Takion::Graph
+namespace takion::Graph
 {
 template <typename T>
 class UnitMetaData

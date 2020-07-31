@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
@@ -11,7 +11,7 @@
 #include <Takion/Utils/Shape.hpp>
 #include <atomic>
 
-namespace Takion
+namespace takion
 {
 //! TensorData class contains data vector for processing
 //! with attributes describing it
@@ -97,6 +97,6 @@ private:
         }
     }
 };
-} // namespace Takion
+} // namespace takion
 
 #endif  // Takion_TENSOR_DATA_HPP
