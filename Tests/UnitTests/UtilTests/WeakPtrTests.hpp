@@ -6,7 +6,7 @@
 
 #pragma once
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void SimpleOwnershipTransfer();
 

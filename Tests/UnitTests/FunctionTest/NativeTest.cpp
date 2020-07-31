@@ -10,7 +10,7 @@
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <array>
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void TestMatMul()
 {
@@ -334,4 +334,4 @@ void TestScalarMul()
             }
         }
 }
-} // namespace CubbyDNN
+} // namespace Takion

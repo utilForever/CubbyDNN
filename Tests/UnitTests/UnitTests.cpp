@@ -9,7 +9,7 @@
 #include <doctest.h>
 #include <iostream>
 
-using namespace CubbyDNN::Test;
+using namespace Takion::Test;
 
 TEST_CASE("Simple test")
 {

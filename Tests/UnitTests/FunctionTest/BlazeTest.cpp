@@ -10,7 +10,7 @@
 #include <cubbydnn/Computations/TensorOperations/Computations.hpp>
 #include <doctest.h>
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void TestBlazeMul()
 {
@@ -164,4 +164,4 @@ void TestBlazeDot()
         }
 }
 
-} // namespace CubbyDNN::Test
+} // namespace Takion::Test

@@ -8,7 +8,7 @@
 #define CUBBYDNN_TASKQUEUETEST_HPP
 
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void TaskQueueTest(int workers);
 }

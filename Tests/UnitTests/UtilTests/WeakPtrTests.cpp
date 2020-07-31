@@ -8,7 +8,7 @@
 #include <doctest/doctest.h>
 #include <cubbydnn/Utils/WeakPtr.hpp>
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void SimpleOwnershipTransfer()
 {

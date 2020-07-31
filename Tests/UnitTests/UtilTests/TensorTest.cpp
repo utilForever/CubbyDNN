@@ -8,7 +8,7 @@
 #include<cubbydnn/Tensors/Tensor.hpp>
 #include <doctest.h>
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void TensorCopyTest()
 {

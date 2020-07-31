@@ -9,12 +9,12 @@
 
 #include <cubbydnn/Utils/SharedPtr.hpp>
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void CopyAndDestruct(const SharedPtr<int>& sharedPtr, int numCopy, bool* stop);
 
 void ConcurrentCopy(int spawnNum, int numCopy);
 
-}  // namespace CubbyDNN
+}  // namespace Takion
 
 #endif  // CUBBYDNN_SHAREDPTRTESTS_HPP

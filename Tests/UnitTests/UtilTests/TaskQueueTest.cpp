@@ -13,7 +13,7 @@
 #include <random>
 #include <doctest.h>
 
-namespace CubbyDNN::Tests
+namespace Takion::Tests
 {
 void StressTask()
 {
@@ -81,4 +81,4 @@ void TaskQueueTest(int workers)
     }
 }
 
-} // namespace CubbyDNN
+} // namespace Takion

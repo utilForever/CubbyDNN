@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_TEST_BLAZETEST_HPP
 #define CUBBYDNN_TEST_BLAZETEST_HPP
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void TestBlazeMul();
 
@@ -16,6 +16,6 @@ void TestBlazeMul2();
 void TestBlazeAdd();
 
 void TestBlazeDot();
-}  // namespace CubbyDNN::Test
+}  // namespace Takion::Test
 
 #endif

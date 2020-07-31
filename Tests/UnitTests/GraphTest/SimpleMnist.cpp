@@ -7,7 +7,7 @@
 #include "SimpleMnist.hpp"
 #include <cubbydnn/Engine/Model.hpp>
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void SimpleMnistTest()
 {

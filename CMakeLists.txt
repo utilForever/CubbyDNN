@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 # Declare project
-project(CubbyDNN)
+project(Takion)
 
 # Set output directories
 set(DEFAULT_CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
@@ -17,7 +17,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Includes
-include_directories(Includes)
+include_directories(Implementations)
+include_directories(Declarations)
 include_directories(Libraries)
 include_directories(Libraries/doctest/doctest)
 
@@ -33,6 +34,6 @@ endif()
 set(CMAKE_MACOSX_RPATH ON)
 
 # Project modules
-add_subdirectory(Sources/cubbydnn)
+add_subdirectory(Sources/Takion)
 add_subdirectory(Tests/UnitTests)
 add_subdirectory(Libraries/doctest)

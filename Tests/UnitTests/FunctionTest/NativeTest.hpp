@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_TEST_MATRIXTEST_HPP
 #define CUBBYDNN_TEST_MATRIXTEST_HPP
 
-namespace CubbyDNN::Test
+namespace Takion::Test
 {
 void TestMatMul();
 
