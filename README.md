@@ -1,4 +1,4 @@
-# CubbyDNN
+# Takion
 
 <img src="https://github.com/utilForever/CubbyDNN/blob/master/Medias/Logo.png" width=256 dimension=256 />
 
