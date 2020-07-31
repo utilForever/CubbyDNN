@@ -1,0 +1,117 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=03d9cca7_002D37b3_002D42a4_002Dad05_002Decaa51d0c35a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #10" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=08b90d73_002D201c_002D4cfc_002Da5dd_002Df181d542091b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1453f210_002D96ee_002D40d1_002Dbde1_002Dfff4d6c52601/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #14" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=191c12a2_002Dea01_002D4321_002D8e84_002D293ee7432281/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Native matrix Multiplication" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Native matrix Multiplication&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=21829f43_002D35dc_002D465e_002Dbb58_002D16f78903056c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Tensor test" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Tensor test&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Native matix addition&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Matdot&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2a301c57_002D8c8c_002D44b6_002D8b8f_002D6e4affd9fcc8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #9" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=37026f96_002D3d3a_002D45e9_002Da178_002Dfe827363811d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Native matrix Multiplication&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Native matix addition&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::Matdot&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4edf0cb5_002D84eb_002D4e1b_002Dbe36_002D68b3ca7386c6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #6" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=60e43b74_002D35f0_002D4471_002D9928_002D7a52b1d98a29/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #8" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=87db1a36_002Ddbd5_002D4d77_002Da775_002Dca2700bfcd1b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=89875329_002D8f71_002D4b57_002D9f07_002Dbebaa5457012/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8a149529_002Da948_002D431e_002Da77b_002D2e0ba1171e8a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #12" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8a6d973e_002D144c_002D4db9_002D9178_002D2278308b67cc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #13" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Not&gt;&#xD;
+    &lt;Project Location="C:\Users\user\Desktop\Files\projects\CubbyDNN" Presentation="&amp;lt;CubbyDNN&amp;gt;" /&gt;&#xD;
+  &lt;/Not&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9f312d1d_002Dd272_002D4629_002Da123_002Df634f843602f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #11" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a2078f31_002D0588_002D4c3b_002D94b8_002D0887c791968c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #7" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d087227a_002D203e_002D448f_002Daa70_002Dac0226865ce8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SimpleMnist #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;Doctest::DB94C55F-6B9A-4AAE-80D7-29FD8153E6B5::::SimpleMnist&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	</wpf:ResourceDictionary>

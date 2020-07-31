@@ -6,28 +6,45 @@
 
 #include <cubbydnn/Tensors/TensorInfo.hpp>
 
-#include <utility>
-
 namespace CubbyDNN
 {
-TensorInfo::TensorInfo(long from, long to, bool) noexcept
-    : m_from(from), m_to(to)
+std::map<NumberSystem, std::size_t> TensorInfo::UnitByteSizeMap = {
+    { NumberSystem::Float, sizeof(float) },
+    { NumberSystem::Int, sizeof(int) },
+};
+
+TensorInfo::TensorInfo(Shape shape,
+                       NumberSystem numberSystem)
+    : m_shape(std::move(shape)),
+      m_unitByteSize(UnitByteSizeMap.at(numberSystem)),
+      m_numberSystem(numberSystem)
 {
-    // Do nothing
 }
 
-bool TensorInfo::operator==(const TensorInfo& info) const noexcept
+bool TensorInfo::operator==(const TensorInfo& tensorInfo) const
 {
-    return (m_from == info.m_from && m_to == info.m_to);
+    return (m_shape == tensorInfo.m_shape &&
+            m_numberSystem == tensorInfo.m_numberSystem &&
+            m_unitByteSize == tensorInfo.m_unitByteSize);
 }
 
-unsigned TensorInfo::ProcessCount() const noexcept
+bool TensorInfo::operator!=(const TensorInfo& tensorInfo) const
 {
-    return m_processCount;
+    return !(*this == tensorInfo);
 }
 
-void TensorInfo::IncrementProcessCount() noexcept
+std::size_t TensorInfo::GetSize() const noexcept
 {
-    m_processCount += 1;
+    return m_shape.Size();
 }
-}  // namespace CubbyDNN
+
+std::size_t TensorInfo::GetByteSize() const noexcept
+{
+    return m_unitByteSize * GetSize();
+}
+
+const Shape& TensorInfo::GetShape() const noexcept
+{
+    return m_shape;
+}
+} // namespace CubbyDNN
