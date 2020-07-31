@@ -9,7 +9,7 @@
 #include <Takion/Utils/SharedPtr.hpp>
 #include <unordered_map>
 
-namespace takion::Graph
+namespace Takion::Graph
 {
 enum class UnitBaseType
 {
@@ -83,9 +83,9 @@ struct UnitId
 namespace std
 {
 template <>
-struct hash<takion::Graph::UnitId>
+struct hash<Takion::Graph::UnitId>
 {
-    std::size_t operator()(takion::Graph::UnitId const& s) const noexcept
+    std::size_t operator()(Takion::Graph::UnitId const& s) const noexcept
     {
         const std::size_t h1 = std::hash<std::string>{}(s.UnitName);
         const std::size_t h2 = std::hash<std::size_t>{}(s.Id);

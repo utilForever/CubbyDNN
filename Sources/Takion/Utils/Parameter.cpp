@@ -6,7 +6,7 @@
 
 #include <Takion/Utils/Parameter.hpp>
 
-namespace takion
+namespace Takion
 {
 Parameter::Parameter(std::unordered_map<std::string, int> integerParams,
                      std::unordered_map<std::string, float> floatingPointParams,

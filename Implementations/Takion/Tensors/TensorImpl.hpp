@@ -11,7 +11,7 @@
 #include <Takion/Tensors/Tensor.hpp>
 #include <iostream>
 
-namespace takion
+namespace Takion
 {
 template <typename T>
 Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
@@ -243,5 +243,5 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
             }
     }
 }
-} // namespace takion
+} // namespace Takion
 #endif

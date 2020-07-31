@@ -12,7 +12,7 @@
 #include <Takion/Units/UnitType.hpp>
 #include <future>
 
-namespace takion::Graph
+namespace Takion::Graph
 {
 template <typename T>
 class ComputableUnit

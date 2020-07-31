@@ -7,7 +7,7 @@
 #include <Takion/Computations/Device.hpp>
 #include <stdexcept>
 
-namespace takion::Compute
+namespace Takion::Compute
 {
 Device::Device(int id, DeviceType type, std::string name,
                std::size_t padByteSize)

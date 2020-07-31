@@ -11,7 +11,7 @@
 #include <Takion/Utils/Shape.hpp>
 #include <atomic>
 
-namespace takion
+namespace Takion
 {
 //! TensorData class contains data vector for processing
 //! with attributes describing it
@@ -97,6 +97,6 @@ private:
         }
     }
 };
-} // namespace takion
+} // namespace Takion
 
 #endif  // Takion_TENSOR_DATA_HPP

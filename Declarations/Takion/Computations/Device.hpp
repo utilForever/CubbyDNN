@@ -8,7 +8,7 @@
 #define CUBBYDNN_DEVICE_HPP
 #include <string>
 
-namespace takion::Compute
+namespace Takion::Compute
 {
 enum class DeviceType
 {

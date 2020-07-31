@@ -9,7 +9,7 @@
 
 #include <Takion/Utils/SharedPtr-Decl.hpp>
 
-namespace takion
+namespace Takion
 {
 template <typename T>
 void SharedPtr<T>::m_delete() const

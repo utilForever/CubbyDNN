@@ -6,7 +6,7 @@
 
 #include <cubbydnn/Units/ComputableUnit.hpp>
 
-namespace takion::Graph
+namespace Takion::Graph
 {
 ComputableUnit::ComputableUnit(
     UnitId subjectUnitId, NumberSystem numberSystem,
@@ -109,4 +109,4 @@ void ComputableUnit::UpdateBackwardState()
     for (auto& [unitId, tensor] : BackwardOutputMap)
         tensor.State.fetch_add(1);
 }
-} // namespace takion
+} // namespace Takion

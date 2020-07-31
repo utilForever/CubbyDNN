@@ -9,7 +9,7 @@
 
 #include <Takion/Units/UnitMetadata.hpp>
 
-namespace takion::Graph
+namespace Takion::Graph
 {
 template <typename T>
 UnitMetaData<T>::UnitMetaData(

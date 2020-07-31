@@ -9,7 +9,7 @@
 
 #include <atomic>
 
-namespace takion
+namespace Takion
 {
 //! Shared m_objectPtr stores the actual m_objectPtr with atomic reference
 //! counter
