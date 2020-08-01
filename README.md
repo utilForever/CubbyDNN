@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/utilForever/CubbyDNN/blob/master/LICENSE) [![Build Status](https://travis-ci.org/utilForever/CubbyDNN.svg?branch=master)](https://travis-ci.org/utilForever/CubbyDNN/branches) [![Build status](https://ci.appveyor.com/api/projects/status/github/utilForever/CubbyDNN?branch=master&svg=true)](https://ci.appveyor.com/project/utilForever/CubbyDNN/branch/master) [![Build Status](https://dev.azure.com/utilforever/CubbyDNN/_apis/build/status/utilForever.CubbyDNN)](https://dev.azure.com/utilforever/CubbyDNN/_build/latest?definitionId=2)
 
-CubbyDNN is C++17 implementation of deep learning. It is suitable for deep learning on limited computational resource, embedded systems and IoT devices. The code can be compiled with commonly available compilers such as g++, clang++, or Microsoft Visual Studio. CubbyDNN currently supports macOS (10.12.6 or later), Ubuntu (18.04 or later), Windows (Visual Studio 2017 or later), and Windows Subsystem for Linux (WSL). Other untested platforms that support C++17 also should be able to build CubbyDNN.
+Takion is C++17 template based implementation of deep learning. It is suitable for deep learning on limited computational resource, embedded systems and IoT devices. The code can be compiled with commonly available compilers such as g++, clang++, or Microsoft Visual Studio. CubbyDNN currently supports macOS (10.12.6 or later), Ubuntu (18.04 or later), Windows (Visual Studio 2017 or later), and Windows Subsystem for Linux (WSL). Other untested platforms that support C++17 also should be able to build CubbyDNN.
 
 ## Key Features
 
@@ -15,7 +15,7 @@ CubbyDNN is C++17 implementation of deep learning. It is suitable for deep learn
 
 ## Contact
 
-You can contact me via e-mail (utilForever at gmail.com). I am always happy to answer questions or help with any issues you might have, and please be sure to share any additional work or your creations with me, I love seeing what other people are making.
+You can contact me via e-mail (jwkim98@kaist.ac.kr). I am always happy to answer questions or help with any issues you might have, and please be sure to share any additional work or your creations with me, I love seeing what other people are making.
 
 ## License
 
@@ -23,7 +23,7 @@ You can contact me via e-mail (utilForever at gmail.com). I am always happy to a
 
 The class is licensed under the [MIT License](http://opensource.org/licenses/MIT):
 
-Copyright &copy; 2018 [Chris Ohk](http://www.github.com/utilForever), [Justin Kim](https://github.com/jwkim98) and [Daewoong Ahn](https://github.com/zsef123).
+Copyright &copy: [Jaewoo Kim](https://github.com/jwkim98)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
