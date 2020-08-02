@@ -50,3 +50,4 @@ endif()
 # Project modules
 add_subdirectory(Sources/CubbyDNN)
 add_subdirectory(Tests/UnitTests)
+add_subdirectory(Examples/GraphBasic)
