@@ -1,20 +1,20 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright(c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_COMPUTE_ACTIVATION_HPP
-#define CUBBYDNN_COMPUTE_ACTIVATION_HPP
+#ifndef TAKION_COMPUTE_ACTIVATION_HPP
+#define TAKION_COMPUTE_ACTIVATION_HPP
 
-#include <cubbydnn/Computations/Activations/ActivationFunc.hpp>
+#include <Takion/Computations/Activations/ActivationDecl.hpp>
 #include <cmath>
 
 
 namespace Takion::Compute
 {
 template <typename T>
-void ReLU<T>::Apply(Tensor& input, Tensor& output) const
+void ReLU<T>::Apply(Tensor<T>& input, Tensor<T>& output) const
 {
 
     const auto inputShape = input.TensorShape;
@@ -44,7 +44,7 @@ void ReLU<T>::Apply(Tensor& input, Tensor& output) const
 }
 
 template <typename T>
-void ReLU<T>::ApplyDerivative(Tensor& input, Tensor& output) const
+void ReLU<T>::ApplyDerivative(Tensor<T>& input, Tensor<T>& output) const
 {
     const auto inputShape = input.TensorShape;
     const auto outputShape = output.TensorShape;

@@ -4,14 +4,14 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+#ifndef TAKION_GRAPH_RESHAPE_HPP
+#define TAKION_GRAPH_RESHAPE_HPP
+#include <Takion/Units/ComputableUnit.hpp>
 
-#ifndef CUBBYDNN_GRAPH_RESHAPE_HPP
-#define CUBBYDNN_GRAPH_RESHAPE_HPP
-#include <cubbydnn/Units/ComputableUnit.hpp>
-
-namespace CubbyDNN::Graph
+namespace Takion::Graph
 {
-class ReshapeUnit : public ComputableUnit
+template <typename T>
+class ReshapeUnit : public ComputableUnit<T>
 {
     ReshapeUnit(UnitId unitId, NumberSystem numberSystem, Tensor forwardInput,
                 Tensor backwardInput, Tensor forwardOutput,
@@ -29,14 +29,14 @@ class ReshapeUnit : public ComputableUnit
 
     void Forward() override
     {
-        Tensor::ForwardTensorData(ForwardInputVector.at(0),
-                           ForwardOutput);
+        Tensor<T>::ForwardTensorData(ComputableUnit<T>::ForwardInputVector.at(0),
+                                  ComputableUnit<T>::ForwardOutput);
     }
 
     void Backward() override
     {
-        Tensor::ForwardTensorData(BackwardOutputVector.at(0),
-                           BackwardInputVector.at(0));
+        Tensor<T>::ForwardTensorData(ComputableUnit<T>::BackwardOutputVector.at(0),
+                                  ComputableUnit<T>::BackwardInputVector.at(0));
     }
 };
 }

@@ -1,11 +1,11 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
 #include "TensorTest.hpp"
-#include<cubbydnn/Tensors/Tensor.hpp>
+#include<Takion/Tensors/Tensor.hpp>
 #include <doctest.h>
 
 namespace Takion::Test
@@ -13,7 +13,7 @@ namespace Takion::Test
 void TensorCopyTest()
 {
     Compute::Device device(0, Compute::DeviceType::Cpu, "device0");
-    const Shape shape({ 10, 3, 5 });
+    const Shape shape({ 3, 5 });
     std::vector<float> vector(shape.Size());
 
     for (std::size_t i = 0; i < shape.Size(); ++i)
@@ -21,8 +21,8 @@ void TensorCopyTest()
         vector.at(i) = static_cast<float>(i);
     }
 
-    Tensor tensor1(shape, device);
-    const Tensor tensor2(shape, device, vector);
+    Tensor<float> tensor1(shape, 10, device);
+    const Tensor<float> tensor2(shape, 10, device, vector);
 
     tensor1 = tensor2;
 
@@ -44,8 +44,8 @@ void TensorMoveTest()
         vector.at(i) = static_cast<float>(i);
     }
 
-    Tensor tensor1(shape, device);
-    Tensor tensor2(shape, device, vector);
+    Tensor<float> tensor1(shape, 10, device);
+    Tensor<float> tensor2(shape, 10, device, vector);
 
     tensor1 = std::move(tensor2);
 
@@ -59,7 +59,7 @@ void TensorMoveTest()
 void TensorForwardTestWithMove()
 {
     Compute::Device device(0, Compute::DeviceType::Cpu, "device0");
-    const Shape shape({ 10, 3, 5 });
+    const Shape shape({ 3, 5 });
     std::vector<float> vector(shape.Size());
 
     for (std::size_t i = 0; i < shape.Size(); ++i)
@@ -67,10 +67,10 @@ void TensorForwardTestWithMove()
         vector.at(i) = static_cast<float>(i);
     }
 
-    Tensor tensor1(shape, device);
-    Tensor tensor2(shape, device, vector);
+    Tensor<float> tensor1(shape, 10, device);
+    Tensor<float> tensor2(shape, 10, device, vector);
 
-    Tensor::ForwardTensorData(tensor2, tensor1);
+    Tensor<float>::ForwardTensorData(tensor2, tensor1);
 
     for (std::size_t i = 0; i < shape.Size(); ++i)
     {
@@ -91,10 +91,10 @@ void TensorForwardTestWithCopy()
         vector.at(i) = static_cast<float>(i);
     }
 
-    Tensor tensor1(shape, device2);
-    Tensor tensor2(shape, device1, vector);
+    Tensor<float> tensor1(shape, 10, device2);
+    Tensor<float> tensor2(shape, 10, device1, vector);
 
-    Tensor::ForwardTensorData(tensor2, tensor1);
+    Tensor<float>::ForwardTensorData(tensor2, tensor1);
 
     auto ans = 0;
     for (std::size_t i = 0; i < 10; ++i)
@@ -102,8 +102,7 @@ void TensorForwardTestWithCopy()
             for (std::size_t k = 0; k < 5; ++k)
             {
                 CHECK(static_cast<float>(ans++) ==
-                    tensor1.At<float>({i,j,k}));
+                    tensor1.At(i,{j, k }));
             }
 }
-
 }

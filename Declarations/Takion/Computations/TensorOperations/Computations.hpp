@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright(c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
@@ -7,9 +7,9 @@
 #ifndef CUBBYDNN_OPERATIONS_HPP
 #define CUBBYDNN_OPERATIONS_HPP
 
-#include <cubbydnn/Tensors/Tensor.hpp>
-#include <cubbydnn/Computations/TensorOperations/Native.hpp>
-#include <cubbydnn/Computations/Initializers/InitializerType.hpp>
+#include <Takion/Tensors/Tensor.hpp>
+#include <Takion/Computations/TensorOperations/Native.hpp>
+#include <Takion/Computations/Initializers/InitializerType.hpp>
 
 
 namespace Takion::Compute
@@ -209,8 +209,8 @@ void Shrink(Tensor<T>& tensor, Tensor<T>& output, int index = -1)
     {
         const auto tensorIdx = tensor.TensorShape.Dim() - i;
         const auto outputIdx = output.TensorShape.Dim() - i;
-        if (tensor.TensorShape.At(tensorIdx) !=
-            output.TensorShape.At(outputIdx))
+        if (tensor.TensorShape.At(, tensorIdx) !=
+            output.TensorShape.At(, outputIdx))
             throw std::invalid_argument("Shrink - Shape mismatch");
         ++i;
     }

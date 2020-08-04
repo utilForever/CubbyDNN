@@ -4,12 +4,13 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_MODEL_IMPL_HPP
-#define CUBBYDNN_MODEL_IMPL_HPP
+#ifndef Takion_MODEL_IMPL_HPP
+#define Takion_MODEL_IMPL_HPP
 
-#include <cubbydnn/Computations/Activations/ActivationWrapper.hpp>
-#include <cubbydnn/Computations/LossFunctions/LossFunctionWrapper.hpp>
-#include <cubbydnn/Engine/Model.hpp>
+#include <Takion/Computations/Activations/ActivationWrapper.hpp>
+#include <Takion/Computations/LossFunctions/LossFunctionWrapper.hpp>
+#include <Takion/Engine/ModelDecl.hpp>
+#include <Takion/Units/UnitType.hpp>
 
 namespace Takion::Graph
 {
@@ -25,15 +26,15 @@ UnitId Model<T>::DataLoader(const Shape& shape, const std::string& name,
     UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "DataLoader"), m_id++,
                           name };
     UnitMetaData unitMetaData(subjectUnitId, {}, {}, {}, shape, {},
-                              m_numericType, std::move(device));
+                              std::move(device));
     m_unitManager.AppendUnit(std::move(unitMetaData));
     return subjectUnitId;
 }
 
 template <typename T>
 UnitId Model<T>::Dense(const UnitId& input, std::size_t units,
-                       std::unique_ptr<Initializer> weightInitializer,
-                       std::unique_ptr<Initializer> biasInitializer,
+                       std::unique_ptr<Initializer<T>> weightInitializer,
+                       std::unique_ptr<Initializer<T>> biasInitializer,
                        const std::string& name, Compute::Device device)
 {
     UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Dense"), m_id++,
@@ -44,7 +45,7 @@ UnitId Model<T>::Dense(const UnitId& input, std::size_t units,
     Shape biasShape({ units, 1 });
     Shape outputShape({ units, previousOutputShape.NumCols() });
 
-    std::unordered_map<std::string, std::unique_ptr<Initializer>>
+    std::unordered_map<std::string, std::unique_ptr<Initializer<T>>>
         initializerMap;
 
     initializerMap["weight"] = std::move(weightInitializer);
@@ -53,7 +54,7 @@ UnitId Model<T>::Dense(const UnitId& input, std::size_t units,
     UnitMetaData unitMetaData(
         subjectUnitId, { { "weight", weightShape }, { "bias", biasShape } },
         std::move(initializerMap), { { "input", previousOutputShape } },
-        outputShape, { { "input", input } }, m_numericType, std::move(device));
+        outputShape, { { "input", input } }, std::move(device));
 
     m_unitManager.AppendUnit(std::move(unitMetaData));
     return subjectUnitId;
@@ -70,7 +71,7 @@ UnitId Model<T>::Activation(const UnitId& input,
 
     UnitMetaData unitMetaData(
         subjectUnitId, {}, {}, { { "input", previousOutputShape } },
-        { previousOutputShape }, { { "input", input } }, m_numericType,
+        { previousOutputShape }, { { "input", input } },
         std::move(device), Parameter({ { "activationName", activationName } }));
 
     m_unitManager.AppendUnit(std::move(unitMetaData));
@@ -80,13 +81,10 @@ UnitId Model<T>::Activation(const UnitId& input,
 template <typename T>
 UnitId Model<T>::Constant(Tensor tensor, const std::string& name)
 {
-    if (tensor.NumericType != m_numericType)
-        throw std::invalid_argument(
-            "Numeric type of given tensor and graph must be identical");
+
     UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "Constant"), m_id++,
                           name };
-    UnitMetaData unitMetaData(subjectUnitId, {}, {}, {}, tensor.TensorShape, {},
-                              tensor.NumericType, tensor.Device);
+    UnitMetaData unitMetaData(subjectUnitId, {}, {}, {}, tensor.TensorShape, {},tensor.Device);
     unitMetaData.AddInternalTensor("constant", std::move(tensor));
     m_unitManager.AppendUnit(std::move(unitMetaData));
     return subjectUnitId;
@@ -96,8 +94,8 @@ template <typename T>
 void Model<T>::Compile(const std::string& optimizer,
                        Parameter optimizerParams) noexcept
 {
-    Compute::ActivationWrapper::Initialize();
-    Compute::LossFunctionWrapper::Initialize();
+    Compute::ActivationWrapper<T>::Initialize();
+    Compute::LossFunctionWrapper<T>::Initialize();
     m_unitManager.Compile(optimizer, optimizerParams);
 }
 
@@ -113,7 +111,7 @@ UnitId Model<T>::Loss(const UnitId& prediction, const UnitId& label,
     UnitMetaData unitMetaData(
         subjectUnitId, {}, {},
         { { "prediction", predictionShape }, { "label", labelShape } }, Shape(),
-        { { "prediction", prediction }, { "label", label } }, m_numericType,
+        { { "prediction", prediction }, { "label", label } },
         std::move(device), Parameter({ { "lossType", lossType } }));
     m_unitManager.AppendUnit(std::move(unitMetaData));
 

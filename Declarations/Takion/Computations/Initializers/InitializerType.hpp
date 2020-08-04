@@ -1,147 +1,132 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright(c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_INITIALIZER_HPP
-#define CUBBYDNN_INITIALIZER_HPP
+#ifndef TAKION_INITIALIZER_HPP
+#define TAKION_INITIALIZER_HPP
 
 #include <Takion/Computations/Initializers/InitializerOp.hpp>
 #include <Takion/Tensors/Tensor.hpp>
 
 namespace Takion
 {
+template <typename T>
 class Initializer
 {
 public:
     Initializer() = default;
     virtual ~Initializer() = default;
 
-    Initializer(const Initializer& other) = default;
-    Initializer(Initializer&& other) noexcept = default;
-    Initializer& operator=(const Initializer& other) = default;
-    Initializer& operator=(Initializer&& other) noexcept = default;
-    virtual void Initialize(Tensor& tensor) const = 0;
+    Initializer(const Initializer<T>& initializer) = default;
+    Initializer(Initializer<T>&& initializer) noexcept = default;
+    Initializer& operator=(const Initializer<T>& initializer) = default;
+    Initializer& operator=(Initializer<T>&& initializer) noexcept = default;
+    virtual void Initialize(Tensor<T>& tensor) const = 0;
 };
 
-class Zeros : public Initializer
+template <typename T>
+class Zeros : public Initializer<T>
 {
 public:
     Zeros() = default;
 
-    void Initialize(Tensor& tensor) const override
+    void Initialize(Tensor<T>& tensor) const override
     {
-        if (tensor.NumericType == NumberSystem::Float)
-            InitializerOperations::Zeros(
-                tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
-                tensor.Device.PadSize());
-        else
-            InitializerOperations::Zeros(
-                tensor.TensorShape, static_cast<int*>(tensor.DataPtr),
-                tensor.Device.PadSize());
+        InitializerOperations::Zeros(
+            tensor.TensorShape, static_cast<int*>(tensor.DataPtr),
+            tensor.Device.PadSize());
     }
 };
 
-
-class XavierNormal : public Initializer
+template <typename T>
+class XavierNormal : public Initializer<T>
 {
 public:
     XavierNormal() = default;
 
-    void Initialize(Tensor& tensor) const override
+    void Initialize(Tensor<T>& tensor) const override
     {
-        if (tensor.NumericType == NumberSystem::Float)
-            InitializerOperations::XavierNormal(
-                tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
-                tensor.Device.PadSize());
-        else
-            throw std::invalid_argument(
-                "No integer type is available for XavierNormal");
+        InitializerOperations::XavierNormal(
+            tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
+            tensor.Device.PadSize());
     }
 };
 
-class HeNormal : public Initializer
+template <typename T>
+class HeNormal : public Initializer<T>
 {
 public:
     HeNormal() = default;
 
-    void Initialize(Tensor& tensor) const override
+    void Initialize(Tensor<T>& tensor) const override
     {
-        if (tensor.NumericType == NumberSystem::Float)
-            InitializerOperations::HeNormal(
-                tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
-                tensor.Device.PadSize());
-        else
-            throw std::invalid_argument(
-                "No integer type is available for HeNormal");
+        InitializerOperations::HeNormal<T>(
+            tensor.TensorShape, tensor.DataPtr,
+            tensor.Device.PadSize());
     }
 };
 
-class LecunNormal : public Initializer
+template <typename T>
+class LecunNormal : public Initializer<T>
 {
 public:
     LecunNormal() = default;
 
-    void Initialize(Tensor& tensor) const override
+    void Initialize(Tensor<T>& tensor) const override
     {
-        if (tensor.NumericType == NumberSystem::Float)
-            InitializerOperations::LecunNormal(tensor.TensorShape,
-                                               static_cast<float*>(tensor.
-                                                   DataPtr),
-                                               tensor.Device.PadSize());
-        else
-            throw std::invalid_argument(
-                "No integer type is available for LecunNormal");
+        InitializerOperations::LecunNormal<T>(tensor.TensorShape,
+                                              tensor.DataPtr,
+                                              tensor.Device.PadSize());
     }
 };
 
-class RandomUniform : public Initializer
+template <typename T>
+class RandomUniform : public Initializer<T>
 {
 public:
-    RandomUniform(float min, float max);
-
-    void Initialize(Tensor& tensor) const override
+    RandomUniform(float min, float max)
+        : Initializer<T>(),
+          m_min(min),
+          m_max(max)
     {
-        if (tensor.NumericType == NumberSystem::Float)
-            InitializerOperations::RandomUniform(
-                tensor.TensorShape, m_min,
-                m_max, static_cast<float*>(tensor.DataPtr),
-                tensor.Device.PadSize());
-        else
-            InitializerOperations::RandomUniform(
-                tensor.TensorShape, m_integerMin, m_integerMax,
-                static_cast<int*>(tensor.DataPtr), tensor.Device.PadSize());
+    }
+
+    void Initialize(Tensor<T>& tensor) const override
+    {
+        InitializerOperations::RandomUniform<T>(
+            tensor.TensorShape, m_min,
+            m_max, tensor.DataPtr,
+            tensor.Device.PadSize());
     }
 
 private:
-    int m_integerMin;
-    int m_integerMax;
     float m_min;
     float m_max;
 };
 
-class RandomNormal : public Initializer
+template <typename T>
+class RandomNormal : public Initializer<T>
 {
 public:
-    RandomNormal(float min, float max);
-
-    void Initialize(Tensor& tensor) const override
+    RandomNormal(float min, float max)
+        : Initializer<T>(),
+          m_min(min),
+          m_max(max)
     {
-        if (tensor.NumericType == NumberSystem::Float)
-            InitializerOperations::RandomNormal(
-                tensor.TensorShape, m_min, m_max,
-                static_cast<float*>(tensor.DataPtr), tensor.Device.PadSize());
-        else
-            throw std::invalid_argument(
-                "No integer type is available for RandomNormal");
+    }
+
+    void Initialize(Tensor<T>& tensor) const override
+    {
+        InitializerOperations::RandomNormal<T>(
+            tensor.TensorShape, m_min, m_max,
+            tensor.DataPtr, tensor.Device.PadSize());
     }
 
 private:
-    int m_integerMin;
-    int m_integerMax;
-    float m_min;
-    float m_max;
+    T m_min;
+    T m_max;
 };
 }
 

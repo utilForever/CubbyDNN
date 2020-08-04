@@ -12,21 +12,24 @@
 
 namespace Takion::Compute
 {
+template <typename T>
 class Optimizer
 {
 public:
     Optimizer() = default;
     virtual ~Optimizer() = default;
 
-    Optimizer(const Optimizer& optimizer) = default;
-    Optimizer(Optimizer&& optimizer) noexcept = default;
-    Optimizer& operator=(const Optimizer& optimizer) = default;
-    Optimizer& operator=(Optimizer&& optimizer) noexcept = default;
+    Optimizer(const Optimizer<T>& optimizer) = default;
+    Optimizer(Optimizer<T>&& optimizer) noexcept = default;
+    Optimizer<T>& operator=(const Optimizer<T>& optimizer) = default;
+    Optimizer<T>& operator=(Optimizer<T>&& optimizer) noexcept = default;
 
-    virtual void Optimize(Tensor& tensor, Tensor& delta) = 0;
+    virtual void Optimize(Tensor<T>& tensor, Tensor<T>& delta) = 0;
 };
 
-class SGD : public Optimizer
+//! Stochastic gradient descent
+template <typename T>
+class SGD : public Optimizer<T>
 {
 public:
     SGD(float epsilon)
@@ -34,9 +37,13 @@ public:
     {
     }
 
+    SGD(const SGD<T>& sgd) = default;
+    SGD(SGD<T>&& sgd) noexcept = default;
+    SGD& operator=(const SGD<T>& sgd) = default;
+    SGD& operator=(SGD<T>&& sgd) noexcept = default;
     ~SGD() = default;
 
-    void Optimize(Tensor& tensor, Tensor& delta) override
+    void Optimize(Tensor<T>& tensor, Tensor<T>& delta) override
     {
         ScalarMul(delta, m_epsilon);
         Add(tensor, delta);
