@@ -22,7 +22,7 @@ public:
               std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
               Tensor<T> forwardOutput, Tensor<T> backwardOutput,
               std::unordered_map<std::string, Tensor<T>> trainableUnit,
-              std::unique_ptr<Compute::Optimizer<T>> optimizer);
+              std::unique_ptr<Compute::Optimizer<T>> optimizer, std::size_t batchSize);
     ~DenseUnit() = default;
 
     DenseUnit(const DenseUnit& denseUnit) = delete;

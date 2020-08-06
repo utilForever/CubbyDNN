@@ -16,7 +16,7 @@ UnitMetaData<T>::UnitMetaData(
     UnitId unitId,
     std::unordered_map<std::string, Shape> internalVariableShapeMap,
     std::unordered_map<std::string, std::unique_ptr<Initializer<T>>>
-        initializerMap,
+    initializerMap,
     std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
     std::unordered_map<std::string, UnitId> inputUnitIdMap,
     Compute::Device device, std::size_t batchSize,
@@ -46,6 +46,7 @@ noexcept
       m_outputShape(std::move(unitMetaData.m_outputShape)),
       m_inputUnitMap(std::move(unitMetaData.m_inputUnitMap)),
       m_outputUnitIdVector(std::move(unitMetaData.m_outputUnitIdVector)),
+      m_batchSize(unitMetaData.m_batchSize),
       Device(std::move(unitMetaData.Device)),
       Params(std::move(unitMetaData.Params))
 {

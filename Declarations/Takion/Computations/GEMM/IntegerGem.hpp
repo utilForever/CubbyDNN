@@ -310,7 +310,7 @@ inline void DotCpu(const Span<int> inputA, const Span<int> inputB,
 
 
 template <>
-inline void ScalarMulCpu(const Span<int> inputA, int toMul, Span<int> out,
+inline void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
                          unsigned size, unsigned batchSize)
 {
 #pragma parallel for schedule(static) default(shared)
@@ -321,12 +321,37 @@ inline void ScalarMulCpu(const Span<int> inputA, int toMul, Span<int> out,
         {
             const auto vecMul = _mm256_set1_epi32(toMul);
             const auto vecA1 =
-                _mm256_loadu_si256((__m256i*)&inputA[batchOffset + i]);
+                _mm256_loadu_si256((__m256i*)&input[batchOffset + i]);
             const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&inputA[batchOffset + i + 8]);
+                _mm256_loadu_si256((__m256i*)&input[batchOffset + i + 8]);
 
             const auto mul1 = _mm256_mullo_epi32(vecA1, vecMul);
             const auto mul2 = _mm256_mullo_epi32(vecA2, vecMul);
+
+            _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul1);
+            _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], mul2);
+        }
+    }
+}
+
+template<>
+inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
+                         unsigned size, unsigned batchSize)
+{
+#pragma parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (unsigned i = 0; i < size; i += 16)
+        {
+            const auto vecMul = _mm256_set1_epi32(toDiv);
+            const auto vecA1 =
+                _mm256_loadu_si256((__m256i*)&input[batchOffset + i]);
+            const auto vecA2 =
+                _mm256_loadu_si256((__m256i*)&input[batchOffset + i + 8]);
+
+            const auto mul1 = _mm256_div_epi32(vecA1, vecMul);
+            const auto mul2 = _mm256_div_epi32(vecA2, vecMul);
 
             _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul1);
             _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], mul2);

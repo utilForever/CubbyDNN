@@ -313,7 +313,7 @@ inline void DotCpu(const Span<float> inputA, const Span<float> inputB,
 }
 
 template <>
-inline void ScalarMulCpu(const Span<float> inputA, float toMul, Span<float> out,
+inline void ScalarMulCpu(const Span<float> input, float toMul, Span<float> out,
                          unsigned size, unsigned batchSize)
 {
 #pragma parallel for schedule(static) default(shared)
@@ -324,12 +324,38 @@ inline void ScalarMulCpu(const Span<float> inputA, float toMul, Span<float> out,
         {
             const auto vecMul = _mm256_set1_ps(toMul);
             const auto vecA1 = _mm256_load_ps(
-                static_cast<float const*>(&inputA[batchOffset + i]));
+                static_cast<float const*>(&input[batchOffset + i]));
             const auto vecA2 = _mm256_load_ps(
-                static_cast<float const*>(&inputA[batchOffset + i + 8]));
+                static_cast<float const*>(&input[batchOffset + i + 8]));
 
             const auto mul1 = _mm256_mul_ps(vecA1, vecMul);
             const auto mul2 = _mm256_mul_ps(vecA2, vecMul);
+
+            _mm256_store_ps(static_cast<float*>(&out[batchOffset + i]), mul1);
+            _mm256_store_ps(static_cast<float*>(&out[batchOffset + i + 8]),
+                            mul2);
+        }
+    }
+}
+
+template <>
+inline void ScalarDivCpu(const Span<float> input, float toDiv, Span<float> out,
+                         unsigned size, unsigned batchSize)
+{
+#pragma parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (unsigned i = 0; i < size; i += 16)
+        {
+            const auto vecMul = _mm256_set1_ps(toDiv);
+            const auto vecA1 = _mm256_load_ps(
+                static_cast<float const*>(&input[batchOffset + i]));
+            const auto vecA2 = _mm256_load_ps(
+                static_cast<float const*>(&input[batchOffset + i + 8]));
+
+            const auto mul1 = _mm256_div_ps(vecA1, vecMul);
+            const auto mul2 = _mm256_div_ps(vecA2, vecMul);
 
             _mm256_store_ps(static_cast<float*>(&out[batchOffset + i]), mul1);
             _mm256_store_ps(static_cast<float*>(&out[batchOffset + i + 8]),

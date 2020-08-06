@@ -18,12 +18,14 @@ ComputableUnit<T>::ComputableUnit(
     std::unordered_map<UnitId, Tensor<T>> forwardInputMap,
     std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
     Tensor<T> forwardOutput,
-    std::unordered_map<UnitId, Tensor<T>> backwardOutputMap)
+    std::unordered_map<UnitId, Tensor<T>> backwardOutputMap,
+    std::size_t batchSize)
     : ForwardInputMap(std::move(forwardInputMap)),
       BackwardInputMap(std::move(backwardInputMap)),
       ForwardOutput(std::move(forwardOutput)),
       BackwardOutputMap(std::move(backwardOutputMap)),
-      m_unitId(std::move(subjectUnitId))
+      m_unitId(std::move(subjectUnitId)),
+      BatchSize(batchSize)
 {
 }
 

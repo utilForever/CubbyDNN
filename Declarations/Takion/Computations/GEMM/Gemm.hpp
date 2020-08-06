@@ -79,7 +79,14 @@ void DotCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
 }
 
 template <typename T>
-void ScalarMulCpu(const Span<T> inputA, T toMul, Span<T> out, unsigned size,
+void ScalarMulCpu(const Span<T> input, T toMul, Span<T> output, unsigned size,
+                  unsigned batchSize)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
+template <typename T>
+void ScalarDivCpu(const Span<T> input, T toDiv, Span<T> output, unsigned size,
                   unsigned batchSize)
 {
     throw std::invalid_argument("Unsupported data type");

@@ -8,7 +8,7 @@
 #define TAKION_OPTIMIZER_HPP
 
 #include <Takion/Tensors/Tensor.hpp>
-#include <Takion/Computations/TensorOperations/Computations.hpp>
+#include <Takion/Computations/Computations.hpp>
 
 namespace Takion::Compute
 {
@@ -32,7 +32,7 @@ template <typename T>
 class SGD : public Optimizer<T>
 {
 public:
-    SGD(float epsilon)
+    SGD(T epsilon)
         : m_epsilon(epsilon)
     {
     }
@@ -43,14 +43,14 @@ public:
     SGD& operator=(SGD<T>&& sgd) noexcept = default;
     ~SGD() = default;
 
-    void Optimize(Tensor<T>& tensor, Tensor<T>& delta) override
+    void Optimize(Tensor<T>& tensor, Tensor<T>& update) override
     {
-        ScalarMul(delta, m_epsilon);
-        Add(tensor, delta);
+        Compute::ScalarMul(update, m_epsilon, update);
+        Add(tensor, update, tensor);
     }
 
 private:
-    float m_epsilon;
+    T m_epsilon;
 };
 }
 

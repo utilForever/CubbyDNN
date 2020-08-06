@@ -162,6 +162,12 @@ void ScalarMul(const Tensor<T>& input, T toMul, Tensor<T>& output)
     else
         throw std::runtime_error("Not implemented");
 }
+
+template <typename T>
+void ScalarDiv(const Tensor<T>& input, T toMul, Tensor<T>& output)
+{
+    
+}
 }
 
 #endif

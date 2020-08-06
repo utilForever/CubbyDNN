@@ -19,11 +19,12 @@ DenseUnit<T>::DenseUnit(
     std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
     Tensor<T> forwardOutput, Tensor<T> backwardOutput,
     std::unordered_map<std::string, Tensor<T>> trainableUnit,
-    std::unique_ptr<Compute::Optimizer<T>> optimizer)
+    std::unique_ptr<Compute::Optimizer<T>> optimizer, std::size_t batchSize)
     : ComputableUnit<T>(unitId, { { sourceUnitId, std::move(forwardInput) } },
                         std::move(backwardInputMap), std::move(forwardOutput),
                         { { sourceUnitId, std::move(backwardOutput) } }),
-      TrainableUnit<T>(std::move(trainableUnit), std::move(optimizer)),
+      TrainableUnit<T>(std::move(trainableUnit), std::move(optimizer),
+                       batchSize),
       m_sourceUnitId(sourceUnitId)
 {
 }
@@ -93,9 +94,10 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(const UnitMetaData& unitMetaData,
 
     Tensor delta(unitMetaData.OutputShape(), batchSize, unitMetaData.Device);
 
-    Tensor previousInputTranspose(unitMetaData.GetInputShape("input").Transpose(),
-                                  unitMetaData.BatchSize(),
-                                  unitMetaData.Device);
+    Tensor previousInputTranspose(
+        unitMetaData.GetInputShape("input").Transpose(),
+        unitMetaData.BatchSize(),
+        unitMetaData.Device);
 
     weightInitializer->Initialize(weight);
     biasInitializer->Initialize(bias);
@@ -114,7 +116,7 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(const UnitMetaData& unitMetaData,
           { "delta", std::move(delta) },
           { "previousInputTranspose", std::move(previousInputTranspose) }
         },
-        std::move(optimizer), unitMetaData.NumericType);
+        std::move(optimizer), batchSize);
 
     return denseUnit;
 }
@@ -183,15 +185,15 @@ void DenseUnit<T>::Backward()
     for (auto& [unitId, gradient] : BackwardInputMap)
         Compute::Add(delta, gradient);
 
-    Compute::ScalarMul(delta, 1.0f / BackwardInputMap.size(), delta);
+    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()), delta);
     Compute::Transpose(weight, weightTranspose);
     Compute::Multiply(delta, weightTranspose, backwardOutput);
 
     Compute::Transpose(previousForwardInput, previousInputTranspose);
     Compute::Multiply(previousInputTranspose, delta, weightUpdate);
 
-    Compute::ScalarMul(weightUpdate, 1.0f / batchSize);
-    Compute::ScalarMul(biasUpdate, 1.0f / batchSize);
+    Compute::ScalarDiv(weightUpdate, static_cast<T>(batchSize), weightUpdate);
+    Compute::ScalarDiv(biasUpdate, static_cast<T>(batchSize), biasUpdate);
 
     ComputableUnit<T>::m_optimizer->Optimize(weight, weightUpdate);
     ComputableUnit<T>::m_optimizer->Optimize(bias, biasUpdate);
@@ -231,15 +233,15 @@ void DenseUnit<T>::AsyncBackward(std::promise<bool> promise)
     for (auto& [unitId, gradient] : BackwardInputMap)
         Compute::Add(delta, gradient);
 
-    Compute::ScalarMul(delta, 1.0f / BackwardInputMap.size(), delta);
+    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()), delta);
     Compute::Transpose(weight, weightTranspose);
     Compute::Multiply(delta, weightTranspose, backwardOutput);
 
     Compute::Transpose(previousForwardInput, previousInputTranspose);
     Compute::Multiply(previousInputTranspose, delta, weightUpdate);
 
-    Compute::ScalarMul(weightUpdate, 1.0f / batchSize);
-    Compute::ScalarMul(biasUpdate, 1.0f / batchSize);
+    Compute::ScalarDiv(weightUpdate, static_cast<T>(batchSize), weightUpdate);
+    Compute::ScalarDiv(biasUpdate, static_cast<T>(batchSize), biasUpdate);
 
     ComputableUnit<T>::m_optimizer->Optimize(weight, weightUpdate);
     ComputableUnit<T>::m_optimizer->Optimize(bias, biasUpdate);

@@ -22,11 +22,13 @@ public:
     //! \param backwardInputMap : vector of input Tensor<T> for back propagation
     //! \param forwardOutput : output of forward propagation
     //! \param backwardOutputMap : output of backward propagation
+    //! \param batchSize : batch size of the computableUnit
     ComputableUnit(UnitId subjectUnitId,
                    std::unordered_map<UnitId, Tensor<T>> forwardInputMap,
                    std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
                    Tensor<T> forwardOutput,
-                   std::unordered_map<UnitId, Tensor<T>> backwardOutputMap);
+                   std::unordered_map<UnitId, Tensor<T>> backwardOutputMap,
+                   std::size_t batchSize);
     virtual ~ComputableUnit() = default;
 
     ComputableUnit(const ComputableUnit<T>& computableUnit) = delete;
@@ -84,6 +86,8 @@ public:
     Tensor<T> ForwardOutput;
     //! single output Tensor<T> of back propagation
     std::unordered_map<UnitId, Tensor<T>> BackwardOutputMap;
+
+    std::size_t BatchSize;
 
 protected:
     UnitId m_unitId;
