@@ -75,26 +75,26 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(const UnitMetaData& unitMetaData,
         backwardInputMap[outputUnitId] = std::move(tensor);
     }
 
-    Tensor forwardOutputTensor(unitMetaData.OutputShape(),
-                               batchSize, unitMetaData.Device);
+    Tensor<T> forwardOutputTensor(unitMetaData.OutputShape(),
+                                  batchSize, unitMetaData.Device);
 
-    Tensor backwardOutputTensor(unitMetaData.GetInputShape("input"),
-                                batchSize,
-                                unitMetaData.Device);
+    Tensor<T> backwardOutputTensor(unitMetaData.GetInputShape("input"),
+                                   batchSize,
+                                   unitMetaData.Device);
 
-    Tensor weight(weightShape, unitMetaData.Device);
-    Tensor weightTranspose(transposedWeightShape, unitMetaData.Device);
+    Tensor<T> weight(weightShape, unitMetaData.Device);
+    Tensor<T> weightTranspose(transposedWeightShape, unitMetaData.Device);
 
-    Tensor weightUpdate(weightShape, batchSize, unitMetaData.Device);
-    Tensor weightUpdateMean(weightUpdate, unitMetaData.Device);
+    Tensor<T> weightUpdate(weightShape, batchSize, unitMetaData.Device);
+    Tensor<T> weightUpdateMean(weightUpdate, unitMetaData.Device);
 
-    Tensor bias(biasShape, unitMetaData.Device);
-    Tensor biasUpdate(biasShape, batchSize, unitMetaData.Device);
-    Tensor biasUpdateMean(biasShape, unitMetaData.Device);
+    Tensor<T> bias(biasShape, unitMetaData.Device);
+    Tensor<T> biasUpdate(biasShape, batchSize, unitMetaData.Device);
+    Tensor<T> biasUpdateMean(biasShape, unitMetaData.Device);
 
-    Tensor delta(unitMetaData.OutputShape(), batchSize, unitMetaData.Device);
+    Tensor<T> delta(unitMetaData.OutputShape(), batchSize, unitMetaData.Device);
 
-    Tensor previousInputTranspose(
+    Tensor<T> previousInputTranspose(
         unitMetaData.GetInputShape("input").Transpose(),
         unitMetaData.BatchSize(),
         unitMetaData.Device);

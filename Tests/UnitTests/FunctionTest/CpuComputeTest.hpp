@@ -1,11 +1,11 @@
-/// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_TEST_MATRIXTEST_HPP
-#define CUBBYDNN_TEST_MATRIXTEST_HPP
+#ifndef TAKION_TEST_CPUCOMPUTETEST_HPP
+#define TAKION_TEST_CPUCOMPUTETEST_HPP
 
 namespace Takion::Test
 {

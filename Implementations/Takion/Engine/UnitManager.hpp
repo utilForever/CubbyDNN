@@ -11,7 +11,7 @@
 #include <Takion/Engine/UnitManagerDecl.hpp>
 #include <Takion/Units/HiddenUnits/Dense.hpp>
 #include <Takion/Units/SinkUnits/LossUnit.hpp>
-#include <Takion/Units/SourceComputableUnits/ConstantUnit.hpp>
+#include <Takion/Units/SourceUnits/ConstantUnit.hpp>
 #include <Takion/Units/HiddenUnits/ActivationUnit.hpp>
 
 namespace Takion::Graph
@@ -88,7 +88,7 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
         }
         if (type.Name() == "Constant")
         {
-            auto unit = ConstantUnit::CreateUnit(*metaDataPtr);
+            auto unit = ConstantUnit<T>::CreateUnit(*metaDataPtr);
             m_unitMap[metaDataPtr->Id()] =
                 std::make_unique<ConstantUnit>(std::move(unit));
             continue;
