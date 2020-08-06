@@ -126,9 +126,27 @@ void Add(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     {
         if (A.BatchSize == B.BatchSize)
             CPU::AddCpu(A.Data, B.Data, out.Data,
-                                     out.ElementSize(), out.BatchSize);
+                        out.ElementSize(), out.BatchSize);
         else if (B.BatchSize == 1)
-            CPU::AddWithBroadcastCpu(A.Data, B.Data, out.Data, out.ElementSize(),
+            CPU::AddWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(),
+                                     out.BatchSize);
+        else
+            throw std::invalid_argument(
+                "Batch size mismatch between given tensors");
+    }
+    else
+        throw std::runtime_error("Not implemented");
+}
+
+template <typename T>
+void Add(const Tensor<T>& A, Tensor<T>& out)
+{
+    const auto device = out.Device;
+    if (device.Type() == DeviceType::Cpu)
+    {
+        if (A.BatchSize == out.BatchSize)
+            CPU::AddCpu(out.Data, A.Data, out.Data, out.ElementSize(),
                         out.BatchSize);
         else
             throw std::invalid_argument(
@@ -139,12 +157,26 @@ void Add(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 }
 
 template <typename T>
-void Dot(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
+void Dot(const Tensor<T>& input, const Tensor<T>& B, Tensor<T>& out)
 {
     const auto device = out.Device;
     if (device.Type() == DeviceType::Cpu)
     {
-        CPU::DotCpu(A.Data, B.Data, out.Data, out.ElementSize(), out.BatchSize);
+        CPU::DotCpu(input.Data, B.Data, out.Data, out.ElementSize(),
+                    out.BatchSize);
+    }
+    else
+        throw std::runtime_error("Not implemented");
+}
+
+template <typename T>
+void Dot(const Tensor<T>& input, Tensor<T>& out)
+{
+    const auto device = out.Device;
+    if (device.Type() == DeviceType::Cpu)
+    {
+        CPU::DotCpu(out.Data, input.Data, out.Data, out.ElementSize(),
+                    out.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");
@@ -164,9 +196,42 @@ void ScalarMul(const Tensor<T>& input, T toMul, Tensor<T>& output)
 }
 
 template <typename T>
-void ScalarDiv(const Tensor<T>& input, T toMul, Tensor<T>& output)
+void ScalarMul(const Tensor<T>& tensor, T toMul)
 {
-    
+    const auto device = tensor.Device;
+    if (device.Type() == DeviceType::Cpu)
+    {
+        CPU::ScalarMulCpu(tensor.Data, toMul, tensor.Data, tensor.ElementSize(),
+                          tensor.BatchSize);
+    }
+    else
+        throw std::runtime_error("Not implemented");
+}
+
+template <typename T>
+void ScalarDiv(const Tensor<T>& input, T toDiv, Tensor<T>& output)
+{
+    const auto device = output.Device;
+    if (device.Type() == DeviceType::Cpu)
+    {
+        CPU::ScalarDivCpu(input.Data, toDiv, output.Data, output.ElementSize(),
+                          output.BatchSize);
+    }
+    else
+        throw std::runtime_error("Not implemented");
+}
+
+template <typename T>
+void ScalarDiv(const Tensor<T>& tensor, T toDiv)
+{
+    const auto device = tensor.Device;
+    if (device.Type() == DeviceType::Cpu)
+    {
+        CPU::ScalarDivCpu(tensor.Data, toDiv, tensor.Data, tensor.ElementSize(),
+                          tensor.BatchSize);
+    }
+    else
+        throw std::runtime_error("Not implemented");
 }
 }
 
