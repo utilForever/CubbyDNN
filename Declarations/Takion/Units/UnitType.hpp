@@ -79,7 +79,7 @@ struct UnitId
 };
 } // namespace Takion
 
-//! Add template specialization for UnitId hash
+//! AddCpu template specialization for UnitId hash
 namespace std
 {
 template <>

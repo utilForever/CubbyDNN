@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
@@ -29,6 +29,7 @@ public:
         std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
         std::unordered_map<std::string, UnitId> inputUnitIdMap,
         Compute::Device device,
+        std::size_t batchSize,
         Parameter params = Parameter());
 
     ~UnitMetaData() = default;
@@ -66,7 +67,12 @@ public:
     [[nodiscard]] const std::unique_ptr<Initializer<T>>& GetInitializer(
         const std::string& name) const;
 
-    [[nodiscard]] Shape GetInternalVariableShape(const std::string& name) const;
+    [[nodiscard]] Shape InternalVariableShape(const std::string& name) const;
+
+    [[nodiscard]] std::size_t BatchSize() const
+    {
+        return m_batchSize;
+    }
 
 private:
     UnitId m_unitId;
@@ -82,6 +88,7 @@ private:
     //! key of inputShapeMap and inputUnitIdMap must be identical
     std::unordered_map<std::string, UnitId> m_inputUnitMap;
     std::vector<UnitId> m_outputUnitIdVector;
+    std::size_t m_batchSize;
 
 public:
     Compute::Device Device;

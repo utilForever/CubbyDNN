@@ -1,11 +1,11 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_SHAPE_HPP
-#define CUBBYDNN_SHAPE_HPP
+#ifndef TAKION_SHAPE_HPP
+#define TAKION_SHAPE_HPP
 
 #include <stdexcept>
 #include <string>
@@ -16,7 +16,7 @@ namespace Takion
 class Shape
 {
 public:
-    Shape();
+    Shape() = default;
     ~Shape() = default;
 
     Shape(std::initializer_list<std::size_t> shape);
@@ -35,8 +35,6 @@ public:
     [[nodiscard]] std::size_t At(std::size_t index) const;
 
     void Expand(std::size_t rank);
-
-    void Expand(std::size_t idx, std::size_t rank);
 
     void Shrink();
 
@@ -57,8 +55,6 @@ public:
     [[nodiscard]] std::size_t Size() const noexcept;
 
     [[nodiscard]] std::size_t NumMatrices() const;
-
-    [[nodiscard]] std::size_t GetBatchSize() const;
 
     [[nodiscard]] std::size_t NumRows() const
     {
@@ -105,7 +101,7 @@ public:
 
     Shape& Transpose();
 
-    Shape GetTransposedShape() const;
+    [[nodiscard]] Shape GetTransposedShape() const;
 
 private:
     std::vector<std::size_t> m_shapeVector;

@@ -7,7 +7,7 @@
 #ifndef TAKION_GRAPH_COMPUTABLEUNIT_DECL_HPP
 #define TAKION_GRAPH_COMPUTABLEUNIT_DECL_HPP
 
-#include <Takion/Units/UnitMetaDataImpl.hpp>
+#include <Takion/Units/UnitMetaData.hpp>
 #include <Takion/Units/UnitType.hpp>
 #include <future>
 

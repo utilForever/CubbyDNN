@@ -14,6 +14,15 @@
 namespace Takion
 {
 template <typename T>
+Tensor<T>::Tensor(Shape shape, Compute::Device device)
+    : TensorShape(std::move(shape)),
+      Device(std::move(device)),
+      BatchSize(1)
+{
+}
+
+
+template <typename T>
 Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
     : TensorShape(std::move(shape)),
       Device(std::move(device)),
@@ -54,8 +63,13 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
 
+template <typename T>
+Tensor<T>::~Tensor()
+{
+    m_freeData();
+}
 
-// Perform deep copy
+// Performs deep copy
 template <typename T>
 Tensor<T>::Tensor(const Tensor<T>& tensor)
     : TensorShape(tensor.TensorShape),
@@ -64,7 +78,7 @@ Tensor<T>::Tensor(const Tensor<T>& tensor)
 {
     if (tensor.m_hasOwnership)
     {
-        auto dataSize = GetBatchElementSize();
+        auto dataSize = BatchElementSize();
 
         if (!m_hasOwnership)
         {
@@ -76,12 +90,7 @@ Tensor<T>::Tensor(const Tensor<T>& tensor)
     }
 }
 
-template <typename T>
-Tensor<T>::~Tensor()
-{
-    m_freeData();
-}
-
+//! Performs shallow copy
 template <typename T>
 Tensor<T>::Tensor(Tensor&& tensor) noexcept
     : Data(tensor.Data),
@@ -111,7 +120,7 @@ Tensor<T>& Tensor<T>::operator=(const Tensor<T>& tensor)
 
     if (tensor.m_hasOwnership)
     {
-        const auto elementSize = GetBatchElementSize();
+        const auto elementSize = BatchElementSize();
         if (!m_hasOwnership)
         {
             Data = Utils::Span<T>(new T[elementSize], elementSize);
@@ -162,7 +171,7 @@ T& Tensor<T>::At(std::size_t batchIdx, std::vector<std::size_t> index)
         else
             multiplier *= TensorShape.At(idx);
     }
-    T& val = Data.At(offset + GetElementSize() * batchIdx);
+    T& val = Data.At(offset + ElementSize() * batchIdx);
     return val;
 }
 
@@ -220,13 +229,14 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
     const auto batchSize = sourceShape.NumMatrices();
     const auto numRows = sourceShape.NumRows();
     const auto numCols = sourceShape.NumCols();
-    const auto sourceColSize = source.GetColumnElementSize();
-    const auto destColSize = destination.GetColumnElementSize();
+    const auto sourceColSize = source.ColumnElementSize();
+    const auto destColSize = destination.ColumnElementSize();
 
-    const auto elementSize = destination.GetBatchElementSize();
+    const auto batchElementSize = destination.BatchElementSize();
     if (!destination.m_hasOwnership)
     {
-        destination.Data = Utils::Span<T>(new T[elementSize], elementSize);
+        destination.Data = Utils::Span<T>(new T[batchElementSize],
+                                          batchElementSize);
     }
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)

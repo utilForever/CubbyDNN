@@ -16,16 +16,18 @@ UnitMetaData<T>::UnitMetaData(
     UnitId unitId,
     std::unordered_map<std::string, Shape> internalVariableShapeMap,
     std::unordered_map<std::string, std::unique_ptr<Initializer<T>>>
-    initializerMap,
+        initializerMap,
     std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
     std::unordered_map<std::string, UnitId> inputUnitIdMap,
-    Compute::Device device, Parameter params)
+    Compute::Device device, std::size_t batchSize,
+    Parameter params)
     : m_unitId(std::move(unitId)),
       m_internalVariableShapeMap(std::move(internalVariableShapeMap)),
       m_initializerMap(std::move(initializerMap)),
       m_inputShapeMap(std::move(inputShapeMap)),
       m_outputShape(std::move(outputShape)),
       m_inputUnitMap(std::move(inputUnitIdMap)),
+      m_batchSize(batchSize),
       Device(std::move(device)),
       Params(std::move(params))
 {
@@ -137,7 +139,7 @@ const std::unique_ptr<Initializer<T>>& UnitMetaData<T>::GetInitializer(
 }
 
 template <typename T>
-Shape UnitMetaData<T>::GetInternalVariableShape(const std::string& name) const
+Shape UnitMetaData<T>::InternalVariableShape(const std::string& name) const
 {
     return m_internalVariableShapeMap.at(name);
 }

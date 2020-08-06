@@ -4,15 +4,10 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-
 #include<Takion/Utils/Shape.hpp>
 
 namespace Takion
 {
-Shape::Shape()
-    : m_shapeVector({ 1, 1 })
-{
-}
 
 Shape::Shape(std::initializer_list<std::size_t> shape)
     : m_shapeVector(shape)
@@ -67,9 +62,7 @@ Shape Shape::operator*(const Shape& shape) const
     if (this->Dim() != shape.Dim())
         throw std::runtime_error("Dimension mismatch");
     if (this->NumCols() != shape.NumRows())
-        throw std::runtime_error("Multiply-shape mismatch");
-    if (this->NumMatrices() != shape.NumMatrices())
-        throw std::runtime_error("Batch size mismatch");
+        throw std::runtime_error("Multiply-shape mismatch");;
 
     std::vector<std::size_t> shapeVector;
     shapeVector.reserve(shape.Dim());
@@ -148,18 +141,6 @@ Shape& Shape::Reshape(std::initializer_list<std::size_t> newShape)
 
     m_shapeVector = newShape;
     return *this;
-}
-
-
-std::size_t Shape::NumMatrices() const
-{
-    if (m_shapeVector.size() < 2)
-        return 1;
-
-    std::size_t size = 1;
-    for (std::size_t i = 0; i < m_shapeVector.size() - 2; ++i)
-        size *= m_shapeVector.at(i);
-    return size;
 }
 
 Shape& Shape::Transpose()

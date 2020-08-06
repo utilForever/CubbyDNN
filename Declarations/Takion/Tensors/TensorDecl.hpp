@@ -20,7 +20,8 @@ template <typename T>
 class Tensor
 {
 public:
-    Tensor() = default;
+    Tensor(Shape shape, Compute::Device device);
+
     Tensor(Shape shape, std::size_t batchSize, Compute::Device device);
 
     Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
@@ -43,22 +44,12 @@ public:
 
     T& At(std::size_t batchIdx, std::vector<std::size_t> index);
 
-    std::size_t GetColumnElementSize() const
+    std::size_t ColumnElementSize() const
     {
         return m_getPaddedColumnSize();
     }
 
-    [[nodiscard]] std::size_t GetElementSize() const
-    {
-        std::size_t size = 1;
-        for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
-        {
-            size *= TensorShape.At(i);
-        }
-        return size * m_getPaddedColumnSize() * BatchSize;
-    }
-
-    [[nodiscard]] std::size_t GetBatchElementSize() const
+    [[nodiscard]] std::size_t ElementSize() const
     {
         std::size_t size = 1;
         for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
@@ -68,9 +59,19 @@ public:
         return size * m_getPaddedColumnSize();
     }
 
+    [[nodiscard]] std::size_t BatchElementSize() const
+    {
+        std::size_t size = 1;
+        for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
+        {
+            size *= TensorShape.At(i);
+        }
+        return size * m_getPaddedColumnSize() * BatchSize;
+    }
+
     [[nodiscard]] std::size_t GetDataByteSize() const
     {
-        return GetBatchElementSize() * sizeof(T);
+        return BatchElementSize() * sizeof(T);
     }
 
     /// Data vector which possesses actual data
