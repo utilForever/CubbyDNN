@@ -8,7 +8,7 @@
 #define TAKION_GRAPH_DENSE_DECL_HPP
 
 #include <Takion/Units/ComputableUnit.hpp>
-#include <Takion/Units/UnitMetadata.hpp>
+#include <Takion/Units/UnitMetaData.hpp>
 #include <Takion/Units/TrainableUnit.hpp>
 
 namespace Takion::Graph
