@@ -273,6 +273,36 @@ inline void AddCpu(const Span<int> A, const Span<int> B,
 }
 
 template <>
+inline void SubCpu(const Span<int> A, const Span<int> B, Span<int> out,
+                   unsigned size,
+                   unsigned batchSize)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (unsigned i = 0; i < size; i += 16)
+        {
+            const auto vecA1 =
+                _mm256_loadu_si256((__m256i*)&A[batchOffset + i]);
+            const auto vecA2 =
+                _mm256_loadu_si256((__m256i*)&A[batchOffset + i + 8]);
+
+            const auto vecB1 =
+                _mm256_loadu_si256((__m256i*)&B[batchOffset + i]);
+            const auto vecB2 =
+                _mm256_loadu_si256((__m256i*)&B[batchOffset + i + 8]);
+
+            const auto sum1 = _mm256_sub_epi32(vecA1, vecB1);
+            const auto sum2 = _mm256_sub_epi32(vecA2, vecB2);
+
+            _mm256_storeu_si256((__m256i*)&out[batchOffset + i], sum1);
+            _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], sum2);
+        }
+    }
+}
+
+template <>
 inline void AddWithBroadcastCpu(const Span<int> A, const Span<int> B,
                                 Span<int> out, unsigned size,
                                 unsigned batchSize)
@@ -379,6 +409,23 @@ inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
 
             _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul1);
             _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], mul2);
+        }
+    }
+}
+
+template <>
+inline void SetCpu(Span<int> data, int toSet, unsigned size, unsigned batchSize)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (unsigned i = 0; i < size; i += 16)
+        {
+            const auto zero = _mm256_set1_epi32(toSet);
+
+            _mm256_stream_si256((__m256i*)&data[batchOffset + i], zero);
+            _mm256_stream_si256((__m256i*)&data[batchOffset + i + 8], zero);
         }
     }
 }

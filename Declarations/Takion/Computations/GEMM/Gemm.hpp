@@ -62,6 +62,13 @@ void AddCpu(const Span<T> A, const Span<T> B, Span<T> out,
     throw std::invalid_argument("Unsupported data type");
 }
 
+template <typename T>
+void SubCpu(const Span<T> A, const Span<T> B, Span<T> out, unsigned size,
+            unsigned batchSize)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
 //! BroadCasts input B to A
 template <typename T>
 void AddWithBroadcastCpu(const Span<T> A, const Span<T> B,
@@ -91,6 +98,14 @@ void ScalarDivCpu(const Span<T> input, T toDiv, Span<T> output, unsigned size,
 {
     throw std::invalid_argument("Unsupported data type");
 }
+
+template<typename T>
+void SetCpu(Span<T> data, T toSet, unsigned size, unsigned batchSize)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
+
 }
 
 #endif

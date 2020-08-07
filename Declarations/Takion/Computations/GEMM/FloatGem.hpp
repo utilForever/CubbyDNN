@@ -279,6 +279,36 @@ inline void AddCpu(const Span<float> inputA, const Span<float> inputB,
 }
 
 template <>
+inline void SubCpu(const Span<float> A, const Span<float> B, Span<float> out, unsigned size,
+            unsigned batchSize)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (unsigned i = 0; i < size; i += 16)
+        {
+            const auto vecA1 = _mm256_load_ps(
+                static_cast<float const*>(&A[batchOffset + i]));
+            const auto vecA2 = _mm256_load_ps(
+                static_cast<float const*>(&A[batchOffset + i + 8]));
+
+            const auto vecB1 = _mm256_load_ps(
+                static_cast<float const*>(&B[batchOffset + i]));
+            const auto vecB2 = _mm256_load_ps(
+                static_cast<float const*>(&B[batchOffset + i + 8]));
+
+            const auto sum1 = _mm256_sub_ps(vecA1, vecB1);
+            const auto sum2 = _mm256_sub_ps(vecA2, vecB2);
+
+            _mm256_store_ps(static_cast<float*>(&out[batchOffset + i]), sum1);
+            _mm256_store_ps(static_cast<float*>(&out[batchOffset + i + 8]),
+                            sum2);
+        }
+    }
+}
+
+template <>
 inline void AddWithBroadcastCpu(const Span<float> A, const Span<float> B,
                                 Span<float> out,
                                 unsigned size, unsigned batchSize)
@@ -387,6 +417,24 @@ inline void ScalarDivCpu(const Span<float> input, float toDiv, Span<float> out,
             _mm256_store_ps(static_cast<float*>(&out[batchOffset + i]), mul1);
             _mm256_store_ps(static_cast<float*>(&out[batchOffset + i + 8]),
                             mul2);
+        }
+    }
+}
+
+template <>
+inline void SetCpu(Span<float> data, float toSet, unsigned size, unsigned batchSize)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (unsigned i = 0; i < size; i += 16)
+        {
+            const auto zero = _mm256_set1_ps(toSet);
+
+
+            _mm256_stream_ps(&data[batchOffset + i], zero);
+            _mm256_stream_ps(&data[batchOffset + i + 8], zero);
         }
     }
 }
