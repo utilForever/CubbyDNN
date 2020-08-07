@@ -11,422 +11,156 @@
 #include <Takion/Utils/Shape.hpp>
 #include <random>
 
-namespace Takion
+namespace Takion::Compute
 {
 class InitializerOperations
 {
 public:
     template <typename T>
-    static void RandomNormal(const Shape& shape, T mean, T stddev, T* data, std::size_t padSize)
+    static void RandomNormal(T mean, T stddev, Utils::Span<T> data,
+                             std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
         std::mt19937 engine(rd());
         std::normal_distribution<T> normal(mean, stddev);
 
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if  (padSize)
-        {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
+#pragma omp parallel for schedule(static)
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                {
-                    if (colIdx < shape.NumRow())
-                        *(data + batchIdx * matrixSize + rowIdx * colSize +
-                          colIdx) = normal(engine);
-                }
-    }
-
-    template <typename T>
-    static void RandomUniform(const Shape& shape, T min, T max, T* data, std::size_t padSize)
-    {
-        std::random_device rd;
-        std::mt19937 engine(rd());
-
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if (padSize)
         {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
-        if constexpr (std::is_integral<T>::value)
-        {
-            std::uniform_int_distribution<T> uniform(min, max);
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                    for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                    {
-                        if (colIdx < shape.NumRow())
-                            *(data + batchIdx * matrixSize + rowIdx * colSize +
-                              colIdx) = uniform(engine);
-                    }
-        }
-        else
-        {
-            std::uniform_real_distribution<T> uniform(min, max);
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                    for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                    {
-                        if (colIdx < shape.NumRow())
-                            *(data + batchIdx * matrixSize + rowIdx * colSize +
-                              colIdx) = uniform(engine);
-                    }
+            const auto elementIdx = batchIdx * elementSize;
+            for (std::size_t idx = 0; idx < elementSize; ++idx)
+                data[elementIdx + idx] = normal(engine);
         }
     }
 
     template <typename T>
-    static void LecunNormal(const Shape& shape, T* data, std::size_t padSize)
+    static void RandomUniform(const Shape& shape, T min, T max,
+                              Utils::Span<T> data, std::size_t elementSize,
+                              std::size_t batchSize)
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-        const auto fanIn = shape.NumRow();
+        std::uniform_int_distribution<T> uniform(min, max);
+
+#pragma omp parallel for schedule(static)
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        {
+            const auto elementIdx = batchIdx * elementSize;
+            for (std::size_t idx = 0; idx < elementSize; ++idx)
+                data[elementIdx + idx] = uniform(engine);
+        }
+    }
+
+    template <typename T>
+    static void LecunNormal(std::size_t fanIn, Utils::Span<T> data,
+                            std::size_t elementSize, std::size_t batchSize)
+    {
+        std::random_device rd;
+        std::mt19937 engine(rd());
         const auto stddev = static_cast<T>(1 / sqrt(static_cast<T>(fanIn)));
         std::normal_distribution<T> normal(0, stddev);
 
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if(padSize)
-        {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
+#pragma omp parallel for schedule(static)
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                {
-                    if (colIdx < shape.NumRow())
-                        *(data + batchIdx * matrixSize + rowIdx * colSize +
-                          colIdx) = normal(engine);
-                }
+        {
+            const auto elementIdx = batchIdx * elementSize;
+            for (std::size_t idx = 0; idx < elementSize; ++idx)
+                data[elementIdx + idx] = normal(engine);
+        }
     }
 
     template <typename T>
-    static void LecunUniform(const Shape& shape, T* data, std::size_t padSize)
+    static void LecunUniform(std::size_t fanIn, Utils::Span<T> data,
+                             std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-        const auto fanIn = shape.NumRow();
         const auto range = static_cast<T>(sqrt(3 / static_cast<T>(fanIn)));
+        std::uniform_int_distribution<T> uniform(-range, range);
 
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if (padSize)
+#pragma omp parallel for schedule(static)
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
-        if constexpr (std::is_integral<T>::value)
-        {
-            std::uniform_int_distribution<T> uniform(-range, range);
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                    for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                    {
-                        if (colIdx < shape.NumRow())
-                            *(data + batchIdx * matrixSize + rowIdx * colSize +
-                              colIdx) = uniform(engine);
-                    }
-        }
-        else
-        {
-            std::uniform_real_distribution<T> uniform(-range, range);
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                    for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                    {
-                        if (colIdx < shape.NumRow())
-                            *(data + batchIdx * matrixSize + rowIdx * colSize +
-                              colIdx) = uniform(engine);
-                    }
+            const auto elementIdx = batchIdx * elementSize;
+            for (std::size_t idx = 0; idx < elementSize; ++idx)
+                data[elementIdx + idx] = uniform(engine);
         }
     }
 
     template <typename T>
-    static void XavierNormal(const Shape& shape, T* data, std::size_t padSize)
+    static void XavierNormal(std::size_t fanIn, std::size_t fanOut,
+                             Utils::Span<T> data,
+                             std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-
-        const auto fanIn = shape.NumRow();
-        const auto fanOut = shape.NumCol();
-        const auto stddev = static_cast<T>(sqrt(
-            2 / static_cast<T>(fanIn + fanOut)));
-
+        const auto stddev =
+            static_cast<T>(sqrt(2 / static_cast<T>(fanIn + fanOut)));
         std::normal_distribution<T> normal(0, stddev);
 
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if (padSize)
-        {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
+#pragma omp parallel for schedule(static)
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                {
-                    if (colIdx < shape.NumRow())
-                        *(data + batchIdx * matrixSize + rowIdx * colSize +
-                          colIdx) = normal(engine);
-                }
+        {
+            const auto elementIdx = batchIdx * elementSize;
+            for (std::size_t idx = 0; idx < elementSize; ++idx)
+                data[elementIdx + idx] = normal(engine);
+        }
     }
 
     template <typename T>
-    static void XavierUniform(const Shape& shape, T* data, std::size_t padSize)
+    static void XavierUniform(std::size_t fanIn, std::size_t fanOut,
+                              Utils::Span<T> data, std::size_t elementSize,
+                              std::size_t batchSize)
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-
-        const auto fanIn = shape.NumRow();
-        const auto fanOut = shape.NumCol();
         const auto range =
             static_cast<T>(sqrt(6 / static_cast<T>(fanIn + fanOut)));
+        std::uniform_int_distribution<T> uniform(-range, range);
 
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if (padSize)
+#pragma omp parallel for schedule(static)
+        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
-        if constexpr (std::is_integral<T>::value)
-        {
-            std::uniform_int_distribution<T> uniform(-range, range);
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                    for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                    {
-                        if (colIdx < shape.NumRow())
-                            *(data + batchIdx * matrixSize + rowIdx * colSize +
-                              colIdx) = uniform(engine);
-                    }
-        }
-        else
-        {
-            std::uniform_real_distribution<T> uniform(-range, range);
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                    for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                    {
-                        if (colIdx < shape.NumRow())
-                            *(data + batchIdx * matrixSize + rowIdx * colSize +
-                              colIdx) = uniform(engine);
-                    }
+            const auto elementIdx = batchIdx * elementSize;
+            for (std::size_t idx = 0; idx < elementSize; ++idx)
+                data[elementIdx + idx] = uniform(engine);
         }
     }
 
     template <typename T>
-    static void HeNormal(const Shape& shape, T* data, std::size_t padSize)
+    static void HeNormal(std::size_t fanIn, Utils::Span<T> data,
+                         std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-
-        const auto fanIn = shape.NumRow();
         const auto stddev = static_cast<T>(sqrt(2 / static_cast<T>(fanIn)));
-
         std::normal_distribution<T> normal(0, stddev);
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
 
-        if(padSize)
-        {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
+#pragma omp parallel for schedule(static)
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                {
-                    if (colIdx < shape.NumRow())
-                        *(data + batchIdx * matrixSize + rowIdx * colSize +
-                          colIdx) = normal(engine);
-                }
+        {
+            const auto elementIdx = batchIdx * elementSize;
+            for (std::size_t idx = 0; idx < elementSize; ++idx)
+                data[elementIdx + idx] = normal(engine);
+        }
     }
 
     template <typename T>
-    static void HeUniform(const Shape& shape, T* data, std::size_t padSize)
+    static void HeUniform(std::size_t fanIn, Utils::Span<T> data,
+                          std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-
-        const auto fanIn = shape.NumRow();
         const auto range = static_cast<T>(sqrt(6 / static_cast<T>(fanIn)));
+        std::uniform_int_distribution<T> uniform(-range, range);
 
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if (padSize)
-        {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
-        if constexpr (std::is_integral<T>::value)
-        {
-            std::uniform_int_distribution<T> uniform(-range, range);
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                    for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                    {
-                        if (colIdx < shape.NumRow())
-                            *(data + batchIdx * matrixSize + rowIdx * colSize +
-                              colIdx) = uniform(engine);
-                    }
-        }
-        else
-        {
-            std::uniform_real_distribution<T> uniform(-range, range);
-            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                    for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                    {
-                        if (colIdx < shape.NumRow())
-                            *(data + batchIdx * matrixSize + rowIdx * colSize +
-                              colIdx) = uniform(engine);
-                    }
-        }
-    }
-
-    template <typename T>
-    static void Zeros(const Shape& shape, T* data, std::size_t padSize)
-    {
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if (padSize)
-        {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
-        }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
+#pragma omp parallel for schedule(static)
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                {
-                    if (colIdx < shape.NumRow())
-                        *(data + batchIdx * matrixSize + rowIdx * colSize +
-                          colIdx) = static_cast<T>(0);
-                }
-    }
-
-    template <typename T>
-    static void Ones(const Shape& shape, T* data, std::size_t padSize)
-    {
-        std::size_t matrixSize;
-        std::size_t batchSize;
-        std::size_t colSize;
-
-        if (padSize)
         {
-            matrixSize = shape.NumRow() * padSize;
-            batchSize = shape.NumMatrices();
-            colSize = padSize;
+            const auto elementIdx = batchIdx * elementSize;
+            for (std::size_t idx = 0; idx < elementSize; ++idx)
+                data[elementIdx + idx] = uniform(engine);
         }
-        else
-        {
-            matrixSize = shape.NumRow() * shape.NumCol();
-            batchSize = shape.NumMatrices();
-            colSize = shape.NumCol();
-        }
-
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
-                for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
-                {
-                    if (colIdx < shape.NumRow())
-                        *(data + batchIdx * matrixSize + rowIdx * colSize +
-                          colIdx) = static_cast<T>(1);
-                }
     }
 };
 } // namespace Takion

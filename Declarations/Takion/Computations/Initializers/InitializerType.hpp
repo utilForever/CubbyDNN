@@ -4,13 +4,14 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_INITIALIZER_HPP
-#define TAKION_INITIALIZER_HPP
+#ifndef TAKION_INITIALIZERTYPE_HPP
+#define TAKION_INITIALIZERTYPE_HPP
 
 #include <Takion/Computations/Initializers/InitializerOp.hpp>
+#include <Takion/Computations/GEMM/MathKernel.hpp>
 #include <Takion/Tensors/Tensor.hpp>
 
-namespace Takion
+namespace Takion::Compute
 {
 template <typename T>
 class Initializer
@@ -34,9 +35,19 @@ public:
 
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::Zeros(
-            tensor.TensorShape, static_cast<int*>(tensor.DataPtr),
-            tensor.Device.PadSize());
+        Compute::Set(tensor, static_cast<T>(0));
+    }
+};
+
+template <typename T>
+class Ones : public Initializer<T>
+{
+ public:
+    Ones() = default;
+
+    void Initialize(Tensor<T>& tensor) const override
+    {
+        Compute::Set(tensor, static_cast<T>(1));
     }
 };
 
@@ -120,8 +131,8 @@ public:
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::RandomNormal<T>(
-            tensor.TensorShape, m_min, m_max,
-            tensor.DataPtr, tensor.Device.PadSize());
+            m_min, m_max, tensor.DataPtr,
+            , );
     }
 
 private:
