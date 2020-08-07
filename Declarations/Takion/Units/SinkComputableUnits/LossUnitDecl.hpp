@@ -4,15 +4,15 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_GRAPH_LOSSUNIT_HPP
-#define TAKION_GRAPH_LOSSUNIT_HPP
+#ifndef TAKION_GRAPH_LOSSUNIT_DECL_HPP
+#define TAKION_GRAPH_LOSSUNIT_DECL_HPP
 
 #include <Takion/Units/ComputableUnit.hpp>
 
 namespace Takion::Graph
 {
 template <typename T>
-class LossUnit : public ComputableUnit<T>
+class MSELoss : public ComputableUnit<T>
 {
 public:
     //! \param unitId : subject UnitId
@@ -21,21 +21,20 @@ public:
     //! \param predictionTensor : tensor connected to prediction input unit
     //! \param labelTensor : tensor connected to label input unit
     //! \param backwardOutputTensor : tensor that outputs back propagation data to prediction unit
-    //! \param lossType : Type of loss function to use
     //! \param batchSize : batch Size
-    LossUnit(const UnitId& unitId, const UnitId& predictionUnitId,
-             const UnitId& labelUnitId,
-             Tensor predictionTensor, Tensor labelTensor,
-             Tensor backwardOutputTensor, std::string lossType,
-             std::size_t batchSize);
-    ~LossUnit() = default;
+    MSELoss(const UnitId& unitId, const UnitId& predictionUnitId,
+            const UnitId& labelUnitId,
+            Tensor<T> predictionTensor, Tensor<T> labelTensor,
+            Tensor<T> backwardOutputTensor,
+            std::size_t batchSize);
+    ~MSELoss() = default;
 
-    LossUnit(const LossUnit<T>& lossUnit) = delete;
-    LossUnit(LossUnit<T>&& lossUnit) noexcept;
-    LossUnit<T>& operator=(const LossUnit<T>& lossUnit) = delete;
-    LossUnit<T>& operator=(LossUnit<T>&& lossUnit) noexcept;
+    MSELoss(const MSELoss<T>& lossUnit) = delete;
+    MSELoss(MSELoss<T>&& lossUnit) noexcept;
+    MSELoss<T>& operator=(const MSELoss<T>& lossUnit) = delete;
+    MSELoss<T>& operator=(MSELoss<T>&& lossUnit) noexcept;
 
-    static LossUnit<T> CreateUnit(const UnitMetaData<T>& unitMetaData);
+    static MSELoss<T> CreateUnit(const UnitMetaData<T>& unitMetaData);
 
     void Forward() override;
 
@@ -46,7 +45,6 @@ public:
     void AsyncBackward(std::promise<bool> promise) override;
 
 private:
-    std::string m_lossType;
     UnitId m_predictionUnitId;
     UnitId m_labelUnitId;
 };
