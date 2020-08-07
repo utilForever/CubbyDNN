@@ -18,15 +18,15 @@ template <typename T>
 LossUnit<T>::LossUnit(const UnitId& unitId, const UnitId& predictionUnitId,
                       const UnitId& labelUnitId, Tensor predictionTensor,
                       Tensor labelTensor, Tensor backwardOutputTensor,
-                      std::string lossType)
+                      std::string lossType, std::size_t batchSize)
     : ComputableUnit(
           unitId,
           { { predictionUnitId, std::move(predictionTensor) },
-            { labelUnitId, std::move(labelTensor) } },
+            { labelUnitId, std::move(labelTensor) }, batchSize },
           {},
           Tensor(Shape({ 1, 1 }),
-                 Compute::Device(0, Compute::DeviceType::Cpu, "none")),
-          { { predictionUnitId, std::move(backwardOutputTensor) } }),
+                 Compute::Device(0, Compute::DeviceType::CPU, "none")),
+          { { predictionUnitId, std::move(backwardOutputTensor) } }, batchSize),
       m_lossType(std::move(lossType)),
       m_predictionUnitId(predictionUnitId),
       m_labelUnitId(labelUnitId)
@@ -68,13 +68,13 @@ LossUnit<T> LossUnit<T>::CreateUnit(const UnitMetaData<T>& unitMetaData)
 
     return LossUnit(unitMetaData.Id(), predictionUnitId, labelUnitId,
                     predictionTensor, labelTensor, backwardOutputTensor,
-                    unitMetaData.Params.GetStringParam("lossType"),
-                    NumberSystem::Float);
+                    unitMetaData.Params.GetStringParam("lossType"));
 }
 
 template <typename T>
 void LossUnit<T>::Forward()
 {
+    using ComputableUnit<T>::ForwardOutput;
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
     const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);

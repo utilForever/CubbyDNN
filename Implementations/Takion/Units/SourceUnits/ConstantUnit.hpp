@@ -12,10 +12,10 @@
 namespace Takion::Graph
 {
 template <typename T>
-ConstantUnit<T>::ConstantUnit(UnitId unitId, Tensor<T> tensor)
+ConstantUnit<T>::ConstantUnit(UnitId unitId, Tensor<T> tensor, std::size_t batchSize)
     : ComputableUnit(
           std::move(unitId), tensor.NumericType, {}, {},
-          Tensor<T>(tensor.TensorShape, tensor.Device, tensor.NumericType), {}),
+          Tensor<T>(tensor.TensorShape, tensor.Device, tensor.NumericType), {}, batchSize),
       m_value(tensor)
 {
 }

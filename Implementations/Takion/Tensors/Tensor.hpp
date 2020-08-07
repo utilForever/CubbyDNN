@@ -19,6 +19,16 @@ Tensor<T>::Tensor(Shape shape, Compute::Device device)
       Device(std::move(device)),
       BatchSize(1)
 {
+    m_paddedColumnSize = m_getPaddedColumnSize();
+    const auto totalSize = (TensorShape.Size() / TensorShape.NumCol()) *
+                           m_paddedColumnSize * BatchSize;
+
+    T* ptr = new T[totalSize];
+    for (std::size_t i = 0; i < totalSize; ++i)
+        *(ptr + i) = 0;
+    Data = Utils::Span<T>(ptr, totalSize);
+
+    m_hasOwnership.exchange(true, std::memory_order_release);
 }
 
 
@@ -30,7 +40,8 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
 {
     m_paddedColumnSize = m_getPaddedColumnSize();
     const auto totalSize =
-        (TensorShape.Size() / TensorShape.NumCols()) * m_paddedColumnSize;
+        (TensorShape.Size() / TensorShape.NumCol()) * m_paddedColumnSize *
+        BatchSize;
 
     T* ptr = new T[totalSize];
     for (std::size_t i = 0; i < totalSize; ++i)
@@ -49,14 +60,15 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
 {
     m_paddedColumnSize = m_getPaddedColumnSize();
     const auto totalSize =
-        (TensorShape.Size() / TensorShape.NumCols()) * m_paddedColumnSize;
+        (TensorShape.Size() / TensorShape.NumCol()) * m_paddedColumnSize;
     void* ptr = static_cast<void*>(new float[totalSize]);
 
-    for (std::size_t i = 0; i < TensorShape.Size() / TensorShape.NumCols(); ++i)
-        for (std::size_t j = 0; j < m_paddedColumnSize; ++j)
+    for (std::size_t i = 0; i < TensorShape.Size() / TensorShape.NumCol(); ++i)
+        for (std::size_t j = 0; j < TensorShape.NumCol(); ++j)
         {
-            const auto index = m_paddedColumnSize * i + j;
-            *(static_cast<float*>(ptr) + index) = data.at(index);
+            const auto tensorDataIndex = m_paddedColumnSize * i + j;
+            const auto dataIndex = TensorShape.NumCol() * i + j;
+            *(static_cast<float*>(ptr) + tensorDataIndex) = data.at(dataIndex);
         }
 
     Data = Utils::Span<T>(ptr, totalSize);
@@ -152,6 +164,57 @@ Tensor<T>& Tensor<T>::operator=(Tensor<T>&& tensor) noexcept
 }
 
 template <typename T>
+Tensor<T> Tensor<T>::SubTensor(std::initializer_list<int> index)
+{
+    if (index.size() > TensorShape.Dim())
+        throw std::invalid_argument(
+            "Given index dimension exceeds original dimension");
+
+    auto tensorShapeIndex = index.size() - 1;
+    std::vector<std::size_t> subShapeVector(TensorShape.Dim() - index.size());
+
+    std::size_t multiplier = 1;
+    for (auto idx = TensorShape.Dim() - 1; idx > tensorShapeIndex; --idx)
+    {
+        subShapeVector[TensorShape.Dim() - index.size() - 1] = TensorShape[idx];
+
+        if (idx == TensorShape.Dim() - 1)
+            multiplier *= ColumnElementSize();
+        else
+            multiplier *= TensorShape[idx];
+    }
+
+    std::size_t offset = 0;
+    for (auto itr = index.end(); itr != index.begin();
+         --itr, --tensorShapeIndex)
+    {
+        if (TensorShape[tensorShapeIndex] < *itr)
+            throw std::invalid_argument("Given index exceeds original shape");
+
+        offset += multiplier * (*itr);
+
+        multiplier *= TensorShape[tensorShapeIndex];
+    }
+
+    auto newTensor = Tensor(subShapeVector, BatchSize, Device);
+    const auto newElementSize = newTensor.ElementSize();
+    const auto elementSize = ElementSize();
+
+#pragma omp parallel for schedule(static)
+    for (std::size_t batchIdx = 0; batchIdx < BatchSize; ++batchIdx)
+    {
+        for (std::size_t elementIdx = 0; elementIdx < newElementSize;
+             ++elementIdx)
+        {
+            newTensor.Data[batchIdx * newElementSize + elementIdx] =
+                Data[batchIdx * elementSize + offset + elementIdx];
+        }
+    }
+
+    return newTensor;
+}
+
+template <typename T>
 T& Tensor<T>::At(std::size_t batchIdx, std::vector<std::size_t> index)
 {
     if (index.size() != TensorShape.Dim())
@@ -227,8 +290,8 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
     const auto sourceShape = source.TensorShape;
     const auto destShape = destination.TensorShape;
     const auto batchSize = sourceShape.NumMatrices();
-    const auto numRows = sourceShape.NumRows();
-    const auto numCols = sourceShape.NumCols();
+    const auto numRows = sourceShape.NumRow();
+    const auto numCols = sourceShape.NumCol();
     const auto sourceColSize = source.ColumnElementSize();
     const auto destColSize = destination.ColumnElementSize();
 
@@ -239,6 +302,7 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
                                           batchElementSize);
     }
 
+#pragma omp parallel for schedule(static)
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
         for (std::size_t rowIdx = 0; rowIdx < numRows; ++rowIdx)

@@ -6,6 +6,7 @@
 
 #ifndef TAKION_GRAPH_UNITID_HPP
 #define TAKION_GRAPH_UNITID_HPP
+
 #include <Takion/Utils/SharedPtr.hpp>
 #include <unordered_map>
 
@@ -77,6 +78,17 @@ struct UnitId
     std::size_t Id;
     std::string UnitName;
 };
+
+//! UnitState
+//! Wrapper class containing the state and ForwardStateCount
+//! This represents the execution state of computable Unit
+struct UnitState
+{
+    /// State number of current
+    std::atomic<std::size_t> ForwardStateCount = 0;
+    std::atomic<std::size_t> BackwardStateCount = 0;
+};
+
 } // namespace Takion
 
 //! AddCpu template specialization for UnitId hash
@@ -92,5 +104,6 @@ struct hash<Takion::Graph::UnitId>
         return h1 ^ (h2 << 1); // or use boost::hash_combine
     }
 };
+
 }; // namespace std
 #endif

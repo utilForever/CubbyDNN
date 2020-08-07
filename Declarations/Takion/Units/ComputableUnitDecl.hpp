@@ -38,7 +38,7 @@ public:
     = delete;
     ComputableUnit<T>& operator=(ComputableUnit<T>&& computableUnit) noexcept;
 
-    UnitId Id() const
+    [[nodiscard]] UnitId Id() const
     {
         return m_unitId;
     }

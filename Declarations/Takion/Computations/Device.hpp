@@ -12,16 +12,14 @@ namespace Takion::Compute
 {
 enum class DeviceType
 {
-    Cpu,
-    Blaze,
-    Cuda,
+    CPU,
+    GPU,
 };
 
 class Device
 {
 public:
-    Device(int id, DeviceType type, std::string name,
-           std::size_t padByteSize = 0);
+    Device(int id, DeviceType type, std::string name);
     ~Device() = default;
 
     Device(const Device& device) = default;

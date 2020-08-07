@@ -54,16 +54,16 @@ public:
 
     [[nodiscard]] std::size_t Size() const noexcept;
 
-    [[nodiscard]] std::size_t NumMatrices() const;
-
-    [[nodiscard]] std::size_t NumRows() const
+    [[nodiscard]] std::size_t NumRow() const
     {
-        if (m_shapeVector.size() < 2)
+        if (m_shapeVector.empty())
+            return 0;
+        if (m_shapeVector.size() == 1)
             return 1;
         return m_shapeVector.at(m_shapeVector.size() - 2);
     }
 
-    [[nodiscard]] std::size_t NumCols() const
+    [[nodiscard]] std::size_t NumCol() const
     {
         if (m_shapeVector.empty())
             return 0;

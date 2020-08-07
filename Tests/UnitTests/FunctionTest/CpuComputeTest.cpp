@@ -14,7 +14,7 @@ namespace Takion::Test
 {
 void TestMatMul()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::CPU, "testDevice");
     const auto batchSize = 3;
 
     Tensor<float> tensorA({ 3, 2 }, device);
@@ -61,7 +61,7 @@ void TestMatMul()
 
 void TestMatMul2()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::CPU, "testDevice");
 
     const auto batchSize = 3;
     const auto size = 150;
@@ -96,7 +96,7 @@ void TestMatMul2()
 
 void TestMatMulWithTranspose()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::CPU, "testDevice");
     const auto batchSize = 3;
 
     Tensor<float> tensorA({ 3, 3 }, batchSize, device);
@@ -152,7 +152,7 @@ void TestMatMulWithTranspose()
 
 void TestMatAdd()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::CPU, "testDevice");
     const auto batchSize = 3;
     const auto rowSize = 2;
     const auto colSize = 5;
@@ -187,7 +187,7 @@ void TestMatAdd()
 
 void TestMatDot()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::CPU, "testDevice");
     const auto batchSize = 3;
     const auto rowSize = 2;
     const auto colSize = 5;
@@ -222,7 +222,7 @@ void TestMatDot()
 
 void TestShrink()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::CPU, "testDevice");
     const auto batchSize = 3;
 
     Tensor<float> tensorA({ 3, 3 }, batchSize, device);
@@ -262,7 +262,7 @@ void TestShrink()
 
 void TestShrink2()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    Compute::Device device(0, Compute::DeviceType::CPU, "testDevice");
     const auto batchSize = 3;
 
     Tensor<float> tensor({ 3 }, batchSize, device);
@@ -296,7 +296,7 @@ void TestShrink2()
 
 void TestScalarMul()
 {
-    const Compute::Device device(0, Compute::DeviceType::Cpu, "testDevice", 0);
+    const Compute::Device device(0, Compute::DeviceType::CPU, "testDevice");
     const auto batchSize = 3;
 
     Tensor<float> tensor({ 3, 3 }, batchSize, device);

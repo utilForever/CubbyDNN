@@ -20,24 +20,24 @@ void MultiplyAdd(const Tensor<T>& A, const Tensor<T>& B, const Tensor<T>& C,
     const auto outputShape = out.TensorShape;
     const auto inputShapeA = A.TensorShape;
 
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRows,
-                             out.ColumnElementSize(), inputShapeA.NumCols,
+            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow,
+                             out.ColumnElementSize(), inputShapeA.NumCol,
                              out.BatchSize);
         else if (A.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
-                A.Data, B.Data, out.Data, outputShape.NumRows(),
-                out.ColumnElementSize(), inputShapeA.NumCols, out.BatchSize,
+                A.Data, B.Data, out.Data, outputShape.NumRow(),
+                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
                 true);
         }
         else if (B.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
-                A.Data, B.Data, out.Data, outputShape.NumRows(),
-                out.ColumnElementSize(), inputShapeA.NumCols, out.BatchSize,
+                A.Data, B.Data, out.Data, outputShape.NumRow(),
+                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
                 false);
         }
         else
@@ -62,24 +62,24 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     const auto outputShape = out.TensorShape;
     const auto inputShapeA = A.TensorShape;
 
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRows,
-                             out.ColumnElementSize(), inputShapeA.NumCols,
+            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow,
+                             out.ColumnElementSize(), inputShapeA.NumCol,
                              out.BatchSize);
         else if (A.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
-                A.Data, B.Data, out.Data, outputShape.NumRows(),
-                out.ColumnElementSize(), inputShapeA.NumCols, out.BatchSize,
+                A.Data, B.Data, out.Data, outputShape.NumRow(),
+                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
                 true);
         }
         else if (B.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
-                A.Data, B.Data, out.Data, outputShape.NumRows(),
-                out.ColumnElementSize(), inputShapeA.NumCols, out.BatchSize,
+                A.Data, B.Data, out.Data, outputShape.NumRow(),
+                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
                 false);
         }
         else
@@ -96,9 +96,9 @@ void Transpose(const Tensor<T>& input, Tensor<T>& output)
     const auto device = output.Device;
     const auto inputShape = input.TensorShape;
 
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
-        CPU::CpuTranspose(input, output, inputShape.NumRows,
+        CPU::CpuTranspose(input, output, inputShape.NumRow,
                           input.ColumnElementSize());
     }
     else
@@ -110,7 +110,7 @@ void Shrink(const Tensor<T>& input, Tensor<T>& output)
 {
     const auto device = output.Device;
     const auto size = output.ElementSize();
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         CPU::ShrinkCpu(input.Data, output.Data, size, output.BatchSize);
     }
@@ -122,7 +122,7 @@ template <typename T>
 void Add(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 {
     const auto device = out.Device;
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
             CPU::AddCpu(A.Data, B.Data, out.Data,
@@ -143,7 +143,7 @@ template <typename T>
 void Add(const Tensor<T>& A, Tensor<T>& out)
 {
     const auto device = out.Device;
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == out.BatchSize)
             CPU::AddCpu(out.Data, A.Data, out.Data, out.ElementSize(),
@@ -160,7 +160,7 @@ template <typename T>
 void Dot(const Tensor<T>& input, const Tensor<T>& B, Tensor<T>& out)
 {
     const auto device = out.Device;
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         CPU::DotCpu(input.Data, B.Data, out.Data, out.ElementSize(),
                     out.BatchSize);
@@ -173,7 +173,7 @@ template <typename T>
 void Dot(const Tensor<T>& input, Tensor<T>& out)
 {
     const auto device = out.Device;
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         CPU::DotCpu(out.Data, input.Data, out.Data, out.ElementSize(),
                     out.BatchSize);
@@ -186,7 +186,7 @@ template <typename T>
 void ScalarMul(const Tensor<T>& input, T toMul, Tensor<T>& output)
 {
     const auto device = output.Device;
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         CPU::ScalarMulCpu(input.Data, toMul, output.Data, output.ElementSize(),
                           output.BatchSize);
@@ -199,7 +199,7 @@ template <typename T>
 void ScalarMul(const Tensor<T>& tensor, T toMul)
 {
     const auto device = tensor.Device;
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         CPU::ScalarMulCpu(tensor.Data, toMul, tensor.Data, tensor.ElementSize(),
                           tensor.BatchSize);
@@ -212,7 +212,7 @@ template <typename T>
 void ScalarDiv(const Tensor<T>& input, T toDiv, Tensor<T>& output)
 {
     const auto device = output.Device;
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         CPU::ScalarDivCpu(input.Data, toDiv, output.Data, output.ElementSize(),
                           output.BatchSize);
@@ -225,7 +225,7 @@ template <typename T>
 void ScalarDiv(const Tensor<T>& tensor, T toDiv)
 {
     const auto device = tensor.Device;
-    if (device.Type() == DeviceType::Cpu)
+    if (device.Type() == DeviceType::CPU)
     {
         CPU::ScalarDivCpu(tensor.Data, toDiv, tensor.Data, tensor.ElementSize(),
                           tensor.BatchSize);

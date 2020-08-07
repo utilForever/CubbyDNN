@@ -15,7 +15,7 @@ template <typename T>
 class ConstantUnit : public ComputableUnit<T>
 {
 public:
-    ConstantUnit(UnitId unitId, Tensor<T> tensor);
+    ConstantUnit(UnitId unitId, Tensor<T> tensor, std::size_t batchSize);
     ~ConstantUnit() override = default;
 
     ConstantUnit(const ConstantUnit<T>& constantUnit) = delete;

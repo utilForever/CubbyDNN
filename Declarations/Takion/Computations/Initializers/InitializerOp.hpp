@@ -29,22 +29,22 @@ public:
 
         if  (padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                 {
-                    if (colIdx < shape.NumRows())
+                    if (colIdx < shape.NumRow())
                         *(data + batchIdx * matrixSize + rowIdx * colSize +
                           colIdx) = normal(engine);
                 }
@@ -62,25 +62,25 @@ public:
 
         if (padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         if constexpr (std::is_integral<T>::value)
         {
             std::uniform_int_distribution<T> uniform(min, max);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                     for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                     {
-                        if (colIdx < shape.NumRows())
+                        if (colIdx < shape.NumRow())
                             *(data + batchIdx * matrixSize + rowIdx * colSize +
                               colIdx) = uniform(engine);
                     }
@@ -89,10 +89,10 @@ public:
         {
             std::uniform_real_distribution<T> uniform(min, max);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                     for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                     {
-                        if (colIdx < shape.NumRows())
+                        if (colIdx < shape.NumRow())
                             *(data + batchIdx * matrixSize + rowIdx * colSize +
                               colIdx) = uniform(engine);
                     }
@@ -104,7 +104,7 @@ public:
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-        const auto fanIn = shape.NumRows();
+        const auto fanIn = shape.NumRow();
         const auto stddev = static_cast<T>(1 / sqrt(static_cast<T>(fanIn)));
         std::normal_distribution<T> normal(0, stddev);
 
@@ -114,22 +114,22 @@ public:
 
         if(padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                 {
-                    if (colIdx < shape.NumRows())
+                    if (colIdx < shape.NumRow())
                         *(data + batchIdx * matrixSize + rowIdx * colSize +
                           colIdx) = normal(engine);
                 }
@@ -140,7 +140,7 @@ public:
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-        const auto fanIn = shape.NumRows();
+        const auto fanIn = shape.NumRow();
         const auto range = static_cast<T>(sqrt(3 / static_cast<T>(fanIn)));
 
         std::size_t matrixSize;
@@ -149,25 +149,25 @@ public:
 
         if (padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         if constexpr (std::is_integral<T>::value)
         {
             std::uniform_int_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                     for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                     {
-                        if (colIdx < shape.NumRows())
+                        if (colIdx < shape.NumRow())
                             *(data + batchIdx * matrixSize + rowIdx * colSize +
                               colIdx) = uniform(engine);
                     }
@@ -176,10 +176,10 @@ public:
         {
             std::uniform_real_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                     for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                     {
-                        if (colIdx < shape.NumRows())
+                        if (colIdx < shape.NumRow())
                             *(data + batchIdx * matrixSize + rowIdx * colSize +
                               colIdx) = uniform(engine);
                     }
@@ -192,8 +192,8 @@ public:
         std::random_device rd;
         std::mt19937 engine(rd());
 
-        const auto fanIn = shape.NumRows();
-        const auto fanOut = shape.NumCols();
+        const auto fanIn = shape.NumRow();
+        const auto fanOut = shape.NumCol();
         const auto stddev = static_cast<T>(sqrt(
             2 / static_cast<T>(fanIn + fanOut)));
 
@@ -205,22 +205,22 @@ public:
 
         if (padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                 {
-                    if (colIdx < shape.NumRows())
+                    if (colIdx < shape.NumRow())
                         *(data + batchIdx * matrixSize + rowIdx * colSize +
                           colIdx) = normal(engine);
                 }
@@ -232,8 +232,8 @@ public:
         std::random_device rd;
         std::mt19937 engine(rd());
 
-        const auto fanIn = shape.NumRows();
-        const auto fanOut = shape.NumCols();
+        const auto fanIn = shape.NumRow();
+        const auto fanOut = shape.NumCol();
         const auto range =
             static_cast<T>(sqrt(6 / static_cast<T>(fanIn + fanOut)));
 
@@ -243,25 +243,25 @@ public:
 
         if (padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         if constexpr (std::is_integral<T>::value)
         {
             std::uniform_int_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                     for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                     {
-                        if (colIdx < shape.NumRows())
+                        if (colIdx < shape.NumRow())
                             *(data + batchIdx * matrixSize + rowIdx * colSize +
                               colIdx) = uniform(engine);
                     }
@@ -270,10 +270,10 @@ public:
         {
             std::uniform_real_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                     for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                     {
-                        if (colIdx < shape.NumRows())
+                        if (colIdx < shape.NumRow())
                             *(data + batchIdx * matrixSize + rowIdx * colSize +
                               colIdx) = uniform(engine);
                     }
@@ -286,7 +286,7 @@ public:
         std::random_device rd;
         std::mt19937 engine(rd());
 
-        const auto fanIn = shape.NumRows();
+        const auto fanIn = shape.NumRow();
         const auto stddev = static_cast<T>(sqrt(2 / static_cast<T>(fanIn)));
 
         std::normal_distribution<T> normal(0, stddev);
@@ -296,22 +296,22 @@ public:
 
         if(padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                 {
-                    if (colIdx < shape.NumRows())
+                    if (colIdx < shape.NumRow())
                         *(data + batchIdx * matrixSize + rowIdx * colSize +
                           colIdx) = normal(engine);
                 }
@@ -323,7 +323,7 @@ public:
         std::random_device rd;
         std::mt19937 engine(rd());
 
-        const auto fanIn = shape.NumRows();
+        const auto fanIn = shape.NumRow();
         const auto range = static_cast<T>(sqrt(6 / static_cast<T>(fanIn)));
 
         std::size_t matrixSize;
@@ -332,25 +332,25 @@ public:
 
         if (padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         if constexpr (std::is_integral<T>::value)
         {
             std::uniform_int_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                     for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                     {
-                        if (colIdx < shape.NumRows())
+                        if (colIdx < shape.NumRow())
                             *(data + batchIdx * matrixSize + rowIdx * colSize +
                               colIdx) = uniform(engine);
                     }
@@ -359,10 +359,10 @@ public:
         {
             std::uniform_real_distribution<T> uniform(-range, range);
             for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-                for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+                for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                     for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                     {
-                        if (colIdx < shape.NumRows())
+                        if (colIdx < shape.NumRow())
                             *(data + batchIdx * matrixSize + rowIdx * colSize +
                               colIdx) = uniform(engine);
                     }
@@ -378,22 +378,22 @@ public:
 
         if (padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                 {
-                    if (colIdx < shape.NumRows())
+                    if (colIdx < shape.NumRow())
                         *(data + batchIdx * matrixSize + rowIdx * colSize +
                           colIdx) = static_cast<T>(0);
                 }
@@ -408,22 +408,22 @@ public:
 
         if (padSize)
         {
-            matrixSize = shape.NumRows() * padSize;
+            matrixSize = shape.NumRow() * padSize;
             batchSize = shape.NumMatrices();
             colSize = padSize;
         }
         else
         {
-            matrixSize = shape.NumRows() * shape.NumCols();
+            matrixSize = shape.NumRow() * shape.NumCol();
             batchSize = shape.NumMatrices();
-            colSize = shape.NumCols();
+            colSize = shape.NumCol();
         }
 
         for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-            for (std::size_t rowIdx = 0; rowIdx < shape.NumRows(); ++rowIdx)
+            for (std::size_t rowIdx = 0; rowIdx < shape.NumRow(); ++rowIdx)
                 for (std::size_t colIdx = 0; colIdx < colSize; ++colIdx)
                 {
-                    if (colIdx < shape.NumRows())
+                    if (colIdx < shape.NumRow())
                         *(data + batchIdx * matrixSize + rowIdx * colSize +
                           colIdx) = static_cast<T>(1);
                 }

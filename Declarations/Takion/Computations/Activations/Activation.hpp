@@ -23,8 +23,8 @@ void ReLU<T>::Apply(Tensor<T>& input, Tensor<T>& output) const
     const std::size_t colDataSize = input.GetColumnElementSize();
     const std::size_t colDataSizeOutput = output.GetColumnElementSize();
 
-    const auto numRows = inputShape.NumRows();
-    const auto numCols = inputShape.NumCols();
+    const auto numRows = inputShape.NumRow();
+    const auto numCols = inputShape.NumCol();
     const auto batchSize = inputShape.NumMatrices();
     const auto matrixSize = numRows * colDataSize;
     const auto matrixSizeOutput = numRows * colDataSizeOutput;
@@ -52,8 +52,8 @@ void ReLU<T>::ApplyDerivative(Tensor<T>& input, Tensor<T>& output) const
     const std::size_t colDataSize = input.GetColumnElementSize();
     const std::size_t colDataSizeOutput = output.GetColumnElementSize();
 
-    const auto numRows = inputShape.NumRows();
-    const auto numCols = inputShape.NumCols();
+    const auto numRows = inputShape.NumRow();
+    const auto numCols = inputShape.NumCol();
     const auto batchSize = inputShape.NumMatrices();
     const auto matrixSize = numRows * colDataSize;
     const auto matrixSizeOutput = numRows * colDataSizeOutput;

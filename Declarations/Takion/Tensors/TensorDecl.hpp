@@ -32,8 +32,10 @@ public:
     Tensor(const Tensor<T>& tensor);
     Tensor(Tensor<T>&& tensor) noexcept;
     /// move assignment operator
-    Tensor& operator=(const Tensor<T>& tensor);
-    Tensor& operator=(Tensor<T>&& tensor) noexcept;
+    Tensor<T>& operator=(const Tensor<T>& tensor);
+    Tensor<T>& operator=(Tensor<T>&& tensor) noexcept;
+
+    [[nodiscard]] Tensor<T> SubTensor(std::initializer_list<int> index);
 
     //! If both tensors are on same device, data is moved rather than copied
     static void ForwardTensorData(Tensor<T>& source, Tensor<T>& destination);
@@ -90,12 +92,12 @@ private:
     std::size_t m_getPaddedColumnSize() const
     {
         if (Device.PadSize() == 0)
-            return TensorShape.NumCols();
+            return TensorShape.NumCol();
 
         const std::size_t padUnitSize = Device.PadSize() / sizeof(T);
 
         std::size_t i = 0;
-        while (padUnitSize * i < TensorShape.NumCols())
+        while (padUnitSize * i < TensorShape.NumCol())
             ++i;
 
         return padUnitSize * i;

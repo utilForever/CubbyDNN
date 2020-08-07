@@ -9,16 +9,13 @@
 
 namespace Takion::Compute
 {
-Device::Device(int id, DeviceType type, std::string name,
-               std::size_t padByteSize)
+Device::Device(int id, DeviceType type, std::string name)
     : m_id(id),
       m_type(type),
-      m_name(std::move(name)),
-      m_padByteSize(padByteSize)
+      m_name(std::move(name))
 {
-    if (type != DeviceType::Blaze && padByteSize > 0)
-        throw std::invalid_argument(
-            "Only blaze device can have padded tensors");
+    if (type == DeviceType::CPU)
+        m_padByteSize = 256;
 }
 
 bool Device::operator==(const Device& device) const

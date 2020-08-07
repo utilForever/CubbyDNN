@@ -10,23 +10,6 @@
 
 namespace Takion
 {
-enum class NumberSystem
-{
-    Float,
-    Int,
-};
-
-
-//! UnitState
-//! Wrapper class containing the state and ForwardStateCount
-//! This represents the execution state of computable Unit
-struct UnitState
-{
-    /// State number of current
-    std::atomic<std::size_t> ForwardStateCount = 0;
-    std::atomic<std::size_t> BackwardStateCount = 0;
-};
-
 enum class TaskType
 {
     ComputeSource,

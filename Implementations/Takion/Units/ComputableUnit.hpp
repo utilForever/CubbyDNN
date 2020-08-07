@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
@@ -8,7 +8,6 @@
 #define TAKION_GRAPH_COMPUTABLEUNIT_HPP
 
 #include <Takion/Units/ComputableUnitDecl.hpp>
-#include <Takion/Units/UnitType.hpp>
 
 namespace Takion::Graph
 {
@@ -24,8 +23,8 @@ ComputableUnit<T>::ComputableUnit(
       BackwardInputMap(std::move(backwardInputMap)),
       ForwardOutput(std::move(forwardOutput)),
       BackwardOutputMap(std::move(backwardOutputMap)),
-      m_unitId(std::move(subjectUnitId)),
-      BatchSize(batchSize)
+      BatchSize(batchSize),
+      m_unitId(std::move(subjectUnitId))
 {
 }
 
@@ -35,6 +34,7 @@ ComputableUnit<T>::ComputableUnit(ComputableUnit<T>&& computableUnit) noexcept
       BackwardInputMap(std::move(computableUnit.BackwardInputMap)),
       ForwardOutput(std::move(computableUnit.ForwardOutput)),
       BackwardOutputMap(std::move(computableUnit.BackwardOutputMap)),
+      BatchSize(computableUnit.BatchSize),
       m_unitId(std::move(computableUnit.m_unitId))
 {
 }

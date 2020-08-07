@@ -24,7 +24,7 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
     const auto sizeB = numMiddle * numCol;
     const auto sizeDest = numRow * numCol;
 
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
         const auto batchOffsetA = sizeA * batchIdx;
@@ -98,7 +98,7 @@ inline void MultiplyWithBroadcastCpu(const Span<int> inputA,
     const auto sizeB = numMiddle * numCol;
     const auto sizeDest = numRow * numCol;
 
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
         const auto batchOffsetA = broadCastA ? 0 : sizeA * batchIdx;
@@ -165,7 +165,7 @@ inline void CpuTranspose(const Span<int> input, Span<int> output,
 {
     const auto blockSize = 4;
     const auto matrixSize = numRowInput * numColInput;
-    //! Optimized matrix transpose minimizing cache misses
+#pragma omp parallel for schedule(static) default(shared)
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
         for (std::size_t ii = 0; ii < numRowInput; ii += blockSize)
@@ -193,7 +193,7 @@ template <>
 inline void ShrinkCpu(const Span<int> input, Span<int> output, unsigned size,
                       unsigned batchSize)
 {
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
@@ -220,7 +220,7 @@ inline void ShrinkCpu(const Span<int> input, Span<int> output, unsigned size,
         }
     }
 
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
@@ -247,7 +247,7 @@ inline void AddCpu(const Span<int> A, const Span<int> B,
                    Span<int> out,
                    unsigned size, unsigned batchSize)
 {
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
@@ -277,7 +277,7 @@ inline void AddWithBroadcastCpu(const Span<int> A, const Span<int> B,
                                 Span<int> out, unsigned size,
                                 unsigned batchSize)
 {
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
@@ -307,7 +307,7 @@ inline void DotCpu(const Span<int> inputA, const Span<int> inputB,
                    Span<int> out,
                    unsigned size, unsigned batchSize)
 {
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
@@ -337,7 +337,7 @@ template <>
 inline void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
                          unsigned size, unsigned batchSize)
 {
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
@@ -362,7 +362,7 @@ template <>
 inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
                          unsigned size, unsigned batchSize)
 {
-#pragma parallel for schedule(static) default(shared)
+#pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;

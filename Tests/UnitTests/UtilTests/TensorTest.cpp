@@ -12,7 +12,7 @@ namespace Takion::Test
 {
 void TensorCopyTest()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "device0");
+    Compute::Device device(0, Compute::DeviceType::CPU, "device0");
     const Shape shape({ 3, 5 });
     std::vector<float> vector(shape.Size());
 
@@ -35,7 +35,7 @@ void TensorCopyTest()
 
 void TensorMoveTest()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "device0");
+    Compute::Device device(0, Compute::DeviceType::CPU, "device0");
     const Shape shape({ 10, 3, 5 });
     std::vector<float> vector(shape.Size());
 
@@ -58,7 +58,7 @@ void TensorMoveTest()
 
 void TensorForwardTestWithMove()
 {
-    Compute::Device device(0, Compute::DeviceType::Cpu, "device0");
+    Compute::Device device(0, Compute::DeviceType::CPU, "device0");
     const Shape shape({ 3, 5 });
     std::vector<float> vector(shape.Size());
 
@@ -81,7 +81,7 @@ void TensorForwardTestWithMove()
 
 void TensorForwardTestWithCopy()
 {
-    Compute::Device device1(0, Compute::DeviceType::Cpu, "device0");
+    Compute::Device device1(0, Compute::DeviceType::CPU, "device0");
     Compute::Device device2(1, Compute::DeviceType::Blaze, "device1", 256);
     const Shape shape({ 10, 3, 5 });
     std::vector<float> vector(shape.Size());
