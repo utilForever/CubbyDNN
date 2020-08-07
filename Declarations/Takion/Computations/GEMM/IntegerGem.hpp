@@ -190,8 +190,8 @@ inline void CpuTranspose(const Span<int> input, Span<int> output,
 }
 
 template <>
-void ShrinkCpu(const Span<int> input, Span<int> output, unsigned size,
-               unsigned batchSize)
+inline void ShrinkCpu(const Span<int> input, Span<int> output, unsigned size,
+                      unsigned batchSize)
 {
 #pragma parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -212,8 +212,31 @@ void ShrinkCpu(const Span<int> input, Span<int> output, unsigned size,
             const auto sum1 = _mm256_add_epi32(vecA1, vecB1);
             const auto sum2 = _mm256_add_epi32(vecA2, vecB2);
 
-            _mm256_storeu_si256((__m256i*)&output[i], sum1);
-            _mm256_storeu_si256((__m256i*)&output[i + 8], sum2);
+#pragma omp critical
+            {
+                _mm256_storeu_si256((__m256i*)&output[i], sum1);
+                _mm256_storeu_si256((__m256i*)&output[i + 8], sum2);
+            }
+        }
+    }
+
+#pragma parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (unsigned i = 0; i < size; i += 16)
+        {
+            const auto vecMul = _mm256_set1_epi32(static_cast<int>(batchSize));
+            const auto vecA1 =
+                _mm256_loadu_si256((__m256i*)&input[batchOffset + i]);
+            const auto vecA2 =
+                _mm256_loadu_si256((__m256i*)&input[batchOffset + i + 8]);
+
+            const auto div1 = _mm256_div_epi32(vecA1, vecMul);
+            const auto div2 = _mm256_div_epi32(vecA2, vecMul);
+
+            _mm256_storeu_si256((__m256i*)&output[batchOffset + i], div1);
+            _mm256_storeu_si256((__m256i*)&output[batchOffset + i + 8], div2);
         }
     }
 }
@@ -251,7 +274,8 @@ inline void AddCpu(const Span<int> A, const Span<int> B,
 
 template <>
 inline void AddWithBroadcastCpu(const Span<int> A, const Span<int> B,
-                         Span<int> out, unsigned size, unsigned batchSize)
+                                Span<int> out, unsigned size,
+                                unsigned batchSize)
 {
 #pragma parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -334,7 +358,7 @@ inline void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
     }
 }
 
-template<>
+template <>
 inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
                          unsigned size, unsigned batchSize)
 {

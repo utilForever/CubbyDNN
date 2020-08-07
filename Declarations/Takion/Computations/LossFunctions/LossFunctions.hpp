@@ -41,11 +41,12 @@ protected:
             throw std::invalid_argument(
                 "BaseLoss - Tensor shape mismatch");
 
-        if (inputA.NumericType != inputB.NumericType)
-            throw std::invalid_argument("BaseLoss  - Numeric type mismatch");
-
         if (inputA.Device != inputB.Device)
             throw std::invalid_argument("BaseLoss - Device mismatch");
+
+        if (inputA.BatchSize != inputB.BatchSize)
+            throw std::invalid_argument(
+                "Batch size mismatch between given inputs");
     }
 };
 
@@ -66,7 +67,7 @@ public:
     MSE& operator=(MSE&& mse) noexcept = default;
 
     [[nodiscard]] T
-    Apply(const Tensor& input, const Tensor& label) const override
+    Apply(const Tensor<T>& input, const Tensor<T>& label) const override
     {
         BaseLoss<T>::m_checkArguments(input, label);
 
@@ -76,9 +77,10 @@ public:
         const std::size_t colDataSizeInput = input.GetColumnElementSize();
         const std::size_t colDataSizeLabel = label.GetColumnElementSize();
 
-        const auto numRows = inputShape.NumRows();
-        const auto numCols = inputShape.NumCols();
-        const auto batchSize = inputShape.NumMatrices();
+        const auto numRows = inputShape.NumRow();
+        const auto numCols = inputShape.NumCol();
+        const auto batchSize = input.BatchSize;
+        const auto elementSize = input.ElementSize();
         const auto matrixSizeInput = numRows * colDataSizeInput;
         const auto matrixSizeOutput = numRows * colDataSizeLabel;
 

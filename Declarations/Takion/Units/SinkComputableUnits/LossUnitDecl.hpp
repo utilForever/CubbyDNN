@@ -22,10 +22,12 @@ public:
     //! \param labelTensor : tensor connected to label input unit
     //! \param backwardOutputTensor : tensor that outputs back propagation data to prediction unit
     //! \param lossType : Type of loss function to use
+    //! \param batchSize : batch Size
     LossUnit(const UnitId& unitId, const UnitId& predictionUnitId,
              const UnitId& labelUnitId,
              Tensor predictionTensor, Tensor labelTensor,
-             Tensor backwardOutputTensor, std::string lossType);
+             Tensor backwardOutputTensor, std::string lossType,
+             std::size_t batchSize);
     ~LossUnit() = default;
 
     LossUnit(const LossUnit<T>& lossUnit) = delete;
