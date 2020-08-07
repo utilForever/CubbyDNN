@@ -61,7 +61,7 @@ Shape Shape::operator*(const Shape& shape) const
 {
     if (this->Dim() != shape.Dim())
         throw std::runtime_error("Dimension mismatch");
-    if (this->NumCols() != shape.NumRows())
+    if (this->NumCol() != shape.NumRow())
         throw std::runtime_error("Multiply-shape mismatch");;
 
     std::vector<std::size_t> shapeVector;
@@ -131,7 +131,7 @@ Shape& Shape::Reshape(std::initializer_list<std::size_t> newShape)
     for (auto i : newShape)
     {
         if (i == 0)
-            throw std::runtime_error("zero dimension  is not allowed");
+            throw std::runtime_error("zero dimension is not allowed");
         newSize *= 1;
     }
 
@@ -154,8 +154,8 @@ Shape& Shape::Transpose()
 Shape Shape::GetTransposedShape() const
 {
     Shape shape(m_shapeVector);
-    shape.SetNumRows(NumCols());
-    shape.SetNumCols(NumRows());
+    shape.SetNumRows(NumCol());
+    shape.SetNumCols(NumRow());
     return shape;
 }
 } // namespace Takion

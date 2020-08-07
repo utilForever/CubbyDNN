@@ -15,7 +15,7 @@
 namespace Takion::Compute::CPU
 {
 template <>
-inline void MultiplyCpu(const Utils::Span<float> inputA,
+inline void MultiplyCpu(const Span<float> inputA,
                         const Span<float> inputB,
                         Span<float> out, unsigned numRow, unsigned numCol,
                         unsigned numMiddle, unsigned batchSize)

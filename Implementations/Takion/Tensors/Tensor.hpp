@@ -61,14 +61,14 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
     m_paddedColumnSize = m_getPaddedColumnSize();
     const auto totalSize =
         (TensorShape.Size() / TensorShape.NumCol()) * m_paddedColumnSize;
-    void* ptr = static_cast<void*>(new float[totalSize]);
+    T* ptr = new T[totalSize];
 
     for (std::size_t i = 0; i < TensorShape.Size() / TensorShape.NumCol(); ++i)
         for (std::size_t j = 0; j < TensorShape.NumCol(); ++j)
         {
             const auto tensorDataIndex = m_paddedColumnSize * i + j;
             const auto dataIndex = TensorShape.NumCol() * i + j;
-            *(static_cast<float*>(ptr) + tensorDataIndex) = data.at(dataIndex);
+            *(ptr + tensorDataIndex) = data.at(dataIndex);
         }
 
     Data = Utils::Span<T>(ptr, totalSize);
@@ -108,8 +108,9 @@ Tensor<T>::Tensor(Tensor&& tensor) noexcept
     : Data(tensor.Data),
       TensorShape(std::move(tensor.TensorShape)),
       Device(std::move(tensor.Device)),
-      BatchSize(tensor.BatchSize)
-
+      BatchSize(tensor.BatchSize),
+      m_elementSize(tensor.m_elementSize),
+      m_paddedColumnSize(tensor.m_paddedColumnSize)
 {
     if (tensor.m_hasOwnership)
     {
@@ -129,6 +130,8 @@ Tensor<T>& Tensor<T>::operator=(const Tensor<T>& tensor)
     TensorShape = tensor.TensorShape;
     Device = tensor.Device;
     BatchSize = tensor.BatchSize;
+    m_elementSize = tensor.m_elementSize;
+    m_paddedColumnSize = tensor.m_paddedColumnSize;
 
     if (tensor.m_hasOwnership)
     {
@@ -150,6 +153,8 @@ Tensor<T>& Tensor<T>::operator=(Tensor<T>&& tensor) noexcept
     TensorShape = tensor.TensorShape;
     Device = std::move(tensor.Device);
     BatchSize = tensor.BatchSize;
+    m_elementSize = tensor.m_elementSize;
+    m_paddedColumnSize = tensor.m_paddedColumnSize;
 
     if (m_hasOwnership)
         m_freeData();
@@ -315,6 +320,44 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
                     .Data[batchIdx * (sourceColSize * numRows) +
                           sourceColSize * rowIdx + colIdx];
             }
+    }
+}
+
+
+template <typename T>
+std::size_t Tensor<T>::m_getElementSize() const
+{
+    std::size_t size = 1;
+    for (std::size_t i = 0; i < TensorShape.Dim() - 2; ++i)
+    {
+        size *= TensorShape.At(i);
+    }
+    size *= m_paddedColumnSize;
+    return size;
+}
+
+template <typename T>
+std::size_t Tensor<T>::m_getPaddedColumnSize() const
+{
+    if (Device.PadSize() == 0)
+        return TensorShape.NumCol();
+
+    const std::size_t padUnitSize = Device.PadSize() / sizeof(T);
+
+    std::size_t i = 0;
+    while (padUnitSize * i < TensorShape.NumCol())
+        ++i;
+
+    return padUnitSize * i;
+}
+
+template <typename T>
+void Tensor<T>::m_freeData()
+{
+    if (m_hasOwnership)
+    {
+        m_hasOwnership.exchange(false, std::memory_order_acquire);
+        Data.Clear();
     }
 }
 } // namespace Takion

@@ -54,7 +54,7 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
                         }
                         const auto limit = std::min(
                             static_cast<std::size_t>(numMiddle), kk + kb);
-                        for (size_t k = kk; k < limit; k++)
+                        for (std::size_t k = kk; k < limit; k++)
                         {
                             auto bc_mat1_1 = _mm256_set1_epi32(
                                 inputA[batchOffsetA + i * numMiddle + k]);

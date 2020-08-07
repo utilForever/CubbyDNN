@@ -48,27 +48,17 @@ public:
 
     std::size_t ColumnElementSize() const
     {
-        return m_getPaddedColumnSize();
+        return m_paddedColumnSize;
     }
 
     [[nodiscard]] std::size_t ElementSize() const
     {
-        std::size_t size = 1;
-        for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
-        {
-            size *= TensorShape.At(i);
-        }
-        return size * m_getPaddedColumnSize();
+        return m_elementSize;
     }
 
     [[nodiscard]] std::size_t BatchElementSize() const
     {
-        std::size_t size = 1;
-        for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
-        {
-            size *= TensorShape.At(i);
-        }
-        return size * m_getPaddedColumnSize() * BatchSize;
+        return m_elementSize * BatchSize;
     }
 
     [[nodiscard]] std::size_t GetDataByteSize() const
@@ -85,32 +75,15 @@ public:
     std::atomic<std::size_t> State = 0;
 
 private:
+    std::size_t m_elementSize = 0;
     std::size_t m_paddedColumnSize = 0;
     std::atomic<bool> m_hasOwnership = false;
 
+    std::size_t m_getElementSize() const;
 
-    std::size_t m_getPaddedColumnSize() const
-    {
-        if (Device.PadSize() == 0)
-            return TensorShape.NumCol();
+    std::size_t m_getPaddedColumnSize() const;
 
-        const std::size_t padUnitSize = Device.PadSize() / sizeof(T);
-
-        std::size_t i = 0;
-        while (padUnitSize * i < TensorShape.NumCol())
-            ++i;
-
-        return padUnitSize * i;
-    }
-
-    void m_freeData()
-    {
-        if (m_hasOwnership)
-        {
-            m_hasOwnership.exchange(false, std::memory_order_acquire);
-            Data.Clear();
-        }
-    }
+    void m_freeData();
 };
 } // namespace Takion
 
