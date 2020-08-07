@@ -4,13 +4,13 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_GRAPH_UNITID_HPP
-#define TAKION_GRAPH_UNITID_HPP
+#ifndef TAKION_UNITTYPE_HPP
+#define TAKION_UNITTYPE_HPP
 
 #include <Takion/Utils/SharedPtr.hpp>
 #include <unordered_map>
 
-namespace Takion::Graph
+namespace Takion
 {
 enum class UnitBaseType
 {
@@ -88,22 +88,20 @@ struct UnitState
     std::atomic<std::size_t> ForwardStateCount = 0;
     std::atomic<std::size_t> BackwardStateCount = 0;
 };
-
 } // namespace Takion
 
-//! AddCpu template specialization for UnitId hash
 namespace std
 {
 template <>
-struct hash<Takion::Graph::UnitId>
+struct hash<Takion::UnitId>
 {
-    std::size_t operator()(Takion::Graph::UnitId const& s) const noexcept
+    std::size_t operator()(Takion::UnitId const& s) const noexcept
     {
         const std::size_t h1 = std::hash<std::string>{}(s.UnitName);
         const std::size_t h2 = std::hash<std::size_t>{}(s.Id);
-        return h1 ^ (h2 << 1); // or use boost::hash_combine
+        return h1 ^ (h2 << 1);  // or use boost::hash_combine
     }
 };
-
-}; // namespace std
+};  // namespace std
 #endif
+//! AddCpu template specialization for UnitId hash

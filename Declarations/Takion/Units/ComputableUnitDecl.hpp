@@ -8,7 +8,6 @@
 #define TAKION_GRAPH_COMPUTABLEUNIT_DECL_HPP
 
 #include <Takion/Units/UnitMetaData.hpp>
-#include <Takion/Units/UnitType.hpp>
 #include <future>
 
 namespace Takion::Graph

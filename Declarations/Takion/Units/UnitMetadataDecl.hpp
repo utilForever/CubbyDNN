@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_UNITMETADATA_DECL_HPP
-#define TAKION_UNITMETADATA_DECL_HPP
+#ifndef TAKION_GRAPH_UNITMETADATA_DECL_HPP
+#define TAKION_GRAPH_UNITMETADATA_DECL_HPP
 
 #include <Takion/Units/UnitType.hpp>
 #include <Takion/Utils/Shape.hpp>

@@ -8,8 +8,8 @@
 #ifndef TAKION_GRAPH_DENSE_HPP
 #define TAKION_GRAPH_DENSE_HPP
 
-#include <Takion/Computations/Computations.hpp>
 #include <Takion/Units/HiddenComputableUnits/DenseDecl.hpp>
+#include <Takion/Computations/GEMM/MathKernel.hpp>
 
 namespace Takion::Graph
 {
@@ -49,7 +49,7 @@ DenseUnit<T>& DenseUnit<T>::operator=(DenseUnit<T>&& denseUnit) noexcept
 }
 
 template <typename T>
-DenseUnit<T> DenseUnit<T>::CreateUnit(const UnitMetaData& unitMetaData,
+DenseUnit<T> DenseUnit<T>::CreateUnit(const UnitMetaData<T>& unitMetaData,
                                       std::unique_ptr<Compute::Optimizer<T>>
                                       optimizer)
 {

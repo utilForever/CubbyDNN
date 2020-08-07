@@ -25,13 +25,13 @@ public:
               std::unique_ptr<Compute::Optimizer<T>> optimizer, std::size_t batchSize);
     ~DenseUnit() = default;
 
-    DenseUnit(const DenseUnit& denseUnit) = delete;
-    DenseUnit(DenseUnit&& denseUnit) noexcept;
-    DenseUnit& operator=(const DenseUnit& denseUnit) = delete;
-    DenseUnit& operator=(DenseUnit&& denseUnit) noexcept;
+    DenseUnit(const DenseUnit<T>& denseUnit) = delete;
+    DenseUnit(DenseUnit<T>&& denseUnit) noexcept;
+    DenseUnit& operator=(const DenseUnit<T>& denseUnit) = delete;
+    DenseUnit& operator=(DenseUnit<T>&& denseUnit) noexcept;
 
     static DenseUnit CreateUnit(
-        const UnitMetaData& unitMetaData,
+        const UnitMetaData<T>& unitMetaData,
         std::unique_ptr<Compute::Optimizer<T>> optimizer);
 
     void Forward() override;

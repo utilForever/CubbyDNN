@@ -81,9 +81,9 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
         }
         if (type.Name() == "Loss")
         {
-            auto unit = LossUnit<T>::CreateUnit(*metaDataPtr);
+            auto unit = MSELoss<T>::CreateUnit(*metaDataPtr);
             m_unitMap[metaDataPtr->Id()] =
-                std::make_unique<LossUnit>(std::move(unit));
+                std::make_unique<MSELoss>(std::move(unit));
             continue;
         }
         if (type.Name() == "Constant")

@@ -46,7 +46,7 @@ public:
 
     T& At(std::size_t batchIdx, std::vector<std::size_t> index);
 
-    std::size_t ColumnElementSize() const
+    [[nodiscard]] std::size_t ColumnElementSize() const
     {
         return m_paddedColumnSize;
     }

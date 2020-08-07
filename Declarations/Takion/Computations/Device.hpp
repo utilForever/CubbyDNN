@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_DEVICE_HPP
-#define CUBBYDNN_DEVICE_HPP
+#ifndef TAKION_DEVICE_HPP
+#define TAKION_DEVICE_HPP
 #include <string>
 
 namespace Takion::Compute
@@ -14,6 +14,7 @@ enum class DeviceType
 {
     CPU,
     GPU,
+    HYBRID
 };
 
 class Device

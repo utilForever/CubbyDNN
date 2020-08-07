@@ -1,4 +1,4 @@
-/// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
@@ -7,7 +7,6 @@
 #ifndef TAKION_GRAPH_TRAINABLEUNIT_HPP
 #define TAKION_GRAPH_TRAINABLEUNIT_HPP
 
-#include <Takion/Units/TrainableUnit.hpp>
 #include <Takion/Units/TrainableUnitDecl.hpp>
 
 namespace Takion::Graph
