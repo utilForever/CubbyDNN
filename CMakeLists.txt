@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 # Declare project
-project(CubbyDNN)
+project(Takion)
 
 # Set output directories
 set(DEFAULT_CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
@@ -17,9 +17,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Includes
-include_directories(Includes)
+include_directories(Implementations)
+include_directories(Declarations)
 include_directories(Libraries)
-include_directories(Libraries/googletest/googletest/include)
+include_directories(Libraries/doctest/doctest)
 
 # Compile options
 include(CMake/CompileOptions.cmake)
@@ -33,14 +34,6 @@ endif()
 set(CMAKE_MACOSX_RPATH ON)
 
 # Project modules
-set(BUILD_GTEST ON CACHE BOOL "" FORCE)
-set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-add_subdirectory(Libraries/googletest EXCLUDE_FROM_ALL)
-cmake_policy(SET CMP0063 NEW)
-set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
-add_subdirectory(Libraries/googlebenchmark)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-add_subdirectory(Sources/cubbydnn)
+add_subdirectory(Sources/Takion)
 add_subdirectory(Tests/UnitTests)
+add_subdirectory(Libraries/doctest)
