@@ -5,11 +5,5 @@ steps:
   - script: |
       md build
       cd build
-      cmake -G "Visual Studio 16 2019" -A x64
-  - task: VSBuild@1
-    inputs:
-      solution: 'D:\a\1\s\build\Takion.sln'
-      configuration: Release
-      platform: x64
-  - script: |
-      D:\a\1\s\build\bin\Release\UnitTests.exe
+      cmake -GNinja ..
+      cmake --build .
