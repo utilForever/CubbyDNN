@@ -1,10 +1,10 @@
 # Takion
 
-<img src="https://github.com/utilForever/CubbyDNN/blob/master/Medias/Logo.png" width=256 dimension=256 />
+<img src="https://github.com/jwkim98/Takion/blob/master/Medias/Logo.png" width=256 dimension=256 />
 
-[![License](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/utilForever/CubbyDNN/blob/master/LICENSE) [![Build Status](https://travis-ci.org/utilForever/CubbyDNN.svg?branch=master)](https://travis-ci.org/utilForever/CubbyDNN/branches) [![Build status](https://ci.appveyor.com/api/projects/status/github/utilForever/CubbyDNN?branch=master&svg=true)](https://ci.appveyor.com/project/utilForever/CubbyDNN/branch/master) [![Build Status](https://dev.azure.com/utilforever/CubbyDNN/_apis/build/status/utilForever.CubbyDNN)](https://dev.azure.com/utilforever/CubbyDNN/_build/latest?definitionId=2)
+[![License](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/jwkim98/Takion/blob/master/LICENSE) [[![Build Status](https://dev.azure.com/jwkim98/Takion/_apis/build/status/jwkim98.Takion)](https://dev.azure.com/jwkim98/Takion/_build/latest?definitionId=2)
 
-Takion is C++17 template based implementation of deep learning. It is suitable for deep learning on limited computational resource, embedded systems and IoT devices. The code can be compiled with commonly available compilers such as g++, clang++, or Microsoft Visual Studio. CubbyDNN currently supports macOS (10.12.6 or later), Ubuntu (18.04 or later), Windows (Visual Studio 2017 or later), and Windows Subsystem for Linux (WSL). Other untested platforms that support C++17 also should be able to build CubbyDNN.
+Takion is C++17 template based implementation of deep learning. It is suitable for deep learning on limited computational resource, embedded systems and IoT devices. The code can be compiled with commonly available compilers such as g++, clang++, or Microsoft Visual Studio. Takion currently supports macOS (10.12.6 or later), Ubuntu (18.04 or later), Windows (Visual Studio 2017 or later), and Windows Subsystem for Linux (WSL). Other untested platforms that support C++17 also should be able to build Takion.
 
 ## Key Features
 
