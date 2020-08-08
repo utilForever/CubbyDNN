@@ -178,7 +178,7 @@ void DenseUnit<T>::Backward()
 
     const auto batchSize = previousForwardInput.BatchSize;
 
-    const Zeros zeroInitializer;
+    const Compute::Zeros zeroInitializer;
     zeroInitializer.Initialize(delta);
 
     for (auto& [unitId, gradient] : BackwardInputMap)
@@ -226,7 +226,7 @@ void DenseUnit<T>::AsyncBackward(std::promise<bool> promise)
 
     const auto batchSize = previousForwardInput.BatchSize;
 
-    const Zeros zeroInitializer;
+    const Compute::Zeros zeroInitializer;
     zeroInitializer.Initialize(delta);
 
     for (auto& [unitId, gradient] : BackwardInputMap)

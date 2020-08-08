@@ -5,10 +5,10 @@ steps:
   - script: |
       md build
       cd build
-      cmake .. -G "Visual Studio 15 2017 Win64"
+      cmake -G "Visual Studio 16 2019" -A x64
   - task: VSBuild@1
     inputs:
-      solution: 'D:\a\1\s\build\CubbyDNN.sln'
+      solution: 'D:\a\1\s\build\Takion.sln'
       configuration: Release
       platform: x64
   - script: |
