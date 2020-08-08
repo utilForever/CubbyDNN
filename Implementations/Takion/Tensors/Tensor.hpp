@@ -20,13 +20,12 @@ Tensor<T>::Tensor(Shape shape, Compute::Device device)
       BatchSize(1)
 {
     m_paddedColumnSize = m_getPaddedColumnSize();
-    const auto totalSize = (TensorShape.Size() / TensorShape.NumCol()) *
-                           m_paddedColumnSize * BatchSize;
+    m_elementSize = m_getElementSize();
 
-    T* ptr = new T[totalSize];
-    for (std::size_t i = 0; i < totalSize; ++i)
+    T* ptr = new T[m_elementSize];
+    for (std::size_t i = 0; i < m_elementSize; ++i)
         *(ptr + i) = 0;
-    Data = Utils::Span<T>(ptr, totalSize);
+    Data = Utils::Span<T>(ptr, m_elementSize);
 
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
@@ -39,14 +38,12 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
       BatchSize(batchSize)
 {
     m_paddedColumnSize = m_getPaddedColumnSize();
-    const auto totalSize =
-        (TensorShape.Size() / TensorShape.NumCol()) * m_paddedColumnSize *
-        BatchSize;
+    m_elementSize = m_getElementSize();
 
-    T* ptr = new T[totalSize];
-    for (std::size_t i = 0; i < totalSize; ++i)
+    T* ptr = new T[m_elementSize];
+    for (std::size_t i = 0; i < m_elementSize; ++i)
         *(ptr + i) = 0;
-    Data = Utils::Span<T>(ptr, totalSize);
+    Data = Utils::Span<T>(ptr, m_elementSize);
 
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
@@ -59,17 +56,20 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
       BatchSize(batchSize)
 {
     m_paddedColumnSize = m_getPaddedColumnSize();
-    const auto totalSize =
-        (TensorShape.Size() / TensorShape.NumCol()) * m_paddedColumnSize;
-    T* ptr = new T[totalSize];
+    const auto totalSize = m_getElementSize();
+    const auto numRow = TensorShape.NumRow();
+    const auto numCol = TensorShape.NumCol();
 
-    for (std::size_t i = 0; i < TensorShape.Size() / TensorShape.NumCol(); ++i)
-        for (std::size_t j = 0; j < TensorShape.NumCol(); ++j)
-        {
-            const auto tensorDataIndex = m_paddedColumnSize * i + j;
-            const auto dataIndex = TensorShape.NumCol() * i + j;
-            *(ptr + tensorDataIndex) = data.at(dataIndex);
-        }
+    T* ptr = new T[m_elementSize];
+
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    {
+        for (std::size_t rowIdx = 0; rowIdx < TensorShape.NumRow(); ++rowIdx)
+            for (std::size_t colIdx = 0; colIdx < TensorShape.NumCol();
+                 ++colIdx)
+                this->At(batchIdx, { rowIdx, colIdx }) =
+                    data[batchIdx * numRow * numCol + rowIdx * numCol + colIdx];
+    }
 
     Data = Utils::Span<T>(ptr, totalSize);
     m_hasOwnership.exchange(true, std::memory_order_release);
