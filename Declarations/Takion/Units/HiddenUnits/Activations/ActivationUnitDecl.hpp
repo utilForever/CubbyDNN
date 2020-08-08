@@ -9,31 +9,30 @@
 
 #include <Takion/Units/ComputableUnit.hpp>
 #include <Takion/Units/TrainableUnit.hpp>
-#include <Takion/Units/UnitMetadata.hpp>
+#include <Takion/Units/UnitMetaData.hpp>
 
 
 namespace Takion::Graph
 {
 template <typename T>
-class ActivationUnit
+class ReLU
     : public ComputableUnit<T>,
       public TrainableUnit<T>
 {
 public:
-    ActivationUnit(const UnitId& unitId, const UnitId& sourceUnitId,
+    ReLU(const UnitId& unitId, const UnitId& sourceUnitId,
                    Tensor<T> forwardInput,
                    std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
                    Tensor<T> forwardOutput, Tensor<T> backwardOutput,
-                   std::unordered_map<std::string, Tensor<T>> trainableUnit,
-                   std::string activationType);
-    ~ActivationUnit() = default;
+                   std::unordered_map<std::string, Tensor<T>> trainableUnit);
+    ~ReLU() = default;
 
-    ActivationUnit(const ActivationUnit& activationUnit) = delete;
-    ActivationUnit(ActivationUnit&& activationUnit) noexcept;
-    ActivationUnit& operator=(const ActivationUnit& activationUnit) = delete;
-    ActivationUnit& operator=(ActivationUnit&& activationUnit) noexcept;
+    ReLU(const ReLU& activationUnit) = delete;
+    ReLU(ReLU&& activationUnit) noexcept;
+    ReLU& operator=(const ReLU& activationUnit) = delete;
+    ReLU& operator=(ReLU&& activationUnit) noexcept;
 
-    static ActivationUnit CreateUnit(const UnitMetaData& unitMetaData);
+    static ReLU CreateUnit(const UnitMetaData& unitMetaData);
 
     void Forward() override;
 
@@ -44,7 +43,6 @@ public:
     void AsyncBackward(std::promise<bool> promise) override;
 
 private:
-    std::string m_activationType;
     UnitId m_sourceUnitId;
 };
 } // namespace Takion::Graph

@@ -45,8 +45,8 @@ public:
     virtual void AsyncBackward(std::size_t cycle);
 
 private:
-    bool m_isForwardCopyReady(const UnitId& subjectUnitId) const;
-    bool m_isBackwardCopyReady(const UnitId& subjectUnitId) const;
+    [[nodiscard]] bool m_isForwardCopyReady(const UnitId& subjectUnitId) const;
+    [[nodiscard]] bool m_isBackwardCopyReady(const UnitId& subjectUnitId) const;
     //! Copies forward output of subject unit to forward inputs of destination units with direct connection
     void m_forwardCopy(const UnitId& subjectUnitId);
     //! Copies backward outputs of subject unit to backward inputs of destination units with direct connection

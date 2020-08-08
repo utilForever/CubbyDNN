@@ -4,9 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_UNITMANAGER_HPP
-#define TAKION_UNITMANAGER_HPP
-
+#ifndef TAKION_GRAPH_UNITMANAGER_HPP
+#define TAKION_GRAPH_UNITMANAGER_HPP
 
 #include <Takion/Engine/UnitManagerDecl.hpp>
 #include <Takion/Units/HiddenUnits/Dense.hpp>
@@ -70,9 +69,9 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
         }
         if (type.Name() == "Activation")
         {
-            auto unit = ActivationUnit<T>::CreateUnit(*metaDataPtr);
+            auto unit = ReLU<T>::CreateUnit(*metaDataPtr);
             m_unitMap[metaDataPtr->Id()] =
-                std::make_unique<ActivationUnit<T>>(std::move(unit));
+                std::make_unique<ReLU<T>>(std::move(unit));
             continue;
         }
         if (type.Name() == "Reshape")

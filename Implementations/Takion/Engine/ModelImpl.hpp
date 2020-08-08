@@ -8,7 +8,6 @@
 #define Takion_MODEL_IMPL_HPP
 
 #include <Takion/Computations/Activations/ActivationWrapper.hpp>
-#include <Takion/Computations/LossFunctions/LossFunctionWrapper.hpp>
 #include <Takion/Engine/ModelDecl.hpp>
 #include <Takion/Units/UnitType.hpp>
 
@@ -95,7 +94,6 @@ void Model<T>::Compile(const std::string& optimizer,
                        Parameter optimizerParams) noexcept
 {
     Compute::ActivationWrapper<T>::Initialize();
-    Compute::LossFunctionWrapper<T>::Initialize();
     m_unitManager.Compile(optimizer, optimizerParams);
 }
 

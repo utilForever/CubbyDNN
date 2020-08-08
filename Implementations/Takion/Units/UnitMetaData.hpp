@@ -15,7 +15,7 @@ template <typename T>
 UnitMetaData<T>::UnitMetaData(
     UnitId unitId,
     std::unordered_map<std::string, Shape> internalVariableShapeMap,
-    std::unordered_map<std::string, std::unique_ptr<Initializer<T>>>
+    std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
     initializerMap,
     std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
     std::unordered_map<std::string, UnitId> inputUnitIdMap,
@@ -133,7 +133,7 @@ std::vector<UnitId> UnitMetaData<T>::OutputUnitVector() const
 }
 
 template <typename T>
-const std::unique_ptr<Initializer<T>>& UnitMetaData<T>::GetInitializer(
+const std::unique_ptr<Compute::Initializer<T>>& UnitMetaData<T>::GetInitializer(
     const std::string& name) const
 {
     return m_initializerMap.at(name);

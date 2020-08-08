@@ -7,7 +7,7 @@
 #ifndef TAKION_GRAPH_CONSTANTUNIT_HPP
 #define TAKION_GRAPH_CONSTANTUNIT_HPP
 
-#include <Takion/Units/SourceComputableUnits/ConstantUnitDecl.hpp>
+#include <Takion/Units/SourceUnits/ConstantUnitDecl.hpp>
 
 namespace Takion::Graph
 {

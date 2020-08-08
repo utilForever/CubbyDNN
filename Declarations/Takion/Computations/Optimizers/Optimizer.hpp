@@ -8,7 +8,7 @@
 #define TAKION_OPTIMIZER_HPP
 
 #include <Takion/Tensors/Tensor.hpp>
-#include <Takion/Computations/Computations.hpp>
+#include <Takion/Computations/GEMM/MathKernel.hpp>
 
 namespace Takion::Compute
 {

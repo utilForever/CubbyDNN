@@ -5,10 +5,10 @@
 // property of any third parties.
 
 #ifndef TAKION_GRAPH_LOSSUNIT_HPP
-#define TAKION_GRAPH_LOSSuNIT_HPP
+#define TAKION_GRAPH_LOSSUNIT_HPP
 
 //#include <Takion/Computations/LossFunctions/LossFunctionWrapper.hpp>
-#include <Takion/Units/SinkComputableUnits/LossUnitDecl.hpp>
+#include <Takion/Units/SinkUnits/LossUnitDecl.hpp>
 #include <Takion/Units/UnitType.hpp>
 
 namespace Takion::Graph

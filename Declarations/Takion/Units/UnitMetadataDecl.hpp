@@ -24,7 +24,7 @@ public:
     UnitMetaData(
         UnitId unitId,
         std::unordered_map<std::string, Shape> internalVariableShapeMap,
-        std::unordered_map<std::string, std::unique_ptr<Initializer<T>>>
+        std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap,
         std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
         std::unordered_map<std::string, UnitId> inputUnitIdMap,
@@ -64,7 +64,8 @@ public:
 
     [[nodiscard]] std::vector<UnitId> OutputUnitVector() const;
 
-    [[nodiscard]] const std::unique_ptr<Initializer<T>>& GetInitializer(
+    [[nodiscard]] const std::unique_ptr<Compute::Initializer<T>>&
+    GetInitializer(
         const std::string& name) const;
 
     [[nodiscard]] Shape InternalVariableShape(const std::string& name) const;
@@ -77,7 +78,7 @@ public:
 private:
     UnitId m_unitId;
     std::unordered_map<std::string, Shape> m_internalVariableShapeMap;
-    std::unordered_map<std::string, std::unique_ptr<Initializer<T>>>
+    std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
     m_initializerMap;
     std::unordered_map<std::string, Tensor<T>> m_internalTensorMap;
 

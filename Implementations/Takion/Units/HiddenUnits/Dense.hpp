@@ -8,7 +8,7 @@
 #ifndef TAKION_GRAPH_DENSE_HPP
 #define TAKION_GRAPH_DENSE_HPP
 
-#include <Takion/Units/HiddenComputableUnits/DenseDecl.hpp>
+#include <Takion/Units/HiddenUnits/DenseDecl.hpp>
 #include <Takion/Computations/GEMM/MathKernel.hpp>
 
 namespace Takion::Graph
@@ -28,7 +28,6 @@ DenseUnit<T>::DenseUnit(
       m_sourceUnitId(sourceUnitId)
 {
 }
-
 
 template <typename T>
 DenseUnit<T>::DenseUnit(DenseUnit<T>&& denseUnit) noexcept
