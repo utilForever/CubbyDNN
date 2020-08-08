@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_COMPUTE_FLOATGEM_HPP
-#define TAKION_COMPUTE_FLOATGEM_HPP
+#ifndef TAKION_COMPUTE_FLOATGEMM_HPP
+#define TAKION_COMPUTE_FLOATGEMM_HPP
 
 #include <Takion/Computations/GEMM/Gemm.hpp>
 #include <xmmintrin.h>
@@ -279,8 +279,9 @@ inline void AddCpu(const Span<float> inputA, const Span<float> inputB,
 }
 
 template <>
-inline void SubCpu(const Span<float> A, const Span<float> B, Span<float> out, unsigned size,
-            unsigned batchSize)
+inline void SubCpu(const Span<float> A, const Span<float> B, Span<float> out,
+                   unsigned size,
+                   unsigned batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -422,7 +423,8 @@ inline void ScalarDivCpu(const Span<float> input, float toDiv, Span<float> out,
 }
 
 template <>
-inline void SetCpu(Span<float> data, float toSet, unsigned size, unsigned batchSize)
+inline void SetCpu(Span<float> data, float toSet, unsigned size,
+                   unsigned batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -431,7 +433,6 @@ inline void SetCpu(Span<float> data, float toSet, unsigned size, unsigned batchS
         for (unsigned i = 0; i < size; i += 16)
         {
             const auto zero = _mm256_set1_ps(toSet);
-
 
             _mm256_stream_ps(&data[batchOffset + i], zero);
             _mm256_stream_ps(&data[batchOffset + i + 8], zero);

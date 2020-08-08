@@ -9,6 +9,7 @@
 
 #include <Takion/Computations/GEMM/FloatGem.hpp>
 #include <Takion/Computations/GEMM/IntegerGem.hpp>
+#include <Takion/Tensors/Tensor.hpp>
 
 namespace Takion::Compute
 {
@@ -258,7 +259,7 @@ void ScalarDiv(const Tensor<T>& input, T toDiv, Tensor<T>& output)
 }
 
 template <typename T>
-void ScalarDiv(const Tensor<T>& tensor, T toDiv)
+void ScalarDiv(Tensor<T>& tensor, T toDiv)
 {
     const auto device = tensor.Device;
     if (device.Type() == DeviceType::CPU)
@@ -276,7 +277,20 @@ void Set(Tensor<T>& tensor, T toSet)
     const auto device = tensor.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::SetCpu(tensor.Data, tensor.ElementSize(), tensor.BatchSize);
+        CPU::SetCpu(tensor.Data, toSet, tensor.ElementSize(), tensor.BatchSize);
+    }
+    else
+        throw std::runtime_error("Not implemented");
+}
+
+template <typename T, typename Function>
+void Apply(const Tensor<T>& input, Tensor<T>& output, Function lambda)
+{
+    const auto device = input.Device;
+    if (device.Type() == DeviceType::CPU)
+    {
+        CPU::ApplyCpu(input.Data, output.Data, lambda, output.ElementSize(),
+                      output.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");

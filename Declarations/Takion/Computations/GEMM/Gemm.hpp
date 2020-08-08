@@ -99,13 +99,26 @@ void ScalarDivCpu(const Span<T> input, T toDiv, Span<T> output, unsigned size,
     throw std::invalid_argument("Unsupported data type");
 }
 
-template<typename T>
+template <typename T>
 void SetCpu(Span<T> data, T toSet, unsigned size, unsigned batchSize)
 {
     throw std::invalid_argument("Unsupported data type");
 }
 
-
+template <typename T, typename Function>
+void ApplyCpu(const Span<T> input, Span<T> output, Function function,
+              unsigned size, unsigned batchSize)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (unsigned i = 0; i < size; i += 16)
+        {
+            output[batchOffset + i] = function(input[batchOffset + size]);
+        }
+    }
+}
 }
 
 #endif
