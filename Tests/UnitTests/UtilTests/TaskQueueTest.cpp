@@ -6,7 +6,7 @@
 
 #include "TaskQueueTest.hpp"
 #include <atomic>
-#include <cubbydnn/Utils/SpinLockQueue.hpp>
+#include <Takion/Utils/SpinLockQueue.hpp>
 #include <functional>
 #include <thread>
 #include <vector>

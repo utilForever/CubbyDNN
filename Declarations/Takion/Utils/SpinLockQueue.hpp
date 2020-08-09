@@ -7,7 +7,7 @@
 #ifndef CUBBYDNN_SPINLOCKQUEUE_HPP
 #define CUBBYDNN_SPINLOCKQUEUE_HPP
 
-#include <cubbydnn/Utils/SpinLockQueue-Decl.hpp>
+#include <Takion/Utils/SpinLockQueue-Decl.hpp>
 #include <type_traits>
 
 

@@ -72,7 +72,7 @@ void TensorCopyBetweenDevice_1()
 }
 
 template <typename T>
-void TensorCopyTestBetweenDevice_2()
+void TensorCopyBetweenDevice_2()
 {
     Compute::Device device0(0, Compute::DeviceType::GPU, "device0");
     Compute::Device device1(1, Compute::DeviceType::CPU, "device1");

@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #pragma once
-#include <cubbydnn/Utils/WeakPtr-Decl.hpp>
+#include <Takion/Utils/WeakPtr-Decl.hpp>
 
 namespace Takion
 {
