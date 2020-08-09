@@ -28,7 +28,7 @@ void TensorCopy()
 
     for (std::size_t i = 0; i < shape.Size(); ++i)
     {
-        vector.at(i) = static_cast<float>(i);
+        vector.at(i) = static_cast<T>(i);
     }
 
     Tensor<T> tensor1(shape, batchSize, device);
@@ -109,11 +109,11 @@ void TensorCopyDataSmall()
     const Shape shape({ 3 });
     const auto batchSize = 10;
     const auto totalSize = shape.Size() * batchSize;
-    std::vector<float> vector(totalSize);
+    std::vector<T> vector(totalSize);
 
     for (std::size_t i = 0; i < totalSize; ++i)
     {
-        vector.at(i) = static_cast<float>(i);
+        vector.at(i) = static_cast<T>(i);
     }
 
     Tensor<T> sourceTensor(shape, batchSize, device, vector);
@@ -143,11 +143,11 @@ void TensorCopyDataLarge()
     const Shape shape({ 300, 500, 400 });
     const auto batchSize = 100;
     const auto totalSize = shape.Size() * batchSize;
-    std::vector<float> vector(totalSize);
+    std::vector<T> vector(totalSize);
 
     for (std::size_t i = 0; i < totalSize; ++i)
     {
-        vector.at(i) = static_cast<float>(i);
+        vector.at(i) = static_cast<T>(i);
     }
 
     Tensor<T> sourceTensor(shape, batchSize, device, vector);
@@ -177,11 +177,11 @@ void TensorMoveData()
     const Shape shape({ 300, 500, 400 });
     const auto batchSize = 100;
     const auto totalSize = shape.Size() * batchSize;
-    std::vector<float> vector(totalSize);
+    std::vector<T> vector(totalSize);
 
     for (std::size_t i = 0; i < totalSize; ++i)
     {
-        vector.at(i) = static_cast<float>(i);
+        vector.at(i) = static_cast<T>(i);
     }
 
     Tensor<T> sourceTensor(shape, batchSize, device, vector);

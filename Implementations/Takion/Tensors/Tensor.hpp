@@ -214,6 +214,53 @@ T& Tensor<T>::At(std::size_t batchIdx, std::vector<std::size_t> index)
 }
 
 template <typename T>
+const T& Tensor<T>::At(std::size_t batchIdx,
+                       std::vector<std::size_t> index) const
+{
+    if (index.size() != TensorShape.Dim())
+        throw std::invalid_argument(
+            "Index must have same dimension with tensor shape");
+    const auto columnIdx = static_cast<int>(TensorShape.Dim() - 1);
+    auto shapeIdx = columnIdx;
+    auto idx = columnIdx;
+    std::size_t multiplier = 1;
+    std::size_t offset = 0;
+    for (; shapeIdx >= 0 && idx != static_cast<int>(index.size());
+           --shapeIdx, --idx)
+    {
+        offset += multiplier * index.at(idx);
+        if (idx == columnIdx && Device.PadSize() > 0)
+            multiplier = m_paddedColumnSize;
+        else
+            multiplier *= TensorShape.At(idx);
+    }
+    const T& val = Data.At(offset + ElementSize() * batchIdx);
+    return val;
+}
+
+template<typename T>
+T& Tensor<T>::At(std::size_t idx)
+{
+    if (TensorShape.NumCol() == 0)
+        throw std::invalid_argument("Accessing data of empty tensor");
+
+    const auto colIdx = idx / TensorShape.NumCol();
+
+    return Data[m_paddedColumnSize * colIdx + idx % TensorShape.NumCol()];
+}
+
+template <typename T>
+const T& Tensor<T>::At(std::size_t idx) const
+{
+    if (TensorShape.NumCol() == 0)
+        throw std::invalid_argument("Accessing data of empty tensor");
+
+    const auto colIdx = idx / TensorShape.NumCol();
+
+    return Data[m_paddedColumnSize * colIdx + idx % TensorShape.NumCol()];
+}
+
+template <typename T>
 void Tensor<T>::ForwardTensorData(Tensor<T>& source, Tensor<T>& destination)
 {
     if (source.TensorShape != destination.TensorShape)

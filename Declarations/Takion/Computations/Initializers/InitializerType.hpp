@@ -60,7 +60,7 @@ public:
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::XavierNormal(
-            tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
+            tensor.TensorShape, static_cast<float*>(tensor.Data),
             tensor.Device.PadSize());
     }
 };
@@ -74,7 +74,7 @@ public:
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::HeNormal<T>(
-            tensor.TensorShape, tensor.DataPtr,
+            tensor.TensorShape, tensor.Data,
             tensor.Device.PadSize());
     }
 };
@@ -88,7 +88,7 @@ public:
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::LecunNormal<T>(tensor.TensorShape,
-                                              tensor.DataPtr,
+                                              tensor.Data,
                                               tensor.Device.PadSize());
     }
 };
@@ -108,7 +108,7 @@ public:
     {
         InitializerOperations::RandomUniform<T>(
             tensor.TensorShape, m_min,
-            m_max, tensor.DataPtr,
+            m_max, tensor.Data,
             tensor.Device.PadSize());
     }
 
@@ -131,7 +131,7 @@ public:
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::RandomNormal<T>(
-            m_mean, m_stddev, tensor.DataPtr, tensor.ElementSize(),
+            m_mean, m_stddev, tensor.Data, tensor.ElementSize(),
             tensor.BatchSize);
     }
 

@@ -46,16 +46,12 @@ public:
 
     T& At(std::size_t batchIdx, std::vector<std::size_t> index);
 
+    const T& At(std::size_t batchIdx, std::vector<std::size_t> index) const;
+
     //! Access the data linearly considering paddings
-    T& At(std::size_t idx)
-    {
-        if (TensorShape.NumCol() == 0)
-            throw std::invalid_argument("Accessing data of empty tensor");
+    T& At(std::size_t idx);
 
-        const auto colIdx = idx / TensorShape.NumCol();
-
-        return Data[m_paddedColumnSize * colIdx + idx % TensorShape.NumCol()];
-    }
+    const T& At(std::size_t idx) const;
 
     [[nodiscard]] std::size_t ColumnElementSize() const
     {

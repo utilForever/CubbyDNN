@@ -83,10 +83,10 @@ TEST_CASE("Computation test")
             {
                 TestMultiply<float>(device);
             }
-            SUBCASE("int")
-            {
-                TestMultiply<int>(device);
-            }
+            // SUBCASE("int")
+            // {
+            //     TestMultiply<int>(device);
+            // }
         }
 
         SUBCASE("Add")
@@ -95,10 +95,10 @@ TEST_CASE("Computation test")
             {
                 TestAdd<float>(device);
             }
-            SUBCASE("int")
-            {
-                TestAdd<int>(device);
-            }
+            // SUBCASE("int")
+            // {
+            //     TestAdd<int>(device);
+            // }
         }
 
         SUBCASE("Shrink")
@@ -107,10 +107,10 @@ TEST_CASE("Computation test")
             {
                 TestShrink<float>(device);
             }
-            SUBCASE("int")
-            {
-                TestShrink<int>(device);
-            }
+            // SUBCASE("int")
+            // {
+            //     TestShrink<int>(device);
+            // }
         }
 
         SUBCASE("Transpose")
@@ -119,10 +119,10 @@ TEST_CASE("Computation test")
             {
                 TestTranspose<float>(device);
             }
-            SUBCASE("int")
-            {
-                TestTranspose<int>(device);
-            }
+            // SUBCASE("int")
+            // {
+            //     TestTranspose<int>(device);
+            // }
         }
     }
 }

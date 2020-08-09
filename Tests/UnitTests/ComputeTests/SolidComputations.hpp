@@ -17,7 +17,8 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     const auto batchSize = out.BatchSize;
     const auto numRow = out.TensorShape.NumRow();
     const auto numCol = out.TensorShape.NumCol();
-    const auto numMiddle = A.TensorShpae.NumCol();
+    const auto numMiddle = A.TensorShape.NumCol();
+
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++ batchIdx)
     {
         for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
@@ -56,8 +57,8 @@ void Transpose(const Tensor<T>& in, Tensor<T>& out)
 template <typename T>
 void Shrink(const Tensor<T>& in, Tensor<T>& out)
 {
-    const auto batchSize = out.BatchSize();
-    const auto elementSize = out.ElementSize;
+    const auto batchSize = out.BatchSize;
+    const auto elementSize = out.ElementSize();
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {

@@ -17,11 +17,11 @@ namespace Takion::Compute::CPU
 template <>
 inline void MultiplyCpu(const Span<float> inputA,
                         const Span<float> inputB,
-                        Span<float> out, unsigned numRow, unsigned numCol,
-                        unsigned numMiddle, unsigned batchSize)
+                        Span<float> out, std::size_t numRow, std::size_t numCol,
+                        std::size_t numMiddle, std::size_t batchSize)
 {
-    const auto jb = std::min(512u, numCol);
-    const auto kb = std::min(24u, numRow);
+    const auto jb = std::min(static_cast<std::size_t>(512), numCol);
+    const auto kb = std::min(static_cast<std::size_t>(24), numRow);
     const auto sizeA = numRow * numMiddle;
     const auto sizeB = numMiddle * numCol;
     const auto sizeDest = numRow * numCol;
@@ -86,13 +86,14 @@ inline void MultiplyCpu(const Span<float> inputA,
 template <>
 inline void MultiplyWithBroadcastCpu(const Span<float> inputA,
                                      const Span<float> inputB,
-                                     Span<float> out, unsigned numRow,
-                                     unsigned numCol,
-                                     unsigned numMiddle, unsigned batchSize,
+                                     Span<float> out, std::size_t numRow,
+                                     std::size_t numCol,
+                                     std::size_t numMiddle,
+                                     std::size_t batchSize,
                                      bool broadCastA)
 {
-    const auto jb = std::min(512u, numCol);
-    const auto kb = std::min(24u, numRow);
+    const auto jb = std::min(static_cast<std::size_t>(512), numCol);
+    const auto kb = std::min(static_cast<std::size_t>(24), numRow);
     const auto sizeA = numRow * numMiddle;
     const auto sizeB = numMiddle * numCol;
     const auto sizeDest = numRow * numCol;
@@ -156,8 +157,8 @@ inline void MultiplyWithBroadcastCpu(const Span<float> inputA,
 
 template <>
 inline void CpuTranspose(const Span<float> in, Span<float> out,
-                         unsigned numRowInput,
-                         unsigned numColInput, unsigned batchSize)
+                         std::size_t numRowInput,
+                         std::size_t numColInput, std::size_t batchSize)
 {
     const auto blockSize = 4;
     const auto matrixSize = numRowInput * numColInput;
@@ -195,8 +196,8 @@ inline void CpuTranspose(const Span<float> in, Span<float> out,
 
 template <>
 inline void ShrinkCpu(const Span<float> input, Span<float> output,
-                      unsigned size,
-                      unsigned batchSize)
+                      std::size_t size,
+                      std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -250,7 +251,7 @@ inline void ShrinkCpu(const Span<float> input, Span<float> output,
 
 template <>
 inline void AddCpu(const Span<float> inputA, const Span<float> inputB,
-                   Span<float> out, unsigned size, unsigned batchSize)
+                   Span<float> out, std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -280,8 +281,8 @@ inline void AddCpu(const Span<float> inputA, const Span<float> inputB,
 
 template <>
 inline void SubCpu(const Span<float> A, const Span<float> B, Span<float> out,
-                   unsigned size,
-                   unsigned batchSize)
+                   std::size_t size,
+                   std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -312,7 +313,7 @@ inline void SubCpu(const Span<float> A, const Span<float> B, Span<float> out,
 template <>
 inline void AddWithBroadcastCpu(const Span<float> A, const Span<float> B,
                                 Span<float> out,
-                                unsigned size, unsigned batchSize)
+                                std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -342,7 +343,7 @@ inline void AddWithBroadcastCpu(const Span<float> A, const Span<float> B,
 
 template <>
 inline void DotCpu(const Span<float> inputA, const Span<float> inputB,
-                   Span<float> out, unsigned size, unsigned batchSize)
+                   Span<float> out, std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -372,7 +373,7 @@ inline void DotCpu(const Span<float> inputA, const Span<float> inputB,
 
 template <>
 inline void ScalarMulCpu(const Span<float> input, float toMul, Span<float> out,
-                         unsigned size, unsigned batchSize)
+                         std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -398,7 +399,7 @@ inline void ScalarMulCpu(const Span<float> input, float toMul, Span<float> out,
 
 template <>
 inline void ScalarDivCpu(const Span<float> input, float toDiv, Span<float> out,
-                         unsigned size, unsigned batchSize)
+                         std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -423,8 +424,8 @@ inline void ScalarDivCpu(const Span<float> input, float toDiv, Span<float> out,
 }
 
 template <>
-inline void SetCpu(Span<float> data, float toSet, unsigned size,
-                   unsigned batchSize)
+inline void SetCpu(Span<float> data, float toSet, std::size_t size,
+                   std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)

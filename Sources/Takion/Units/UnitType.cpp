@@ -6,7 +6,7 @@
 
 #include <Takion/Units/UnitType.hpp>
 
-namespace Takion::Graph
+namespace Takion
 {
 UnitType::UnitType(UnitBaseType type, std::string_view typeName)
     : BaseType(type),

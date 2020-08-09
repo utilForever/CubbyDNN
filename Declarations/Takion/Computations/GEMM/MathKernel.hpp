@@ -24,8 +24,8 @@ void MultiplyAdd(const Tensor<T>& A, const Tensor<T>& B, const Tensor<T>& C,
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow,
-                             out.ColumnElementSize(), inputShapeA.NumCol,
+            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow(),
+                             out.ColumnElementSize(), inputShapeA.NumCol(),
                              out.BatchSize);
         else if (A.BatchSize == 1)
         {
@@ -66,21 +66,21 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow,
-                             out.ColumnElementSize(), inputShapeA.NumCol,
+            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow(),
+                             out.ColumnElementSize(), inputShapeA.NumCol(),
                              out.BatchSize);
         else if (A.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
+                out.ColumnElementSize(), inputShapeA.NumCol(), out.BatchSize,
                 true);
         }
         else if (B.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
+                out.ColumnElementSize(), inputShapeA.NumCol(), out.BatchSize,
                 false);
         }
         else
@@ -99,8 +99,8 @@ void Transpose(const Tensor<T>& input, Tensor<T>& output)
 
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::CpuTranspose(input, output, inputShape.NumRow,
-                          input.ColumnElementSize());
+        CPU::CpuTranspose(input.Data, output.Data, inputShape.NumRow(),
+                          input.ColumnElementSize(), input.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");
