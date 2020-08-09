@@ -42,7 +42,7 @@ public:
 template <typename T>
 class Ones : public Initializer<T>
 {
- public:
+public:
     Ones() = default;
 
     void Initialize(Tensor<T>& tensor) const override
@@ -121,23 +121,23 @@ template <typename T>
 class RandomNormal : public Initializer<T>
 {
 public:
-    RandomNormal(float min, float max)
+    RandomNormal(T mean, T stddev)
         : Initializer<T>(),
-          m_min(min),
-          m_max(max)
+          m_mean(mean),
+          m_stddev(stddev)
     {
     }
 
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::RandomNormal<T>(
-            m_min, m_max, tensor.DataPtr,
-            , );
+            m_mean, m_stddev, tensor.DataPtr, tensor.ElementSize(),
+            tensor.BatchSize);
     }
 
 private:
-    T m_min;
-    T m_max;
+    T m_mean;
+    T m_stddev;
 };
 }
 

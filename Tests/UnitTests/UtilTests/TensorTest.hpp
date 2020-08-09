@@ -18,11 +18,13 @@ template <typename T>
 void TensorCopy()
 {
     Compute::Device device(0, Compute::DeviceType::CPU, "device0");
+
     const auto numRow = 3;
     const auto numCol = 5;
     const auto batchSize = 10;
     const Shape shape({ numRow, numCol });
-    std::vector<T> vector(shape.Size());
+    const auto totalSize = shape.Size() * batchSize;
+    std::vector<T> vector(totalSize);
 
     for (std::size_t i = 0; i < shape.Size(); ++i)
     {
@@ -34,30 +36,28 @@ void TensorCopy()
 
     tensor1 = tensor2;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
-                for (std::size_t i = 0; i < tensor1.ElementSize(); ++i)
-                    CHECK(static_cast<T>(i) ==
-                        tensor1.At(batchIdx, { rowIdx, colIdx }));
-                
+    for (std::size_t idx = 0; idx < totalSize; ++idx)
+    {
+        CHECK(static_cast<T>(idx) == tensor1.At(idx));
+    }
 }
 
 template <typename T>
 void TensorCopyBetweenDevice_1()
 {
     Compute::Device device0(0, Compute::DeviceType::CPU, "device0");
-    Compute::Device device1(0, Compute::DeviceType::GPU, "device1");
+    Compute::Device device1(1, Compute::DeviceType::GPU, "device1");
 
     const auto numRow = 3;
     const auto numCol = 5;
     const auto batchSize = 10;
     const Shape shape({ numRow, numCol });
-    std::vector<T> vector(shape.Size());
+    const auto totalSize = shape.Size() * batchSize;
+    std::vector<T> vector(totalSize);
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < totalSize; ++i)
     {
-        vector.at(i) = static_cast<float>(i);
+        vector.at(i) = static_cast<T>(i);
     }
 
     Tensor<T> tensor1(shape, batchSize, device0);
@@ -65,30 +65,28 @@ void TensorCopyBetweenDevice_1()
 
     tensor1 = tensor2;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
-                for (std::size_t i = 0; i < tensor1.ElementSize(); ++i)
-                    CHECK(static_cast<T>(i) ==
-                        tensor1.At(batchIdx, { rowIdx, colIdx }));
-                
+    for (std::size_t idx = 0; idx < totalSize; ++idx)
+    {
+        CHECK(static_cast<T>(idx) == tensor1.At(idx));
+    }
 }
 
 template <typename T>
 void TensorCopyTestBetweenDevice_2()
 {
     Compute::Device device0(0, Compute::DeviceType::GPU, "device0");
-    Compute::Device device1(0, Compute::DeviceType::CPU, "device1");
+    Compute::Device device1(1, Compute::DeviceType::CPU, "device1");
 
     const auto numRow = 3;
     const auto numCol = 5;
     const auto batchSize = 10;
     const Shape shape({ numRow, numCol });
-    std::vector<T> vector(shape.Size());
+    const auto totalSize = shape.Size() * batchSize;
+    std::vector<T> vector(totalSize);
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < totalSize; ++i)
     {
-        vector.at(i) = static_cast<float>(i);
+        vector.at(i) = static_cast<T>(i);
     }
 
     Tensor<T> tensor1(shape, batchSize, device0);
@@ -96,25 +94,24 @@ void TensorCopyTestBetweenDevice_2()
 
     tensor1 = tensor2;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
-                for (std::size_t i = 0; i < tensor1.ElementSize(); ++i)
-                {
-                    CHECK(static_cast<T>(i) ==
-                        tensor1.At(batchIdx, { rowIdx, colIdx }));
-                }
+    for (std::size_t idx = 0; idx < totalSize; ++idx)
+    {
+        CHECK(static_cast<T>(idx) ==
+            tensor1.At(idx));
+    }
 }
 
 template <typename T>
 void TensorCopyDataSmall()
 {
     Compute::Device device(0, Compute::DeviceType::CPU, "device0");
+
     const Shape shape({ 3 });
     const auto batchSize = 10;
-    std::vector<float> vector(shape.Size());
+    const auto totalSize = shape.Size() * batchSize;
+    std::vector<float> vector(totalSize);
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < totalSize; ++i)
     {
         vector.at(i) = static_cast<float>(i);
     }
@@ -132,7 +129,7 @@ void TensorCopyDataSmall()
 
     std::cout << "Elapsed time (microseconds): " << elapsedTime << std::endl;
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < totalSize; ++i)
     {
         CHECK(static_cast<T>(i) == destTensor.At(i));
     }
@@ -142,11 +139,13 @@ template <typename T>
 void TensorCopyDataLarge()
 {
     Compute::Device device(0, Compute::DeviceType::CPU, "device0");
+
     const Shape shape({ 300, 500, 400 });
     const auto batchSize = 100;
-    std::vector<float> vector(shape.Size());
+    const auto totalSize = shape.Size() * batchSize;
+    std::vector<float> vector(totalSize);
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < totalSize; ++i)
     {
         vector.at(i) = static_cast<float>(i);
     }
@@ -164,7 +163,7 @@ void TensorCopyDataLarge()
 
     std::cout << "Elapsed time (microseconds): " << elapsedTime << std::endl;
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < totalSize; ++i)
     {
         CHECK(static_cast<T>(i) == destTensor.At(i));
     }
@@ -174,11 +173,13 @@ template <typename T>
 void TensorMoveData()
 {
     Compute::Device device(0, Compute::DeviceType::CPU, "device0");
+
     const Shape shape({ 300, 500, 400 });
     const auto batchSize = 100;
-    std::vector<float> vector(shape.Size());
+    const auto totalSize = shape.Size() * batchSize;
+    std::vector<float> vector(totalSize);
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < totalSize; ++i)
     {
         vector.at(i) = static_cast<float>(i);
     }
@@ -196,7 +197,7 @@ void TensorMoveData()
 
     std::cout << "Elapsed time (microseconds): " << elapsedTime << std::endl;
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < totalSize; ++i)
     {
         CHECK(static_cast<T>(i) == destTensor.At(i));
     }

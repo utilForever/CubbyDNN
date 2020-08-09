@@ -8,8 +8,8 @@
 #define TAKION_TENSOR_HPP
 
 #include <cstring>
-#include <Takion/Tensors/TensorDecl.hpp>
 #include <iostream>
+#include <Takion/Tensors/TensorDecl.hpp>
 
 namespace Takion
 {
@@ -133,38 +133,8 @@ Tensor<T>& Tensor<T>::operator=(const Tensor<T>& tensor)
     m_elementSize = tensor.m_elementSize;
     m_paddedColumnSize = tensor.m_paddedColumnSize;
 
-    if (tensor.m_hasOwnership)
-    {
-        const auto elementSize = BatchElementSize();
-        if (!m_hasOwnership)
-        {
-            Data = Utils::Span<T>(new T[elementSize], elementSize);
-        }
+    Tensor<T>::CopyTensorData(tensor, *this);
 
-        Utils::Span<T>::DeepCopy(Data, tensor.Data);
-        m_hasOwnership.exchange(true, std::memory_order_release);
-    }
-    return *this;
-}
-
-template <typename T>
-Tensor<T>& Tensor<T>::operator=(Tensor<T>&& tensor) noexcept
-{
-    TensorShape = tensor.TensorShape;
-    Device = std::move(tensor.Device);
-    BatchSize = tensor.BatchSize;
-    m_elementSize = tensor.m_elementSize;
-    m_paddedColumnSize = tensor.m_paddedColumnSize;
-
-    if (m_hasOwnership)
-        m_freeData();
-
-    if (tensor.m_hasOwnership)
-    {
-        Data = tensor.Data;
-        m_hasOwnership.exchange(true, std::memory_order_release);
-        tensor.m_hasOwnership.exchange(false, std::memory_order_acquire);
-    }
     return *this;
 }
 
@@ -294,32 +264,28 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
 
     const auto sourceShape = source.TensorShape;
     const auto destShape = destination.TensorShape;
-    const auto batchSize = sourceShape.NumMatrices();
+    const auto batchElementSize = destination.BatchElementSize();
     const auto numRows = sourceShape.NumRow();
     const auto numCols = sourceShape.NumCol();
     const auto sourceColSize = source.ColumnElementSize();
     const auto destColSize = destination.ColumnElementSize();
 
-    const auto batchElementSize = destination.BatchElementSize();
+    const auto totalSize = destination.TensorShape.Size();
     if (!destination.m_hasOwnership)
     {
         destination.Data = Utils::Span<T>(new T[batchElementSize],
                                           batchElementSize);
     }
 
+    const std::size_t blockSize = 100;
+
 #pragma omp parallel for schedule(static)
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    for (std::size_t blockIdx = 0; blockIdx < totalSize; blockIdx += blockSize)
     {
-        for (std::size_t rowIdx = 0; rowIdx < numRows; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCols; ++colIdx)
-            {
-                destination
-                    .Data[batchIdx * (destColSize * numRows) +
-                          destColSize * rowIdx + colIdx] =
-                    source
-                    .Data[batchIdx * (sourceColSize * numRows) +
-                          sourceColSize * rowIdx + colIdx];
-            }
+        for (std::size_t idx = blockIdx; idx < std::min(totalSize,
+                                                        blockIdx + blockSize);
+             ++idx)
+            destination.At(idx) = source.At(idx);
     }
 }
 

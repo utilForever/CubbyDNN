@@ -33,7 +33,7 @@ public:
     Tensor(Tensor<T>&& tensor) noexcept;
     /// move assignment operator
     Tensor<T>& operator=(const Tensor<T>& tensor);
-    Tensor<T>& operator=(Tensor<T>&& tensor) noexcept;
+    Tensor<T>& operator=(Tensor<T>&& tensor) noexcept = delete;
 
     [[nodiscard]] Tensor<T> SubTensor(std::initializer_list<int> index);
 
@@ -45,6 +45,17 @@ public:
     static void CopyTensorData(const Tensor<T>& source, Tensor<T>& destination);
 
     T& At(std::size_t batchIdx, std::vector<std::size_t> index);
+
+    //! Access the data linearly considering paddings
+    T& At(std::size_t idx)
+    {
+        if (TensorShape.NumCol() == 0)
+            throw std::invalid_argument("Accessing data of empty tensor");
+
+        const auto colIdx = idx / TensorShape.NumCol();
+
+        return Data[m_paddedColumnSize * colIdx + idx % TensorShape.NumCol()];
+    }
 
     [[nodiscard]] std::size_t ColumnElementSize() const
     {
