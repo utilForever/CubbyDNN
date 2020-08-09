@@ -22,8 +22,8 @@ inline void MultiplyCpu(const Span<float> inputA,
                         std::size_t numRowB, std::size_t numColB,
                         std::size_t numMatrices)
 {
-    const auto jb = std::min(static_cast<std::size_t>(512), numColA);
-    const auto kb = std::min(static_cast<std::size_t>(24), numRowA);
+    const auto jb = std::min(static_cast<std::size_t>(512), numColB);
+    const auto kb = std::min(static_cast<std::size_t>(24), numRowB);
     const auto sizeA = numRowA * numColA;
     const auto sizeB = numRowB * numColB;
     const auto sizeDest = numRowA * numColB;
@@ -40,7 +40,7 @@ inline void MultiplyCpu(const Span<float> inputA,
             {
                 for (std::size_t i = 0; i < numRowA; i += 1)
                 {
-                    for (std::size_t j = jj; j < std::min(jj + jb, numColA);
+                    for (std::size_t j = jj; j < std::min(jj + jb, numColB);
                          j += 8)
                     {
                         __m256 sum;
@@ -71,7 +71,7 @@ inline void MultiplyCpu(const Span<float> inputA,
                         }
                         _mm256_store_ps(
                             static_cast<float*>(
-                                &out[batchOffsetDest + i * numColA + j]),
+                                &out[batchOffsetDest + i * numColB + j]),
                             sum);
                     }
                 }

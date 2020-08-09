@@ -25,7 +25,7 @@ void MultiplyAdd(const Tensor<T>& A, const Tensor<T>& B, const Tensor<T>& C,
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow(),
+            CPU::MultiplyCpu(A.Data, B.Data, out.Data, inputShapeA.NumRow(),
                              A.ColumnElementSize(), inputShapeB.NumRow(),
                              B.ColumnElementSize(), out.NumMatrix());
         else if (A.BatchSize == 1)

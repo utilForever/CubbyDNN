@@ -19,14 +19,15 @@ namespace Takion::Test
 template <typename T>
 void TestMultiply(Compute::Device device)
 {
-    const auto batchSize = 3;
-    const auto numRow = 120;
-    const auto numCol = 130;
-    const auto numMiddle = 150;
+    const auto batchSize = 2;
+    const auto numRow = 169;
+    const auto numCol = 181;
+    const auto numMiddle = 75;
 
     Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
                                                      static_cast<T>(10));
     Compute::Zeros<T> zeroInitializer;
+    Compute::Ones<T> onesInitializer;
 
     Shape shapeA({ numRow, numMiddle });
     Shape shapeB({ numMiddle, numCol });
@@ -42,16 +43,29 @@ void TestMultiply(Compute::Device device)
     zeroInitializer.Initialize(result);
     zeroInitializer.Initialize(truth);
 
+    const auto t1 = std::chrono::system_clock::now();
     Compute::Multiply(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
     Test::Multiply(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
-            {
-                CHECK(result.At(batchIdx, { rowIdx, colIdx }) ==
-                    truth.At(batchIdx, { rowIdx, colIdx }));
-            }
+    const auto size = result.BatchSize * result.TensorShape.Size();
+
+    for (std::size_t idx = 0; idx < size; ++idx)
+    {
+        const auto func = result.At(idx);
+        const auto ans = truth.At(idx);
+        CHECK(func == ans);
+    }
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+              << "Optimized version (microseconds) : "
+              << optimizedMulElapsedTime << std::endl;
 }
 
 template <typename T>

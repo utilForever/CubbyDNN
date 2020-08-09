@@ -254,7 +254,7 @@ const T& Tensor<T>::At(std::size_t batchIdx,
         else
             multiplier *= TensorShape.At(idx);
     }
-    const T& val = Data.At(offset + ElementSize() * batchIdx);
+    const T& val = Data.At(offset + m_elementSize * batchIdx);
     return val;
 }
 
