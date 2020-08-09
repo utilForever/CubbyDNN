@@ -194,12 +194,12 @@ void Sub(const Tensor<T>& A, Tensor<T>& out)
 }
 
 template <typename T>
-void Dot(const Tensor<T>& input, const Tensor<T>& B, Tensor<T>& out)
+void Dot(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 {
     const auto device = out.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::DotCpu(input.Data, B.Data, out.Data, out.ElementSize(),
+        CPU::DotCpu(A.Data, B.Data, out.Data, out.ElementSize(),
                     out.BatchSize);
     }
     else
@@ -207,12 +207,12 @@ void Dot(const Tensor<T>& input, const Tensor<T>& B, Tensor<T>& out)
 }
 
 template <typename T>
-void Dot(const Tensor<T>& input, Tensor<T>& out)
+void Dot(const Tensor<T>& in, Tensor<T>& out)
 {
     const auto device = out.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::DotCpu(out.Data, input.Data, out.Data, out.ElementSize(),
+        CPU::DotCpu(out.Data, in.Data, out.Data, out.ElementSize(),
                     out.BatchSize);
     }
     else
@@ -220,13 +220,13 @@ void Dot(const Tensor<T>& input, Tensor<T>& out)
 }
 
 template <typename T>
-void ScalarMul(const Tensor<T>& input, T toMul, Tensor<T>& output)
+void ScalarMul(const Tensor<T>& in, T toMul, Tensor<T>& out)
 {
-    const auto device = output.Device;
+    const auto device = out.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::ScalarMulCpu(input.Data, toMul, output.Data, output.ElementSize(),
-                          output.BatchSize);
+        CPU::ScalarMulCpu(in.Data, toMul, out.Data, out.ElementSize(),
+                          out.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");
@@ -246,13 +246,13 @@ void ScalarMul(const Tensor<T>& tensor, T toMul)
 }
 
 template <typename T>
-void ScalarDiv(const Tensor<T>& input, T toDiv, Tensor<T>& output)
+void ScalarDiv(const Tensor<T>& in, T toDiv, Tensor<T>& out)
 {
-    const auto device = output.Device;
+    const auto device = out.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::ScalarDivCpu(input.Data, toDiv, output.Data, output.ElementSize(),
-                          output.BatchSize);
+        CPU::ScalarDivCpu(in.Data, toDiv, out.Data, out.ElementSize(),
+                          out.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");

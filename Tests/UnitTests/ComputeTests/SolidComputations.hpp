@@ -6,6 +6,7 @@
 
 #ifndef TAKION_TEST_SOLIDCOMPUTATIONS_HPP
 #define TAKION_TEST_SOLIDCOMPUTATIONS_HPP
+
 #include <Takion/Tensors/Tensor.hpp>
 
 namespace Takion::Test
@@ -34,10 +35,10 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 
 
 template <typename T>
-void Transpose(const Tensor<T>& input, Tensor<T>& output)
+void Transpose(const Tensor<T>& in, Tensor<T>& out)
 {
-    const auto batchSize = output.BatchSize;
-    const auto inputShape = input.TensorShape;
+    const auto batchSize = out.BatchSize;
+    const auto inputShape = in.TensorShape;
     const auto numRow = inputShape.NumRow();
     const auto numCol = inputShape.NumCol();
 
@@ -46,26 +47,26 @@ void Transpose(const Tensor<T>& input, Tensor<T>& output)
         for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
             for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
             {
-                output.At(batchIdx, { colIdx, rowIdx }) =
-                    input.At(batchIdx, { rowIdx, colIdx });
+                out.At(batchIdx, { colIdx, rowIdx }) =
+                    in.At(batchIdx, { rowIdx, colIdx });
             }
     }
 }
 
 template <typename T>
-void Shrink(const Tensor<T>& input, Tensor<T>& output)
+void Shrink(const Tensor<T>& in, Tensor<T>& out)
 {
-    const auto batchSize = output.BatchSize();
-    const auto elementSize = output.ElementSize;
+    const auto batchSize = out.BatchSize();
+    const auto elementSize = out.ElementSize;
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
         for (std::size_t idx = 0; idx < elementSize; ++idx)
-            output.Data[idx] += input.Data[idx];
+            out.Data[idx] += in.Data[idx];
     }
 
     for (std::size_t idx = 0; idx < elementSize; ++idx)
-        output.Data[idx] /= static_cast<T>(batchSize);
+        out.Data[idx] /= static_cast<T>(batchSize);
 }
 
 template <typename T>
