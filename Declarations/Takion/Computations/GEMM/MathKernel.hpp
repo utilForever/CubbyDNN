@@ -20,13 +20,14 @@ void MultiplyAdd(const Tensor<T>& A, const Tensor<T>& B, const Tensor<T>& C,
     const auto device = out.Device;
     const auto outputShape = out.TensorShape;
     const auto inputShapeA = A.TensorShape;
+    const auto inputShapeB = B.TensorShape;
 
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
             CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow(),
-                             out.ColumnElementSize(), inputShapeA.NumCol(),
-                             out.BatchSize);
+                             A.ColumnElementSize(), inputShapeB.NumRow(),
+                             B.ColumnElementSize(), out.NumMatrix());
         else if (A.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
@@ -62,13 +63,15 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     const auto device = out.Device;
     const auto outputShape = out.TensorShape;
     const auto inputShapeA = A.TensorShape;
+    const auto inputShapeB = B.TensorShape;;
 
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
             CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow(),
-                             out.ColumnElementSize(), inputShapeA.NumCol(),
-                             out.BatchSize);
+                             A.ColumnElementSize(), inputShapeB.NumRow(),
+                             B.ColumnElementSize(),
+                             out.NumMatrix());
         else if (A.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(

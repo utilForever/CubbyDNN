@@ -35,7 +35,7 @@ public:
     }
 
     template <typename T>
-    static void RandomUniform(const Shape& shape, T min, T max,
+    static void RandomUniform(T min, T max,
                               Utils::Span<T> data, std::size_t elementSize,
                               std::size_t batchSize)
     {

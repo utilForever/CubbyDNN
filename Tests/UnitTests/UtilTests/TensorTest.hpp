@@ -26,7 +26,7 @@ void TensorCopy()
     const auto totalSize = shape.Size() * batchSize;
     std::vector<T> vector(totalSize);
 
-    for (std::size_t i = 0; i < shape.Size(); ++i)
+    for (std::size_t i = 0; i < shape.Size() * batchSize; ++i)
     {
         vector.at(i) = static_cast<T>(i);
     }
@@ -38,7 +38,7 @@ void TensorCopy()
 
     for (std::size_t idx = 0; idx < totalSize; ++idx)
     {
-        CHECK(static_cast<T>(idx) == tensor1.At(idx));
+        CHECK(vector.at(idx) == tensor1.At(idx));
     }
 }
 
@@ -60,14 +60,14 @@ void TensorCopyBetweenDevice_1()
         vector.at(i) = static_cast<T>(i);
     }
 
-    Tensor<T> tensor1(shape, batchSize, device0);
-    const Tensor<T> tensor2(shape, batchSize, device1, vector);
+    Tensor<T> destTensor(shape, batchSize, device0);
+    const Tensor<T> sourceTensor(shape, batchSize, device1, vector);
 
-    tensor1 = tensor2;
+    Tensor<T>::CopyTensorData(sourceTensor, destTensor);
 
     for (std::size_t idx = 0; idx < totalSize; ++idx)
     {
-        CHECK(static_cast<T>(idx) == tensor1.At(idx));
+        CHECK(vector.at(idx) == destTensor.At(idx));
     }
 }
 
@@ -89,15 +89,15 @@ void TensorCopyBetweenDevice_2()
         vector.at(i) = static_cast<T>(i);
     }
 
-    Tensor<T> tensor1(shape, batchSize, device0);
-    const Tensor<T> tensor2(shape, batchSize, device1, vector);
+    Tensor<T> destTensor(shape, batchSize, device0);
+    const Tensor<T> sourceTensor(shape, batchSize, device1, vector);
 
-    tensor1 = tensor2;
+    Tensor<T>::CopyTensorData(sourceTensor, destTensor);
 
     for (std::size_t idx = 0; idx < totalSize; ++idx)
     {
         CHECK(static_cast<T>(idx) ==
-            tensor1.At(idx));
+            destTensor.At(idx));
     }
 }
 
@@ -140,8 +140,8 @@ void TensorCopyDataLarge()
 {
     Compute::Device device(0, Compute::DeviceType::CPU, "device0");
 
-    const Shape shape({ 300, 500, 400 });
-    const auto batchSize = 100;
+    const Shape shape({ 2, 150, 20 });
+    const auto batchSize = 13;
     const auto totalSize = shape.Size() * batchSize;
     std::vector<T> vector(totalSize);
 
@@ -174,8 +174,8 @@ void TensorMoveData()
 {
     Compute::Device device(0, Compute::DeviceType::CPU, "device0");
 
-    const Shape shape({ 300, 500, 400 });
-    const auto batchSize = 100;
+    const Shape shape({ 2, 150, 20 });
+    const auto batchSize = 3;
     const auto totalSize = shape.Size() * batchSize;
     std::vector<T> vector(totalSize);
 

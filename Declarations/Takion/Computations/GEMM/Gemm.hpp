@@ -15,17 +15,17 @@ using namespace Utils;
 
 //! Performs out = AB
 //! Data given to this function must be aligned by 256 bytes
-//! \param numRow : number of rows of inputA, C and out
+//! \param numRowA : number of rows of inputA, C and out
 //! \param inputA: input A
 //! \param inputB : input B
 //! \param out: output
-//! \param numCol : number of columns of inputB, C and out
-//! \param numMiddle : number of columns of inputA and rows of inputB
-//! \param batchSize : number of batches
+//! \param numColA : number of columns of inputB, C and out
+//! \param numRowB : number of columns of inputA and rows of inputB
+//! \param numMatrices : number of batches
 template <typename T>
 void MultiplyCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
-                 std::size_t numRow,
-                 std::size_t numCol, std::size_t numMiddle, std::size_t batchSize)
+                 std::size_t numRowA,
+                 std::size_t numColA, std::size_t numRowB, std::size_t numColB, std::size_t numMatrices)
 {
     throw std::invalid_argument("Unsupported data type");
 }

@@ -19,7 +19,7 @@ namespace Takion::Test
 template <typename T>
 void TestMultiply(Compute::Device device)
 {
-    const auto batchSize = 100;
+    const auto batchSize = 3;
     const auto numRow = 120;
     const auto numCol = 130;
     const auto numMiddle = 150;

@@ -35,6 +35,11 @@ public:
     {
     }
 
+    T* Address(std::size_t idx)
+    {
+        return m_base + idx;
+    }
+
     T& operator[](std::size_t idx)
     {
         return m_base[idx];
@@ -84,7 +89,9 @@ public:
 
     void Clear()
     {
-        delete[] m_base;
+        if (m_base != nullptr)
+            delete[] m_base;
+        m_base = nullptr;
         m_length = 0;
     }
 
