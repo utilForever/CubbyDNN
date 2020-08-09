@@ -55,22 +55,6 @@ target_link_libraries(${target}
         INTERFACE
         )
 
-option(WITH_BLAZE "Uses blaze for matrix computations" OFF)
-
-if(WITH_BLAZE)
-    find_package(blaze)
-    if( blaze_FOUND )
-
-       add_library( blaze_target INTERFACE )
-       target_link_libraries( blaze_target INTERFACE blaze::blaze )
-       include_directories(BUILD_SHARED_LIBS)
-       target_link_libraries(${target} PUBLIC blaze_target)
-
-       add_definitions(-DWITH_BLAZE)
-       message(STATUS "Using Blaze")
-    endif()
-endif()
-
 
 # Install
 install(TARGETS ${target} DESTINATION lib)
