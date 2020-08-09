@@ -13,6 +13,7 @@
 #include <Takion/Computations/Initializers/InitializerType.hpp>
 #include "SolidComputations.hpp"
 #include <doctest.h>
+#include <type_traits>
 
 namespace Takion::Test
 {
@@ -24,10 +25,7 @@ void TestMultiply(Compute::Device device)
     const auto numCol = 181;
     const auto numMiddle = 75;
 
-    Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
-                                                     static_cast<T>(10));
     Compute::Zeros<T> zeroInitializer;
-    Compute::Ones<T> onesInitializer;
 
     Shape shapeA({ numRow, numMiddle });
     Shape shapeB({ numMiddle, numCol });
@@ -38,8 +36,20 @@ void TestMultiply(Compute::Device device)
     Tensor<T> result(shapeOut, batchSize, device);
     Tensor<T> truth(shapeOut, batchSize, device);
 
-    randomNormalInitializer.Initialize(A);
-    randomNormalInitializer.Initialize(B);
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
     zeroInitializer.Initialize(result);
     zeroInitializer.Initialize(truth);
 
@@ -64,8 +74,8 @@ void TestMultiply(Compute::Device device)
         std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
 
     std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
-              << "Optimized version (microseconds) : "
-              << optimizedMulElapsedTime << std::endl;
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
 }
 
 template <typename T>

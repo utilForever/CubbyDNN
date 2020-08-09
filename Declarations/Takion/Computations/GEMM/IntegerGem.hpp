@@ -19,8 +19,8 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
                         std::size_t numRowB, std::size_t numColB,
                         std::size_t numMatrices)
 {
-    const auto jb = std::min(static_cast<std::size_t>(512), numColA);
-    const auto kb = std::min(static_cast<std::size_t>(24), numRowA);
+    const auto jb = std::min(static_cast<std::size_t>(512), numColB);
+    const auto kb = std::min(static_cast<std::size_t>(24), numRowB);
     const auto sizeA = numRowA * numColA;
     const auto sizeB = numRowB * numColB;
     const auto sizeDest = numRowA * numColB;
@@ -37,7 +37,7 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
             {
                 for (std::size_t i = 0; i < numRowA; i += 1)
                 {
-                    for (std::size_t j = jj; j < std::min(jj + jb, numColA);
+                    for (std::size_t j = jj; j < std::min(jj + jb, numColB);
                          j += 8)
                     {
                         __m256i sum;
@@ -45,24 +45,29 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
                             sum = _mm256_setzero_si256();
                         else
                         {
-                            sum = _mm256_load_si256((__m256i*)(
-                                &out[batchOffsetDest + i * numColB + j]));
+                            sum = _mm256_load_si256((__m256i*)
+                                &out[batchOffsetDest + i * numColB + j]);
                         }
                         const auto limit = std::min(
                             static_cast<std::size_t>(numRowB), kk + kb);
                         for (std::size_t k = kk; k < limit; k++)
                         {
-                            const auto bc_mat1_1 = _mm256_set1_epi32(
-                                inputA[batchOffsetA + i * numColA + k]);
-                            const auto vecA_mat2 = _mm256_load_si256(
-                                (__m256i*)&inputB[batchOffsetB + k * numColB + j
-                                ]);
+                            const auto input_a_offset =
+                                batchOffsetA + i * numColA + k;
+                            const auto input_b_offset =
+                                batchOffsetB + k * numColB + j;
+
+                            const auto bc_mat1_1 =
+                                _mm256_set1_epi32(inputA[input_a_offset]);
+                            const auto vecA_mat2 =
+                                _mm256_load_si256((__m256i*)
+                                    &inputB[input_b_offset]);
 
                             sum = _mm256_add_epi32(
                                 sum, _mm256_mullo_epi32(bc_mat1_1, vecA_mat2));
                         }
                         _mm256_store_si256(
-                            (__m256i*)&out[batchOffsetDest + i * numColA + j],
+                            (__m256i*)&out[batchOffsetDest + i * numColB + j],
                             sum);
                     }
                 }
@@ -408,12 +413,10 @@ inline void SetCpu(Span<int> data, int toSet, std::size_t size,
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
+        for (std::size_t i = 0; i < size; i += 8)
         {
             const auto zero = _mm256_set1_epi32(toSet);
-
-            _mm256_stream_si256((__m256i*)&data[batchOffset + i], zero);
-            _mm256_stream_si256((__m256i*)&data[batchOffset + i + 8], zero);
+            _mm256_store_si256((__m256i*)&data[batchOffset + i], zero);
         }
     }
 }
