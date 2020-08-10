@@ -78,72 +78,61 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
 
 template <>
 inline void MultiplyWithBroadcastCpu(const Span<int> inputA,
-                                     const Span<int> inputB,
-                                     Span<int> out, std::size_t numRow,
-                                     std::size_t numCol,
-                                     std::size_t numMiddle,
-                                     std::size_t batchSize,
-                                     bool broadCastA)
+                                     const Span<int> inputB, Span<int> out,
+                                     std::size_t numRowA, std::size_t numColA,
+                                     std::size_t numRowB, std::size_t numColB,
+                                     std::size_t numMatrices, bool broadCastA)
 {
-    const auto jb = std::min(static_cast<std::size_t>(512), numCol);
-    const auto kb = std::min(static_cast<std::size_t>(24), numRow);
-    const auto sizeA = numRow * numMiddle;
-    const auto sizeB = numMiddle * numCol;
-    const auto sizeDest = numRow * numCol;
+    const auto jb = std::min(static_cast<std::size_t>(512), numColB);
+    const auto kb = std::min(static_cast<std::size_t>(24), numRowB);
+    const auto sizeA = numRowA * numColA;
+    const auto sizeB = numRowB * numColB;
+    const auto sizeDest = numRowA * numColB;
 
 #pragma omp parallel for schedule(static) default(shared)
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    for (std::size_t matIdx = 0; matIdx < numMatrices; ++matIdx)
     {
-        const auto batchOffsetA = broadCastA ? 0 : sizeA * batchIdx;
-        const auto batchOffsetB = !broadCastA ? 0 : sizeB * batchIdx;
-        const auto batchOffsetDest = sizeDest * batchIdx;
-        for (std::size_t jj = 0; jj < numCol; jj += jb)
+        const auto batchOffsetA = broadCastA ? 0 : sizeA * matIdx;
+        const auto batchOffsetB = !broadCastA ? 0 : sizeB * matIdx;
+        const auto batchOffsetDest = sizeDest * matIdx;
+        for (std::size_t jj = 0; jj < numColB; jj += jb)
         {
-            for (std::size_t kk = 0; kk < numMiddle; kk += kb)
+            for (std::size_t kk = 0; kk < numRowB; kk += kb)
             {
-                for (std::size_t i = 0; i < numRow; i += 1)
+                for (std::size_t i = 0; i < numRowA; i += 1)
                 {
-                    for (std::size_t j = jj; j < jj + jb; j += 16)
+                    for (std::size_t j = jj; j < std::min(jj + jb, numColB);
+                         j += 8)
                     {
-                        __m256i sumA, sumB;
+                        __m256i sum;
                         if (kk == 0)
-                        {
-                            sumA = sumB = _mm256_setzero_si256();
-                        }
+                            sum = _mm256_setzero_si256();
                         else
                         {
-                            sumA = _mm256_load_si256(
-                                (__m256i*)&out[batchOffsetDest + i * numCol +
+                            sum = _mm256_load_si256(
+                                (__m256i*)&out[batchOffsetDest + i * numColB +
                                                j]);
-                            sumB = _mm256_load_si256(
-                                (__m256i*)&out[batchOffsetDest + i * numCol +
-                                               j + 8]);
                         }
                         const auto limit = std::min(
-                            static_cast<std::size_t>(numMiddle), kk + kb);
-                        for (size_t k = kk; k < limit; k++)
+                            static_cast<std::size_t>(numRowB), kk + kb);
+                        for (std::size_t k = kk; k < limit; k++)
                         {
-                            auto bc_mat1_1 = _mm256_set1_epi32(
-                                inputA[batchOffsetA + i * numMiddle + k]);
-                            auto vecA_mat2 = _mm256_loadu_si256(
-                                (__m256i*)&inputB[batchOffsetB + k * numRow +
-                                                  j]);
-                            auto vecB_mat2 = _mm256_loadu_si256(
-                                (__m256i*)&inputB[batchOffsetB + k * numRow +
-                                                  j + 8]);
-                            sumA = _mm256_add_epi32(
-                                sumA,
-                                _mm256_mullo_epi32(bc_mat1_1, vecA_mat2));
-                            sumB = _mm256_add_epi32(
-                                sumB,
-                                _mm256_mullo_epi32(bc_mat1_1, vecB_mat2));
+                            const auto input_a_offset =
+                                batchOffsetA + i * numColA + k;
+                            const auto input_b_offset =
+                                batchOffsetB + k * numColB + j;
+
+                            const auto bc_mat1_1 =
+                                _mm256_set1_epi32(inputA[input_a_offset]);
+                            const auto vecA_mat2 = _mm256_load_si256(
+                                (__m256i*)&inputB[input_b_offset]);
+
+                            sum = _mm256_add_epi32(
+                                sum, _mm256_mullo_epi32(bc_mat1_1, vecA_mat2));
                         }
-                        _mm256_storeu_si256(
-                            (__m256i*)&out[batchOffsetDest + i * numCol + j],
-                            sumA);
-                        _mm256_storeu_si256((__m256i*)&out[batchOffsetDest +
-                                                           i * numCol + j + 8],
-                                            sumB);
+                        _mm256_store_si256(
+                            (__m256i*)&out[batchOffsetDest + i * numColB + j],
+                            sum);
                     }
                 }
             }

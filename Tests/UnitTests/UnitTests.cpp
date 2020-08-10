@@ -81,11 +81,23 @@ TEST_CASE("Computation test")
         {
             SUBCASE("float")
             {
+                std::cout << "TensorMultiply - float" << std::endl;
                 TestMultiply<float>(device);
             }
             SUBCASE("int")
             {
+                std::cout << "TensorMultiply - int" << std::endl;
                 TestMultiply<int>(device);
+            }
+            SUBCASE("BroadcastMultiply - float")
+            {
+                std::cout << "TensorBroadcastMultiply - float" << std::endl;
+                TestBroadcastMultiply1<float>(device);
+            }
+            SUBCASE("BroadcastMultiply - int")
+            {
+                std::cout << "TensorBroadcastMultiply - int" << std::endl;
+                TestBroadcastMultiply1<int>(device);
             }
         }
 

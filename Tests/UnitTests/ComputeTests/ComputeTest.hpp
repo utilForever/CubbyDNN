@@ -79,6 +79,128 @@ void TestMultiply(Compute::Device device)
 }
 
 template <typename T>
+void TestBroadcastMultiply1(Compute::Device device)
+{
+    const auto batchSize = 2;
+    const auto numRow = 169;
+    const auto numCol = 181;
+    const auto numMiddle = 75;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numMiddle });
+    Shape shapeB({ numMiddle, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, device);
+    Tensor<T> B(shapeB, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+    Tensor<T> truth(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(result);
+    zeroInitializer.Initialize(truth);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Multiply(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Multiply(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    const auto size = result.BatchSize * result.TensorShape.Size();
+
+    for (std::size_t idx = 0; idx < size; ++idx)
+    {
+        const auto func = result.At(idx);
+        const auto ans = truth.At(idx);
+        CHECK(func == ans);
+    }
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestBroadcastMultiply2(Compute::Device device)
+{
+    const auto batchSize = 2;
+    const auto numRow = 169;
+    const auto numCol = 181;
+    const auto numMiddle = 75;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numMiddle });
+    Shape shapeB({ numMiddle, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, batchSize, device);
+    Tensor<T> B(shapeB, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+    Tensor<T> truth(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(result);
+    zeroInitializer.Initialize(truth);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Multiply(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Multiply(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    const auto size = result.BatchSize * result.TensorShape.Size();
+
+    for (std::size_t idx = 0; idx < size; ++idx)
+    {
+        const auto func = result.At(idx);
+        const auto ans = truth.At(idx);
+        CHECK(func == ans);
+    }
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
 void TestTranspose(Compute::Device device)
 {
     const auto batchSize = 100;

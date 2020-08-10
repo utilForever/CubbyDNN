@@ -31,11 +31,11 @@ void MultiplyCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
 }
 
 template <typename T>
-void MultiplyWithBroadcastCpu(const Span<T> inputA, const Span<T> inputB,
-                              Span<T> out,
-                              std::size_t numRow, std::size_t numCol,
-                              std::size_t numMiddle,
-                              std::size_t batchSize, bool broadCastA)
+void MultiplyWithBroadcastCpu(const Span<T> inputA,
+                              const Span<T> inputB, Span<T> out,
+                              std::size_t numRowA, std::size_t numColA,
+                              std::size_t numRowB, std::size_t numColB,
+                              std::size_t numMatrices, bool broadCastA)
 {
     throw std::invalid_argument("Unsupported data type");
 }

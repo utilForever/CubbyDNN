@@ -12,25 +12,73 @@
 namespace Takion::Test
 {
 template <typename T>
-void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
+void Multiply(const Tensor<T>& A, const Tensor<T>& B,
+              Tensor<T>& out)
 {
     const auto numMatrices = out.NumMatrix();
     const auto numRow = out.TensorShape.NumRow();
     const auto numCol = out.TensorShape.NumCol();
     const auto numMiddle = A.TensorShape.NumCol();
+    const auto device = out.Device;
 
-    for (std::size_t batchIdx = 0; batchIdx < numMatrices; ++ batchIdx)
+    if (device.Type() == Compute::DeviceType::CPU)
     {
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+        if (A.BatchSize == B.BatchSize)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < numMatrices; ++batchIdx)
             {
-                T sum = static_cast<T>(0);
-                for (std::size_t midIdx = 0; midIdx < numMiddle; ++midIdx)
-                    sum += A.At(batchIdx, { rowIdx, midIdx }) *
-                        B.At(batchIdx, { midIdx, colIdx });
+                for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
+                    for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+                    {
+                        T sum = static_cast<T>(0);
+                        for (std::size_t midIdx = 0; midIdx < numMiddle;
+                             ++midIdx)
+                            sum += A.At(batchIdx, { rowIdx, midIdx }) *
+                                B.At(batchIdx, { midIdx, colIdx });
 
-                out.At(batchIdx, { rowIdx, colIdx }) = sum;
+                        out.At(batchIdx, { rowIdx, colIdx }) = sum;
+                    }
             }
+        }
+        else if (A.BatchSize == 1)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < numMatrices; ++batchIdx)
+            {
+                for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
+                    for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+                    {
+                        T sum = static_cast<T>(0);
+                        for (std::size_t midIdx = 0; midIdx < numMiddle;
+                             ++midIdx)
+                            sum += A.At(0, { rowIdx, midIdx }) *
+                                B.At(batchIdx, { midIdx, colIdx });
+
+                        out.At(batchIdx, { rowIdx, colIdx }) = sum;
+                    }
+            }
+        }
+        else if (B.BatchSize == 1)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < numMatrices; ++batchIdx)
+            {
+                for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
+                    for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+                    {
+                        T sum = static_cast<T>(0);
+                        for (std::size_t midIdx = 0; midIdx < numMiddle;
+                             ++midIdx)
+                            sum += A.At(batchIdx, { rowIdx, midIdx }) *
+                                B.At(0, { midIdx, colIdx });
+
+                        out.At(batchIdx, { rowIdx, colIdx }) = sum;
+                    }
+            }
+        }
+        else
+        {
+            throw std::invalid_argument(
+                "Batch size mismatch between given tensors");
+        }
     }
 }
 

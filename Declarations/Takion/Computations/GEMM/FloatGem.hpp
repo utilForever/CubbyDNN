@@ -31,8 +31,73 @@ inline void MultiplyCpu(const Span<float> inputA,
 #pragma omp parallel for schedule(static) default(shared)
     for (std::size_t matIdx = 0; matIdx < numMatrices; ++matIdx)
     {
-        const auto batchOffsetA = sizeA * matIdx;
-        const auto batchOffsetB = sizeB * matIdx;
+        const auto matOffsetA = sizeA * matIdx;
+        const auto matOffsetB = sizeB * matIdx;
+        const auto matOffsetDest = sizeDest * matIdx;
+        for (std::size_t jj = 0; jj < numColB; jj += jb)
+        {
+            for (std::size_t kk = 0; kk < numRowB; kk += kb)
+            {
+                for (std::size_t i = 0; i < numRowA; i += 1)
+                {
+                    for (std::size_t j = jj; j < std::min(jj + jb, numColB);
+                         j += 8)
+                    {
+                        __m256 sum;
+                        if (kk == 0)
+                            sum = _mm256_setzero_ps();
+                        else
+                        {
+                            sum = _mm256_load_ps(static_cast<float const*>(
+                                &out[matOffsetDest + i * numColB + j]));
+                        }
+                        const auto limit = std::min(
+                            static_cast<std::size_t>(numRowB), kk + kb);
+                        for (std::size_t k = kk; k < limit; k++)
+                        {
+                            const auto input_a_offset =
+                                matOffsetA + i * numColA + k;
+                            const auto input_b_offset =
+                                matOffsetB + k * numColB + j;
+
+                            const auto bc_mat1_1 = _mm256_set1_ps(
+                                inputA[input_a_offset]);
+                            const auto vecA_mat2 =
+                                _mm256_load_ps(static_cast<float const*>(
+                                    &inputB[input_b_offset]));
+
+                            sum = _mm256_add_ps(
+                                sum, _mm256_mul_ps(bc_mat1_1, vecA_mat2));
+                        }
+                        _mm256_store_ps(
+                            static_cast<float*>(
+                                &out[matOffsetDest + i * numColB + j]),
+                            sum);
+                    }
+                }
+            }
+        }
+    }
+}
+
+template <>
+inline void MultiplyWithBroadcastCpu(const Span<float> inputA,
+                                     const Span<float> inputB, Span<float> out,
+                                     std::size_t numRowA, std::size_t numColA,
+                                     std::size_t numRowB, std::size_t numColB,
+                                     std::size_t numMatrices, bool broadCastA)
+{
+    const auto jb = std::min(static_cast<std::size_t>(512), numColB);
+    const auto kb = std::min(static_cast<std::size_t>(24), numRowB);
+    const auto sizeA = numRowA * numColA;
+    const auto sizeB = numRowB * numColB;
+    const auto sizeDest = numRowA * numColB;
+
+#pragma omp parallel for schedule(static) default(shared)
+    for (std::size_t matIdx = 0; matIdx < numMatrices; ++matIdx)
+    {
+        const auto batchOffsetA = broadCastA ? 0 : sizeA * matIdx;
+        const auto batchOffsetB = !broadCastA ? 0 : sizeB * matIdx;
         const auto batchOffsetDest = sizeDest * matIdx;
         for (std::size_t jj = 0; jj < numColB; jj += jb)
         {
@@ -60,8 +125,8 @@ inline void MultiplyCpu(const Span<float> inputA,
                             const auto input_b_offset =
                                 batchOffsetB + k * numColB + j;
 
-                            const auto bc_mat1_1 = _mm256_set1_ps(
-                                inputA[input_a_offset]);
+                            const auto bc_mat1_1 =
+                                _mm256_set1_ps(inputA[input_a_offset]);
                             const auto vecA_mat2 =
                                 _mm256_load_ps(static_cast<float const*>(
                                     &inputB[input_b_offset]));
@@ -73,78 +138,6 @@ inline void MultiplyCpu(const Span<float> inputA,
                             static_cast<float*>(
                                 &out[batchOffsetDest + i * numColB + j]),
                             sum);
-                    }
-                }
-            }
-        }
-    }
-}
-
-template <>
-inline void MultiplyWithBroadcastCpu(const Span<float> inputA,
-                                     const Span<float> inputB,
-                                     Span<float> out, std::size_t numRow,
-                                     std::size_t numCol,
-                                     std::size_t numMiddle,
-                                     std::size_t batchSize,
-                                     bool broadCastA)
-{
-    const auto jb = std::min(static_cast<std::size_t>(512), numCol);
-    const auto kb = std::min(static_cast<std::size_t>(24), numRow);
-    const auto sizeA = numRow * numMiddle;
-    const auto sizeB = numMiddle * numCol;
-    const auto sizeDest = numRow * numCol;
-
-#pragma omp parallel for schedule(static) default(shared)
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-    {
-        const auto batchOffsetA = broadCastA ? 0 : sizeA * batchIdx;
-        const auto batchOffsetB = !broadCastA ? 0 : sizeB * batchIdx;
-        const auto batchOffsetDest = sizeDest * batchIdx;
-        for (std::size_t jj = 0; jj < numCol; jj += jb)
-        {
-            for (std::size_t kk = 0; kk < numMiddle; kk += kb)
-            {
-                for (std::size_t i = 0; i < numRow; i += 1)
-                {
-                    for (std::size_t j = jj; j < jj + jb; j += 16)
-                    {
-                        __m256 sumA_1, sumB_1;
-                        if (kk == 0)
-                            sumA_1 = sumB_1 = _mm256_setzero_ps();
-                        else
-                        {
-                            sumA_1 = _mm256_load_ps(static_cast<float const*>(
-                                &out[batchOffsetDest + i * numCol + j]));
-                            sumB_1 = _mm256_load_ps(static_cast<float const*>(
-                                &out[batchOffsetDest + i * numCol + j + 8]));
-                        }
-                        const auto limit = std::min(
-                            static_cast<std::size_t>(numMiddle), kk + kb);
-                        for (std::size_t k = kk; k < limit; k++)
-                        {
-                            const auto bc_mat1_1 = _mm256_set1_ps(
-                                inputA[batchOffsetA + i * numMiddle + k]);
-                            const auto vecA_mat2 =
-                                _mm256_load_ps(static_cast<float const*>(
-                                    &inputB[batchOffsetB + k * numRow + j]));
-                            const auto vecB_mat2 =
-                                _mm256_load_ps(static_cast<float const*>(
-                                    &inputB[batchOffsetB + k * numRow + j +
-                                            8]));
-                            sumA_1 = _mm256_add_ps(
-                                sumA_1, _mm256_mul_ps(bc_mat1_1, vecA_mat2));
-                            sumB_1 = _mm256_add_ps(
-                                sumB_1, _mm256_mul_ps(bc_mat1_1, vecB_mat2));
-                        }
-                        _mm256_store_ps(
-                            static_cast<float*>(
-                                &out[batchOffsetDest + i * numCol + j]),
-                            sumA_1);
-                        _mm256_store_ps(
-                            static_cast<float*>(
-                                &out[batchOffsetDest + i * numCol + j + 8]),
-                            sumB_1);
                     }
                 }
             }

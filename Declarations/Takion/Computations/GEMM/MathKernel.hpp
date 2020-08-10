@@ -32,20 +32,22 @@ void MultiplyAdd(const Tensor<T>& A, const Tensor<T>& B, const Tensor<T>& C,
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
+                A.ColumnElementSize(), inputShapeB.NumRow(),
+                B.ColumnElementSize(), out.NumMatrix(),
                 true);
         }
         else if (B.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
+                A.ColumnElementSize(), inputShapeB.NumRow(),
+                B.ColumnElementSize(), out.NumMatrix(),
                 false);
         }
         else
         {
             throw std::invalid_argument(
-                "Both of the given tensors have batch size greater than 1");
+                "Batch size mismatch between given tensors");
         }
 
         CPU::AddCpu(out.Data, C.Data, out.Data, out.ElementSize(),
@@ -76,14 +78,16 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol(), out.BatchSize,
+                A.ColumnElementSize(), inputShapeB.NumRow(),
+                B.ColumnElementSize(), out.NumMatrix(),
                 true);
         }
         else if (B.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol(), out.BatchSize,
+                A.ColumnElementSize(), inputShapeB.NumRow(),
+                B.ColumnElementSize(), out.NumMatrix(),
                 false);
         }
         else
@@ -91,6 +95,10 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
             throw std::invalid_argument(
                 "Batch size mismatch between given tensors");
         }
+    }
+    else
+    {
+        throw std::runtime_error("Not implemented");
     }
 }
 

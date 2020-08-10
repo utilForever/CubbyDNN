@@ -38,6 +38,9 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
       Device(std::move(device)),
       BatchSize(batchSize)
 {
+    if (batchSize == 0)
+        throw std::invalid_argument("Batch size must be larger than 0");
+
     m_columnElementSize = m_getPaddedColumnSize();
     m_elementSize = m_getElementSize();
     const auto totalSize = m_elementSize * BatchSize;
@@ -57,6 +60,9 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
       Device(std::move(device)),
       BatchSize(batchSize)
 {
+    if (batchSize == 0)
+        throw std::invalid_argument("Batch size must be larger than 0");
+
     m_columnElementSize = m_getPaddedColumnSize();
     m_elementSize = m_getElementSize();
     const auto totalSize = m_elementSize * BatchSize;
