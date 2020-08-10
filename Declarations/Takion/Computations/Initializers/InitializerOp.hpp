@@ -26,7 +26,7 @@ public:
         std::normal_distribution<T> normal(mean, stddev);
 
 #pragma omp parallel for schedule(static)
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -44,7 +44,7 @@ public:
         std::uniform_int_distribution<T> uniform(min, max);
 
 #pragma omp parallel for schedule(static)
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -62,7 +62,7 @@ public:
         std::normal_distribution<T> normal(0, stddev);
 
 #pragma omp parallel for schedule(static)
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -80,7 +80,7 @@ public:
         std::uniform_int_distribution<T> uniform(-range, range);
 
 #pragma omp parallel for schedule(static)
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -100,7 +100,7 @@ public:
         std::normal_distribution<T> normal(0, stddev);
 
 #pragma omp parallel for schedule(static)
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -120,7 +120,7 @@ public:
         std::uniform_int_distribution<T> uniform(-range, range);
 
 #pragma omp parallel for schedule(static)
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -138,7 +138,7 @@ public:
         std::normal_distribution<T> normal(0, stddev);
 
 #pragma omp parallel for schedule(static)
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -156,7 +156,7 @@ public:
         std::uniform_int_distribution<T> uniform(-range, range);
 
 #pragma omp parallel for schedule(static)
-        for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)

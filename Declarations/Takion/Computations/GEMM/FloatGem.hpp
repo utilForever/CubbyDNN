@@ -29,7 +29,8 @@ inline void MultiplyCpu(const Span<float> inputA,
     const auto sizeDest = numRowA * numColB;
 
 #pragma omp parallel for schedule(static) default(shared)
-    for (std::size_t matIdx = 0; matIdx < numMatrices; ++matIdx)
+    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < numMatrices; ++
+         matIdx)
     {
         const auto matOffsetA = sizeA * matIdx;
         const auto matOffsetB = sizeB * matIdx;
@@ -94,7 +95,8 @@ inline void MultiplyWithBroadcastCpu(const Span<float> inputA,
     const auto sizeDest = numRowA * numColB;
 
 #pragma omp parallel for schedule(static) default(shared)
-    for (std::size_t matIdx = 0; matIdx < numMatrices; ++matIdx)
+    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < numMatrices; ++
+         matIdx)
     {
         const auto batchOffsetA = broadCastA ? 0 : sizeA * matIdx;
         const auto batchOffsetB = !broadCastA ? 0 : sizeB * matIdx;
@@ -154,7 +156,8 @@ inline void CpuTranspose(const Span<float> in, Span<float> out,
     const auto matrixSize = numRowInput * numColInput;
     //! Optimized matrix transpose minimizing cache misses
 #pragma omp parallel for schedule(static) default(shared)
-    for (std::size_t matIdx = 0; matIdx < numMatrix; ++matIdx)
+    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < numMatrix; ++matIdx
+    )
     {
         auto batchOffset = matrixSize * matIdx;
         for (std::size_t ii = 0; ii < numRowInput; ii += blockSize)
@@ -189,11 +192,12 @@ inline void ShrinkCpu(const Span<float> input, Span<float> output,
                       std::size_t size,
                       std::size_t batchSize)
 {
-#pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    //#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 8)
+        for (long i = 0; i < size; i += 8)
         {
             const auto vecA = _mm256_load_ps(
                 static_cast<float const*>(&input[batchOffset + i]));
@@ -201,7 +205,7 @@ inline void ShrinkCpu(const Span<float> input, Span<float> output,
                 static_cast<float const*>(&output[i]));
             const auto sum = _mm256_add_ps(vecA, vecB);
 
-#pragma omp critical
+            //#pragma omp critical
             {
                 _mm256_store_ps(static_cast<float*>(&output[i]), sum);
             }
@@ -209,7 +213,7 @@ inline void ShrinkCpu(const Span<float> input, Span<float> output,
     }
 
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned i = 0; i < size; i += 8)
+    for (long i = 0; i < size; i += 8)
     {
         const auto vecDiv = _mm256_set1_ps(static_cast<float>(batchSize));
         const auto vecA = _mm256_load_ps(
@@ -225,10 +229,10 @@ inline void AddCpu(const Span<float> inputA, const Span<float> inputB,
                    Span<float> out, std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 8)
+        for (long i = 0; i < size; i += 8)
         {
             const auto vecA1 = _mm256_load_ps(
                 static_cast<float const*>(&inputA[batchOffset + i]));
@@ -245,10 +249,10 @@ inline void SubCpu(const Span<float> A, const Span<float> B, Span<float> out,
                    std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 8)
+        for (long i = 0; i < size; i += 8)
         {
             const auto vecA1 = _mm256_load_ps(
                 static_cast<float const*>(&A[batchOffset + i]));
@@ -267,7 +271,7 @@ inline void AddWithBroadcastCpu(const Span<float> A, const Span<float> B,
                                 bool broadCastA)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
         const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
@@ -291,7 +295,7 @@ inline void SubWithBroadcastCpu(const Span<float> A, const Span<float> B,
                                 std::size_t batchSize, bool broadCastA)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
         const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
@@ -314,10 +318,10 @@ inline void DotCpu(const Span<float> inputA, const Span<float> inputB,
                    Span<float> out, std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 8)
+        for (long i = 0; i < size; i += 8)
         {
             const auto vecA = _mm256_load_ps(
                 static_cast<float const*>(&inputA[batchOffset + i]));
@@ -336,12 +340,12 @@ inline void DotWithBroadcastCpu(const Span<float> inputA,
                                 std::size_t batchSize, bool broadCastA)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
         const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
         const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
-        for (unsigned i = 0; i < size; i += 8)
+        for (long i = 0; i < size; i += 8)
         {
             const auto vecA = _mm256_load_ps(
                 static_cast<float const*>(&inputA[batchOffsetA + i]));
@@ -358,10 +362,10 @@ inline void ScalarMulCpu(const Span<float> input, float toMul, Span<float> out,
                          std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 8)
+        for (long i = 0; i < size; i += 8)
         {
             const auto vecMul = _mm256_set1_ps(toMul);
             const auto vecA = _mm256_load_ps(
@@ -377,10 +381,10 @@ inline void ScalarDivCpu(const Span<float> input, float toDiv, Span<float> out,
                          std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 8)
+        for (long i = 0; i < size; i += 8)
         {
             const auto vecMul = _mm256_set1_ps(toDiv);
             const auto vecA = _mm256_load_ps(
@@ -396,7 +400,7 @@ inline void SetCpu(Span<float> data, float toSet, std::size_t size,
                    std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (long batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
         for (std::size_t i = 0; i < size; i += 8)

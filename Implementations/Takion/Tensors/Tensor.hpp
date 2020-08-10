@@ -365,7 +365,7 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
     const std::size_t blockSize = 100;
 
 #pragma omp parallel for schedule(static)
-    for (std::size_t blockIdx = 0; blockIdx < unitSize * destination.BatchSize;
+    for (long blockIdx = 0; blockIdx < unitSize * destination.BatchSize;
          blockIdx += blockSize)
     {
         for (std::size_t idx = blockIdx;
