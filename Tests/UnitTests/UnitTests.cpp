@@ -93,48 +93,92 @@ TEST_CASE("Computation test")
             {
                 std::cout << "TensorBroadcastMultiply - float" << std::endl;
                 TestBroadcastMultiply1<float>(device);
+                TestBroadcastMultiply2<float>(device);
             }
             SUBCASE("BroadcastMultiply - int")
             {
                 std::cout << "TensorBroadcastMultiply - int" << std::endl;
                 TestBroadcastMultiply1<int>(device);
+                TestBroadcastMultiply2<int>(device);
             }
         }
 
-        // SUBCASE("Add")
-        // {
-        //     SUBCASE("float")
-        //     {
-        //         TestAdd<float>(device);
-        //     }
-        //     // SUBCASE("int")
-        //     // {
-        //     //     TestAdd<int>(device);
-        //     // }
-        // }
-        //
-        // SUBCASE("Shrink")
-        // {
-        //     SUBCASE("float")
-        //     {
-        //         TestShrink<float>(device);
-        //     }
-        //     // SUBCASE("int")
-        //     // {
-        //     //     TestShrink<int>(device);
-        //     // }
-        // }
-        //
+        SUBCASE("Add")
+        {
+            SUBCASE("float")
+            {
+                std::cout << "TensorAdd - float" << std::endl;
+                TestAdd<float>(device);
+            }
+            SUBCASE("int")
+            {
+                std::cout << "TensorAdd - int" << std::endl;
+                TestAdd<int>(device);
+            }
+            SUBCASE("BroadCast - float")
+            {
+                std::cout << "TensorBroadcastAdd - float" << std::endl;
+                TestBroadcastAdd1<float>(device);
+                TestBroadcastAdd2<float>(device);
+            }
+            SUBCASE("BroadCast - int")
+            {
+                std::cout << "TensorBroadcastAdd - int" << std::endl;
+                TestBroadcastAdd1<int>(device);
+                TestBroadcastAdd2<int>(device);
+            }
+        }
+
+        SUBCASE("Shrink")
+        {
+            SUBCASE("float")
+            {
+                std::cout << "TensorShrink - float" << std::endl;
+                TestShrink<float>(device);
+            }
+            SUBCASE("int")
+            {
+                std::cout << "TensorShrink - int" << std::endl;
+                TestShrink<int>(device);
+            }
+        }
+
+        SUBCASE("Dot")
+        {
+            SUBCASE("float")
+            {
+                std::cout << "TensorDot - float" << std::endl;
+                TestDot<float>(device);
+            }
+            SUBCASE("int")
+            {
+                std::cout << "TensorDot - int" << std::endl;
+                TestDot<int>(device);
+            }
+            SUBCASE("BroadCast - float")
+            {
+                std::cout << "TensorBroadcastDot - float" << std::endl;
+                TestBroadcastDot1<float>(device);
+                TestBroadcastDot2<float>(device);
+            }
+            SUBCASE("BroadCast - int")
+            {
+                std::cout << "TensorBroadcastDot - int" << std::endl;
+                TestBroadcastDot1<int>(device);
+                TestBroadcastDot2<int>(device);
+            }
+        }
+
         // SUBCASE("Transpose")
         // {
         //     SUBCASE("float")
         //     {
         //         TestTranspose<float>(device);
         //     }
-        //     // SUBCASE("int")
-        //     // {
-        //     //     TestTranspose<int>(device);
-        //     // }
+        //     SUBCASE("int")
+        //     {
+        //         TestTranspose<int>(device);
+        //     }
         // }
     }
 }

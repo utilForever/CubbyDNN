@@ -25,7 +25,8 @@ using namespace Utils;
 template <typename T>
 void MultiplyCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
                  std::size_t numRowA,
-                 std::size_t numColA, std::size_t numRowB, std::size_t numColB, std::size_t numMatrices)
+                 std::size_t numColA, std::size_t numRowB, std::size_t numColB,
+                 std::size_t numMatrices)
 {
     throw std::invalid_argument("Unsupported data type");
 }
@@ -72,7 +73,16 @@ void SubCpu(const Span<T> A, const Span<T> B, Span<T> out, std::size_t size,
 //! BroadCasts input B to A
 template <typename T>
 void AddWithBroadcastCpu(const Span<T> A, const Span<T> B,
-                         Span<T> out, std::size_t size, std::size_t batchSize)
+                         Span<T> out, std::size_t size, std::size_t batchSize,
+                         bool broadCastA)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
+template <typename T>
+void SubWithBroadcastCpu(const Span<T> A, const Span<T> B, Span<T> out,
+                         std::size_t size, std::size_t batchSize,
+                         bool broadCastA)
 {
     throw std::invalid_argument("Unsupported data type");
 }
@@ -86,14 +96,23 @@ void DotCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
 }
 
 template <typename T>
-void ScalarMulCpu(const Span<T> input, T toMul, Span<T> output, std::size_t size,
+void DotWithBroadcastCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
+            std::size_t size, std::size_t batchSize, bool broadCastA)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
+template <typename T>
+void ScalarMulCpu(const Span<T> input, T toMul, Span<T> output,
+                  std::size_t size,
                   std::size_t batchSize)
 {
     throw std::invalid_argument("Unsupported data type");
 }
 
 template <typename T>
-void ScalarDivCpu(const Span<T> input, T toDiv, Span<T> output, std::size_t size,
+void ScalarDivCpu(const Span<T> input, T toDiv, Span<T> output,
+                  std::size_t size,
                   std::size_t batchSize)
 {
     throw std::invalid_argument("Unsupported data type");

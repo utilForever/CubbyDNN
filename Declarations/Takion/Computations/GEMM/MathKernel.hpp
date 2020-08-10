@@ -103,18 +103,35 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 }
 
 template <typename T>
-void Transpose(const Tensor<T>& input, Tensor<T>& output)
+void Transpose(const Tensor<T>& in, Tensor<T>& out)
 {
-    const auto device = output.Device;
-    const auto inputShape = input.TensorShape;
+    const auto matSize = out.NumMatrix();
+    const auto inputShape = in.TensorShape;
+    const auto numRow = inputShape.NumRow();
+    const auto numCol = inputShape.NumCol();
 
-    if (device.Type() == DeviceType::CPU)
+#pragma omp parallel for schedule(static) default(shared)
+    for (std::size_t matIdx = 0; matIdx < matSize; ++matIdx)
     {
-        CPU::CpuTranspose(input.Data, output.Data, inputShape.NumRow(),
-                          input.ColumnElementSize(), input.BatchSize);
+        const auto matOffset = numRow * numCol * matIdx;
+        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
+            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+            {
+                out.At(matOffset + numCol * rowIdx + colIdx) =
+                    in.At(matOffset + numRow * colIdx + rowIdx);
+            }
     }
-    else
-        throw std::runtime_error("Not implemented");
+
+    // const auto device = out.Device;
+    // const auto inputShape = in.TensorShape;
+    //
+    // if (device.Type() == DeviceType::CPU)
+    // {
+    //     CPU::CpuTranspose(in.Data, out.Data, inputShape.NumRow(),
+    //                       in.ColumnElementSize(), in.NumMatrix());
+    // }
+    // else
+    //     throw std::runtime_error("Not implemented");
 }
 
 template <typename T>
@@ -124,7 +141,7 @@ void Shrink(const Tensor<T>& input, Tensor<T>& output)
     const auto size = output.ElementSize();
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::ShrinkCpu(input.Data, output.Data, size, output.BatchSize);
+        CPU::ShrinkCpu(input.Data, output.Data, size, input.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");
@@ -139,9 +156,12 @@ void Add(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
         if (A.BatchSize == B.BatchSize)
             CPU::AddCpu(A.Data, B.Data, out.Data, out.ElementSize(),
                         out.BatchSize);
+        else if (A.BatchSize == 1)
+            CPU::AddWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(), out.BatchSize, true);
         else if (B.BatchSize == 1)
             CPU::AddWithBroadcastCpu(A.Data, B.Data, out.Data,
-                                     out.ElementSize(), out.BatchSize);
+                                     out.ElementSize(), out.BatchSize, false);
         else
             throw std::invalid_argument(
                 "Batch size mismatch between given tensors");
@@ -174,11 +194,14 @@ void Sub(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::AddCpu(A.Data, B.Data, out.Data, out.ElementSize(),
+            CPU::SubCpu(A.Data, B.Data, out.Data, out.ElementSize(),
                         out.BatchSize);
+        else if (A.BatchSize == 1)
+            CPU::SubWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(), out.BatchSize, true);
         else if (B.BatchSize == 1)
-            CPU::AddWithBroadcastCpu(A.Data, B.Data, out.Data,
-                                     out.ElementSize(), out.BatchSize);
+            CPU::SubWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(), out.BatchSize, false);
         else
             throw std::invalid_argument(
                 "Batch size mismatch between given tensors");
@@ -210,8 +233,17 @@ void Dot(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     const auto device = out.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::DotCpu(A.Data, B.Data, out.Data, out.ElementSize(),
-                    out.BatchSize);
+        if (A.BatchSize == B.BatchSize)
+            CPU::DotCpu(A.Data, B.Data, out.Data, out.ElementSize(),
+                        out.BatchSize);
+        else if (A.BatchSize == 1)
+            CPU::DotWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(),
+                                     out.BatchSize, true);
+        else if (B.BatchSize == 1)
+            CPU::DotWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(),
+                                     out.BatchSize, false);
     }
     else
         throw std::runtime_error("Not implemented");

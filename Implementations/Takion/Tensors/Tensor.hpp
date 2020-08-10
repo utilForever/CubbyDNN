@@ -271,8 +271,14 @@ T& Tensor<T>::At(std::size_t idx)
         throw std::invalid_argument("Accessing data of empty tensor");
 
     const auto colIdx = idx / TensorShape.NumCol();
+    const auto dataIdx =
+        m_columnElementSize * colIdx + idx % TensorShape.NumCol();
 
-    return Data[m_columnElementSize * colIdx + idx % TensorShape.NumCol()];
+    const auto limit = m_elementSize * BatchSize;
+    if (dataIdx >= limit)
+        throw std::invalid_argument("Idx exceeds allocated size");
+
+    return Data[dataIdx];
 }
 
 template <typename T>
@@ -282,8 +288,14 @@ const T& Tensor<T>::At(std::size_t idx) const
         throw std::invalid_argument("Accessing data of empty tensor");
 
     const auto colIdx = idx / TensorShape.NumCol();
+    const auto dataIdx =
+        m_columnElementSize * colIdx + idx % TensorShape.NumCol();
 
-    return Data[m_columnElementSize * colIdx + idx % TensorShape.NumCol()];
+    const auto limit = m_elementSize * BatchSize;
+    if (dataIdx >= limit)
+        throw std::invalid_argument("Idx exceeds allocated size");
+
+    return Data[dataIdx];
 }
 
 template <typename T>
@@ -319,9 +331,9 @@ void Tensor<T>::MoveTensorData(Tensor<T>& source, Tensor<T>& destination)
     if (destination.m_hasOwnership)
         destination.m_freeData();
 
+    source.m_hasOwnership.exchange(false, std::memory_order_acquire);
     destination.Data = source.Data;
     destination.m_hasOwnership.exchange(true, std::memory_order_release);
-    source.m_hasOwnership.exchange(false, std::memory_order_acquire);
 }
 
 template <typename T>

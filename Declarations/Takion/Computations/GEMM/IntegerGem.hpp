@@ -179,47 +179,28 @@ inline void ShrinkCpu(const Span<int> input, Span<int> output, std::size_t size,
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
+        for (unsigned i = 0; i < size; i += 8)
         {
-            const auto vecA1 =
+            const auto vecA =
                 _mm256_loadu_si256((__m256i*)&input[batchOffset + i]);
-            const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&input[batchOffset + i + 8]);
-
-            const auto vecB1 =
+            const auto vecB =
                 _mm256_loadu_si256((__m256i*)&output[i]);
-            const auto vecB2 =
-                _mm256_loadu_si256((__m256i*)&output[i + 8]);
-
-            const auto sum1 = _mm256_add_epi32(vecA1, vecB1);
-            const auto sum2 = _mm256_add_epi32(vecA2, vecB2);
-
+            const auto sum = _mm256_add_epi32(vecA, vecB);
 #pragma omp critical
             {
-                _mm256_storeu_si256((__m256i*)&output[i], sum1);
-                _mm256_storeu_si256((__m256i*)&output[i + 8], sum2);
+                _mm256_storeu_si256((__m256i*)&output[i], sum);
             }
         }
     }
 
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (unsigned i = 0; i < size; i += 8)
     {
-        const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
-        {
-            const auto vecMul = _mm256_set1_epi32(static_cast<int>(batchSize));
-            const auto vecA1 =
-                _mm256_loadu_si256((__m256i*)&input[batchOffset + i]);
-            const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&input[batchOffset + i + 8]);
-
-            const auto div1 = _mm256_div_epi32(vecA1, vecMul);
-            const auto div2 = _mm256_div_epi32(vecA2, vecMul);
-
-            _mm256_storeu_si256((__m256i*)&output[batchOffset + i], div1);
-            _mm256_storeu_si256((__m256i*)&output[batchOffset + i + 8], div2);
-        }
+        const auto vecMul = _mm256_set1_epi32(static_cast<int>(batchSize));
+        const auto vecA =
+            _mm256_loadu_si256((__m256i*)&output[i]);
+        const auto div = _mm256_div_epi32(vecA, vecMul);
+        _mm256_storeu_si256((__m256i*)&output[i], div);
     }
 }
 
@@ -233,31 +214,21 @@ inline void AddCpu(const Span<int> A, const Span<int> B,
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
+        for (unsigned i = 0; i < size; i += 8)
         {
             const auto vecA1 =
                 _mm256_loadu_si256((__m256i*)&A[batchOffset + i]);
-            const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&A[batchOffset + i + 8]);
-
             const auto vecB1 =
                 _mm256_loadu_si256((__m256i*)&B[batchOffset + i]);
-            const auto vecB2 =
-                _mm256_loadu_si256((__m256i*)&B[batchOffset + i + 8]);
-
             const auto sum1 = _mm256_add_epi32(vecA1, vecB1);
-            const auto sum2 = _mm256_add_epi32(vecA2, vecB2);
-
             _mm256_storeu_si256((__m256i*)&out[batchOffset + i], sum1);
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], sum2);
         }
     }
 }
 
 template <>
 inline void SubCpu(const Span<int> A, const Span<int> B, Span<int> out,
-                   std::size_t size,
-                   std::size_t batchSize)
+                   std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
@@ -267,19 +238,10 @@ inline void SubCpu(const Span<int> A, const Span<int> B, Span<int> out,
         {
             const auto vecA1 =
                 _mm256_loadu_si256((__m256i*)&A[batchOffset + i]);
-            const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&A[batchOffset + i + 8]);
-
             const auto vecB1 =
                 _mm256_loadu_si256((__m256i*)&B[batchOffset + i]);
-            const auto vecB2 =
-                _mm256_loadu_si256((__m256i*)&B[batchOffset + i + 8]);
-
             const auto sum1 = _mm256_sub_epi32(vecA1, vecB1);
-            const auto sum2 = _mm256_sub_epi32(vecA2, vecB2);
-
             _mm256_storeu_si256((__m256i*)&out[batchOffset + i], sum1);
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], sum2);
         }
     }
 }
@@ -287,29 +249,47 @@ inline void SubCpu(const Span<int> A, const Span<int> B, Span<int> out,
 template <>
 inline void AddWithBroadcastCpu(const Span<int> A, const Span<int> B,
                                 Span<int> out, std::size_t size,
-                                std::size_t batchSize)
+                                std::size_t batchSize, bool broadCastA)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
-        const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
+        const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
+        const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
+        const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
+
+        for (std::size_t i = 0; i < size; i += 8)
         {
-            const auto vecA1 =
-                _mm256_loadu_si256((__m256i*)&A[batchOffset + i]);
-            const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&A[batchOffset + i + 8]);
-
+            const auto vecA =
+                _mm256_loadu_si256((__m256i*)&A[batchOffsetA + i]);
             const auto vecB1 =
-                _mm256_loadu_si256((__m256i*)&B[i]);
-            const auto vecB2 =
-                _mm256_loadu_si256((__m256i*)&B[i + 8]);
+                _mm256_loadu_si256((__m256i*)&B[batchOffsetB + i]);
+            const auto sum = _mm256_add_epi32(vecA, vecB1);
+            _mm256_storeu_si256((__m256i*)&out[batchOffsetOut + i], sum);
+        }
+    }
+}
 
-            const auto sum1 = _mm256_add_epi32(vecA1, vecB1);
-            const auto sum2 = _mm256_add_epi32(vecA2, vecB2);
+template <>
+inline void SubWithBroadcastCpu(const Span<int> A, const Span<int> B,
+                                Span<int> out, std::size_t size,
+                                std::size_t batchSize, bool broadCastA)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
+        const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
+        const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
 
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i], sum1);
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], sum2);
+        for (std::size_t i = 0; i < size; i += 8)
+        {
+            const auto vecA =
+                _mm256_loadu_si256((__m256i*)&A[batchOffsetA + i]);
+            const auto vecB1 =
+                _mm256_loadu_si256((__m256i*)&B[batchOffsetB + i]);
+            const auto sum = _mm256_sub_epi32(vecA, vecB1);
+            _mm256_storeu_si256((__m256i*)&out[batchOffsetOut + i], sum);
         }
     }
 }
@@ -322,27 +302,40 @@ inline void DotCpu(const Span<int> inputA, const Span<int> inputB,
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
+        for (unsigned i = 0; i < size; i += 8)
         {
             const auto vecA1 =
                 _mm256_loadu_si256((__m256i*)&inputA[batchOffset + i]);
-            const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&inputA[batchOffset + i + 8]);
-
             const auto vecB1 =
                 _mm256_loadu_si256((__m256i*)&inputB[batchOffset + i]);
-            const auto vecB2 =
-                _mm256_loadu_si256((__m256i*)&inputB[batchOffset + i + 8]);
-
             const auto mul1 = _mm256_mullo_epi32(vecA1, vecB1);
-            const auto mul2 = _mm256_mullo_epi32(vecA2, vecB2);
-
             _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul1);
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], mul2);
         }
     }
 }
 
+template <>
+inline void DotWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
+                                Span<int> out, std::size_t size,
+                                std::size_t batchSize, bool broadCastA)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    {
+        const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
+        const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
+        const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
+        for (unsigned i = 0; i < size; i += 8)
+        {
+            const auto vecA1 =
+                _mm256_loadu_si256((__m256i*)&inputA[batchOffsetA + i]);
+            const auto vecB1 =
+                _mm256_loadu_si256((__m256i*)&inputB[batchOffsetB + i]);
+            const auto mul1 = _mm256_mullo_epi32(vecA1, vecB1);
+            _mm256_storeu_si256((__m256i*)&out[batchOffsetOut + i], mul1);
+        }
+    }
+}
 
 template <>
 inline void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
@@ -352,19 +345,13 @@ inline void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
+        for (unsigned i = 0; i < size; i += 8)
         {
             const auto vecMul = _mm256_set1_epi32(toMul);
-            const auto vecA1 =
+            const auto vecA =
                 _mm256_loadu_si256((__m256i*)&input[batchOffset + i]);
-            const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&input[batchOffset + i + 8]);
-
-            const auto mul1 = _mm256_mullo_epi32(vecA1, vecMul);
-            const auto mul2 = _mm256_mullo_epi32(vecA2, vecMul);
-
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul1);
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], mul2);
+            const auto mul = _mm256_mullo_epi32(vecA, vecMul);
+            _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul);
         }
     }
 }
@@ -377,19 +364,13 @@ inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
     for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
+        for (unsigned i = 0; i < size; i += 8)
         {
             const auto vecMul = _mm256_set1_epi32(toDiv);
-            const auto vecA1 =
+            const auto vecA =
                 _mm256_loadu_si256((__m256i*)&input[batchOffset + i]);
-            const auto vecA2 =
-                _mm256_loadu_si256((__m256i*)&input[batchOffset + i + 8]);
-
-            const auto mul1 = _mm256_div_epi32(vecA1, vecMul);
-            const auto mul2 = _mm256_div_epi32(vecA2, vecMul);
-
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul1);
-            _mm256_storeu_si256((__m256i*)&out[batchOffset + i + 8], mul2);
+            const auto mul = _mm256_div_epi32(vecA, vecMul);
+            _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul);
         }
     }
 }

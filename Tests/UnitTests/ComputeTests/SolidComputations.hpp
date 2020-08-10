@@ -85,18 +85,19 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B,
 template <typename T>
 void Transpose(const Tensor<T>& in, Tensor<T>& out)
 {
-    const auto batchSize = out.BatchSize;
+    const auto matSize = out.NumMatrix();
     const auto inputShape = in.TensorShape;
     const auto numRow = inputShape.NumRow();
     const auto numCol = inputShape.NumCol();
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    for (std::size_t matIdx = 0; matIdx < matSize; ++matIdx)
     {
+        const auto matOffset = numRow * numCol * matIdx;
         for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
             for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
             {
-                out.At(batchIdx, { colIdx, rowIdx }) =
-                    in.At(batchIdx, { rowIdx, colIdx });
+                out.At(matOffset + numCol * rowIdx + colIdx) =
+                    in.At(matOffset + numRow * colIdx + rowIdx);
             }
     }
 }
@@ -104,36 +105,65 @@ void Transpose(const Tensor<T>& in, Tensor<T>& out)
 template <typename T>
 void Shrink(const Tensor<T>& in, Tensor<T>& out)
 {
-    const auto batchSize = out.BatchSize;
-    const auto elementSize = out.ElementSize();
+    const auto batchSize = in.BatchSize;
+    const auto elementSize = out.TensorShape.Size();
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
     {
+        const auto batchOffset = elementSize * batchIdx;
         for (std::size_t idx = 0; idx < elementSize; ++idx)
-            out.Data[idx] += in.Data[idx];
+            out.At(idx) += in.At(batchOffset + idx);
     }
 
     for (std::size_t idx = 0; idx < elementSize; ++idx)
-        out.Data[idx] /= static_cast<T>(batchSize);
+        out.At(idx) /= static_cast<T>(batchSize);
 }
 
 template <typename T>
 void Add(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 {
     const auto batchSize = out.BatchSize;
-    const auto numRow = out.TensorShape.NumRow();
-    const auto numCol = out.TensorShape.NumCol();
+    const auto elementSize = out.TensorShape.Size();
+    const auto device = out.Device;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    if (device.Type() == Compute::DeviceType::CPU)
     {
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+        if (A.BatchSize == B.BatchSize)
+        {
+            for (std::size_t idx = 0; idx < batchSize * elementSize; ++idx)
             {
-                const auto sum = A.At(batchIdx, { rowIdx, colIdx }) +
-                                 B.At(batchIdx, { rowIdx, colIdx });
-
-                out.At(batchIdx, { rowIdx, colIdx }) = sum;
+                const auto sum = A.At(idx) + B.At(idx);
+                out.At(idx) = sum;
             }
+        }
+        else if (A.BatchSize == 1)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            {
+                const auto batchOffset = batchIdx * elementSize;
+                for (std::size_t idx = 0; idx < elementSize; ++idx)
+                {
+                    const auto sum = A.At(idx) + B.At(batchOffset + idx);
+                    out.At(batchOffset + idx) = sum;
+                }
+            }
+        }
+        else if (B.BatchSize == 1)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            {
+                const auto batchOffset = batchIdx * elementSize;
+                for (std::size_t idx = 0; idx < elementSize; ++idx)
+                {
+                    const auto sum = A.At(batchOffset + idx) + B.At(idx);
+                    out.At(batchOffset + idx) = sum;
+                }
+            }
+        }
+    }
+    else
+    {
+        throw std::invalid_argument("Not implemented");
     }
 }
 
@@ -141,19 +171,47 @@ template <typename T>
 void Sub(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 {
     const auto batchSize = out.BatchSize;
-    const auto numRow = out.TensorShape.NumRow();
-    const auto numCol = out.TensorShape.NumCol();
+    const auto elementSize = out.TensorShape.Size();
+    const auto device = out.Device;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    if (device.Type() == Compute::DeviceType::CPU)
     {
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+        if (A.BatchSize == B.BatchSize)
+        {
+            for (std::size_t idx = 0; idx < batchSize * elementSize; ++idx)
             {
-                const auto sub = A.At(batchIdx, { rowIdx, colIdx }) -
-                                 B.At(batchIdx, { rowIdx, colIdx });
-
-                out.At(batchIdx, { rowIdx, colIdx }) = sub;
+                const auto sum = A.At(idx) - B.At(idx);
+                out.At(idx) = sum;
             }
+        }
+        else if (A.BatchSize == 1)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            {
+                const auto batchOffset = batchSize * elementSize;
+                for (std::size_t idx = 0; idx < elementSize; ++idx)
+                {
+                    const auto sum = A.At(idx) - B.At(batchOffset + idx);
+                    out.At(batchOffset + idx) = sum;
+                }
+            }
+        }
+        else if (B.BatchSize == 1)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            {
+                const auto batchOffset = batchSize * elementSize;
+                for (std::size_t idx = 0; idx < elementSize; ++idx)
+                {
+                    const auto sum = A.At(batchOffset + idx) - B.At(idx);
+                    out.At(batchOffset + idx) = sum;
+                }
+            }
+        }
+    }
+    else
+    {
+        throw std::invalid_argument("Not implemented");
     }
 }
 
@@ -161,19 +219,47 @@ template <typename T>
 void Dot(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 {
     const auto batchSize = out.BatchSize;
-    const auto numRow = out.TensorShape.NumRow();
-    const auto numCol = out.TensorShape.NumCol();
+    const auto elementSize = out.TensorShape.Size();
+    const auto device = out.Device;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    if (device.Type() == Compute::DeviceType::CPU)
     {
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+        if (A.BatchSize == B.BatchSize)
+        {
+            for (std::size_t idx = 0; idx < batchSize * elementSize; ++idx)
             {
-                const auto dot = A.At(batchIdx, { rowIdx, colIdx }) *
-                                 B.At(batchIdx, { rowIdx, colIdx });
-
-                out.At(batchIdx, { rowIdx, colIdx }) = dot;
+                const auto sum = A.At(idx) * B.At(idx);
+                out.At(idx) = sum;
             }
+        }
+        else if (A.BatchSize == 1)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            {
+                const auto batchOffset = batchIdx * elementSize;
+                for (std::size_t idx = 0; idx < elementSize; ++idx)
+                {
+                    const auto sum = A.At(idx) * B.At(batchOffset + idx);
+                    out.At(batchOffset + idx) = sum;
+                }
+            }
+        }
+        else if (B.BatchSize == 1)
+        {
+            for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+            {
+                const auto batchOffset = batchIdx * elementSize;
+                for (std::size_t idx = 0; idx < elementSize; ++idx)
+                {
+                    const auto sum = A.At(batchOffset + idx) * B.At(idx);
+                    out.At(batchOffset + idx) = sum;
+                }
+            }
+        }
+    }
+    else
+    {
+        throw std::invalid_argument("Not implemented");
     }
 }
 
@@ -181,17 +267,13 @@ template <typename T>
 void ScalarMul(const Tensor<T>& in, T toMul, Tensor<T>& out)
 {
     const auto batchSize = out.BatchSize;
-    const auto numRow = out.TensorShape.NumRow();
-    const auto numCol = out.TensorShape.NumCol();
+    const auto elementSize = out.TensorShape.Size();
+    const auto device = out.Device;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    for (std::size_t idx = 0; idx < batchSize * elementSize; ++idx)
     {
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
-            {
-                out.At(batchIdx, { rowIdx, colIdx }) =
-                    in.At(batchSize, { rowIdx, colIdx }) * toMul;
-            }
+        const auto mul = in.At(idx) * toMul;
+        out.At(idx) = mul;
     }
 }
 
@@ -199,43 +281,40 @@ template <typename T>
 void ScalarDiv(const Tensor<T>& in, T toDiv, Tensor<T>& out)
 {
     const auto batchSize = out.BatchSize;
-    const auto numRow = out.TensorShape.NumRow();
-    const auto numCol = out.TensorShape.NumCol();
+    const auto elementSize = out.TensorShape.Size();
+    const auto device = out.Device;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    for (std::size_t idx = 0; idx < batchSize * elementSize; ++idx)
     {
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
-            {
-                out.At(batchIdx, { rowIdx, colIdx }) =
-                    in.At(batchSize, { rowIdx, colIdx }) * toDiv;
-            }
+        const auto div = in.At(idx) * toDiv;
+        out.At(idx) = div;
     }
 }
 
 template <typename T>
 void Set(Tensor<T>& tensor, T toSet)
 {
-    const auto batchSize = tensor.BatchSize();
-    const auto elementSize = tensor.ElementSize;
+    const auto batchSize = tensor.BatchSize;
+    const auto elementSize = tensor.TensorShape.Size();
+    const auto device = tensor.Device;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    for (std::size_t idx = 0; idx < batchSize * elementSize; ++idx)
     {
-        for (std::size_t idx = 0; idx < elementSize; ++idx)
-            tensor.Data[idx] = toSet;
+        tensor.At(idx) = toSet;
     }
 }
 
 template <typename T, typename Function>
-void Apply(const Tensor<T>& input, Tensor<T>& output, Function lambda)
+void Apply(const Tensor<T>& in, Tensor<T>& out, Function lambda)
 {
-    const auto batchSize = input.BatchSize();
-    const auto elementSize = input.ElementSize;
+    const auto batchSize = out.BatchSize;
+    const auto elementSize = out.TensorShape.Size();
+    const auto device = out.Device;
 
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    for (std::size_t idx = 0; idx < batchSize * elementSize; ++idx)
     {
-        for (std::size_t idx = 0; idx < elementSize; ++idx)
-            output.Data[idx] = lambda(input);
+        const auto mul = lambda(in.At(idx));
+        out.At(idx) = mul;
     }
 }
 }

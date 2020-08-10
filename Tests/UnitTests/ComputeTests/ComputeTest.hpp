@@ -14,6 +14,7 @@
 #include "SolidComputations.hpp"
 #include <doctest.h>
 #include <type_traits>
+#include <iostream>
 
 namespace Takion::Test
 {
@@ -207,8 +208,6 @@ void TestTranspose(Compute::Device device)
     const auto numRow = 120;
     const auto numCol = 130;
 
-    Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
-                                                     static_cast<T>(10));
     Compute::Zeros<T> zeroInitializer;
 
     Shape shapeIn({ 10, numRow, numCol });
@@ -218,7 +217,18 @@ void TestTranspose(Compute::Device device)
     Tensor<T> truth(shapeOut, batchSize, device);
     Tensor<T> result(shapeOut, batchSize, device);
 
-    randomNormalInitializer.Initialize(in);
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(in);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(in);
+    }
+
     zeroInitializer.Initialize(result);
     zeroInitializer.Initialize(truth);
 
@@ -226,12 +236,13 @@ void TestTranspose(Compute::Device device)
     Test::Transpose(in, truth);
 
     for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
-        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
-            {
-                CHECK(result.At(batchIdx, { colIdx, rowIdx }) ==
-                    truth.At(batchIdx, { colIdx, rowIdx }));
-            }
+        for (std::size_t idx = 0; idx < 10; ++idx)
+            for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
+                for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+                {
+                    CHECK(result.At(batchIdx, { idx, colIdx, rowIdx }) ==
+                        truth.At(batchIdx, { idx, colIdx, rowIdx }));
+                }
 }
 
 template <typename T>
@@ -240,9 +251,6 @@ void TestShrink(Compute::Device device)
     const auto batchSize = 100;
     const auto numRow = 120;
     const auto numCol = 130;
-
-    Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
-                                                     static_cast<T>(10));
     Compute::Zeros<T> zeroInitializer;
 
     Shape shapeIn({ 10, numRow, numCol });
@@ -252,19 +260,46 @@ void TestShrink(Compute::Device device)
     Tensor<T> truth(shapeOut, device);
     Tensor<T> result(shapeOut, device);
 
-    randomNormalInitializer.Initialize(in);
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(in);
+        // Compute::Ones<T> onesInitializer;
+        // onesInitializer.Initialize(in);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(in);
+    }
+
     zeroInitializer.Initialize(result);
     zeroInitializer.Initialize(truth);
 
+    const auto t1 = std::chrono::system_clock::now();
     Compute::Shrink(in, result);
+    const auto t2 = std::chrono::system_clock::now();
     Test::Shrink(in, truth);
+    const auto t3 = std::chrono::system_clock::now();
 
-    for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
-        for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
-        {
-            CHECK(result.At(0, { rowIdx, colIdx }) ==
-                truth.At(0, { rowIdx, colIdx }));
-        }
+    for (std::size_t idx = 0; idx < 10; ++idx)
+        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
+            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+            {
+                const auto resultVal = result.At(0, { idx, rowIdx, colIdx });
+                const auto truthVal = truth.At(0, { idx, rowIdx, colIdx });
+                CHECK(resultVal == truthVal);
+            }
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
 }
 
 template <typename T>
@@ -300,14 +335,470 @@ void TestAdd(Compute::Device device)
         onesInitializer.Initialize(B);
     }
 
-    zeroInitializer.Initialize(A);
-    zeroInitializer.Initialize(B);
+    zeroInitializer.Initialize(result);
+    zeroInitializer.Initialize(truth);
 
+    const auto t1 = std::chrono::system_clock::now();
     Compute::Add(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
     Test::Add(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
+    {
+        const auto outputResult = result.At(idx);
+        const auto outputTruth = truth.At(idx);
+        CHECK(outputResult == outputTruth);
+    }
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestBroadcastAdd1(Compute::Device device)
+{
+    const auto batchSize = 3;
+    const auto numRow = 120;
+    const auto numCol = 130;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numCol });
+    Shape shapeB({ numRow, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, device);
+    Tensor<T> B(shapeB, batchSize, device);
+
+    Tensor<T> truth(shapeOut, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(truth);
+    zeroInitializer.Initialize(result);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Add(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Add(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
 
     for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
         CHECK(result.At(idx) == truth.At(idx));
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestBroadcastAdd2(Compute::Device device)
+{
+    const auto batchSize = 3;
+    const auto numRow = 120;
+    const auto numCol = 130;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numCol });
+    Shape shapeB({ numRow, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, batchSize, device);
+    Tensor<T> B(shapeB, device);
+
+    Tensor<T> truth(shapeOut, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(truth);
+    zeroInitializer.Initialize(result);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Add(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Add(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
+        CHECK(result.At(idx) == truth.At(idx));
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestSub(Compute::Device device)
+{
+    const auto batchSize = 3;
+    const auto numRow = 120;
+    const auto numCol = 130;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numCol });
+    Shape shapeB({ numRow, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, batchSize, device);
+    Tensor<T> B(shapeB, batchSize, device);
+
+    Tensor<T> truth(shapeOut, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(truth);
+    zeroInitializer.Initialize(result);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Sub(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Sub(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
+        CHECK(result.At(idx) == truth.At(idx));
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestBroadcastSub1(Compute::Device device)
+{
+    const auto batchSize = 3;
+    const auto numRow = 120;
+    const auto numCol = 130;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numCol });
+    Shape shapeB({ numRow, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, device);
+    Tensor<T> B(shapeB, batchSize, device);
+
+    Tensor<T> truth(shapeOut, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(truth);
+    zeroInitializer.Initialize(result);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Sub(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Sub(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
+        CHECK(result.At(idx) == truth.At(idx));
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestBroadcastSub2(Compute::Device device)
+{
+    const auto batchSize = 3;
+    const auto numRow = 120;
+    const auto numCol = 130;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numCol });
+    Shape shapeB({ numRow, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, batchSize, device);
+    Tensor<T> B(shapeB, device);
+
+    Tensor<T> truth(shapeOut, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(truth);
+    zeroInitializer.Initialize(result);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Sub(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Sub(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
+        CHECK(result.At(idx) == truth.At(idx));
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestDot(Compute::Device device)
+{
+    const auto batchSize = 3;
+    const auto numRow = 120;
+    const auto numCol = 130;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numCol });
+    Shape shapeB({ numRow, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, batchSize, device);
+    Tensor<T> B(shapeB, batchSize, device);
+
+    Tensor<T> truth(shapeOut, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(truth);
+    zeroInitializer.Initialize(result);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Dot(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Dot(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
+        CHECK(result.At(idx) == truth.At(idx));
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestBroadcastDot1(Compute::Device device)
+{
+    const auto batchSize = 3;
+    const auto numRow = 120;
+    const auto numCol = 130;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numCol });
+    Shape shapeB({ numRow, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, device);
+    Tensor<T> B(shapeB, batchSize, device);
+
+    Tensor<T> truth(shapeOut, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(truth);
+    zeroInitializer.Initialize(result);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Dot(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Dot(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
+        CHECK(result.At(idx) == truth.At(idx));
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
+}
+
+template <typename T>
+void TestBroadcastDot2(Compute::Device device)
+{
+    const auto batchSize = 3;
+    const auto numRow = 120;
+    const auto numCol = 130;
+
+    Compute::Zeros<T> zeroInitializer;
+
+    Shape shapeA({ numRow, numCol });
+    Shape shapeB({ numRow, numCol });
+    Shape shapeOut({ numRow, numCol });
+
+    Tensor<T> A(shapeA, batchSize, device);
+    Tensor<T> B(shapeB, device);
+
+    Tensor<T> truth(shapeOut, batchSize, device);
+    Tensor<T> result(shapeOut, batchSize, device);
+
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
+
+    zeroInitializer.Initialize(truth);
+    zeroInitializer.Initialize(result);
+
+    const auto t1 = std::chrono::system_clock::now();
+    Compute::Dot(A, B, result);
+    const auto t2 = std::chrono::system_clock::now();
+    Test::Dot(A, B, truth);
+    const auto t3 = std::chrono::system_clock::now();
+
+    for (std::size_t idx = 0; idx < shapeOut.Size() * batchSize; ++idx)
+        CHECK(result.At(idx) == truth.At(idx));
+
+    const auto optimizedMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    const auto normalMulElapsedTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+
+    std::cout << "Normal version (microseconds) : " << normalMulElapsedTime
+        << " Optimized version (microseconds) : "
+        << optimizedMulElapsedTime << std::endl;
 }
 }
 
