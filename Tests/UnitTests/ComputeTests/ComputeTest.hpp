@@ -270,12 +270,10 @@ void TestShrink(Compute::Device device)
 template <typename T>
 void TestAdd(Compute::Device device)
 {
-    const auto batchSize = 100;
+    const auto batchSize = 3;
     const auto numRow = 120;
     const auto numCol = 130;
 
-    Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
-                                                     static_cast<T>(10));
     Compute::Zeros<T> zeroInitializer;
 
     Shape shapeA({ numRow, numCol });
@@ -288,8 +286,19 @@ void TestAdd(Compute::Device device)
     Tensor<T> truth(shapeOut, batchSize, device);
     Tensor<T> result(shapeOut, batchSize, device);
 
-    randomNormalInitializer.Initialize(A);
-    randomNormalInitializer.Initialize(B);
+    if constexpr (std::is_floating_point<T>::value)
+    {
+        Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
+                                                         static_cast<T>(10));
+        randomNormalInitializer.Initialize(A);
+        randomNormalInitializer.Initialize(B);
+    }
+    else
+    {
+        Compute::Ones<T> onesInitializer;
+        onesInitializer.Initialize(A);
+        onesInitializer.Initialize(B);
+    }
 
     zeroInitializer.Initialize(A);
     zeroInitializer.Initialize(B);
