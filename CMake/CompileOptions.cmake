@@ -96,6 +96,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 		>
 
 		/openmp	# -> enable openmp
+		/arch:AVX
+		/arch:AVX2
 		# No manual c++11 enable for MSVC as all supported MSVC versions for cmake-init have C++11 implicitly enabled (MSVC >=2013)
 	)
 endif ()
@@ -105,7 +107,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"
 	set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
 		-Wall
 		-Wno-missing-braces
+		-mveclibabi=svml
 		-fopenmp
+		-mavx
+		-mavx2
 		${WARN_AS_ERROR_FLAGS}
 		-std=c++1z
 	)
