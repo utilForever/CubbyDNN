@@ -8,7 +8,6 @@
 #define TAKION_INITIALIZEROP_HPP
 
 #include <cmath>
-#include <Takion/Utils/Shape.hpp>
 #include <Takion/Utils/Span.hpp>
 #include <random>
 
@@ -25,8 +24,8 @@ public:
         std::mt19937 engine(rd());
         std::normal_distribution<T> normal(mean, stddev);
 
-#pragma omp parallel for schedule(static)
-        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+             ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -43,8 +42,8 @@ public:
         std::mt19937 engine(rd());
         std::uniform_int_distribution<T> uniform(min, max);
 
-#pragma omp parallel for schedule(static)
-        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+             ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -61,8 +60,8 @@ public:
         const auto stddev = static_cast<T>(1 / sqrt(static_cast<T>(fanIn)));
         std::normal_distribution<T> normal(0, stddev);
 
-#pragma omp parallel for schedule(static)
-        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+             ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -79,8 +78,8 @@ public:
         const auto range = static_cast<T>(sqrt(3 / static_cast<T>(fanIn)));
         std::uniform_int_distribution<T> uniform(-range, range);
 
-#pragma omp parallel for schedule(static)
-        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+             ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -99,8 +98,8 @@ public:
             static_cast<T>(sqrt(2 / static_cast<T>(fanIn + fanOut)));
         std::normal_distribution<T> normal(0, stddev);
 
-#pragma omp parallel for schedule(static)
-        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+             ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -119,8 +118,8 @@ public:
             static_cast<T>(sqrt(6 / static_cast<T>(fanIn + fanOut)));
         std::uniform_int_distribution<T> uniform(-range, range);
 
-#pragma omp parallel for schedule(static)
-        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+             ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -137,8 +136,8 @@ public:
         const auto stddev = static_cast<T>(sqrt(2 / static_cast<T>(fanIn)));
         std::normal_distribution<T> normal(0, stddev);
 
-#pragma omp parallel for schedule(static)
-        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+             ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)
@@ -155,8 +154,8 @@ public:
         const auto range = static_cast<T>(sqrt(6 / static_cast<T>(fanIn)));
         std::uniform_int_distribution<T> uniform(-range, range);
 
-#pragma omp parallel for schedule(static)
-        for (long batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+        for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+             ++batchIdx)
         {
             const auto elementIdx = batchIdx * elementSize;
             for (std::size_t idx = 0; idx < elementSize; ++idx)

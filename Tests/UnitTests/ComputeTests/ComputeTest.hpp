@@ -22,8 +22,8 @@ template <typename T>
 void TestMultiply(Compute::Device device)
 {
     const auto batchSize = 2;
-    const auto numRow = 169;
-    const auto numCol = 181;
+    const auto numRow = 19;
+    const auto numCol = 11;
     const auto numMiddle = 75;
 
     Compute::Zeros<T> zeroInitializer;
@@ -51,13 +51,12 @@ void TestMultiply(Compute::Device device)
         onesInitializer.Initialize(B);
     }
 
-    zeroInitializer.Initialize(result);
-    zeroInitializer.Initialize(truth);
-
     const auto t1 = std::chrono::system_clock::now();
     Compute::Multiply(A, B, result);
+
     const auto t2 = std::chrono::system_clock::now();
     Test::Multiply(A, B, truth);
+
     const auto t3 = std::chrono::system_clock::now();
 
     const auto size = result.BatchSize * result.TensorShape.Size();
@@ -204,7 +203,7 @@ void TestBroadcastMultiply2(Compute::Device device)
 template <typename T>
 void TestTranspose(Compute::Device device)
 {
-    const auto batchSize = 100;
+    const auto batchSize = 2;
     const auto numRow = 120;
     const auto numCol = 130;
 
@@ -265,8 +264,6 @@ void TestShrink(Compute::Device device)
         Compute::RandomNormal<T> randomNormalInitializer(static_cast<T>(-10),
                                                          static_cast<T>(10));
         randomNormalInitializer.Initialize(in);
-        // Compute::Ones<T> onesInitializer;
-        // onesInitializer.Initialize(in);
     }
     else
     {

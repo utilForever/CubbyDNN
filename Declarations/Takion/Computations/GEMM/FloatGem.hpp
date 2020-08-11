@@ -11,6 +11,8 @@
 #include <xmmintrin.h>
 #include <immintrin.h>
 #include <algorithm>
+#include <iostream>
+#include <omp.h>
 
 namespace Takion::Compute::CPU
 {
@@ -407,15 +409,15 @@ template <>
 inline void SetCpu(Span<float> data, float toSet, std::size_t size,
                    std::size_t batchSize)
 {
-#pragma omp parallel for schedule(static) default(shared)
+//#pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
-         batchIdx++)
+         ++batchIdx)
     {
         const auto batchOffset = size * batchIdx;
         for (std::size_t i = 0; i < size; i += 8)
         {
             const auto set = _mm256_set1_ps(toSet);
-            _mm256_store_ps(&data[batchOffset + i], set);
+            _mm256_store_ps(data.Address(batchOffset + i), set);
         }
     }
 }

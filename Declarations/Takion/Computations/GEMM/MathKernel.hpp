@@ -111,7 +111,7 @@ void Transpose(const Tensor<T>& in, Tensor<T>& out)
     const auto numCol = inputShape.NumCol();
 
 #pragma omp parallel for schedule(static) default(shared)
-    for (std::size_t matIdx = 0; matIdx < matSize; ++matIdx)
+    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < matSize; ++matIdx)
     {
         const auto matOffset = numRow * numCol * matIdx;
         for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
@@ -121,17 +121,6 @@ void Transpose(const Tensor<T>& in, Tensor<T>& out)
                     in.At(matOffset + numRow * colIdx + rowIdx);
             }
     }
-
-    // const auto device = out.Device;
-    // const auto inputShape = in.TensorShape;
-    //
-    // if (device.Type() == DeviceType::CPU)
-    // {
-    //     CPU::CpuTranspose(in.Data, out.Data, inputShape.NumRow(),
-    //                       in.ColumnElementSize(), in.NumMatrix());
-    // }
-    // else
-    //     throw std::runtime_error("Not implemented");
 }
 
 template <typename T>

@@ -169,17 +169,19 @@ TEST_CASE("Computation test")
             }
         }
 
-        // SUBCASE("Transpose")
-        // {
-        //     SUBCASE("float")
-        //     {
-        //         TestTranspose<float>(device);
-        //     }
-        //     SUBCASE("int")
-        //     {
-        //         TestTranspose<int>(device);
-        //     }
-        // }
+        SUBCASE("Transpose")
+        {
+            SUBCASE("float")
+            {
+                std::cout << "Transpose - float" << std::endl;
+                TestTranspose<float>(device);
+            }
+            SUBCASE("int")
+            {
+                std::cout << "Transpose - int" << std::endl;
+                TestTranspose<int>(device);
+            }
+        }
     }
 }
 

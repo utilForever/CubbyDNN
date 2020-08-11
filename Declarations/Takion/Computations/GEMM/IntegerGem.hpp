@@ -10,6 +10,7 @@
 #include <Takion/Computations/GEMM/Gemm.hpp>
 #include <immintrin.h>
 #include <algorithm>
+#include <omp.h>
 
 namespace Takion::Compute::CPU
 {
@@ -197,15 +198,31 @@ inline void ShrinkCpu(const Span<int> input, Span<int> output, std::size_t size,
         }
     }
 
+#ifdef _MSC_VER
+#if _MSC_VER >= 1920
 #pragma omp parallel for schedule(static) default(shared)
     for (long i = 0; static_cast<std::size_t>(i) < size; i += 8)
     {
-        const auto vecMul = _mm256_set1_epi32(static_cast<int>(batchSize));
-        const auto vecA =
+        const auto vecDiv = _mm256_set1_epi32(static_cast<int>(batchSize));
+        const auto vec =
             _mm256_loadu_si256((__m256i*)&output[i]);
-        const auto div = _mm256_div_epi32(vecA, vecMul);
+        const auto div = _mm256_div_epi32(vec, vecDiv);
         _mm256_storeu_si256((__m256i*)&output[i], div);
     }
+#else
+#pragma omp parallel for schedule(static) default(shared)
+    for (long i = 0; static_cast<std::size_t>(i) < size; i += 1)
+    {
+        output[i] /= static_cast<int>(batchSize);
+    }
+#endif
+#else
+#pragma omp parallel for schedule(static) default(shared)
+    for (long i = 0; static_cast<std::size_t>(i) < size; i += 1)
+    {
+        output[i] /= static_cast<int>(batchSize);
+    }
+#endif
 }
 
 
@@ -371,6 +388,8 @@ template <>
 inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
                          std::size_t size, std::size_t batchSize)
 {
+#ifdef _MSC_VER
+#if _MSC_VER >= 1920
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
          batchIdx++)
@@ -385,6 +404,29 @@ inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
             _mm256_storeu_si256((__m256i*)&out[batchOffset + i], mul);
         }
     }
+#else
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (std::size_t i = 0; i < size; i += 1)
+        {
+            out[batchOffset + i] = input[batchOffset + i] / toDiv;
+        }
+    }
+
+#endif
+#else
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (std::size_t i = 0; i < size; i += 1)
+        {
+            out[batchOffset + i] = input[batchOffset + i] / toDiv;
+        }
+    }
+#endif
 }
 
 template <>

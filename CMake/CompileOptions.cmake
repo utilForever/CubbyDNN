@@ -113,6 +113,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"
 		-mavx2
 		${WARN_AS_ERROR_FLAGS}
 		-std=c++1z
+		-O0
 	)
 endif ()
 
@@ -127,5 +128,9 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set(DEFAULT_LINKER_OPTIONS
 		-pthread
 		-lstdc++fs
+		-mavx
+		-mavx2
+		-fopenmp
+		-O0
 	)
 endif()

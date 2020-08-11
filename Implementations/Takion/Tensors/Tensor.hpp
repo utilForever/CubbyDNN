@@ -22,11 +22,14 @@ Tensor<T>::Tensor(Shape shape, Compute::Device device)
     m_columnElementSize = m_getPaddedColumnSize();
     m_elementSize = m_getElementSize();
     const auto totalSize = m_elementSize * BatchSize;
+    const auto size = TensorShape.Size();
 
-    T* ptr = new T[totalSize];
-    for (std::size_t i = 0; i < totalSize; ++i)
-        *(ptr + i) = 0;
-    Data = Utils::Span<T>(ptr, totalSize);
+    Data = Utils::Span<T>(new T[totalSize], totalSize);
+
+    for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
+    {
+        At(idx) = 0;
+    }
 
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
@@ -44,11 +47,14 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
     m_columnElementSize = m_getPaddedColumnSize();
     m_elementSize = m_getElementSize();
     const auto totalSize = m_elementSize * BatchSize;
+    const auto size = TensorShape.Size();
 
-    T* ptr = new T[totalSize];
-    for (std::size_t i = 0; i < totalSize; ++i)
-        *(ptr + i) = 0;
-    Data = Utils::Span<T>(ptr, totalSize);
+    Data = Utils::Span<T>(new T[totalSize], totalSize);
+
+    for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
+    {
+        At(idx) = 0;
+    }
 
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
@@ -68,8 +74,8 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
     const auto totalSize = m_elementSize * BatchSize;
     const auto size = TensorShape.Size();
 
-    T* ptr = new T[totalSize];
-    Data = Utils::Span<T>(ptr, totalSize);
+    Data = Utils::Span<T>(new T[totalSize], totalSize);
+
 
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
     {
@@ -350,10 +356,6 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
     const auto sourceShape = source.TensorShape;
     const auto destShape = destination.TensorShape;
     const auto batchElementSize = destination.TotalElementSize();
-    const auto numRows = sourceShape.NumRow();
-    const auto numCols = sourceShape.NumCol();
-    const auto sourceColSize = source.ColumnElementSize();
-    const auto destColSize = destination.ColumnElementSize();
     const auto unitSize = destination.TensorShape.Size();
 
     if (!destination.m_hasOwnership)
@@ -362,17 +364,18 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
                                           batchElementSize);
     }
 
-    const std::size_t blockSize = 100;
+    const long blockSize = 100;
+    const auto loopSize = unitSize * destination.BatchSize;
 
-#pragma omp parallel for schedule(static)
-    for (long blockIdx = 0; blockIdx < unitSize * destination.BatchSize;
+    for (long blockIdx = 0; static_cast<std::size_t>(blockIdx) < loopSize;
          blockIdx += blockSize)
     {
-        for (std::size_t idx = blockIdx;
-             idx <
-             std::min(unitSize * destination.BatchSize,
-                      blockIdx + blockSize);
-             ++idx)
+        const auto boundary = blockIdx + blockSize;
+        const auto limit =
+            static_cast<long>(loopSize) < boundary
+                ? loopSize
+                : static_cast<std::size_t>(boundary);
+        for (std::size_t idx = blockIdx; idx < limit; ++idx)
             destination.At(idx) = source.At(idx);
     }
 }
