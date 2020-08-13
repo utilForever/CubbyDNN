@@ -28,6 +28,31 @@ public:
 };
 
 template <typename T>
+class VectorInitializer : public Initializer<T>
+{
+public:
+    VectorInitializer(const std::vector<T> data)
+        : m_data(data)
+    {
+    }
+
+    void Initialize(Tensor<T>& tensor) const override
+    {
+        const auto elementSize = tensor.TensorShape.Size();
+        if (elementSize != m_data.Size)
+            throw std::runtime_error(
+                "Given data size is different with target tensor's daa "
+                "size");
+
+        for (std::size_t i = 0; i < elementSize; ++i)
+            tensor.At(i) = m_data.at(i);
+    }
+
+private:
+    std::vector<T> m_data;
+};
+
+template <typename T>
 class Zeros : public Initializer<T>
 {
 public:
