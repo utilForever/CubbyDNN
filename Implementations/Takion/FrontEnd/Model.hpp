@@ -25,6 +25,23 @@ void Model<T>::SetDevice(Compute::Device device)
     m_device = device;
 }
 
+template <typename T>
+AbsTensor<T> Model<T>::Constant(Shape shape, std::vector<T> data,
+                                std::string name)
+{
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "Constant"),
+                                m_id++, name };
+    std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
+        initializerMap;
+    initializerMap["tensor"] = Compute::VectorInitializer<T>(data);
+
+    UnitMetaData<T> unitMetaData(subjectUnitId, {}, initializerMap, {}, shape,
+                                 {}, m_device);
+    m_unitManager.AppendUnit(unitMetaData);
+
+    return subjectUnitId;
+}
+
 
 template <typename T>
 AbsTensor<T> Model<T>::Dense(AbsTensor<T> source, unsigned numUnits,

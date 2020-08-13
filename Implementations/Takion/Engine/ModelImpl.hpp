@@ -94,7 +94,7 @@ void Model<T>::Compile(const std::string& optimizer,
                        Parameter optimizerParams) noexcept
 {
     Compute::ActivationWrapper<T>::Initialize();
-    m_unitManager.Compile(optimizer, optimizerParams);
+    m_unitManager.Compile(, optimizerParams);
 }
 
 template <typename T>
@@ -102,7 +102,7 @@ UnitId Model<T>::Loss(const UnitId& prediction, const UnitId& label,
                       std::string lossType, const std::string& name,
                       Compute::Device device)
 {
-    UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "Loss"), m_id++, name };
+    UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "MSE"), m_id++, name };
     const auto predictionShape = m_unitManager.GetUnitOutputShape(prediction);
     const auto labelShape = m_unitManager.GetUnitOutputShape(label);
 

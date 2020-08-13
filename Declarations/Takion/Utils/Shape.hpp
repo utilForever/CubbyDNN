@@ -32,6 +32,19 @@ public:
 
     Shape operator*(const Shape& shape) const;
 
+    [[nodiscard]] std::string ToString() const
+    {
+        std::string msg;
+        msg += "Dim : " + std::to_string(Dim()) + " ";
+        msg += " [";
+
+        for (auto dim : m_shapeVector)
+            msg += std::to_string(dim);
+
+        msg += " ] ";
+        return msg;
+    }
+
     [[nodiscard]] std::size_t At(std::size_t index) const;
 
     void Expand(std::size_t rank);

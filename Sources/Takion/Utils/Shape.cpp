@@ -143,12 +143,11 @@ Shape& Shape::Reshape(std::initializer_list<std::size_t> newShape)
     return *this;
 }
 
-Shape& Shape::Transpose()
+void Shape::Transpose()
 {
     const auto temp = m_shapeVector.at(0);
     m_shapeVector.at(0) = m_shapeVector.at(1);
     m_shapeVector.at(1) = temp;
-    return *this;
 }
 
 Shape Shape::GetTransposedShape() const

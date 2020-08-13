@@ -30,22 +30,20 @@ UnitManager<T>& UnitManager<T>::operator=(UnitManager<T>&& unitManager) noexcept
 }
 
 template <typename T>
-void UnitManager<T>::AppendUnit(UnitMetaData&& unitMetaData)
+void UnitManager<T>::AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData)
 {
     const auto unitId = unitMetaData.Id();
-
-    m_unitMetaDataMap[unitId] =
-        std::make_unique<UnitMetaData>(std::move(unitMetaData));
+    m_unitMetaDataMap[unitId] = std::move(unitMetaData);
 }
 
 template <typename T>
-void UnitManager<T>::Compile(std::unique_ptr<Compute::Optimizer<T>> optimizer)
+void UnitManager<T>::Compile(std::string optimizerName, Parameter paremeter)
 {
     m_connectUnits();
 
-    for (auto& [key, metaDataPtr] : m_unitMetaDataMap)
+    for (auto& [key, unitMetaData] : m_unitMetaDataMap)
     {
-        const auto unitId = metaDataPtr->Id();
+        const auto unitId = unitMetaData->Id();
         auto type = unitId.Type;
 
         if (type.Name() == "DataLoader")
@@ -55,9 +53,9 @@ void UnitManager<T>::Compile(std::unique_ptr<Compute::Optimizer<T>> optimizer)
         if (type.Name() == "Dense")
         {
             auto unit = DenseUnit<T>::CreateUnit(
-                *metaDataPtr,
-                m_makeOptimizer(optimizerName, optimizerParameters));
-            m_unitMap[metaDataPtr->Id()] =
+                unitMetaData, GetOptimizer(optimizerName));
+
+            m_unitMap[unitMetaData->Id()] =
                 std::make_unique<DenseUnit>(std::move(unit));
             continue;
         }
@@ -67,8 +65,8 @@ void UnitManager<T>::Compile(std::unique_ptr<Compute::Optimizer<T>> optimizer)
         }
         if (type.Name() == "Activation")
         {
-            auto unit = ReLU<T>::CreateUnit(*metaDataPtr);
-            m_unitMap[metaDataPtr->Id()] =
+            auto unit = ReLU<T>::CreateUnit(*unitMetaData);
+            m_unitMap[unitMetaData->Id()] =
                 std::make_unique<ReLU<T>>(std::move(unit));
             continue;
         }
@@ -78,15 +76,15 @@ void UnitManager<T>::Compile(std::unique_ptr<Compute::Optimizer<T>> optimizer)
         }
         if (type.Name() == "Loss")
         {
-            auto unit = MSELoss<T>::CreateUnit(*metaDataPtr);
-            m_unitMap[metaDataPtr->Id()] =
+            auto unit = MSELoss<T>::CreateUnit(*unitMetaData);
+            m_unitMap[unitMetaData->Id()] =
                 std::make_unique<MSELoss>(std::move(unit));
             continue;
         }
         if (type.Name() == "Constant")
         {
-            auto unit = ConstantUnit<T>::CreateUnit(*metaDataPtr);
-            m_unitMap[metaDataPtr->Id()] =
+            auto unit = ConstantUnit<T>::CreateUnit(*unitMetaData);
+            m_unitMap[unitMetaData->Id()] =
                 std::make_unique<ConstantUnit>(std::move(unit));
             continue;
         }

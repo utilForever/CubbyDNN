@@ -24,6 +24,8 @@ public:
 
     void SetDevice(Compute::Device device);
 
+    AbsTensor<T> Constant(Shape shape, std::vector<T> data, std::string name);
+
     AbsTensor<T> Dense(AbsTensor<T> source, unsigned numUnits,
                        std::unique_ptr<Compute::Initializer<T>>
                        weightInitializer = std::make_unique<Compute::HeNormal<T>

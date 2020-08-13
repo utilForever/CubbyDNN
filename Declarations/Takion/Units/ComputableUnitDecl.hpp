@@ -7,7 +7,7 @@
 #ifndef TAKION_GRAPH_COMPUTABLEUNIT_DECL_HPP
 #define TAKION_GRAPH_COMPUTABLEUNIT_DECL_HPP
 
-#include <Takion/Units/UnitMetaData.hpp>
+#include <Takion/FrontEnd/UnitMetaData.hpp>
 #include <future>
 
 namespace Takion::Graph
@@ -89,6 +89,7 @@ public:
     std::size_t BatchSize;
 
 protected:
+
     UnitId m_unitId;
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
     UnitState m_unitState;

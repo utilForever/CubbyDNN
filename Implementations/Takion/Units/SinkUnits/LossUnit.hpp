@@ -70,7 +70,7 @@ template <typename T>
 void MSELoss<T>::Forward()
 {
     using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::m_trainableTensorMap;
+    using TrainableUnit<T>::TrainableTensorMap;
 
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
@@ -105,7 +105,7 @@ template <typename T>
 void MSELoss<T>::Backward()
 {
     using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::m_trainableTensorMap;
+    using TrainableUnit<T>::TrainableTensorMap;
 
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
@@ -122,7 +122,7 @@ void MSELoss<T>::AsyncBackward(std::promise<bool> promise)
 
 {
     using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::m_trainableTensorMap;
+    using TrainableUnit<T>::TrainableTensorMap;
 
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);

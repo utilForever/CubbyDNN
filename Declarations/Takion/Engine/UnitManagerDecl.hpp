@@ -30,15 +30,14 @@ public:
     UnitManager<T>& operator=(const UnitManager<T>& unitManager) = delete;
     UnitManager<T>& operator=(UnitManager<T>&& unitManager) noexcept;
 
-    void AppendUnit(UnitMetaData&& unitMetaData);
+    void AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData);
 
     Shape GetUnitOutputShape(const UnitId& unitId)
     {
         return m_unitMetaDataMap[unitId]->OutputShape();
     }
 
-    void Compile(const std::string& optimizerName,
-                 const Parameter& optimizerParameters);
+    void Compile(std::string optimizerName, Parameter paremeter);
 
     virtual void Forward(std::size_t cycle);
 
@@ -47,6 +46,9 @@ public:
     virtual void AsyncForward(std::size_t cycle);
 
     virtual void AsyncBackward(std::size_t cycle);
+
+    [[nodiscard]] std::unique_ptr<Compute::Optimizer<T>> GetOptimizer(
+        std::string optimizerName, Parameter parameter);
 
 private:
     [[nodiscard]] bool m_isForwardCopyReady(const UnitId& subjectUnitId) const;
@@ -62,7 +64,7 @@ private:
         const std::string& optimizerName,
         const Parameter& parameters) const;
 
-    std::unordered_map<UnitId, std::unique_ptr<UnitMetaData<T>>>
+    std::unordered_map<UnitId, FrontEnd::UnitMetaData<T>>
     m_unitMetaDataMap;
     std::unordered_map<UnitId, std::unique_ptr<ComputableUnit<T>>> m_unitMap;
     std::size_t m_batchSize;
