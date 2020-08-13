@@ -7,9 +7,9 @@
 #ifndef TAKION_GRAPH_UNITMETADATA_HPP
 #define TAKION_GRAPH_UNITMETADATA_HPP
 
-#include <Takion/Units/UnitMetadataDecl.hpp>
+#include <Takion/FrontEnd/UnitMetadataDecl.hpp>
 
-namespace Takion::Graph
+namespace Takion::FrontEnd
 {
 template <typename T>
 UnitMetaData<T>::UnitMetaData(
@@ -19,15 +19,13 @@ UnitMetaData<T>::UnitMetaData(
     initializerMap,
     std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
     std::unordered_map<std::string, UnitId> inputUnitIdMap,
-    Compute::Device device, std::size_t batchSize,
-    Parameter params)
+    Compute::Device device, Parameter params)
     : m_unitId(std::move(unitId)),
       m_internalVariableShapeMap(std::move(internalVariableShapeMap)),
       m_initializerMap(std::move(initializerMap)),
       m_inputShapeMap(std::move(inputShapeMap)),
       m_outputShape(std::move(outputShape)),
       m_inputUnitMap(std::move(inputUnitIdMap)),
-      m_batchSize(batchSize),
       Device(std::move(device)),
       Params(std::move(params))
 {
@@ -46,7 +44,6 @@ noexcept
       m_outputShape(std::move(unitMetaData.m_outputShape)),
       m_inputUnitMap(std::move(unitMetaData.m_inputUnitMap)),
       m_outputUnitIdVector(std::move(unitMetaData.m_outputUnitIdVector)),
-      m_batchSize(unitMetaData.m_batchSize),
       Device(std::move(unitMetaData.Device)),
       Params(std::move(unitMetaData.Params))
 {

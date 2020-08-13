@@ -8,7 +8,7 @@
 #define TAKION_GRAPH_UNITMANAGER_DECL_HPP
 
 #include <Takion/Units/ComputableUnit.hpp>
-#include <Takion/Units/UnitMetadata.hpp>
+#include <Takion/FrontEnd/UnitMetaData.hpp>
 #include <Takion/Computations/Optimizers/Optimizer.hpp>
 #include <unordered_map>
 
@@ -18,7 +18,11 @@ template <typename T>
 class UnitManager
 {
 public:
-    UnitManager() = default;
+    UnitManager(std::size_t batchSize)
+        : m_batchSize(batchSize)
+    {
+    }
+
     virtual ~UnitManager() = default;
 
     UnitManager(const UnitManager<T>& unitManager) = delete;
@@ -61,6 +65,7 @@ private:
     std::unordered_map<UnitId, std::unique_ptr<UnitMetaData<T>>>
     m_unitMetaDataMap;
     std::unordered_map<UnitId, std::unique_ptr<ComputableUnit<T>>> m_unitMap;
+    std::size_t m_batchSize;
 };
 } // namespace Takion::Graph
 

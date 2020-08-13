@@ -16,11 +16,14 @@ include_directories(
 )
 
 # Sources
-file(GLOB header_dir
-        ${root_dir}/Includes/Takion)
+file(GLOB decl_dir
+        ${root_dir}/Declarations/Takion)
+
+file(GLOB impl_dir
+        ${root_dir}/Implementations/Takion)
 
 file(GLOB_RECURSE headers
-        ${header_dir}/*.hpp)
+        ${decl_dir}/*.hpp ${impl_dir}/*.hpp)
 
 file(GLOB_RECURSE sources
         ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)

@@ -11,7 +11,6 @@
 #include <Takion/Units/HiddenUnits/Dense.hpp>
 #include <Takion/Units/SinkUnits/LossUnit.hpp>
 #include <Takion/Units/SourceUnits/ConstantUnit.hpp>
-#include <Takion/Units/HiddenUnits/ActivationUnit.hpp>
 
 namespace Takion::Graph
 {
@@ -40,8 +39,7 @@ void UnitManager<T>::AppendUnit(UnitMetaData&& unitMetaData)
 }
 
 template <typename T>
-void UnitManager<T>::Compile(const std::string& optimizerName,
-                             const Parameter& optimizerParameters)
+void UnitManager<T>::Compile(std::unique_ptr<Compute::Optimizer<T>> optimizer)
 {
     m_connectUnits();
 
@@ -327,7 +325,7 @@ std::unique_ptr<Compute::Optimizer<T>> UnitManager<T>::m_makeOptimizer(
     {
         auto optimizer = std::make_unique<Compute::SGD<T>>(
             parameters.GetFloatingPointParam("epsilon"));
-        return std::move(optimizer);   
+        return std::move(optimizer);
     }
     throw std::runtime_error("Unsupported optimizer type");
 }

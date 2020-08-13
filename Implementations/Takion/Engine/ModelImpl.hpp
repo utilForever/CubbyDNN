@@ -44,13 +44,13 @@ UnitId Model<T>::Dense(const UnitId& input, std::size_t units,
     Shape biasShape({ units, 1 });
     Shape outputShape({ units, previousOutputShape.NumCol() });
 
-    std::unordered_map<std::string, std::unique_ptr<Initializer<T>>>
+    std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap;
 
     initializerMap["weight"] = std::move(weightInitializer);
     initializerMap["bias"] = std::move(biasInitializer);
 
-    UnitMetaData unitMetaData(
+    FrontEnd::UnitMetaData unitMetaData(
         subjectUnitId, { { "weight", weightShape }, { "bias", biasShape } },
         std::move(initializerMap), { { "input", previousOutputShape } },
         outputShape, { { "input", input } }, std::move(device));
@@ -64,7 +64,7 @@ UnitId Model<T>::Activation(const UnitId& input,
                             const std::string& activationName,
                             const std::string& name, Compute::Device device)
 {
-    UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Activation"), m_id++,
+    UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "ReLU"), m_id++,
                           name };
     const auto previousOutputShape = m_unitManager.GetUnitOutputShape(input);
 
