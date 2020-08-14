@@ -7,7 +7,6 @@
 #ifndef TAKION_GRAPH_LOSSUNIT_HPP
 #define TAKION_GRAPH_LOSSUNIT_HPP
 
-//#include <Takion/Computations/LossFunctions/LossFunctionWrapper.hpp>
 #include <Takion/Units/SinkUnits/LossUnitDecl.hpp>
 #include <Takion/Units/UnitType.hpp>
 
@@ -51,23 +50,16 @@ template <typename T>
 MSELoss<T> MSELoss<T>::CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData)
 
 {
-    auto predictionUnitId = unitMetaData.GetInputUnitId("prediction");
-    auto labelUnitId = unitMetaData.GetInputUnitId("label");
+    const auto unitId = unitMetaData.Id();
+    const auto predictionUnitId = unitMetaData.GetInputUnitId("prediction");
+    const auto labelUnitId = unitMetaData.GetInputUnitId("label");
 
     const auto predictionShape = unitMetaData.GetInputShape("prediction");
     const auto labelShape = unitMetaData.GetInputShape("label");
     const auto batchSize = unitMetaData.BatchSize();
     const auto device = unitMetaData.Device;
 
-    if (predictionShape != labelShape)
-    {
-        const std::string errorMessage =
-            std::string("MSELoss - prediction and label shape mismatch. ") +
-            "prediction : " + predictionShape.ToString() +
-            " label : " + labelShape.ToString();
-
-        throw std::runtime_error(errorMessage);
-    }
+    MSELoss<T>::m_checkArguments(predictionShape, labelShape, unitId.UnitName);
 
     auto predictionTensor =
         Tensor<T>(predictionShape, batchSize, device);
@@ -145,6 +137,23 @@ void MSELoss<T>::AsyncBackward(std::promise<bool> promise)
     Compute::Sub(label, prediction, outputTensor);
 
     promise.set_value(true);
+}
+
+template <typename T>
+void MSELoss<T>::m_checkArguments(const Shape& predictionShape,
+                                  const Shape& labelShape,
+                                  const std::string& unitName)
+{
+    if (predictionShape != labelShape)
+    {
+        const std::string errorMessage =
+            std::string("MSELoss ") + unitName +
+            " - prediction and label shape mismatch. " +
+            "prediction : " + predictionShape.ToString() +
+            " label : " + labelShape.ToString();
+
+        throw std::runtime_error(errorMessage);
+    }
 }
 } // namespace Takion::Graph
 

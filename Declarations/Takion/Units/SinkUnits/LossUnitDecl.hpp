@@ -45,6 +45,9 @@ public:
     void AsyncBackward(std::promise<bool> promise) override;
 
 private:
+    static void m_checkArguments(const Shape& predictionShape, const Shape& labelShape,
+                                 const std::string& unitName);
+
     UnitId m_predictionUnitId;
     UnitId m_labelUnitId;
 };

@@ -26,11 +26,22 @@ void Model<T>::SetDevice(Compute::Device device)
 }
 
 template <typename T>
-AbsTensor<T> Model<T>::Constant(Shape shape, std::vector<T> data,
+AbsTensor<T> Model<T>::Constant(const Shape& shape, std::vector<T> data,
                                 std::string name)
 {
+    if (data.size() != shape.Size())
+    {
+        const std::string errorMessage =
+            std::string("Constant - ") + name +
+            " Given data and shape's size should be identical" +
+            " shape : " + shape.ToString() +
+            " dataSize : " + std::to_string(data.Size());
+        throw std::invalid_argument(errorMessage);
+    }
+
     const UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "Constant"),
-                                m_id++, name };
+                                m_id++, std::move(name) };
+
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap;
     initializerMap["vectorInitializer"] = Compute::VectorInitializer<T>(data);
@@ -52,7 +63,7 @@ AbsTensor<T> Model<T>::Dense(AbsTensor<T> source, unsigned numUnits,
                              biasInitializer, std::string name)
 {
     const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Dense"), m_id++,
-                                name };
+                                std::move(name) };
 
     const auto prevUnitId = source.GetPrevOutput();
     const auto prevOutputShape =
@@ -85,7 +96,7 @@ template <typename T>
 AbsTensor<T> Model<T>::ReLU(AbsTensor<T> source, std::string name)
 {
     const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Dense"), m_id++,
-                                name };
+                                std::move(name) };
 
     const auto prevUnitId = source.GetPrevOutput();
     const auto shape = source.GetShape();
@@ -106,7 +117,7 @@ template <typename T>
 AbsTensor<T> Model<T>::SoftMax(AbsTensor<T> source, std::string name)
 {
     const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Dense"), m_id++,
-                                name };
+                                std::move(name) };
 
     const auto prevUnitId = source.GetPrevOutput();
     const auto shape = source.GetShape();
@@ -124,23 +135,37 @@ AbsTensor<T> Model<T>::SoftMax(AbsTensor<T> source, std::string name)
 }
 
 template <typename T>
-void Model<T>::MSE(AbsTensor<T> tensor, std::string name)
+void Model<T>::MSE(AbsTensor<T> prediction, AbsTensor<T> label,
+                   std::string name)
 {
     const UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "MSE"), m_id++,
-                                name };
+                                std::move(name) };
 
-    const auto prevUnitId = tensor.GetPrevOutput();
-    const auto shape = tensor.GetShape();
+    const auto prevUnitId = prediction.GetPrevOutput();
+    const auto predictionShape = prediction.GetShape();
+    const auto labelShape = label.GetShape();
 
     UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
-                                 { { "input", shape } },
-                                 shape, { { "input", prevUnitId } }, m_device);
+                                 { { "prediction", predictionShape },
+                                   { "label", labelShape } }, Shape(),
+                                 { { "prediction", prevUnitId },
+                                   { "label", labelShape } }, m_device);
 }
 
 template <typename T>
 void Model<T>::Compile(std::string optimizer, Parameter optimizerParams)
 {
     m_unitManager.Compile(optimizer, optimizerParams);
+}
+
+template <typename T>
+void Model<T>::Fit(std::size_t epochs)
+{
+    for (std::size_t cycle = 0; cycle < epochs; ++cycle)
+    {
+        m_unitManager.Forward(cycle);
+        m_unitManager.Backward(cycle);
+    }
 }
 }
 

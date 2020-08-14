@@ -37,7 +37,7 @@ public:
         return m_unitMetaDataMap[unitId]->GetOutputShape();
     }
 
-    void Compile(std::string optimizerName, Parameter paremeter);
+    void Compile(const std::string& optimizerName, const Parameter& parameter);
 
     virtual void Forward(std::size_t cycle);
 
@@ -46,9 +46,6 @@ public:
     virtual void AsyncForward(std::size_t cycle);
 
     virtual void AsyncBackward(std::size_t cycle);
-
-    [[nodiscard]] std::unique_ptr<Compute::Optimizer<T>> GetOptimizer(
-        std::string optimizerName, Parameter parameter);
 
 private:
     [[nodiscard]] bool m_isForwardCopyReady(const UnitId& subjectUnitId) const;
@@ -62,7 +59,7 @@ private:
 
     [[nodiscard]] std::unique_ptr<Compute::Optimizer<T>> m_makeOptimizer(
         const std::string& optimizerName,
-        const Parameter& parameters) const;
+        const Parameter& parameter) const;
 
     std::unordered_map<UnitId, FrontEnd::UnitMetaData<T>>
     m_unitMetaDataMap;

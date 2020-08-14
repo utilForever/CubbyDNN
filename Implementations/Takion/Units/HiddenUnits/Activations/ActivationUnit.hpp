@@ -51,12 +51,13 @@ template <typename T>
 ReLU ReLU<T>::CreateUnit(
     const FrontEnd::UnitMetaData<T>& unitMetaData)
 {
+    const auto unitId = unitMetaData.Id();
     const auto batchSize = unitMetaData.BatchSize();
     const auto device = unitMetaData.Device;
     const auto inputShape = unitMetaData.GetInputShape("input");
     const auto outputShape = unitMetaData.GetOutputShape();
 
-    ReLU<T>::m_checkArguments(inputShape, outputShape);
+    ReLU<T>::m_checkArguments(inputShape, outputShape, unitId.UnitName);
 
     auto sourceUnitId = unitMetaData.GetInputUnitId("input");
 
@@ -166,12 +167,15 @@ void ReLU<T>::AsyncBackward(std::promise<bool> promise)
 }
 
 template <typename T>
-void ReLU<T>::m_checkArguments(Shape inputShape, Shape outputShape)
+void ReLU<T>::m_checkArguments(const Shape& inputShape,
+                               const Shape& outputShape,
+                               const std::string& unitName)
 {
     if (inputShape != outputShape)
     {
         const std::string errorMessage =
-            std::string("ReLU - Shape mismatch between input and output.") +
+            std::string("ReLU " + unitName) +
+            " - Shape mismatch between input and output." +
             " input : " + inputShape.ToString() +
             " output : " + outputShape.ToString();
 

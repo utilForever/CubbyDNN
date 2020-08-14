@@ -11,6 +11,7 @@
 #include <Takion/Units/HiddenUnits/Dense.hpp>
 #include <Takion/Units/SinkUnits/LossUnit.hpp>
 #include <Takion/Units/SourceUnits/ConstantUnit.hpp>
+#include <Takion/Units/HiddenUnits/Activations/ActivationUnit.hpp>
 
 namespace Takion::Graph
 {
@@ -37,7 +38,8 @@ void UnitManager<T>::AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData)
 }
 
 template <typename T>
-void UnitManager<T>::Compile(std::string optimizerName, Parameter paremeter)
+void UnitManager<T>::Compile(const std::string& optimizerName,
+                             const Parameter& parameter)
 {
     m_connectUnits();
 
@@ -53,7 +55,7 @@ void UnitManager<T>::Compile(std::string optimizerName, Parameter paremeter)
         if (type.Name() == "Dense")
         {
             auto unit = DenseUnit<T>::CreateUnit(
-                unitMetaData, GetOptimizer(optimizerName));
+                unitMetaData, m_makeOptimizer(optimizerName, parameter));
 
             m_unitMap[unitMetaData->Id()] =
                 std::make_unique<DenseUnit>(std::move(unit));
@@ -317,12 +319,12 @@ void UnitManager<T>::m_connectUnits()
 
 template <typename T>
 std::unique_ptr<Compute::Optimizer<T>> UnitManager<T>::m_makeOptimizer(
-    const std::string& optimizerName, const Parameter& parameters) const
+    const std::string& optimizerName, const Parameter& parameter) const
 {
     if (optimizerName == "SGD")
     {
         auto optimizer = std::make_unique<Compute::SGD<T>>(
-            parameters.GetFloatingPointParam("epsilon"));
+            parameter.GetFloatingPointParam("epsilon"));
         return std::move(optimizer);
     }
     throw std::runtime_error("Unsupported optimizer type");

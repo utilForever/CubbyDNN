@@ -24,7 +24,7 @@ public:
 
     void SetDevice(Compute::Device device);
 
-    AbsTensor<T> Constant(Shape shape, std::vector<T> data, std::string name);
+    AbsTensor<T> Constant(const Shape& shape, std::vector<T> data, std::string name);
 
     AbsTensor<T> Dense(AbsTensor<T> source, unsigned numUnits,
                        std::unique_ptr<Compute::Initializer<T>>
@@ -40,9 +40,11 @@ public:
 
     AbsTensor<T> SoftMax(AbsTensor<T> source, std::string name = "");
 
-    void MSE(AbsTensor<T> tensor, std::string name);
+    void MSE(AbsTensor<T> prediction, AbsTensor<T> label, std::string name);
 
     void Compile(std::string optimizer, Parameter optimizerParams);
+
+    void Fit(std::size_t epochs);
 
 private:
     Compute::Device m_device;

@@ -45,8 +45,8 @@ public:
 
 private:
     UnitId m_sourceUnitId;
-   static void m_checkShape(Shape inputShape, Shape outputShape,
-                            Shape weightShape, Shape biasShape);
+   static void m_checkShape(const Shape& inputShape, const Shape& outputShape,
+                            const Shape& weightShape, const Shape& biasShape, const std::string& unitName);
 };
 } // namespace Takion
 

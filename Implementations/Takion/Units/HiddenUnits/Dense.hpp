@@ -62,7 +62,8 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
     const auto outputShape = unitMetaData.GetOutputShape();
     const auto weightTransposeShape = weightShape.GetTransposedShape();
 
-    DenseUnit<T>::m_checkShape(inputShape, outputShape, weightShape, biasShape);
+    DenseUnit<T>::m_checkShape(inputShape, outputShape, weightShape, biasShape,
+                               unitId.UnitName);
 
     const auto& weightInitializer = unitMetaData.GetInitializer("weight");
     const auto& biasInitializer = unitMetaData.GetInitializer("bias");
@@ -75,7 +76,8 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
 
     for (const auto& outputUnitId : unitMetaData.OutputUnitVector())
     {
-        Tensor<T> tensor(unitMetaData.GetOutputShape(), unitMetaData.BatchSize(),
+        Tensor<T> tensor(unitMetaData.GetOutputShape(),
+                         unitMetaData.BatchSize(),
                          unitMetaData.Device);
         backwardInputMap[outputUnitId] = std::move(tensor);
     }
@@ -97,7 +99,8 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
     Tensor<T> biasUpdate(biasShape, batchSize, unitMetaData.Device);
     Tensor<T> biasUpdateMean(biasShape, unitMetaData.Device);
 
-    Tensor<T> delta(unitMetaData.GetOutputShape(), batchSize, unitMetaData.Device);
+    Tensor<T> delta(unitMetaData.GetOutputShape(), batchSize,
+                    unitMetaData.Device);
 
     Tensor<T> previousInputTranspose(
         inputShape.GetTransposedShape(),
@@ -257,15 +260,18 @@ void DenseUnit<T>::AsyncBackward(std::promise<bool> promise)
 }
 
 template <typename T>
-void DenseUnit<T>::m_checkShape(Shape inputShape, Shape outputShape,
-                                Shape weightShape, Shape biasShape)
+void DenseUnit<T>::m_checkShape(const Shape& inputShape,
+                                const Shape& outputShape,
+                                const Shape& weightShape,
+                                const Shape& biasShape,
+                                const std::string& unitName)
 {
     if (inputShape.Dim() != 1 || outputShape.Dim() != 1)
     {
         const std::string errorMessage =
-            std::string(
-                "Dense - input and output shape should be 1 dimensional "
-                "tensor") +
+            std::string("Dense ") + unitName +
+            " - input and output shape should be 1 dimensional "
+            "tensor" +
             "Given input shape : " + inputShape.ToString() +
             "Given output shape : " + outputShape.ToString();
 
@@ -275,7 +281,8 @@ void DenseUnit<T>::m_checkShape(Shape inputShape, Shape outputShape,
     if (weightShape.Dim() != 2)
     {
         const std::string errorMessage =
-            std::string("Dense - Weight should be 2 dimensional tensor") +
+            std::string("Dense ") + unitName +
+            " - Weight should be 2 dimensional tensor" +
             "Given weight shape : " + weightShape.ToString();
         throw std::runtime_error(errorMessage);
     }
@@ -283,7 +290,8 @@ void DenseUnit<T>::m_checkShape(Shape inputShape, Shape outputShape,
     if (biasShape.Dim() != 1)
     {
         const std::string errorMessage =
-            std::string("Dense - Bias should be 1 dimensional tensor") +
+            std::string("Dense ") + unitName +
+            " - Bias should be 1 dimensional tensor" +
             "Given bias shape : " + biasShape.ToString();
         throw std::runtime_error(errorMessage);
     }
@@ -294,7 +302,8 @@ void DenseUnit<T>::m_checkShape(Shape inputShape, Shape outputShape,
     if (weightShape.NumCol() != biasShape.NumCol())
     {
         const std::string errorMessage =
-            std::string("Dense - Shape mismatch between weight and bias") +
+            std::string("Dense ") + unitName +
+            " - Shape mismatch between weight and bias" +
             "Given bias shape : " + biasShape.ToString() +
             "Given weight shape : " + weightShape.ToString();
 
@@ -304,7 +313,7 @@ void DenseUnit<T>::m_checkShape(Shape inputShape, Shape outputShape,
     if (weightShape.NumCol() != outputShape.NumCol())
     {
         const std::string errorMessage =
-            std::string("Dense - output shape mismatch") +
+            std::string("Dense ") + unitName + " - output shape mismatch" +
             "Given weight shape : " + weightShape.ToString() +
             " Given output shape" + outputShape.ToString();
 

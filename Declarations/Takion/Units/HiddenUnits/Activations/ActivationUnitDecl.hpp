@@ -47,7 +47,7 @@ private:
 
     UnitId m_sourceUnitId;
 
-    static void m_checkArguments(Shape inputShape, Shape outputShape);
+    static void m_checkArguments(const Shape& inputShape, const Shape& outputShape, const std::string& unitName);
 };
 } // namespace Takion::Graph
 
