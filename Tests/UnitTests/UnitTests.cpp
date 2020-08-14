@@ -11,6 +11,7 @@
 #include "UtilTests/WeakPtrTests.hpp"
 #include "UtilTests/TensorTest.hpp"
 #include "ComputeTests/ComputeTest.hpp"
+#include "GraphTest/SimpleGraphTest.hpp"
 #include <doctest.h>
 #include <iostream>
 
@@ -182,6 +183,14 @@ TEST_CASE("Computation test")
                 TestTranspose<int>(device);
             }
         }
+    }
+}
+
+TEST_CASE("GraphTest")
+{
+    SUBCASE("Simple graph test")
+    {
+        SimpleGraphTest();
     }
 }
 

@@ -85,8 +85,8 @@ public:
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::XavierNormal(
-            tensor.TensorShape, static_cast<float*>(tensor.Data),
-            tensor.Device.PadSize());
+            tensor.TensorShape, tensor.Data,
+            tensor.ElementSize(), tensor.BatchSize);
     }
 };
 
@@ -98,9 +98,10 @@ public:
 
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::HeNormal<T>(
-            tensor.TensorShape, tensor.Data,
-            tensor.Device.PadSize());
+        InitializerOperations::HeNormal<T>(tensor.TensorShape.NumCol(),
+                                           tensor.Data,
+                                           tensor.ElementSize(),
+                                           tensor.Device.PadSize());
     }
 };
 

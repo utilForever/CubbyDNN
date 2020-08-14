@@ -48,7 +48,7 @@ ReLU<T>& ReLU<T>::operator=(
 }
 
 template <typename T>
-ReLU ReLU<T>::CreateUnit(
+ReLU<T> ReLU<T>::CreateUnit(
     const FrontEnd::UnitMetaData<T>& unitMetaData)
 {
     const auto unitId = unitMetaData.Id();

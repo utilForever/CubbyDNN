@@ -24,16 +24,15 @@ public:
     ConstantUnit& operator=(const ConstantUnit<T>& constantUnit) = delete;
     ConstantUnit& operator=(ConstantUnit<T>&& constantUnit) noexcept = default;
 
-    static ConstantUnit<T> CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData);
+    static ConstantUnit<T> CreateUnit(
+        const FrontEnd::UnitMetaData<T>& unitMetaData);
 
     void Forward() override
     {
-        Tensor<T>::CopyTensorData(m_value, ComputableUnit<T>::ForwardOutput);
     }
 
     void AsyncForward(std::promise<bool> promise) override
     {
-        Tensor<T>::CopyTensorData(m_value, ComputableUnit<T>::ForwardOutput);
         promise.set_value(true);
     }
 
@@ -47,7 +46,6 @@ public:
     }
 
 private:
-    Tensor m_value;
 };
 }
 

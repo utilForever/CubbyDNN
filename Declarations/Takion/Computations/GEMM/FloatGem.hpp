@@ -12,7 +12,6 @@
 #include <immintrin.h>
 #include <algorithm>
 #include <iostream>
-#include <omp.h>
 
 namespace Takion::Compute::CPU
 {

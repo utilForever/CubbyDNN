@@ -33,7 +33,7 @@ public:
     ReLU& operator=(const ReLU& activationUnit) = delete;
     ReLU& operator=(ReLU&& activationUnit) noexcept;
 
-    static ReLU CreateUnit(const FrontEnd::UnitMetaData& unitMetaData);
+    static ReLU<T> CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData);
 
     void Forward() override;
 

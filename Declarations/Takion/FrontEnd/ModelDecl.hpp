@@ -11,7 +11,6 @@
 #include <Takion/FrontEnd/UnitMetaData.hpp>
 #include <Takion/Engine/UnitManager.hpp>
 #include <Takion/Computations/Device.hpp>
-#include <Takion/Computations/Optimizers/Optimizer.hpp>
 
 
 namespace Takion::FrontEnd
