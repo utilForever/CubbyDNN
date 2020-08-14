@@ -24,7 +24,7 @@ public:
     ConstantUnit& operator=(const ConstantUnit<T>& constantUnit) = delete;
     ConstantUnit& operator=(ConstantUnit<T>&& constantUnit) noexcept = default;
 
-    static ConstantUnit CreateUnit(const UnitMetaData& unitMetaData);
+    static ConstantUnit<T> CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData);
 
     void Forward() override
     {

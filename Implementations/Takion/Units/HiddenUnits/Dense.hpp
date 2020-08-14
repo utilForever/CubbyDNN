@@ -59,7 +59,7 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
     const auto weightShape = unitMetaData.InternalVariableShape("weight");
     const auto biasShape = unitMetaData.InternalVariableShape("bias");
     const auto inputShape = unitMetaData.GetInputShape("input");
-    const auto outputShape = unitMetaData.OutputShape();
+    const auto outputShape = unitMetaData.GetOutputShape();
     const auto weightTransposeShape = weightShape.GetTransposedShape();
 
     DenseUnit<T>::m_checkShape(inputShape, outputShape, weightShape, biasShape);
@@ -75,7 +75,7 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
 
     for (const auto& outputUnitId : unitMetaData.OutputUnitVector())
     {
-        Tensor<T> tensor(unitMetaData.OutputShape(), unitMetaData.BatchSize(),
+        Tensor<T> tensor(unitMetaData.GetOutputShape(), unitMetaData.BatchSize(),
                          unitMetaData.Device);
         backwardInputMap[outputUnitId] = std::move(tensor);
     }
@@ -97,7 +97,7 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
     Tensor<T> biasUpdate(biasShape, batchSize, unitMetaData.Device);
     Tensor<T> biasUpdateMean(biasShape, unitMetaData.Device);
 
-    Tensor<T> delta(unitMetaData.OutputShape(), batchSize, unitMetaData.Device);
+    Tensor<T> delta(unitMetaData.GetOutputShape(), batchSize, unitMetaData.Device);
 
     Tensor<T> previousInputTranspose(
         inputShape.GetTransposedShape(),
@@ -107,7 +107,7 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
     weightInitializer->Initialize(weight);
     biasInitializer->Initialize(bias);
 
-    auto denseUnit = DenseUnit(
+    auto denseUnit = DenseUnit<T>(
         unitId, sourceUnitId, std::move(forwardInputTensor),
         { std::move(backwardInputMap) }, std::move(forwardOutputTensor),
         std::move(backwardOutputTensor),
@@ -139,7 +139,7 @@ void DenseUnit<T>::Forward()
     Tensor<T>& output = ForwardOutput;
 
     Compute::Multiply(input, weight, output);
-    Compute::Add(output, bias, output);
+    Compute::Add(bias, output);
 }
 
 template <typename T>
@@ -155,7 +155,7 @@ void DenseUnit<T>::AsyncForward(std::promise<bool> promise)
     Tensor<T>& output = ForwardOutput;
 
     Compute::Multiply(input, weight, output);
-    Compute::Add(output, bias, output);
+    Compute::Add(bias, output);
 
     promise.set_value(true);
 }
@@ -193,8 +193,8 @@ void DenseUnit<T>::Backward()
     for (auto& [unitId, gradient] : BackwardInputMap)
         Compute::Add(delta, gradient);
 
-    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()), delta);
-    Compute::Transpose(delta, weightTranspose);
+    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()));
+    Compute::Transpose(weight, weightTranspose);
     Compute::Multiply(delta, weightTranspose, backwardOutput);
 
     Compute::Transpose(previousForwardInput, previousInputTranspose);
@@ -240,8 +240,8 @@ void DenseUnit<T>::AsyncBackward(std::promise<bool> promise)
     for (auto& [unitId, gradient] : BackwardInputMap)
         Compute::Add(delta, gradient);
 
-    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()), delta);
-    Compute::Transpose(delta, weightTranspose);
+    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()));
+    Compute::Transpose(weight, weightTranspose);
     Compute::Multiply(delta, weightTranspose, backwardOutput);
 
     Compute::Transpose(previousForwardInput, previousInputTranspose);

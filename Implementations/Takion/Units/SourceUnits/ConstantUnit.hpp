@@ -12,10 +12,11 @@
 namespace Takion::Graph
 {
 template <typename T>
-ConstantUnit<T>::ConstantUnit(UnitId unitId, Tensor<T> tensor, std::size_t batchSize)
+ConstantUnit<T>::ConstantUnit(UnitId unitId, Tensor<T> tensor,
+                              std::size_t batchSize)
     : ComputableUnit(
-          std::move(unitId), tensor.NumericType, {}, {},
-          Tensor<T>(tensor.TensorShape, tensor.Device, tensor.NumericType), {}, batchSize),
+          std::move(unitId), {}, {}, std::move(tensor), {},
+          batchSize),
       m_value(tensor)
 {
 }
@@ -28,10 +29,18 @@ ConstantUnit<T>::ConstantUnit(ConstantUnit<T>&& constantUnit) noexcept
 }
 
 template <typename T>
-ConstantUnit ConstantUnit<T>::CreateUnit(const UnitMetaData<T>& unitMetaData)
+ConstantUnit<T> ConstantUnit<T>::CreateUnit(
+    const FrontEnd::UnitMetaData<T>& unitMetaData)
 {
-    return ConstantUnit<T>(unitMetaData.Id(),
-                        unitMetaData.GetInternalTensor("constant"));
+    const auto& initializer = unitMetaData.GetInitializer("vectorInitializer");
+    const auto batchSize = unitMetaData.BatchSize();
+    const auto outputShape = unitMetaData.GetOutputShape();
+    const auto device = unitMetaData.Device;
+
+    Tensor<T> tensor(outputShape, batchSize, device);
+    initializer->Initialize(tensor);
+
+    return ConstantUnit<T>(unitMetaData.Id(), tensor, batchSize);
 }
 } // namespace Takion::Graph
 

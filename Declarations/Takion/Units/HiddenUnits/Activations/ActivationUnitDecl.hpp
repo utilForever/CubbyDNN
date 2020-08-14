@@ -9,7 +9,7 @@
 
 #include <Takion/Units/ComputableUnit.hpp>
 #include <Takion/Units/TrainableUnit.hpp>
-#include <Takion/Units/UnitMetaData.hpp>
+#include <Takion/FrontEnd/UnitMetaData.hpp>
 
 
 namespace Takion::Graph
@@ -21,10 +21,11 @@ class ReLU
 {
 public:
     ReLU(const UnitId& unitId, const UnitId& sourceUnitId,
-                   Tensor<T> forwardInput,
-                   std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
-                   Tensor<T> forwardOutput, Tensor<T> backwardOutput,
-                   std::unordered_map<std::string, Tensor<T>> trainableUnit);
+         Tensor<T> forwardInput,
+         std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
+         Tensor<T> forwardOutput, Tensor<T> backwardOutput,
+         std::unordered_map<std::string, Tensor<T>> trainableUnit,
+         std::size_t batchSize);
     ~ReLU() = default;
 
     ReLU(const ReLU& activationUnit) = delete;
@@ -32,7 +33,7 @@ public:
     ReLU& operator=(const ReLU& activationUnit) = delete;
     ReLU& operator=(ReLU&& activationUnit) noexcept;
 
-    static ReLU CreateUnit(const UnitMetaData& unitMetaData);
+    static ReLU CreateUnit(const FrontEnd::UnitMetaData& unitMetaData);
 
     void Forward() override;
 
@@ -43,7 +44,10 @@ public:
     void AsyncBackward(std::promise<bool> promise) override;
 
 private:
+
     UnitId m_sourceUnitId;
+
+    static void m_checkArguments(Shape inputShape, Shape outputShape);
 };
 } // namespace Takion::Graph
 

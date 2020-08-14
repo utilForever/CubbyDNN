@@ -19,11 +19,13 @@ ReLU<T>::ReLU(
     const UnitId& unitId, const UnitId& sourceUnitId, Tensor<T> forwardInput,
     std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
     Tensor<T> forwardOutput, Tensor<T> backwardOutput,
-    std::unordered_map<std::string, Tensor<T>> trainableUnit)
+    std::unordered_map<std::string, Tensor<T>> trainableUnit,
+    std::size_t batchSize)
     : ComputableUnit(unitId,
                      { { sourceUnitId, std::move(forwardInput) } },
                      std::move(backwardInputVector), std::move(forwardOutput),
-                     { { sourceUnitId, std::move(backwardOutput) } }),
+                     { { sourceUnitId, std::move(backwardOutput) } },
+                     batchSize),
       TrainableUnit(std::move(trainableUnit)),
       m_sourceUnitId(sourceUnitId)
 {
@@ -47,12 +49,14 @@ ReLU<T>& ReLU<T>::operator=(
 
 template <typename T>
 ReLU ReLU<T>::CreateUnit(
-    const UnitMetaData<T>& unitMetaData)
+    const FrontEnd::UnitMetaData<T>& unitMetaData)
 {
-    std::string activationName =
-        unitMetaData.Params.GetStringParam("activationName");
     const auto batchSize = unitMetaData.BatchSize();
     const auto device = unitMetaData.Device;
+    const auto inputShape = unitMetaData.GetInputShape("input");
+    const auto outputShape = unitMetaData.GetOutputShape();
+
+    ReLU<T>::m_checkArguments(inputShape, outputShape);
 
     auto sourceUnitId = unitMetaData.GetInputUnitId("input");
 
@@ -62,24 +66,19 @@ ReLU ReLU<T>::CreateUnit(
     std::unordered_map<UnitId, Tensor<T>> backwardInputMap;
     for (const auto& backwardInputUnitId : unitMetaData.OutputUnitVector())
     {
-        Tensor<T> tensor(unitMetaData.OutputShape(), batchSize, device);
+        Tensor<T> tensor(inputShape, batchSize, device);
         backwardInputMap[backwardInputUnitId] = std::move(tensor);
     }
 
-    Tensor<T> forwardOutputTensor(unitMetaData.OutputShape(), batchSize,
-                                  device);
-
-    Tensor<T> backwardOutputTensor(unitMetaData.GetInputShape("input"),
-                                   batchSize,
-                                   device);
-
-    Tensor<T> backwardTempTensor(unitMetaData.OutputShape(), batchSize, device);
+    Tensor<T> forwardOutputTensor(outputShape, batchSize, device);
+    Tensor<T> backwardOutputTensor(inputShape, batchSize, device);
+    Tensor<T> backwardTempTensor(outputShape, batchSize, device);
 
     auto activationUnit = ReLU<T>(
         unitMetaData.Id(), sourceUnitId, std::move(forwardInputTensor),
         std::move(backwardInputMap), std::move(forwardOutputTensor),
         std::move(backwardOutputTensor),
-        { { "backwardTemp", backwardTempTensor } });
+        { { "backwardTemp", backwardTempTensor } }, batchSize);
 
     return activationUnit;
 }
@@ -121,6 +120,7 @@ void ReLU<T>::Backward()
         m_trainableTensorMap.at("backwardTemp");
     Tensor<T>& backwardOutput =
         BackwardOutputMap.at(m_sourceUnitId);
+    const Tensor<T>& inputTensor = ForwardInputMap.at(m_sourceUnitId);
 
     const auto batchSize = backwardTemp.BatchSize;
 
@@ -129,10 +129,9 @@ void ReLU<T>::Backward()
     for (const auto& [unitId, tensor] : BackwardInputMap)
         Compute::Add(tensor, backwardTemp);
 
-    const Tensor<T>& inputTensor = ForwardInputMap.at(m_sourceUnitId);
-
     const auto lambdaBackward = [](T val) { return val > 0 ? 1 : 0; };
-    Compute::ScalarDiv(backwardTemp, batchSize);
+
+    Compute::ScalarDiv(backwardTemp, static_cast<T>(BackwardInputMap.size()));
     Compute::Apply(backwardTemp, backwardOutput, lambdaBackward);
     Compute::Dot(inputTensor, backwardOutput, backwardOutput);
 }
@@ -146,10 +145,9 @@ void ReLU<T>::AsyncBackward(std::promise<bool> promise)
     using TrainableUnit<T>::m_trainableTensorMap;
     const Zeros zeroInitializer;
 
-    Tensor<T>& backwardTemp =
-        m_trainableTensorMap.at("backwardTemp");
-    Tensor<T>& backwardOutput =
-        BackwardOutputMap.at(m_sourceUnitId);
+    Tensor<T>& backwardTemp = m_trainableTensorMap.at("backwardTemp");
+    Tensor<T>& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
+    const Tensor<T>& inputTensor = ForwardInputMap.at(m_sourceUnitId);
 
     const auto batchSize = backwardTemp.BatchSize;
 
@@ -158,14 +156,27 @@ void ReLU<T>::AsyncBackward(std::promise<bool> promise)
     for (const auto& [unitId, tensor] : BackwardInputMap)
         Compute::Add(tensor, backwardTemp);
 
-    const Tensor<T>& inputTensor = ForwardInputMap.at(m_sourceUnitId);
-
     const auto lambdaBackward = [](T val) { return val > 0 ? 1 : 0; };
-    Compute::ScalarDiv(backwardTemp, batchSize);
+
+    Compute::ScalarDiv(backwardTemp, static_cast<T>(BackwardInputMap.size()));
     Compute::Apply(backwardTemp, backwardOutput, lambdaBackward);
     Compute::Dot(inputTensor, backwardOutput, backwardOutput);
 
     promise.set_value(true);
+}
+
+template <typename T>
+void ReLU<T>::m_checkArguments(Shape inputShape, Shape outputShape)
+{
+    if (inputShape != outputShape)
+    {
+        const std::string errorMessage =
+            std::string("ReLU - Shape mismatch between input and output.") +
+            " input : " + inputShape.ToString() +
+            " output : " + outputShape.ToString();
+
+        throw std::runtime_error(errorMessage);
+    }
 }
 } // namespace Takion::Graph
 

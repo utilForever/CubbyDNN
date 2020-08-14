@@ -34,7 +34,7 @@ public:
     MSELoss<T>& operator=(const MSELoss<T>& lossUnit) = delete;
     MSELoss<T>& operator=(MSELoss<T>&& lossUnit) noexcept;
 
-    static MSELoss<T> CreateUnit(const UnitMetaData<T>& unitMetaData);
+    static MSELoss<T> CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData);
 
     void Forward() override;
 
