@@ -33,9 +33,10 @@ AbsTensor<T> Model<T>::Constant(Shape shape, std::vector<T> data,
                                 m_id++, name };
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap;
-    initializerMap["tensor"] = Compute::VectorInitializer<T>(data);
+    initializerMap["vectorInitializer"] = Compute::VectorInitializer<T>(data);
 
-    UnitMetaData<T> unitMetaData(subjectUnitId, {}, initializerMap, {}, shape,
+    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, initializerMap,
+                                 {}, shape,
                                  {}, m_device);
     m_unitManager.AppendUnit(unitMetaData);
 
@@ -69,7 +70,8 @@ AbsTensor<T> Model<T>::Dense(AbsTensor<T> source, unsigned numUnits,
     initializerMap["bias"] = std::move(biasInitializer);
 
     UnitMetaData<T> unitMetaData(
-        subjectUnitId, { { "weight", weightShape }, { "bias", biasShape } },
+        subjectUnitId, m_batchSize,
+        { { "weight", weightShape }, { "bias", biasShape } },
         std::move(initializerMap), { { "input", prevOutputShape } },
         outputShape,
         { { "input", prevUnitId } }, m_device);
@@ -92,7 +94,7 @@ AbsTensor<T> Model<T>::ReLU(AbsTensor<T> source, std::string name)
         initializerMap;
 
     UnitMetaData<T> unitMetaData(
-        subjectUnitId, {}, {}, { { "input", shape } },
+        subjectUnitId, m_batchSize, {}, {}, { { "input", shape } },
         shape, { { "input", prevUnitId } }, m_device);
 
     m_unitManager.AppendUnit(std::move(unitMetaData));
@@ -112,7 +114,7 @@ AbsTensor<T> Model<T>::SoftMax(AbsTensor<T> source, std::string name)
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap;
 
-    UnitMetaData<T> unitMetaData(subjectUnitId, {}, {},
+    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
                                  { { "input", shape } }, shape,
                                  { { "input", prevUnitId } }, m_device);
 
@@ -130,14 +132,15 @@ void Model<T>::MSE(AbsTensor<T> tensor, std::string name)
     const auto prevUnitId = tensor.GetPrevOutput();
     const auto shape = tensor.GetShape();
 
-    UnitMetaData<T> unitMetaData(subjectUnitId, {}, {}, { { "input", shape } },
+    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
+                                 { { "input", shape } },
                                  shape, { { "input", prevUnitId } }, m_device);
 }
 
 template <typename T>
-void Model<T>::Compile(std::unique_ptr<Compute::Optimizer<T>> optimizer)
+void Model<T>::Compile(std::string optimizer, Parameter optimizerParams)
 {
-    m_unitManager.Compile(std::move(optimizer));
+    m_unitManager.Compile(optimizer, optimizerParams);
 }
 }
 

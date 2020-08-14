@@ -34,7 +34,7 @@ public:
 
     Shape GetUnitOutputShape(const UnitId& unitId)
     {
-        return m_unitMetaDataMap[unitId]->OutputShape();
+        return m_unitMetaDataMap[unitId]->GetOutputShape();
     }
 
     void Compile(std::string optimizerName, Parameter paremeter);

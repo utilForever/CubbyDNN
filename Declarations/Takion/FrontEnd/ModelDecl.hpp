@@ -42,7 +42,7 @@ public:
 
     void MSE(AbsTensor<T> tensor, std::string name);
 
-    void Compile(std::unique_ptr<Compute::Optimizer<T>> optimizer);
+    void Compile(std::string optimizer, Parameter optimizerParams);
 
 private:
     Compute::Device m_device;

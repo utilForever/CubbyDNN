@@ -27,8 +27,10 @@ public:
 
     Shape& operator=(const Shape& shape);
     Shape& operator=(Shape&& shape) noexcept;
-
     std::size_t& operator[](std::size_t index);
+
+    bool operator==(const Shape& shape) const;
+    bool operator!=(const Shape& shape) const;
 
     Shape operator*(const Shape& shape) const;
 
@@ -54,16 +56,6 @@ public:
     void Squeeze();
 
     [[nodiscard]] std::size_t Dim() const;
-
-    friend bool operator==(const Shape& lhs, const Shape& rhs)
-    {
-        return lhs.m_shapeVector == rhs.m_shapeVector;
-    }
-
-    friend bool operator!=(const Shape& lhs, const Shape& rhs)
-    {
-        return !(lhs == rhs);
-    }
 
     [[nodiscard]] std::size_t Size() const noexcept;
 
@@ -112,7 +104,7 @@ public:
 
     Shape& Reshape(std::initializer_list<std::size_t> newShape);
 
-    Shape& Transpose();
+    void Transpose();
 
     [[nodiscard]] Shape GetTransposedShape() const;
 
