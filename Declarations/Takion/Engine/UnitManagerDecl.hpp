@@ -12,7 +12,7 @@
 #include <Takion/Computations/Optimizers/Optimizer.hpp>
 #include <unordered_map>
 
-namespace Takion::Graph
+namespace Takion::Engine
 {
 template <typename T>
 class UnitManager
@@ -34,7 +34,7 @@ public:
 
     Shape GetUnitOutputShape(const UnitId& unitId)
     {
-        return m_unitMetaDataMap[unitId]->GetOutputShape();
+        return m_unitMetaDataMap[unitId].GetOutputShape();
     }
 
     void Compile(const std::string& optimizerName, const Parameter& parameter);
@@ -63,7 +63,7 @@ private:
 
     std::unordered_map<UnitId, FrontEnd::UnitMetaData<T>>
     m_unitMetaDataMap;
-    std::unordered_map<UnitId, std::unique_ptr<ComputableUnit<T>>> m_unitMap;
+    std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>> m_unitMap;
     std::size_t m_batchSize;
 };
 } // namespace Takion::Graph

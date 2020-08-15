@@ -96,8 +96,10 @@ void DotCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
 }
 
 template <typename T>
-void DotWithBroadcastCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
-            std::size_t size, std::size_t batchSize, bool broadCastA)
+void DotWithBroadcastCpu(const Span<T> inputA, const Span<T> inputB,
+                         Span<T> out,
+                         std::size_t size, std::size_t batchSize,
+                         bool broadCastA)
 {
     throw std::invalid_argument("Unsupported data type");
 }
@@ -129,12 +131,13 @@ void ApplyCpu(const Span<T> input, Span<T> output, Function function,
               std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
-    for (unsigned batchIdx = 0; batchIdx < batchSize; batchIdx++)
+    for (int batchIdx = 0; batchIdx < static_cast<int>(batchSize); batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
         for (unsigned i = 0; i < size; i += 16)
         {
-            output[batchOffset + i] = function(input[batchOffset + size]);
+            output[batchOffset + i] = static_cast<T>(function(
+                input[batchOffset + size]));
         }
     }
 }

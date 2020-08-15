@@ -15,7 +15,7 @@ template <typename T>
 TrainableUnit<T>::TrainableUnit(
     std::unordered_map<std::string, Tensor<T>> trainableTensorMap,
     std::unique_ptr<Compute::Optimizer<T>> optimizer)
-    : m_trainableTensorMap(std::move(trainableTensorMap)),
+    : TrainableTensorMap(std::move(trainableTensorMap)),
       m_optimizer(std::move(optimizer))
 {
 }
@@ -23,7 +23,7 @@ TrainableUnit<T>::TrainableUnit(
 template <typename T>
 TrainableUnit<T>::TrainableUnit(
     std::unordered_map<std::string, Tensor<T>> trainableTensorMap)
-    : m_trainableTensorMap(std::move(trainableTensorMap))
+    : TrainableTensorMap(std::move(trainableTensorMap))
 {
 }
 
@@ -31,7 +31,7 @@ template <typename T>
 TrainableUnit<T>& TrainableUnit<T>::operator=(TrainableUnit<T>&& trainableUnit)
 noexcept
 {
-    m_trainableTensorMap = std::move(trainableUnit.m_trainableTensorMap);
+    TrainableTensorMap = std::move(trainableUnit.TrainableTensorMap);
     m_optimizer = std::move(trainableUnit.m_optimizer);
 
     return *this;

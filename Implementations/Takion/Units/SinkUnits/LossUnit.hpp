@@ -20,11 +20,12 @@ MSELoss<T>::MSELoss(const UnitId& unitId, const UnitId& predictionUnitId,
     : ComputableUnit<T>(
           unitId,
           { { predictionUnitId, std::move(predictionTensor) },
-            { labelUnitId, std::move(labelTensor) }, batchSize },
+            { labelUnitId, std::move(labelTensor) } },
           {},
-          Tensor(Shape({ 1, 1 }),
-                 Compute::Device(0, Compute::DeviceType::CPU, "none")),
-          { { predictionUnitId, std::move(backwardOutputTensor) } }, batchSize),
+          Tensor<T>(Shape({ 1, 1 }),
+                    Compute::Device(0, Compute::DeviceType::CPU, "output")),
+          { { predictionUnitId, std::move(backwardOutputTensor) } },
+          {}, batchSize),
       m_predictionUnitId(predictionUnitId),
       m_labelUnitId(labelUnitId)
 {
@@ -32,7 +33,7 @@ MSELoss<T>::MSELoss(const UnitId& unitId, const UnitId& predictionUnitId,
 
 template <typename T>
 MSELoss<T>::MSELoss(MSELoss<T>&& lossUnit) noexcept
-    : ComputableUnit(std::move(lossUnit)),
+    : ComputableUnit<T>(std::move(lossUnit)),
       m_predictionUnitId(std::move(lossUnit.m_predictionUnitId)),
       m_labelUnitId(std::move(lossUnit.m_labelUnitId))
 
@@ -74,12 +75,10 @@ MSELoss<T> MSELoss<T>::CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData)
 template <typename T>
 void MSELoss<T>::Forward()
 {
-    using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::TrainableTensorMap;
-
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
+    const Tensor<T>& label = ComputableUnit<T>::ForwardInputMap.at(
+        m_labelUnitId);
     Tensor<T>& outputTensor = ForwardOutput;
     const auto batchSize = prediction.BatchSize;
 
@@ -91,14 +90,11 @@ void MSELoss<T>::Forward()
 template <typename T>
 void MSELoss<T>::AsyncForward(std::promise<bool> promise)
 {
-    using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::TrainableTensorMap;
-
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
+    const Tensor<T>& label = ComputableUnit<T>::ForwardInputMap.at(
+        m_labelUnitId);
     Tensor<T>& outputTensor = ForwardOutput;
-    const auto batchSize = prediction.BatchSize;
 
     Compute::Sub(label, prediction, outputTensor);
     Compute::Dot(outputTensor, outputTensor);
@@ -109,14 +105,11 @@ void MSELoss<T>::AsyncForward(std::promise<bool> promise)
 template <typename T>
 void MSELoss<T>::Backward()
 {
-    using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::TrainableTensorMap;
-
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
+    const Tensor<T>& label = ComputableUnit<T>::ForwardInputMap.at(
+        m_labelUnitId);
     Tensor<T>& outputTensor = ForwardOutput;
-    const auto batchSize = prediction.BatchSize;
 
     Compute::Sub(label, prediction, outputTensor);
 }
@@ -125,14 +118,11 @@ template <typename T>
 void MSELoss<T>::AsyncBackward(std::promise<bool> promise)
 
 {
-    using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::TrainableTensorMap;
-
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
+    const Tensor<T>& label = ComputableUnit<T>::ForwardInputMap.at(
+        m_labelUnitId);
     Tensor<T>& outputTensor = ForwardOutput;
-    const auto batchSize = prediction.BatchSize;
 
     Compute::Sub(label, prediction, outputTensor);
 

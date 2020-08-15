@@ -15,6 +15,11 @@ template <typename T>
 class MSELoss : public ComputableUnit<T>
 {
 public:
+    using ComputableUnit<T>::BackwardInputMap;
+    using ComputableUnit<T>::BackwardOutputMap;
+    using ComputableUnit<T>::ForwardInputMap;
+    using ComputableUnit<T>::ForwardOutput;
+
     //! \param unitId : subject UnitId
     //! \param predictionUnitId : unitId for prediction
     //! \param labelUnitId : unitId for label
@@ -45,7 +50,8 @@ public:
     void AsyncBackward(std::promise<bool> promise) override;
 
 private:
-    static void m_checkArguments(const Shape& predictionShape, const Shape& labelShape,
+    static void m_checkArguments(const Shape& predictionShape,
+                                 const Shape& labelShape,
                                  const std::string& unitName);
 
     UnitId m_predictionUnitId;

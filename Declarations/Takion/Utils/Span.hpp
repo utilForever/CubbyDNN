@@ -9,6 +9,7 @@
 
 #include <iterator>
 #include <stdexcept>
+#include <cstring>
 
 namespace Takion::Utils
 {

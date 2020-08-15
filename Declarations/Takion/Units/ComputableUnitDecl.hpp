@@ -7,7 +7,8 @@
 #ifndef TAKION_GRAPH_COMPUTABLEUNIT_DECL_HPP
 #define TAKION_GRAPH_COMPUTABLEUNIT_DECL_HPP
 
-#include <Takion/FrontEnd/UnitMetaData.hpp>
+#include <Takion/Units/UnitType.hpp>
+#include <Takion/Tensors/Tensor.hpp>
 #include <future>
 
 namespace Takion::Graph
@@ -21,12 +22,14 @@ public:
     //! \param backwardInputMap : vector of input Tensor<T> for back propagation
     //! \param forwardOutput : output of forward propagation
     //! \param backwardOutputMap : output of backward propagation
+    //! \param internalTensorMap : map of the internally used tensors
     //! \param batchSize : batch size of the computableUnit
     ComputableUnit(UnitId subjectUnitId,
                    std::unordered_map<UnitId, Tensor<T>> forwardInputMap,
                    std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
                    Tensor<T> forwardOutput,
                    std::unordered_map<UnitId, Tensor<T>> backwardOutputMap,
+                   std::unordered_map<std::string, Tensor<T>> internalTensorMap,
                    std::size_t batchSize);
     virtual ~ComputableUnit() = default;
 
@@ -85,6 +88,8 @@ public:
     Tensor<T> ForwardOutput;
     //! single output Tensor<T> of back propagation
     std::unordered_map<UnitId, Tensor<T>> BackwardOutputMap;
+    //! Tensors containing internal tensors
+    std::unordered_map<std::string, Tensor<T>> InternalTensorMap;
 
     std::size_t BatchSize;
 

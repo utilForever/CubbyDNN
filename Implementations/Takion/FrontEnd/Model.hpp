@@ -8,13 +8,18 @@
 #define TAKION_FRONTEND_MODEL_HPP
 
 #include <Takion/FrontEnd/ModelDecl.hpp>
+#include <Takion/FrontEnd/AbsTensorDecl.hpp>
+#include <Takion/Units/UnitType.hpp>
+#include <Takion/Computations/Device.hpp>
+#include <Takion/Engine/UnitManager.hpp>
+
 
 namespace Takion::FrontEnd
 {
 template <typename T>
 Model<T>::Model(Compute::Device device, std::size_t batchSize)
-    : m_device(device),
-      m_unitManager(Graph::UnitManager<T>(batchSize)),
+    : m_device(std::move(device)),
+      m_unitManager(Engine::UnitManager<T>(batchSize)),
       m_batchSize(batchSize)
 {
 }
@@ -35,7 +40,7 @@ AbsTensor<T> Model<T>::Constant(const Shape& shape, std::vector<T> data,
             std::string("Constant - ") + name +
             " Given data and shape's size should be identical" +
             " shape : " + shape.ToString() +
-            " dataSize : " + std::to_string(data.Size());
+            " dataSize : " + std::to_string(data.size());
         throw std::invalid_argument(errorMessage);
     }
 
@@ -44,14 +49,16 @@ AbsTensor<T> Model<T>::Constant(const Shape& shape, std::vector<T> data,
 
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap;
-    initializerMap["vectorInitializer"] = Compute::VectorInitializer<T>(data);
+    initializerMap["vectorInitializer"] =
+        std::make_unique<Compute::VectorInitializer<T>>(data);
 
-    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, initializerMap,
+    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {},
+                                 std::move(initializerMap),
                                  {}, shape,
                                  {}, m_device);
-    m_unitManager.AppendUnit(unitMetaData);
+    m_unitManager.AppendUnit(std::move(unitMetaData));
 
-    return subjectUnitId;
+    return AbsTensor<T>(shape, subjectUnitId);
 }
 
 
@@ -141,15 +148,16 @@ void Model<T>::MSE(AbsTensor<T> prediction, AbsTensor<T> label,
     const UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "MSE"), m_id++,
                                 std::move(name) };
 
-    const auto prevUnitId = prediction.GetPrevOutput();
+    const auto predictionId = prediction.GetPrevOutput();
+    const auto labelId = label.GetPrevOutput();
     const auto predictionShape = prediction.GetShape();
     const auto labelShape = label.GetShape();
 
     UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
                                  { { "prediction", predictionShape },
                                    { "label", labelShape } }, Shape(),
-                                 { { "prediction", prevUnitId },
-                                   { "label", labelShape } }, m_device);
+                                 { { "prediction", predictionId },
+                                   { "label", labelId } }, m_device);
 }
 
 template <typename T>

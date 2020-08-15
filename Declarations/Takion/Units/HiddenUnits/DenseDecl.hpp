@@ -17,6 +17,14 @@ template <typename T>
 class DenseUnit : public ComputableUnit<T>, public TrainableUnit<T>
 {
 public:
+    using ComputableUnit<T>::ForwardInputMap;
+    using TrainableUnit<T>::TrainableTensorMap;
+    using ComputableUnit<T>::ForwardOutput;
+    using ComputableUnit<T>::BackwardInputMap;
+    using ComputableUnit<T>::BackwardOutputMap;
+    using TrainableUnit<T>::m_optimizer;
+
+
     DenseUnit(const UnitId& unitId, const UnitId& sourceUnitId,
               Tensor<T> forwardInput,
               std::unordered_map<UnitId, Tensor<T>> backwardInputMap,

@@ -31,15 +31,17 @@ template <typename T>
 class VectorInitializer : public Initializer<T>
 {
 public:
-    VectorInitializer(const std::vector<T> data)
+    VectorInitializer(const std::vector<T>& data)
         : m_data(data)
     {
     }
 
+    ~VectorInitializer() override = default;
+
     void Initialize(Tensor<T>& tensor) const override
     {
         const auto elementSize = tensor.TensorShape.Size();
-        if (elementSize != m_data.Size)
+        if (elementSize != m_data.size())
             throw std::runtime_error(
                 "Given data size is different with target tensor's daa "
                 "size");
@@ -57,6 +59,8 @@ class Zeros : public Initializer<T>
 {
 public:
     Zeros() = default;
+
+    ~Zeros() override = default;
 
     void Initialize(Tensor<T>& tensor) const override
     {
@@ -82,6 +86,8 @@ class XavierNormal : public Initializer<T>
 public:
     XavierNormal() = default;
 
+    ~XavierNormal() override = default;
+
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::XavierNormal(
@@ -95,6 +101,8 @@ class HeNormal : public Initializer<T>
 {
 public:
     HeNormal() = default;
+
+    ~HeNormal() override = default;
 
     void Initialize(Tensor<T>& tensor) const override
     {
@@ -110,6 +118,8 @@ class LecunNormal : public Initializer<T>
 {
 public:
     LecunNormal() = default;
+
+    ~LecunNormal() override = default;
 
     void Initialize(Tensor<T>& tensor) const override
     {
@@ -129,6 +139,8 @@ public:
           m_max(max)
     {
     }
+
+    ~RandomUniform() override = default;
 
     void Initialize(Tensor<T>& tensor) const override
     {
@@ -153,6 +165,8 @@ public:
           m_stddev(stddev)
     {
     }
+
+    ~RandomNormal() override = default;
 
     void Initialize(Tensor<T>& tensor) const override
     {

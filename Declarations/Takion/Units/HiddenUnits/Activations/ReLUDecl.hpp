@@ -16,15 +16,20 @@ namespace Takion::Graph
 {
 template <typename T>
 class ReLU
-    : public ComputableUnit<T>,
-      public TrainableUnit<T>
+    : public ComputableUnit<T>
 {
 public:
-    ReLU(const UnitId& unitId, const UnitId& sourceUnitId,
+    using ComputableUnit<T>::BackwardInputMap;
+    using ComputableUnit<T>::BackwardOutputMap;
+    using ComputableUnit<T>::ForwardInputMap;
+    using ComputableUnit<T>::ForwardOutput;
+    using ComputableUnit<T>::InternalTensorMap;
+
+    ReLU(const UnitId& unitId, UnitId sourceUnitId,
          Tensor<T> forwardInput,
          std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
          Tensor<T> forwardOutput, Tensor<T> backwardOutput,
-         std::unordered_map<std::string, Tensor<T>> trainableUnit,
+         std::unordered_map<std::string, Tensor<T>> internalTensorMap,
          std::size_t batchSize);
     ~ReLU() = default;
 
@@ -47,7 +52,9 @@ private:
 
     UnitId m_sourceUnitId;
 
-    static void m_checkArguments(const Shape& inputShape, const Shape& outputShape, const std::string& unitName);
+    static void m_checkArguments(const Shape& inputShape,
+                                 const Shape& outputShape,
+                                 const std::string& unitName);
 };
 } // namespace Takion::Graph
 

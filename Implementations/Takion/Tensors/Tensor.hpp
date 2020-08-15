@@ -147,6 +147,20 @@ Tensor<T>& Tensor<T>::operator=(const Tensor<T>& tensor)
     return *this;
 }
 
+template<typename T>
+Tensor<T>& Tensor<T>::operator=(Tensor<T>&& tensor) noexcept
+{
+    TensorShape = tensor.TensorShape;
+    Device = tensor.Device;
+    BatchSize = tensor.BatchSize;
+    m_elementSize = tensor.m_elementSize;
+    m_columnElementSize = tensor.m_columnElementSize;
+
+    Tensor<T>::MoveTensorData(tensor, *this);
+
+    return *this;
+}
+
 template <typename T>
 void Tensor<T>::SetData(const std::vector<T>& data)
 {

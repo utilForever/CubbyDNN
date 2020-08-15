@@ -6,7 +6,6 @@
 
 #include <Takion/FrontEnd/Model.hpp>
 #include "SimpleGraphTest.hpp"
-
 namespace Takion::Test
 {
 using namespace FrontEnd;

@@ -45,7 +45,6 @@ public:
         promise.set_value(true);
     }
 
-private:
 };
 }
 

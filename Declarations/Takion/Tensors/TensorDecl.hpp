@@ -20,6 +20,8 @@ template <typename T>
 class Tensor
 {
 public:
+    Tensor() = default;
+
     Tensor(Shape shape, Compute::Device device);
 
     Tensor(Shape shape, std::size_t batchSize, Compute::Device device);
@@ -33,7 +35,7 @@ public:
     Tensor(Tensor<T>&& tensor) noexcept;
     /// move assignment operator
     Tensor<T>& operator=(const Tensor<T>& tensor);
-    Tensor<T>& operator=(Tensor<T>&& tensor) noexcept = delete;
+    Tensor<T>& operator=(Tensor<T>&& tensor) noexcept;
 
     void SetData(const std::vector<T>& data);
 

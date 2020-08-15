@@ -14,16 +14,15 @@ namespace Takion::Graph
 template <typename T>
 ConstantUnit<T>::ConstantUnit(UnitId unitId, Tensor<T> tensor,
                               std::size_t batchSize)
-    : ComputableUnit(
-        std::move(unitId), {}, {}, std::move(tensor), {},
+    : ComputableUnit<T>(
+        std::move(unitId), {}, {}, std::move(tensor), {}, {},
         batchSize)
 {
 }
 
 template <typename T>
 ConstantUnit<T>::ConstantUnit(ConstantUnit<T>&& constantUnit) noexcept
-    : ComputableUnit<T>(std::move(constantUnit)),
-      m_value(std::move(constantUnit.m_value))
+    : ComputableUnit<T>(std::move(constantUnit))
 {
 }
 

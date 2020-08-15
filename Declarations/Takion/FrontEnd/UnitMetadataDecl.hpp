@@ -21,10 +21,13 @@ template <typename T>
 class UnitMetaData
 {
 public:
+    UnitMetaData() = default;
+
     UnitMetaData(
-        UnitId unitId, std::size_t batchSize, 
+        UnitId unitId, std::size_t batchSize,
         std::unordered_map<std::string, Shape> internalVariableShapeMap,
-        std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
+        std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>
+        >
         initializerMap,
         std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
         std::unordered_map<std::string, UnitId> inputUnitIdMap,
@@ -33,7 +36,6 @@ public:
 
     ~UnitMetaData() = default;
     UnitMetaData(const UnitMetaData& unitMetaData) = delete;
-
     UnitMetaData(UnitMetaData&& unitMetaData) noexcept;
     UnitMetaData& operator=(const UnitMetaData& unitMetaData) = delete;
     UnitMetaData& operator=(UnitMetaData&& unitMetaData) noexcept;
@@ -72,9 +74,8 @@ public:
     [[nodiscard]] Shape InternalVariableShape(const std::string& name) const;
 
 
-
 private:
-    UnitId m_unitId;
+    UnitId m_unitId = UnitId();
     std::unordered_map<std::string, Shape> m_internalVariableShapeMap;
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
     m_initializerMap;
@@ -88,7 +89,7 @@ private:
     std::unordered_map<std::string, UnitId> m_inputUnitMap;
     std::vector<UnitId> m_outputUnitIdVector;
 
-    std::size_t m_batchSize;
+    std::size_t m_batchSize = 0;
 
 public:
     Compute::Device Device;

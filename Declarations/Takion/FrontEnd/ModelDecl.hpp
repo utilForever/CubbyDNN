@@ -8,9 +8,13 @@
 #define TAKION_FRONTEND_MODEL_DECL_HPP
 
 #include <Takion/FrontEnd/AbsTensorDecl.hpp>
-#include <Takion/FrontEnd/UnitMetaData.hpp>
-#include <Takion/Engine/UnitManager.hpp>
 #include <Takion/Computations/Device.hpp>
+#include <Takion/Computations/Initializers/InitializerType.hpp>
+#include <Takion/Engine/UnitManager.hpp>
+#include <Takion/Utils/Parameter.hpp>
+#include <Takion/Utils/Shape.hpp>
+#include <memory>
+#include <vector>
 
 
 namespace Takion::FrontEnd
@@ -23,7 +27,8 @@ public:
 
     void SetDevice(Compute::Device device);
 
-    AbsTensor<T> Constant(const Shape& shape, std::vector<T> data, std::string name);
+    AbsTensor<T> Constant(const Shape& shape, std::vector<T> data,
+                          std::string name);
 
     AbsTensor<T> Dense(AbsTensor<T> source, unsigned numUnits,
                        std::unique_ptr<Compute::Initializer<T>>
@@ -47,7 +52,7 @@ public:
 
 private:
     Compute::Device m_device;
-    Graph::UnitManager<T> m_unitManager;
+    Engine::UnitManager<T> m_unitManager;
     std::size_t m_batchSize;
     std::size_t m_id = 0;
 };
