@@ -51,6 +51,10 @@ public:
     void Fit(std::size_t epochs);
 
 private:
+
+    void m_appendSubjectUnitToPreviousOutput(const UnitId& subjectUnit,
+                                             const UnitId& previousUnit);
+
     Compute::Device m_device;
     Engine::UnitManager<T> m_unitManager;
     std::size_t m_batchSize;

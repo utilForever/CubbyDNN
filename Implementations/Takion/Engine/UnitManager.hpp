@@ -15,8 +15,6 @@
 
 namespace Takion::Engine
 {
-
-
 template <typename T>
 UnitManager<T>::UnitManager(UnitManager<T>&& unitManager) noexcept
     : m_unitMetaDataMap(std::move(unitManager.m_unitMetaDataMap)),
@@ -34,6 +32,12 @@ UnitManager<T>& UnitManager<T>::operator=(UnitManager<T>&& unitManager) noexcept
 }
 
 template <typename T>
+FrontEnd::UnitMetaData<T>& UnitManager<T>::GetUnitMetaData(const UnitId& unitId)
+{
+    return m_unitMetaDataMap[unitId];
+}
+
+template <typename T>
 void UnitManager<T>::AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData)
 {
     const auto unitId = unitMetaData.Id();
@@ -41,10 +45,16 @@ void UnitManager<T>::AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData)
 }
 
 template <typename T>
+Shape UnitManager<T>::GetUnitOutputShape(const UnitId& unitId)
+{
+    return m_unitMetaDataMap[unitId].GetOutputShape();
+}
+
+template <typename T>
 void UnitManager<T>::Compile(const std::string& optimizerName,
                              const Parameter& parameter)
 {
-    m_connectUnits();
+    //m_connectUnits();
 
     for (const auto& [key, unitMetaData] : m_unitMetaDataMap)
     {
@@ -124,6 +134,8 @@ void UnitManager<T>::Forward(std::size_t cycle)
         {
             if (unitPtr->IsForwardReady(cycle))
             {
+                std::cout << "Forward " << unitPtr->Id().Type.Name() <<
+                    " at cycle : " << cycle << std::endl;
                 unitPtr->Forward();
                 unitPtr->UpdateForwardState();
                 done = false;
@@ -153,6 +165,8 @@ void UnitManager<T>::Backward(std::size_t cycle)
         {
             if (unitPtr->IsBackwardReady(cycle))
             {
+                std::cout << "Backward " << unitPtr->Id().Type.Name()
+                    << " at cycle : " << cycle << std::endl;
                 unitPtr->Backward();
                 unitPtr->UpdateBackwardState();
                 done = false;

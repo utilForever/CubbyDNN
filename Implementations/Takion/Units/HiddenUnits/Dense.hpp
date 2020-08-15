@@ -52,8 +52,7 @@ DenseUnit<T>& DenseUnit<T>::operator=(DenseUnit<T>&& denseUnit) noexcept
 template <typename T>
 DenseUnit<T> DenseUnit<T>::CreateUnit(
     const FrontEnd::UnitMetaData<T>& unitMetaData,
-    std::unique_ptr<Compute::Optimizer<T>>
-    optimizer)
+    std::unique_ptr<Compute::Optimizer<T>> optimizer)
 {
     const auto unitId = unitMetaData.Id();
     auto sourceUnitId = unitMetaData.GetInputUnitId("input");
@@ -143,7 +142,7 @@ void DenseUnit<T>::Forward()
     Tensor<T>& output = ForwardOutput;
 
     Compute::Multiply(input, weight, output);
-    Compute::Add(bias, output);
+    Compute::Add(bias, output, output);
 }
 
 template <typename T>
@@ -155,7 +154,7 @@ void DenseUnit<T>::AsyncForward(std::promise<bool> promise)
     Tensor<T>& output = ForwardOutput;
 
     Compute::Multiply(input, weight, output);
-    Compute::Add(bias, output);
+    Compute::Add(bias, output, output);
 
     promise.set_value(true);
 }
@@ -174,7 +173,7 @@ void DenseUnit<T>::Backward()
     Tensor<T>& delta = TrainableTensorMap.at("delta");
 
     Tensor<T>& previousInputTranspose =
-        TrainableTensorMap.at("PreviousInputTranspose");
+        TrainableTensorMap.at("previousInputTranspose");
 
     Tensor<T>& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
     Tensor<T>& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);

@@ -30,12 +30,11 @@ public:
     UnitManager<T>& operator=(const UnitManager<T>& unitManager) = delete;
     UnitManager<T>& operator=(UnitManager<T>&& unitManager) noexcept;
 
+    FrontEnd::UnitMetaData<T>& GetUnitMetaData(const UnitId& unitId);
+
     void AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData);
 
-    Shape GetUnitOutputShape(const UnitId& unitId)
-    {
-        return m_unitMetaDataMap[unitId].GetOutputShape();
-    }
+    Shape GetUnitOutputShape(const UnitId& unitId);
 
     void Compile(const std::string& optimizerName, const Parameter& parameter);
 
@@ -63,7 +62,8 @@ private:
 
     std::unordered_map<UnitId, FrontEnd::UnitMetaData<T>>
     m_unitMetaDataMap;
-    std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>> m_unitMap;
+    std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
+    m_unitMap;
     std::size_t m_batchSize;
 };
 } // namespace Takion::Graph

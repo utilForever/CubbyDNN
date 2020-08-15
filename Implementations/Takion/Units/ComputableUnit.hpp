@@ -36,6 +36,7 @@ ComputableUnit<T>::ComputableUnit(ComputableUnit<T>&& computableUnit) noexcept
       BackwardInputMap(std::move(computableUnit.BackwardInputMap)),
       ForwardOutput(std::move(computableUnit.ForwardOutput)),
       BackwardOutputMap(std::move(computableUnit.BackwardOutputMap)),
+      InternalTensorMap(std::move(computableUnit.InternalTensorMap)),
       BatchSize(computableUnit.BatchSize),
       m_unitId(std::move(computableUnit.m_unitId))
 {
@@ -50,6 +51,8 @@ noexcept
     BackwardInputMap = std::move(computableUnit.BackwardInputMap);
     ForwardOutput = std::move(computableUnit.ForwardOutput);
     BackwardOutputMap = std::move(computableUnit.BackwardOutputMap);
+    InternalTensorMap = std::move(computableUnit.InternalTensorMap);
+    BatchSize = computableUnit.BatchSize;
     m_unitId = std::move(computableUnit.m_unitId);
     return *this;
 }

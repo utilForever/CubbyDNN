@@ -77,6 +77,8 @@ AbsTensor<T> Model<T>::Dense(AbsTensor<T> source, unsigned numUnits,
         m_unitManager.GetUnitOutputShape(prevUnitId);
     const auto inputShape = source.GetShape();
 
+    m_appendSubjectUnitToPreviousOutput(subjectUnitId, prevUnitId);
+
     const Shape weightShape({ prevOutputShape.NumCol(), numUnits });
     const Shape biasShape({ numUnits });
     const Shape outputShape({ numUnits });
@@ -108,6 +110,8 @@ AbsTensor<T> Model<T>::ReLU(AbsTensor<T> source, std::string name)
     const auto prevUnitId = source.GetPrevOutput();
     const auto shape = source.GetShape();
 
+    m_appendSubjectUnitToPreviousOutput(subjectUnitId, prevUnitId);
+
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap;
 
@@ -120,27 +124,6 @@ AbsTensor<T> Model<T>::ReLU(AbsTensor<T> source, std::string name)
     return AbsTensor<T>(shape, subjectUnitId);
 }
 
-template <typename T>
-AbsTensor<T> Model<T>::SoftMax(AbsTensor<T> source, std::string name)
-{
-    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "SoftMax"),
-                                m_id++,
-                                std::move(name) };
-
-    const auto prevUnitId = source.GetPrevOutput();
-    const auto shape = source.GetShape();
-
-    std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
-        initializerMap;
-
-    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
-                                 { { "input", shape } }, shape,
-                                 { { "input", prevUnitId } }, m_device);
-
-    m_unitManager.AppendUnit(std::move(unitMetaData));
-
-    return AbsTensor<T>(shape, subjectUnitId);
-}
 
 template <typename T>
 void Model<T>::MSE(AbsTensor<T> prediction, AbsTensor<T> label,
@@ -154,11 +137,16 @@ void Model<T>::MSE(AbsTensor<T> prediction, AbsTensor<T> label,
     const auto predictionShape = prediction.GetShape();
     const auto labelShape = label.GetShape();
 
+    m_appendSubjectUnitToPreviousOutput(subjectUnitId, predictionId);
+    m_appendSubjectUnitToPreviousOutput(subjectUnitId, labelId);
+
     UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
                                  { { "prediction", predictionShape },
                                    { "label", labelShape } }, Shape(),
                                  { { "prediction", predictionId },
                                    { "label", labelId } }, m_device);
+
+    m_unitManager.AppendUnit(std::move(unitMetaData));
 }
 
 template <typename T>
@@ -175,6 +163,14 @@ void Model<T>::Fit(std::size_t epochs)
         m_unitManager.Forward(cycle);
         m_unitManager.Backward(cycle);
     }
+}
+
+template <typename T>
+void Model<T>::m_appendSubjectUnitToPreviousOutput(
+    const UnitId& subjectUnit, const UnitId& previousUnit)
+{
+    m_unitManager.GetUnitMetaData(previousUnit).AppendOutputUnitId(
+        subjectUnit);
 }
 }
 
