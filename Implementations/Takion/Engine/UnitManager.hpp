@@ -68,7 +68,7 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
         {
             throw std::runtime_error("Not implemented");
         }
-        if (type.Name() == "Activation")
+        if (type.Name() == "ReLU")
         {
             auto unit = Graph::ReLU<T>::CreateUnit(unitMetaData);
             m_unitMap[unitMetaData.Id()] =
@@ -79,7 +79,7 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
         {
             throw std::runtime_error("Not implemented");
         }
-        if (type.Name() == "Loss")
+        if (type.Name() == "MSE")
         {
             auto unit = Graph::MSELoss<T>::CreateUnit(unitMetaData);
             m_unitMap[unitMetaData.Id()] =

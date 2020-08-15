@@ -26,8 +26,7 @@ public:
     UnitMetaData(
         UnitId unitId, std::size_t batchSize,
         std::unordered_map<std::string, Shape> internalVariableShapeMap,
-        std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>
-        >
+        std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap,
         std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
         std::unordered_map<std::string, UnitId> inputUnitIdMap,

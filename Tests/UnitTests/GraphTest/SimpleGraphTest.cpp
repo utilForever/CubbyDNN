@@ -16,7 +16,7 @@ void SimpleGraphTest()
                        10);
 
     auto tensor =
-        model.Constant(Shape({ 10 }), std::vector<float>(90, 3), "input");
+        model.Constant(Shape({ 10 }), std::vector<float>(100, 3), "input");
     const auto label = model.Constant(Shape({ 3 }), std::vector<float>(30, 1),
                                       "label");
 

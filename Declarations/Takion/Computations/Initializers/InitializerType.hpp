@@ -40,7 +40,7 @@ public:
 
     void Initialize(Tensor<T>& tensor) const override
     {
-        const auto elementSize = tensor.TensorShape.Size();
+        const auto elementSize = tensor.TensorShape.Size() * tensor.BatchSize;
         if (elementSize != m_data.size())
             throw std::runtime_error(
                 "Given data size is different with target tensor's daa "
@@ -109,7 +109,7 @@ public:
         InitializerOperations::HeNormal<T>(tensor.TensorShape.NumCol(),
                                            tensor.Data,
                                            tensor.ElementSize(),
-                                           tensor.Device.PadSize());
+                                           tensor.BatchSize);
     }
 };
 
@@ -125,7 +125,7 @@ public:
     {
         InitializerOperations::LecunNormal<T>(tensor.TensorShape,
                                               tensor.Data,
-                                              tensor.Device.PadSize());
+                                              tensor.BatchSize);
     }
 };
 
@@ -147,7 +147,7 @@ public:
         InitializerOperations::RandomUniform<T>(
             tensor.TensorShape, m_min,
             m_max, tensor.Data,
-            tensor.Device.PadSize());
+            tensor.BatchSize);
     }
 
 private:

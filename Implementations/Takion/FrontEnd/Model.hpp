@@ -34,7 +34,7 @@ template <typename T>
 AbsTensor<T> Model<T>::Constant(const Shape& shape, std::vector<T> data,
                                 std::string name)
 {
-    if (data.size() != shape.Size())
+    if (data.size() != shape.Size() * m_batchSize)
     {
         const std::string errorMessage =
             std::string("Constant - ") + name +
@@ -78,8 +78,8 @@ AbsTensor<T> Model<T>::Dense(AbsTensor<T> source, unsigned numUnits,
     const auto inputShape = source.GetShape();
 
     const Shape weightShape({ prevOutputShape.NumCol(), numUnits });
-    const Shape biasShape({ 1, numUnits });
-    const Shape outputShape({ 1, numUnits });
+    const Shape biasShape({ numUnits });
+    const Shape outputShape({ numUnits });
 
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap;
@@ -102,7 +102,7 @@ AbsTensor<T> Model<T>::Dense(AbsTensor<T> source, unsigned numUnits,
 template <typename T>
 AbsTensor<T> Model<T>::ReLU(AbsTensor<T> source, std::string name)
 {
-    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Dense"), m_id++,
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "ReLU"), m_id++,
                                 std::move(name) };
 
     const auto prevUnitId = source.GetPrevOutput();
@@ -123,7 +123,8 @@ AbsTensor<T> Model<T>::ReLU(AbsTensor<T> source, std::string name)
 template <typename T>
 AbsTensor<T> Model<T>::SoftMax(AbsTensor<T> source, std::string name)
 {
-    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Dense"), m_id++,
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "SoftMax"),
+                                m_id++,
                                 std::move(name) };
 
     const auto prevUnitId = source.GetPrevOutput();

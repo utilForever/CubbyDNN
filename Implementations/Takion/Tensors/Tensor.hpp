@@ -76,7 +76,6 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
 
     Data = Utils::Span<T>(new T[totalSize], totalSize);
 
-
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
     {
         At(idx) = data[idx];
@@ -97,37 +96,21 @@ Tensor<T>::Tensor(const Tensor<T>& tensor)
       Device(tensor.Device),
       BatchSize(tensor.BatchSize)
 {
-    if (tensor.m_hasOwnership)
-    {
-        auto dataSize = TotalElementSize();
-
-        if (!m_hasOwnership)
-        {
-            dataSize *= sizeof(T);
-            Data = Utils::Span<T>(new float[dataSize], dataSize);
-        }
-        Utils::Span<T>::DeepCopy(Data, tensor.Data);
-        m_hasOwnership.exchange(true, std::memory_order_release);
-    }
+    m_columnElementSize = m_getPaddedColumnSize();
+    m_elementSize = m_getElementSize();
+    Tensor::CopyTensorData(tensor, *this);
 }
 
 //! Performs shallow copy
 template <typename T>
 Tensor<T>::Tensor(Tensor&& tensor) noexcept
-    : Data(tensor.Data),
-      TensorShape(std::move(tensor.TensorShape)),
-      Device(std::move(tensor.Device)),
+    : TensorShape(tensor.TensorShape),
+      Device(tensor.Device),
       BatchSize(tensor.BatchSize),
       m_elementSize(tensor.m_elementSize),
       m_columnElementSize(tensor.m_columnElementSize)
 {
-    if (tensor.m_hasOwnership)
-    {
-        tensor.m_hasOwnership.exchange(false, std::memory_order_acquire);
-        Data = tensor.Data;
-        tensor.Data.Clear();
-        m_hasOwnership.exchange(true, std::memory_order_release);
-    }
+    Tensor::MoveTensorData(tensor, *this);
 }
 
 template <typename T>
@@ -147,7 +130,7 @@ Tensor<T>& Tensor<T>::operator=(const Tensor<T>& tensor)
     return *this;
 }
 
-template<typename T>
+template <typename T>
 Tensor<T>& Tensor<T>::operator=(Tensor<T>&& tensor) noexcept
 {
     TensorShape = tensor.TensorShape;
@@ -369,13 +352,13 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
 
     const auto sourceShape = source.TensorShape;
     const auto destShape = destination.TensorShape;
-    const auto batchElementSize = destination.TotalElementSize();
+    const auto sourceBatchElementSize = source.TotalElementSize();
     const auto unitSize = destination.TensorShape.Size();
 
     if (!destination.m_hasOwnership)
     {
-        destination.Data = Utils::Span<T>(new T[batchElementSize],
-                                          batchElementSize);
+        destination.Data = Utils::Span<T>(new T[sourceBatchElementSize],
+                                          sourceBatchElementSize);
     }
 
     const long blockSize = 100;
@@ -392,6 +375,10 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
         for (std::size_t idx = blockIdx; idx < limit; ++idx)
             destination.At(idx) = source.At(idx);
     }
+
+    if (!destination.m_hasOwnership)
+        destination.m_hasOwnership.exchange(true,
+                                            std::memory_order_release);
 }
 
 

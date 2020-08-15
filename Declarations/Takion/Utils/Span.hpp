@@ -90,7 +90,8 @@ public:
 
     void Clear()
     {
-        delete[] m_base;
+        if (m_base != nullptr)
+            delete[] m_base;
         m_base = nullptr;
         m_length = 0;
     }

@@ -41,7 +41,7 @@ public:
         msg += " [";
 
         for (auto dim : m_shapeVector)
-            msg += std::to_string(dim);
+            msg += (std::to_string(dim) + " ");
 
         msg += " ] ";
         return msg;
@@ -77,6 +77,12 @@ public:
 
     void SetNumRows(std::size_t row)
     {
+        if (m_shapeVector.size() == 1)
+        {
+            const auto col = NumCol();
+            m_shapeVector = { row, col };
+        }
+
         if (m_shapeVector.size() < 2)
             throw std::invalid_argument(
                 "SetNumRows requires dimension larger than 1");

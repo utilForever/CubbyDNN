@@ -10,6 +10,7 @@
 
 #include <Takion/Units/HiddenUnits/DenseDecl.hpp>
 #include <Takion/Computations/GEMM/MathKernel.hpp>
+#include <unordered_map>
 
 
 namespace Takion::Graph
@@ -111,20 +112,23 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
     weightInitializer->Initialize(weight);
     biasInitializer->Initialize(bias);
 
+    std::unordered_map<std::string, Tensor<T>> trainableUnitMap = {
+        { "weight", weight },
+        { "weightTranspose", weightTranspose },
+        { "weightUpdate", weightUpdate },
+        { "weightUpdateMean", weightUpdateMean },
+        { "bias", bias },
+        { "biasUpdate", biasUpdate },
+        { "biasUpdateMean", biasUpdateMean },
+        { "delta", delta },
+        { "previousInputTranspose", previousInputTranspose }
+    };
+
     auto denseUnit = DenseUnit<T>(
         unitId, sourceUnitId, std::move(forwardInputTensor),
-        { std::move(backwardInputMap) }, std::move(forwardOutputTensor),
+        std::move(backwardInputMap), std::move(forwardOutputTensor),
         std::move(backwardOutputTensor),
-        { { "weight", std::move(weight) },
-          { "weightTranspose", std::move(weightTranspose) },
-          { "weightUpdate", std::move(weightUpdate) },
-          { "weightUpdateMean:", std::move(weightUpdateMean) },
-          { "bias", std::move(bias) },
-          { "biasUpdate", std::move(biasUpdate) },
-          { "biasUpdateMean", std::move(biasUpdateMean) },
-          { "delta", std::move(delta) },
-          { "previousInputTranspose", std::move(previousInputTranspose) }
-        },
+        std::move(trainableUnitMap),
         std::move(optimizer), batchSize);
 
     return denseUnit;
