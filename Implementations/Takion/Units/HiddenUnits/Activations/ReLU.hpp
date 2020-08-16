@@ -124,9 +124,6 @@ void ReLU<T>::Backward()
 
     for (const auto& [unitId, tensor] : BackwardInputMap)
     {
-        const auto tensorSize =
-            tensor.TensorShape.Size() * tensor.BatchSize;
-
         Compute::Add(tensor, backwardTemp);
     }
 
@@ -156,8 +153,6 @@ void ReLU<T>::AsyncBackward(std::promise<bool> promise)
 
     for (const auto& [unitId, tensor] : BackwardInputMap)
     {
-        const auto tensorSize = tensor.TensorShape.Size() * tensor.BatchSize;
-
         Compute::Add(tensor, backwardTemp);
     }
 

@@ -188,15 +188,15 @@ namespace Takion::Test
 
 TEST_CASE("GraphTest")
 {
-    // SUBCASE("SimpleGraph - ReLU")
-    // {
-    //     SimpleGraphTestReLU();
-    // }
-
-    SUBCASE("SimpleGraph - Sigmoid")
+    SUBCASE("SimpleGraph - ReLU")
     {
-        SimpleGraphTestSigmoid();
+        SimpleGraphTestReLU();
     }
+
+    // SUBCASE("SimpleGraph - Sigmoid")
+    // {
+    //     SimpleGraphTestSigmoid();
+    // }
 }
 
 // TEST_CASE("ConcurrentCopy - small")

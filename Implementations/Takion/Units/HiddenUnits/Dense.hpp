@@ -143,15 +143,6 @@ void DenseUnit<T>::Forward()
 
     Compute::Multiply(input, weight, output);
     Compute::Add(bias, output, output);
-
-    const auto outputSize = output.TensorShape.Size() * output.BatchSize;
-
-#ifdef DEBUG
-    for (std::size_t i = 0; i < outputSize; ++i)
-    {
-        std::cout << "output : " << output.At(i) << std::endl;
-    }
-#endif
 }
 
 template <typename T>
