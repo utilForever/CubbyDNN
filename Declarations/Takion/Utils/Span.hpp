@@ -9,6 +9,7 @@
 
 #include <iterator>
 #include <stdexcept>
+#include <cstring>
 
 namespace Takion::Utils
 {
@@ -33,6 +34,11 @@ public:
         : m_base(&*begin),
           m_length(static_cast<std::size_t>(std::distance(begin, end)))
     {
+    }
+
+    T* Address(std::size_t idx)
+    {
+        return m_base + idx;
     }
 
     T& operator[](std::size_t idx)
@@ -84,7 +90,9 @@ public:
 
     void Clear()
     {
-        delete[] m_base;
+        if (m_base != nullptr)
+            delete[] m_base;
+        m_base = nullptr;
         m_length = 0;
     }
 

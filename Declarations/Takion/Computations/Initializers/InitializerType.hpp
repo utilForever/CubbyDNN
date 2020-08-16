@@ -24,7 +24,38 @@ public:
     Initializer(Initializer<T>&& initializer) noexcept = default;
     Initializer& operator=(const Initializer<T>& initializer) = default;
     Initializer& operator=(Initializer<T>&& initializer) noexcept = default;
+
     virtual void Initialize(Tensor<T>& tensor) const = 0;
+
+    std::size_t FanIn = 1;
+    std::size_t FanOut = 1;
+};
+
+template <typename T>
+class VectorInitializer : public Initializer<T>
+{
+public:
+    VectorInitializer(std::vector<T> data)
+        : m_data(std::move(data))
+    {
+    }
+
+    ~VectorInitializer() override = default;
+
+    void Initialize(Tensor<T>& tensor) const override
+    {
+        const auto elementSize = tensor.TensorShape.Size() * tensor.BatchSize;
+        if (elementSize != m_data.size())
+            throw std::runtime_error(
+                "Given data size is different with target tensor's daa "
+                "size");
+
+        for (std::size_t i = 0; i < elementSize; ++i)
+            tensor.At(i) = m_data.at(i);
+    }
+
+private:
+    std::vector<T> m_data;
 };
 
 template <typename T>
@@ -32,6 +63,8 @@ class Zeros : public Initializer<T>
 {
 public:
     Zeros() = default;
+
+    ~Zeros() override = default;
 
     void Initialize(Tensor<T>& tensor) const override
     {
@@ -42,7 +75,7 @@ public:
 template <typename T>
 class Ones : public Initializer<T>
 {
- public:
+public:
     Ones() = default;
 
     void Initialize(Tensor<T>& tensor) const override
@@ -57,11 +90,13 @@ class XavierNormal : public Initializer<T>
 public:
     XavierNormal() = default;
 
+    ~XavierNormal() override = default;
+
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::XavierNormal(
-            tensor.TensorShape, static_cast<float*>(tensor.DataPtr),
-            tensor.Device.PadSize());
+            Initializer<T>::FanIn, Initializer<T>::FanOut, tensor.Data,
+            tensor.ElementSize(), tensor.BatchSize);
     }
 };
 
@@ -71,11 +106,14 @@ class HeNormal : public Initializer<T>
 public:
     HeNormal() = default;
 
+    ~HeNormal() override = default;
+
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::HeNormal<T>(
-            tensor.TensorShape, tensor.DataPtr,
-            tensor.Device.PadSize());
+        InitializerOperations::HeNormal<T>(Initializer<T>::FanIn,
+                                           tensor.Data,
+                                           tensor.ElementSize(),
+                                           tensor.BatchSize);
     }
 };
 
@@ -85,11 +123,13 @@ class LecunNormal : public Initializer<T>
 public:
     LecunNormal() = default;
 
+    ~LecunNormal() override = default;
+
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::LecunNormal<T>(tensor.TensorShape,
-                                              tensor.DataPtr,
-                                              tensor.Device.PadSize());
+        InitializerOperations::LecunNormal<T>(Initializer<T>::FanIn,
+                                              tensor.Data,
+                                              tensor.BatchSize);
     }
 };
 
@@ -104,12 +144,14 @@ public:
     {
     }
 
+    ~RandomUniform() override = default;
+
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::RandomUniform<T>(
-            tensor.TensorShape, m_min,
-            m_max, tensor.DataPtr,
-            tensor.Device.PadSize());
+        InitializerOperations::RandomUniform<T>(m_min,
+                                                m_max, tensor.Data,
+                                                tensor.ElementSize(),
+                                                tensor.BatchSize);
     }
 
 private:
@@ -121,23 +163,25 @@ template <typename T>
 class RandomNormal : public Initializer<T>
 {
 public:
-    RandomNormal(float min, float max)
+    RandomNormal(T mean, T stddev)
         : Initializer<T>(),
-          m_min(min),
-          m_max(max)
+          m_mean(mean),
+          m_stddev(stddev)
     {
     }
+
+    ~RandomNormal() override = default;
 
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::RandomNormal<T>(
-            m_min, m_max, tensor.DataPtr,
-            , );
+            m_mean, m_stddev, tensor.Data, tensor.ElementSize(),
+            tensor.BatchSize);
     }
 
 private:
-    T m_min;
-    T m_max;
+    T m_mean;
+    T m_stddev;
 };
 }
 

@@ -10,6 +10,8 @@
 
 #include <Takion/Units/HiddenUnits/DenseDecl.hpp>
 #include <Takion/Computations/GEMM/MathKernel.hpp>
+#include <unordered_map>
+
 
 namespace Takion::Graph
 {
@@ -22,17 +24,17 @@ DenseUnit<T>::DenseUnit(
     std::unique_ptr<Compute::Optimizer<T>> optimizer, std::size_t batchSize)
     : ComputableUnit<T>(unitId, { { sourceUnitId, std::move(forwardInput) } },
                         std::move(backwardInputMap), std::move(forwardOutput),
-                        { { sourceUnitId, std::move(backwardOutput) } }),
-      TrainableUnit<T>(std::move(trainableUnit), std::move(optimizer),
-                       batchSize),
+                        { { sourceUnitId, std::move(backwardOutput) } }, {},
+                        batchSize),
+      TrainableUnit<T>(std::move(trainableUnit), std::move(optimizer)),
       m_sourceUnitId(sourceUnitId)
 {
 }
 
 template <typename T>
 DenseUnit<T>::DenseUnit(DenseUnit<T>&& denseUnit) noexcept
-    : ComputableUnit(std::move(denseUnit)),
-      TrainableUnit(std::move(denseUnit)),
+    : ComputableUnit<T>(std::move(denseUnit)),
+      TrainableUnit<T>(std::move(denseUnit)),
       m_sourceUnitId(std::move(denseUnit.m_sourceUnitId))
 {
 }
@@ -48,73 +50,84 @@ DenseUnit<T>& DenseUnit<T>::operator=(DenseUnit<T>&& denseUnit) noexcept
 }
 
 template <typename T>
-DenseUnit<T> DenseUnit<T>::CreateUnit(const UnitMetaData<T>& unitMetaData,
-                                      std::unique_ptr<Compute::Optimizer<T>>
-                                      optimizer)
+DenseUnit<T> DenseUnit<T>::CreateUnit(
+    const FrontEnd::UnitMetaData<T>& unitMetaData,
+    std::unique_ptr<Compute::Optimizer<T>> optimizer)
 {
     const auto unitId = unitMetaData.Id();
     auto sourceUnitId = unitMetaData.GetInputUnitId("input");
     const auto batchSize = unitMetaData.BatchSize();
     const auto weightShape = unitMetaData.InternalVariableShape("weight");
-    const auto transposedWeightShape = weightShape.Transpose();
     const auto biasShape = unitMetaData.InternalVariableShape("bias");
+    const auto inputShape = unitMetaData.GetInputShape("input");
+    const auto outputShape = unitMetaData.GetOutputShape();
+    const auto weightTransposeShape = weightShape.GetTransposedShape();
+
+    DenseUnit<T>::m_checkShape(inputShape, outputShape, weightShape, biasShape,
+                               unitId.UnitName);
 
     const auto& weightInitializer = unitMetaData.GetInitializer("weight");
     const auto& biasInitializer = unitMetaData.GetInitializer("bias");
 
-    Tensor forwardInputTensor(unitMetaData.GetInputShape("input"),
-                              unitMetaData.BatchSize(),
-                              unitMetaData.Device);
+    Tensor<T> forwardInputTensor(unitMetaData.GetInputShape("input"),
+                                 unitMetaData.BatchSize(),
+                                 unitMetaData.Device);
 
     std::unordered_map<UnitId, Tensor<T>> backwardInputMap;
+
     for (const auto& outputUnitId : unitMetaData.OutputUnitVector())
     {
-        Tensor tensor(unitMetaData.OutputShape(), unitMetaData.BatchSize(),
-                      unitMetaData.Device);
+        Tensor<T> tensor(unitMetaData.GetOutputShape(),
+                         unitMetaData.BatchSize(),
+                         unitMetaData.Device);
         backwardInputMap[outputUnitId] = std::move(tensor);
     }
 
-    Tensor<T> forwardOutputTensor(unitMetaData.OutputShape(),
+    Tensor<T> forwardOutputTensor(outputShape,
                                   batchSize, unitMetaData.Device);
 
-    Tensor<T> backwardOutputTensor(unitMetaData.GetInputShape("input"),
+    Tensor<T> backwardOutputTensor(inputShape,
                                    batchSize,
                                    unitMetaData.Device);
 
     Tensor<T> weight(weightShape, unitMetaData.Device);
-    Tensor<T> weightTranspose(transposedWeightShape, unitMetaData.Device);
+    Tensor<T> weightTranspose(weightTransposeShape, unitMetaData.Device);
 
     Tensor<T> weightUpdate(weightShape, batchSize, unitMetaData.Device);
-    Tensor<T> weightUpdateMean(weightUpdate, unitMetaData.Device);
+    Tensor<T> weightUpdateMean(weightShape, unitMetaData.Device);
 
     Tensor<T> bias(biasShape, unitMetaData.Device);
     Tensor<T> biasUpdate(biasShape, batchSize, unitMetaData.Device);
     Tensor<T> biasUpdateMean(biasShape, unitMetaData.Device);
 
-    Tensor<T> delta(unitMetaData.OutputShape(), batchSize, unitMetaData.Device);
+    Tensor<T> delta(unitMetaData.GetOutputShape(), batchSize,
+                    unitMetaData.Device);
 
     Tensor<T> previousInputTranspose(
-        unitMetaData.GetInputShape("input").Transpose(),
+        inputShape.GetTransposedShape(),
         unitMetaData.BatchSize(),
         unitMetaData.Device);
 
     weightInitializer->Initialize(weight);
     biasInitializer->Initialize(bias);
 
-    auto denseUnit = DenseUnit(
+    std::unordered_map<std::string, Tensor<T>> trainableUnitMap = {
+        { "weight", weight },
+        { "weightTranspose", weightTranspose },
+        { "weightUpdate", weightUpdate },
+        { "weightUpdateMean", weightUpdateMean },
+        { "bias", bias },
+        { "biasUpdate", biasUpdate },
+        { "biasUpdateMean", biasUpdateMean },
+        { "delta", delta },
+        { "previousInputTranspose", previousInputTranspose }
+    };
+
+    auto denseUnit = DenseUnit<T>(
         unitId, sourceUnitId, std::move(forwardInputTensor),
-        { std::move(backwardInputMap) }, std::move(forwardOutputTensor),
+        std::move(backwardInputMap), std::move(forwardOutputTensor),
         std::move(backwardOutputTensor),
-        { { "weight", std::move(weight) },
-          { "weightTranspose", std::move(weightTranspose) },
-          { "weightUpdate", std::move(weightUpdate) },
-          { "weightUpdateMean:", std::move(weightUpdateMean) },
-          { "bias", std::move(bias) },
-          { "biasUpdate", std::move(biasUpdate) },
-          { "biasUpdateMean", std::move(biasUpdateMean) },
-          { "delta", std::move(delta) },
-          { "previousInputTranspose", std::move(previousInputTranspose) }
-        },
+        std::move(trainableUnitMap),
         std::move(optimizer), batchSize);
 
     return denseUnit;
@@ -123,29 +136,25 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(const UnitMetaData<T>& unitMetaData,
 template <typename T>
 void DenseUnit<T>::Forward()
 {
-    using ComputableUnit<T>::ForwardInputMap;
-    using ComputableUnit<T>::m_trainableTensorMap;
-    using ComputableUnit<T>::ForwardOutput;
+    const Tensor<T>& input = ForwardInputMap.at(m_sourceUnitId);
+    const Tensor<T>& weight = TrainableTensorMap.at("weight");
+    const Tensor<T>& bias = TrainableTensorMap.at("bias");
+    Tensor<T>& output = ForwardOutput;
 
-    Tensor<T>& input = ForwardInputMap.at(m_sourceUnitId);
-
-    Compute::Multiply(m_trainableTensorMap.at("weight"),
-                      input, ForwardOutput);
-    Compute::Add(ForwardOutput, m_trainableTensorMap.at("bias"),
-                 ForwardOutput);
+    Compute::Multiply(input, weight, output);
+    Compute::Add(bias, output, output);
 }
 
 template <typename T>
 void DenseUnit<T>::AsyncForward(std::promise<bool> promise)
 {
-    using ComputableUnit<T>::ForwardInputMap;
-    using ComputableUnit<T>::m_trainableTensorMap;
-    using ComputableUnit<T>::ForwardOutput;
+    const Tensor<T>& input = ForwardInputMap.at(m_sourceUnitId);
+    const Tensor<T>& weight = TrainableTensorMap.at("weight");
+    const Tensor<T>& bias = TrainableTensorMap.at("bias");
+    Tensor<T>& output = ForwardOutput;
 
-    Tensor<T>& input = ForwardInputMap.at(m_sourceUnitId);
-
-    Compute::Multiply(m_trainableTensorMap.at("weight"), input, ForwardOutput);
-    Compute::Add(ForwardOutput, m_trainableTensorMap.at("bias"), ForwardOutput);
+    Compute::Multiply(input, weight, output);
+    Compute::Add(bias, output, output);
 
     promise.set_value(true);
 }
@@ -153,97 +162,154 @@ void DenseUnit<T>::AsyncForward(std::promise<bool> promise)
 template <typename T>
 void DenseUnit<T>::Backward()
 {
-    using ComputableUnit<T>::ForwardInputMap;
-    using ComputableUnit<T>::m_trainableTensorMap;
-    using ComputableUnit<T>::ForwardOutput;
-    using ComputableUnit<T>::BackwardInputMap;
-    using ComputableUnit<T>::BackwardOutputMap;
+    Tensor<T>& weight = TrainableTensorMap.at("weight");
+    Tensor<T>& weightTranspose = TrainableTensorMap.at("weightTranspose");
+    Tensor<T>& weightUpdate = TrainableTensorMap.at("weightUpdate");
+    Tensor<T>& weightUpdateMean = TrainableTensorMap.at("weightUpdateMean");
 
-    auto& weight = m_trainableTensorMap.at("weight");
-    auto& weightTranspose = m_trainableTensorMap.at("weightTranspose");
-    auto& weightUpdate = m_trainableTensorMap.at("weightUpdate");
-    auto& weightUpdateMean = m_trainableTensorMap.at("weightUpdateMean");
+    Tensor<T>& bias = TrainableTensorMap.at("bias");
+    Tensor<T>& biasUpdateMean = TrainableTensorMap.at("biasUpdateMean");
 
-    auto& bias = m_trainableTensorMap.at("bias");
-    auto& biasUpdate = m_trainableTensorMap.at("biasUpdate");
-    auto& biasUpdateMean = m_trainableTensorMap.at("biasUpdateMean");
+    Tensor<T>& delta = TrainableTensorMap.at("delta");
 
-    auto& delta = m_trainableTensorMap.at("delta");
+    Tensor<T>& previousInputTranspose =
+        TrainableTensorMap.at("previousInputTranspose");
 
-    auto& previousInputTranspose =
-        m_trainableTensorMap.at("PreviousInputTranspose");
+    Tensor<T>& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
+    Tensor<T>& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
 
-    auto& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
-    auto& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
-
-    const auto batchSize = previousForwardInput.BatchSize;
-
-    const Compute::Zeros zeroInitializer;
+    const Compute::Zeros<T> zeroInitializer;
     zeroInitializer.Initialize(delta);
 
     for (auto& [unitId, gradient] : BackwardInputMap)
-        Compute::Add(delta, gradient);
+    {
+#ifdef DEBUG
+        const auto gradientSize =
+            gradient.TensorShape.Size() * gradient.BatchSize;
 
-    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()), delta);
+        for (std::size_t i = 0; i < gradientSize; ++i)
+        {
+            std::cout << "gradient : " << gradient.At(i) << std::endl;
+        }
+#endif
+        Compute::Add(gradient, delta);
+    }
+
+    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()));
     Compute::Transpose(weight, weightTranspose);
     Compute::Multiply(delta, weightTranspose, backwardOutput);
 
     Compute::Transpose(previousForwardInput, previousInputTranspose);
     Compute::Multiply(previousInputTranspose, delta, weightUpdate);
 
-    Compute::ScalarDiv(weightUpdate, static_cast<T>(batchSize), weightUpdate);
-    Compute::ScalarDiv(biasUpdate, static_cast<T>(batchSize), biasUpdate);
+    Compute::Shrink(weightUpdate, weightUpdateMean);
+    Compute::Shrink(delta, biasUpdateMean);
 
-    ComputableUnit<T>::m_optimizer->Optimize(weight, weightUpdate);
-    ComputableUnit<T>::m_optimizer->Optimize(bias, biasUpdate);
+    m_optimizer->Optimize(weight, weightUpdateMean);
+    m_optimizer->Optimize(bias, biasUpdateMean);
 }
 
 template <typename T>
 void DenseUnit<T>::AsyncBackward(std::promise<bool> promise)
 {
-    using ComputableUnit<T>::ForwardInputMap;
-    using ComputableUnit<T>::m_trainableTensorMap;
-    using ComputableUnit<T>::ForwardOutput;
-    using ComputableUnit<T>::BackwardInputMap;
-    using ComputableUnit<T>::BackwardOutputMap;
+    Tensor<T>& weight = TrainableTensorMap.at("weight");
+    Tensor<T>& weightTranspose = TrainableTensorMap.at("weightTranspose");
+    Tensor<T>& weightUpdate = TrainableTensorMap.at("weightUpdate");
+    Tensor<T>& weightUpdateMean = TrainableTensorMap.at("weightUpdateMean");
 
-    auto& weight = m_trainableTensorMap.at("weight");
-    auto& weightTranspose = m_trainableTensorMap.at("weightTranspose");
-    auto& weightUpdate = m_trainableTensorMap.at("weightUpdate");
-    auto& weightUpdateMean = m_trainableTensorMap.at("weightUpdateMean");
+    Tensor<T>& bias = TrainableTensorMap.at("bias");
+    Tensor<T>& biasUpdateMean = TrainableTensorMap.at("biasUpdateMean");
 
-    auto& bias = m_trainableTensorMap.at("bias");
-    auto& biasUpdate = m_trainableTensorMap.at("biasUpdate");
-    auto& biasUpdateMean = m_trainableTensorMap.at("biasUpdateMean");
+    Tensor<T>& delta = TrainableTensorMap.at("delta");
 
-    auto& delta = m_trainableTensorMap.at("delta");
+    Tensor<T>& previousInputTranspose =
+        TrainableTensorMap.at("PreviousInputTranspose");
 
-    auto& previousInputTranspose =
-        m_trainableTensorMap.at("PreviousInputTranspose");
+    Tensor<T>& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
+    Tensor<T>& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
 
-    auto& previousForwardInput = ForwardInputMap.at(m_sourceUnitId);
-    auto& backwardOutput = BackwardOutputMap.at(m_sourceUnitId);
-
-    const auto batchSize = previousForwardInput.BatchSize;
-
-    const Compute::Zeros zeroInitializer;
+    const Compute::Zeros<T> zeroInitializer;
     zeroInitializer.Initialize(delta);
 
     for (auto& [unitId, gradient] : BackwardInputMap)
         Compute::Add(delta, gradient);
 
-    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()), delta);
+    Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()));
     Compute::Transpose(weight, weightTranspose);
     Compute::Multiply(delta, weightTranspose, backwardOutput);
 
     Compute::Transpose(previousForwardInput, previousInputTranspose);
     Compute::Multiply(previousInputTranspose, delta, weightUpdate);
 
-    Compute::ScalarDiv(weightUpdate, static_cast<T>(batchSize), weightUpdate);
-    Compute::ScalarDiv(biasUpdate, static_cast<T>(batchSize), biasUpdate);
+    Compute::Shrink(weightUpdate, weightUpdateMean);
+    Compute::Shrink(delta, biasUpdateMean);
 
-    ComputableUnit<T>::m_optimizer->Optimize(weight, weightUpdate);
-    ComputableUnit<T>::m_optimizer->Optimize(bias, biasUpdate);
+    m_optimizer->Optimize(weight, weightUpdateMean);
+    m_optimizer->Optimize(bias, biasUpdateMean);
+
+    promise.set_value(true);
+}
+
+template <typename T>
+void DenseUnit<T>::m_checkShape(const Shape& inputShape,
+                                const Shape& outputShape,
+                                const Shape& weightShape,
+                                const Shape& biasShape,
+                                const std::string& unitName)
+{
+    if (inputShape.Dim() != 1 || outputShape.Dim() != 1)
+    {
+        const std::string errorMessage =
+            std::string("Dense ") + unitName +
+            " - input and output shape should be 1 dimensional "
+            "tensor" +
+            "Given input shape : " + inputShape.ToString() +
+            "Given output shape : " + outputShape.ToString();
+
+        throw std::runtime_error(errorMessage);
+    }
+
+    if (weightShape.Dim() != 2)
+    {
+        const std::string errorMessage =
+            std::string("Dense ") + unitName +
+            " - Weight should be 2 dimensional tensor" +
+            "Given weight shape : " + weightShape.ToString();
+        throw std::runtime_error(errorMessage);
+    }
+
+    if (biasShape.Dim() != 1)
+    {
+        const std::string errorMessage =
+            std::string("Dense ") + unitName +
+            " - Bias should be 1 dimensional tensor" +
+            "Given bias shape : " + biasShape.ToString();
+        throw std::runtime_error(errorMessage);
+    }
+
+    if (weightShape.NumRow() != inputShape.NumCol())
+        throw std::runtime_error("Shape mismatch");
+
+    if (weightShape.NumCol() != biasShape.NumCol())
+    {
+        const std::string errorMessage =
+            std::string("Dense ") + unitName +
+            " - Shape mismatch between weight and bias" +
+            "Given bias shape : " + biasShape.ToString() +
+            "Given weight shape : " + weightShape.ToString();
+
+        throw std::runtime_error(errorMessage);
+    }
+
+    if (weightShape.NumCol() != outputShape.NumCol())
+    {
+        const std::string errorMessage =
+            std::string("Dense ") + unitName + " - output shape mismatch" +
+            "Given weight shape : " + weightShape.ToString() +
+            " Given output shape" + outputShape.ToString();
+
+        throw std::runtime_error(errorMessage);
+    }
 }
 } // namespace Takion::Graph
 

@@ -20,31 +20,34 @@ void MultiplyAdd(const Tensor<T>& A, const Tensor<T>& B, const Tensor<T>& C,
     const auto device = out.Device;
     const auto outputShape = out.TensorShape;
     const auto inputShapeA = A.TensorShape;
+    const auto inputShapeB = B.TensorShape;
 
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow,
-                             out.ColumnElementSize(), inputShapeA.NumCol,
-                             out.BatchSize);
+            CPU::MultiplyCpu(A.Data, B.Data, out.Data, inputShapeA.NumRow(),
+                             A.ColumnElementSize(), inputShapeB.NumRow(),
+                             B.ColumnElementSize(), out.NumMatrix());
         else if (A.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
+                A.ColumnElementSize(), inputShapeB.NumRow(),
+                B.ColumnElementSize(), out.NumMatrix(),
                 true);
         }
         else if (B.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
+                A.ColumnElementSize(), inputShapeB.NumRow(),
+                B.ColumnElementSize(), out.NumMatrix(),
                 false);
         }
         else
         {
             throw std::invalid_argument(
-                "Both of the given tensors have batch size greater than 1");
+                "Batch size mismatch between given tensors");
         }
 
         CPU::AddCpu(out.Data, C.Data, out.Data, out.ElementSize(),
@@ -62,25 +65,29 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     const auto device = out.Device;
     const auto outputShape = out.TensorShape;
     const auto inputShapeA = A.TensorShape;
+    const auto inputShapeB = B.TensorShape;;
 
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow,
-                             out.ColumnElementSize(), inputShapeA.NumCol,
-                             out.BatchSize);
+            CPU::MultiplyCpu(A.Data, B.Data, out.Data, outputShape.NumRow(),
+                             A.ColumnElementSize(), inputShapeB.NumRow(),
+                             B.ColumnElementSize(),
+                             out.NumMatrix());
         else if (A.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
+                A.ColumnElementSize(), inputShapeB.NumRow(),
+                B.ColumnElementSize(), out.NumMatrix(),
                 true);
         }
         else if (B.BatchSize == 1)
         {
             CPU::MultiplyWithBroadcastCpu(
                 A.Data, B.Data, out.Data, outputShape.NumRow(),
-                out.ColumnElementSize(), inputShapeA.NumCol, out.BatchSize,
+                A.ColumnElementSize(), inputShapeB.NumRow(),
+                B.ColumnElementSize(), out.NumMatrix(),
                 false);
         }
         else
@@ -89,21 +96,31 @@ void Multiply(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
                 "Batch size mismatch between given tensors");
         }
     }
+    else
+    {
+        throw std::runtime_error("Not implemented");
+    }
 }
 
 template <typename T>
-void Transpose(const Tensor<T>& input, Tensor<T>& output)
+void Transpose(const Tensor<T>& in, Tensor<T>& out)
 {
-    const auto device = output.Device;
-    const auto inputShape = input.TensorShape;
+    const auto matSize = out.NumMatrix();
+    const auto inputShape = in.TensorShape;
+    const auto numRow = inputShape.NumRow();
+    const auto numCol = inputShape.NumCol();
 
-    if (device.Type() == DeviceType::CPU)
+#pragma omp parallel for schedule(static) default(shared)
+    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < matSize; ++matIdx)
     {
-        CPU::CpuTranspose(input, output, inputShape.NumRow,
-                          input.ColumnElementSize());
+        const auto matOffset = numRow * numCol * matIdx;
+        for (std::size_t rowIdx = 0; rowIdx < numRow; ++rowIdx)
+            for (std::size_t colIdx = 0; colIdx < numCol; ++colIdx)
+            {
+                out.At(matOffset + numCol * rowIdx + colIdx) =
+                    in.At(matOffset + numRow * colIdx + rowIdx);
+            }
     }
-    else
-        throw std::runtime_error("Not implemented");
 }
 
 template <typename T>
@@ -113,7 +130,7 @@ void Shrink(const Tensor<T>& input, Tensor<T>& output)
     const auto size = output.ElementSize();
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::ShrinkCpu(input.Data, output.Data, size, output.BatchSize);
+        CPU::ShrinkCpu(input.Data, output.Data, size, input.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");
@@ -128,9 +145,12 @@ void Add(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
         if (A.BatchSize == B.BatchSize)
             CPU::AddCpu(A.Data, B.Data, out.Data, out.ElementSize(),
                         out.BatchSize);
+        else if (A.BatchSize == 1)
+            CPU::AddWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(), out.BatchSize, true);
         else if (B.BatchSize == 1)
             CPU::AddWithBroadcastCpu(A.Data, B.Data, out.Data,
-                                     out.ElementSize(), out.BatchSize);
+                                     out.ElementSize(), out.BatchSize, false);
         else
             throw std::invalid_argument(
                 "Batch size mismatch between given tensors");
@@ -163,11 +183,14 @@ void Sub(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
     if (device.Type() == DeviceType::CPU)
     {
         if (A.BatchSize == B.BatchSize)
-            CPU::AddCpu(A.Data, B.Data, out.Data, out.ElementSize(),
+            CPU::SubCpu(A.Data, B.Data, out.Data, out.ElementSize(),
                         out.BatchSize);
+        else if (A.BatchSize == 1)
+            CPU::SubWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(), out.BatchSize, true);
         else if (B.BatchSize == 1)
-            CPU::AddWithBroadcastCpu(A.Data, B.Data, out.Data,
-                                     out.ElementSize(), out.BatchSize);
+            CPU::SubWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(), out.BatchSize, false);
         else
             throw std::invalid_argument(
                 "Batch size mismatch between given tensors");
@@ -194,12 +217,34 @@ void Sub(const Tensor<T>& A, Tensor<T>& out)
 }
 
 template <typename T>
-void Dot(const Tensor<T>& input, const Tensor<T>& B, Tensor<T>& out)
+void Dot(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
 {
     const auto device = out.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::DotCpu(input.Data, B.Data, out.Data, out.ElementSize(),
+        if (A.BatchSize == B.BatchSize)
+            CPU::DotCpu(A.Data, B.Data, out.Data, out.ElementSize(),
+                        out.BatchSize);
+        else if (A.BatchSize == 1)
+            CPU::DotWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(),
+                                     out.BatchSize, true);
+        else if (B.BatchSize == 1)
+            CPU::DotWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(),
+                                     out.BatchSize, false);
+    }
+    else
+        throw std::runtime_error("Not implemented");
+}
+
+template <typename T>
+void Dot(const Tensor<T>& in, Tensor<T>& out)
+{
+    const auto device = out.Device;
+    if (device.Type() == DeviceType::CPU)
+    {
+        CPU::DotCpu(out.Data, in.Data, out.Data, out.ElementSize(),
                     out.BatchSize);
     }
     else
@@ -207,26 +252,13 @@ void Dot(const Tensor<T>& input, const Tensor<T>& B, Tensor<T>& out)
 }
 
 template <typename T>
-void Dot(const Tensor<T>& input, Tensor<T>& out)
+void ScalarMul(const Tensor<T>& in, T toMul, Tensor<T>& out)
 {
     const auto device = out.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::DotCpu(out.Data, input.Data, out.Data, out.ElementSize(),
-                    out.BatchSize);
-    }
-    else
-        throw std::runtime_error("Not implemented");
-}
-
-template <typename T>
-void ScalarMul(const Tensor<T>& input, T toMul, Tensor<T>& output)
-{
-    const auto device = output.Device;
-    if (device.Type() == DeviceType::CPU)
-    {
-        CPU::ScalarMulCpu(input.Data, toMul, output.Data, output.ElementSize(),
-                          output.BatchSize);
+        CPU::ScalarMulCpu(in.Data, toMul, out.Data, out.ElementSize(),
+                          out.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");
@@ -246,13 +278,13 @@ void ScalarMul(const Tensor<T>& tensor, T toMul)
 }
 
 template <typename T>
-void ScalarDiv(const Tensor<T>& input, T toDiv, Tensor<T>& output)
+void ScalarDiv(const Tensor<T>& in, T toDiv, Tensor<T>& out)
 {
-    const auto device = output.Device;
+    const auto device = out.Device;
     if (device.Type() == DeviceType::CPU)
     {
-        CPU::ScalarDivCpu(input.Data, toDiv, output.Data, output.ElementSize(),
-                          output.BatchSize);
+        CPU::ScalarDivCpu(in.Data, toDiv, out.Data, out.ElementSize(),
+                          out.BatchSize);
     }
     else
         throw std::runtime_error("Not implemented");

@@ -11,14 +11,17 @@
 #include <Takion/Units/HiddenUnits/Dense.hpp>
 #include <Takion/Units/SinkUnits/LossUnit.hpp>
 #include <Takion/Units/SourceUnits/ConstantUnit.hpp>
-#include <Takion/Units/HiddenUnits/ActivationUnit.hpp>
+#include <Takion/Units/HiddenUnits/Activations/ReLU.hpp>
+#include <Takion/Units/HiddenUnits/Activations/Sigmoid.hpp>
 
-namespace Takion::Graph
+
+namespace Takion::Engine
 {
 template <typename T>
 UnitManager<T>::UnitManager(UnitManager<T>&& unitManager) noexcept
     : m_unitMetaDataMap(std::move(unitManager.m_unitMetaDataMap)),
-      m_unitMap(std::move(unitManager.m_unitMap))
+      m_unitMap(std::move(unitManager.m_unitMap)),
+      m_batchSize(unitManager.m_batchSize)
 {
 }
 
@@ -31,23 +34,33 @@ UnitManager<T>& UnitManager<T>::operator=(UnitManager<T>&& unitManager) noexcept
 }
 
 template <typename T>
-void UnitManager<T>::AppendUnit(UnitMetaData&& unitMetaData)
+FrontEnd::UnitMetaData<T>& UnitManager<T>::GetUnitMetaData(const UnitId& unitId)
+{
+    return m_unitMetaDataMap[unitId];
+}
+
+template <typename T>
+void UnitManager<T>::AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData)
 {
     const auto unitId = unitMetaData.Id();
+    m_unitMetaDataMap[unitId] = std::move(unitMetaData);
+}
 
-    m_unitMetaDataMap[unitId] =
-        std::make_unique<UnitMetaData>(std::move(unitMetaData));
+template <typename T>
+Shape UnitManager<T>::GetUnitOutputShape(const UnitId& unitId)
+{
+    return m_unitMetaDataMap[unitId].GetOutputShape();
 }
 
 template <typename T>
 void UnitManager<T>::Compile(const std::string& optimizerName,
-                             const Parameter& optimizerParameters)
+                             const Parameter& parameter)
 {
-    m_connectUnits();
+    //m_connectUnits();
 
-    for (auto& [key, metaDataPtr] : m_unitMetaDataMap)
+    for (const auto& [key, unitMetaData] : m_unitMetaDataMap)
     {
-        const auto unitId = metaDataPtr->Id();
+        const auto unitId = unitMetaData.Id();
         auto type = unitId.Type;
 
         if (type.Name() == "DataLoader")
@@ -56,40 +69,47 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
         }
         if (type.Name() == "Dense")
         {
-            auto unit = DenseUnit<T>::CreateUnit(
-                *metaDataPtr,
-                m_makeOptimizer(optimizerName, optimizerParameters));
-            m_unitMap[metaDataPtr->Id()] =
-                std::make_unique<DenseUnit>(std::move(unit));
+            auto unit = Graph::DenseUnit<T>::CreateUnit(
+                unitMetaData, m_makeOptimizer(optimizerName, parameter));
+
+            m_unitMap[unitMetaData.Id()] =
+                std::make_unique<Graph::DenseUnit<T>>(std::move(unit));
             continue;
         }
         if (type.Name() == "Dropout")
         {
             throw std::runtime_error("Not implemented");
         }
-        if (type.Name() == "Activation")
+        if (type.Name() == "ReLU")
         {
-            auto unit = ReLU<T>::CreateUnit(*metaDataPtr);
-            m_unitMap[metaDataPtr->Id()] =
-                std::make_unique<ReLU<T>>(std::move(unit));
+            auto unit = Graph::ReLU<T>::CreateUnit(unitMetaData);
+            m_unitMap[unitMetaData.Id()] =
+                std::make_unique<Graph::ReLU<T>>(std::move(unit));
+            continue;
+        }
+        if (type.Name() == "Sigmoid")
+        {
+            auto unit = Graph::Sigmoid<T>::CreateUnit(unitMetaData);
+            m_unitMap[unitMetaData.Id()] =
+                std::make_unique<Graph::Sigmoid<T>>(std::move(unit));
             continue;
         }
         if (type.Name() == "Reshape")
         {
             throw std::runtime_error("Not implemented");
         }
-        if (type.Name() == "Loss")
+        if (type.Name() == "MSE")
         {
-            auto unit = MSELoss<T>::CreateUnit(*metaDataPtr);
-            m_unitMap[metaDataPtr->Id()] =
-                std::make_unique<MSELoss>(std::move(unit));
+            auto unit = Graph::MSELoss<T>::CreateUnit(unitMetaData);
+            m_unitMap[unitMetaData.Id()] =
+                std::make_unique<Graph::MSELoss<T>>(std::move(unit));
             continue;
         }
         if (type.Name() == "Constant")
         {
-            auto unit = ConstantUnit<T>::CreateUnit(*metaDataPtr);
-            m_unitMap[metaDataPtr->Id()] =
-                std::make_unique<ConstantUnit>(std::move(unit));
+            auto unit = Graph::ConstantUnit<T>::CreateUnit(unitMetaData);
+            m_unitMap[unitMetaData.Id()] =
+                std::make_unique<Graph::ConstantUnit<T>>(std::move(unit));
             continue;
         }
         if (type.Name() == "Multiply")
@@ -123,6 +143,8 @@ void UnitManager<T>::Forward(std::size_t cycle)
         {
             if (unitPtr->IsForwardReady(cycle))
             {
+                // std::cout << "Forward " << unitPtr->Id().Type.Name() <<
+                //     " at cycle : " << cycle << std::endl;
                 unitPtr->Forward();
                 unitPtr->UpdateForwardState();
                 done = false;
@@ -152,6 +174,8 @@ void UnitManager<T>::Backward(std::size_t cycle)
         {
             if (unitPtr->IsBackwardReady(cycle))
             {
+                // std::cout << "Backward " << unitPtr->Id().Type.Name()
+                //     << " at cycle : " << cycle << std::endl;
                 unitPtr->Backward();
                 unitPtr->UpdateBackwardState();
                 done = false;
@@ -215,13 +239,13 @@ template <typename T>
 bool UnitManager<T>::m_isForwardCopyReady(const UnitId& subjectUnitId) const
 {
     const auto& sourceMetaData = m_unitMetaDataMap.at(subjectUnitId);
-    if (sourceMetaData->Id().Type.BaseType == UnitBaseType::Sink)
+    if (sourceMetaData.Id().Type.BaseType == UnitBaseType::Sink)
         return false;
 
     const auto& subjectOutputTensor =
         m_unitMap.at(subjectUnitId)->ForwardOutput;
 
-    for (const auto& outputUnitId : sourceMetaData->OutputUnitVector())
+    for (const auto& outputUnitId : sourceMetaData.OutputUnitVector())
     {
         const auto& nextInputTensorMap =
             m_unitMap.at(outputUnitId)->ForwardInputMap;
@@ -241,7 +265,7 @@ template <typename T>
 bool UnitManager<T>::m_isBackwardCopyReady(const UnitId& subjectUnitId) const
 {
     const auto& sourceMetaData = m_unitMetaDataMap.at(subjectUnitId);
-    if (sourceMetaData->Id().Type.BaseType == UnitBaseType::Source)
+    if (sourceMetaData.Id().Type.BaseType == UnitBaseType::Source)
         return false;
 
     bool hasValidBackwardUnit = false;
@@ -271,7 +295,7 @@ void UnitManager<T>::m_forwardCopy(const UnitId& subjectUnitId)
     const auto& sourceMetaData = m_unitMetaDataMap[subjectUnitId];
     auto& subjectOutputTensor = m_unitMap[subjectUnitId]->ForwardOutput;
 
-    for (const auto& outputUnitId : sourceMetaData->OutputUnitVector())
+    for (const auto& outputUnitId : sourceMetaData.OutputUnitVector())
     {
         auto& nextInputTensorMap = m_unitMap[outputUnitId]->ForwardInputMap;
         for (auto& [targetUnitId, destTensor] : nextInputTensorMap)
@@ -308,26 +332,26 @@ void UnitManager<T>::m_backwardCopy(const UnitId& subjectUnitId)
 template <typename T>
 void UnitManager<T>::m_connectUnits()
 {
-    for (auto& [subjectKey, metaDataPtr] : m_unitMetaDataMap)
+    for (auto& [subjectKey, metaData] : m_unitMetaDataMap)
     {
-        const auto unitId = metaDataPtr->Id();
+        const auto unitId = metaData.Id();
         //! Analyzes dependency between units
-        for (const auto& [inputKey, inputUnitId] : metaDataPtr->InputUnitMap())
+        for (const auto& [inputKey, inputUnitId] : metaData.InputUnitMap())
         {
-            m_unitMetaDataMap[inputUnitId]->AppendOutputUnitId(unitId);
+            m_unitMetaDataMap[inputUnitId].AppendOutputUnitId(unitId);
         }
     }
 }
 
 template <typename T>
 std::unique_ptr<Compute::Optimizer<T>> UnitManager<T>::m_makeOptimizer(
-    const std::string& optimizerName, const Parameter& parameters) const
+    const std::string& optimizerName, const Parameter& parameter) const
 {
     if (optimizerName == "SGD")
     {
         auto optimizer = std::make_unique<Compute::SGD<T>>(
-            parameters.GetFloatingPointParam("epsilon"));
-        return std::move(optimizer);   
+            parameter.GetFloatingPointParam("epsilon"));
+        return std::move(optimizer);
     }
     throw std::runtime_error("Unsupported optimizer type");
 }

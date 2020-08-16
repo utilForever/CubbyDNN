@@ -7,20 +7,19 @@
 #ifndef TAKION_GRAPH_UNITMETADATA_HPP
 #define TAKION_GRAPH_UNITMETADATA_HPP
 
-#include <Takion/Units/UnitMetadataDecl.hpp>
+#include <Takion/FrontEnd/UnitMetadataDecl.hpp>
 
-namespace Takion::Graph
+namespace Takion::FrontEnd
 {
 template <typename T>
 UnitMetaData<T>::UnitMetaData(
-    UnitId unitId,
+    UnitId unitId, std::size_t batchSize,
     std::unordered_map<std::string, Shape> internalVariableShapeMap,
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
     initializerMap,
     std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
     std::unordered_map<std::string, UnitId> inputUnitIdMap,
-    Compute::Device device, std::size_t batchSize,
-    Parameter params)
+    Compute::Device device, Parameter params)
     : m_unitId(std::move(unitId)),
       m_internalVariableShapeMap(std::move(internalVariableShapeMap)),
       m_initializerMap(std::move(initializerMap)),
@@ -56,8 +55,6 @@ template <typename T>
 UnitMetaData<T>& UnitMetaData<T>::operator=(UnitMetaData<T>&& unitMetaData)
 noexcept
 {
-    Params = std::move(unitMetaData.Params);
-    Device = std::move(unitMetaData.Device);
     m_unitId = std::move(unitMetaData.m_unitId);
     m_internalVariableShapeMap =
         std::move(unitMetaData.m_internalVariableShapeMap);
@@ -67,8 +64,18 @@ noexcept
     m_outputShape = std::move(unitMetaData.m_outputShape);
     m_inputUnitMap = std::move(unitMetaData.m_inputUnitMap);
     m_outputUnitIdVector = std::move(unitMetaData.m_outputUnitIdVector);
+    m_batchSize = unitMetaData.BatchSize();
+    Device = std::move(unitMetaData.Device);
+    Params = std::move(unitMetaData.Params);
     return *this;
 }
+
+template <typename T>
+std::size_t UnitMetaData<T>::BatchSize() const
+{
+    return m_batchSize;
+}
+
 
 template <typename T>
 void UnitMetaData<T>::AppendOutputUnitId(UnitId unitId)
@@ -115,7 +122,7 @@ UnitId UnitMetaData<T>::GetInputUnitId(const std::string& key) const
 }
 
 template <typename T>
-Shape UnitMetaData<T>::OutputShape() const
+Shape UnitMetaData<T>::GetOutputShape() const
 {
     return m_outputShape;
 }

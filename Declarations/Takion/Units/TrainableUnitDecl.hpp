@@ -5,7 +5,7 @@
 // property of any third parties.
 
 #ifndef TAKION_GRAPH_TRAINABLEUNIT_DECL_HPP
-#define Takion_GRAPH_TRAINABLEUNIT_DECL_HPP
+#define TAKION_GRAPH_TRAINABLEUNIT_DECL_HPP
 
 #include <memory>
 #include <unordered_map>
@@ -30,7 +30,7 @@ public:
     TrainableUnit(const TrainableUnit<T>& trainableUnit) = delete;
 
     TrainableUnit(TrainableUnit<T>&& trainableUnit) noexcept
-        : m_trainableTensorMap(std::move(trainableUnit.m_trainableTensorMap)),
+        : TrainableTensorMap(std::move(trainableUnit.TrainableTensorMap)),
           m_optimizer(std::move(trainableUnit.m_optimizer))
     {
     }
@@ -38,8 +38,9 @@ public:
     TrainableUnit<T>& operator=(const TrainableUnit<T>& trainableUnit) = delete;
     TrainableUnit<T>& operator=(TrainableUnit<T>&& trainableUnit) noexcept;
 
+    std::unordered_map<std::string, Tensor<T>> TrainableTensorMap;
+
 protected:
-    std::unordered_map<std::string, Tensor<T>> m_trainableTensorMap;
     std::unique_ptr<Compute::Optimizer<T>> m_optimizer = nullptr;
 };
 }

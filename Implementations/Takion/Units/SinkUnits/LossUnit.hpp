@@ -7,7 +7,6 @@
 #ifndef TAKION_GRAPH_LOSSUNIT_HPP
 #define TAKION_GRAPH_LOSSUNIT_HPP
 
-//#include <Takion/Computations/LossFunctions/LossFunctionWrapper.hpp>
 #include <Takion/Units/SinkUnits/LossUnitDecl.hpp>
 #include <Takion/Units/UnitType.hpp>
 
@@ -17,15 +16,16 @@ template <typename T>
 MSELoss<T>::MSELoss(const UnitId& unitId, const UnitId& predictionUnitId,
                     const UnitId& labelUnitId, Tensor<T> predictionTensor,
                     Tensor<T> labelTensor, Tensor<T> backwardOutputTensor,
+                    Tensor<T> outputTensor,
                     std::size_t batchSize)
     : ComputableUnit<T>(
           unitId,
           { { predictionUnitId, std::move(predictionTensor) },
-            { labelUnitId, std::move(labelTensor) }, batchSize },
+            { labelUnitId, std::move(labelTensor) } },
           {},
-          Tensor(Shape({ 1, 1 }),
-                 Compute::Device(0, Compute::DeviceType::CPU, "none")),
-          { { predictionUnitId, std::move(backwardOutputTensor) } }, batchSize),
+          std::move(outputTensor),
+          { { predictionUnitId, std::move(backwardOutputTensor) } },
+          {}, batchSize),
       m_predictionUnitId(predictionUnitId),
       m_labelUnitId(labelUnitId)
 {
@@ -33,7 +33,7 @@ MSELoss<T>::MSELoss(const UnitId& unitId, const UnitId& predictionUnitId,
 
 template <typename T>
 MSELoss<T>::MSELoss(MSELoss<T>&& lossUnit) noexcept
-    : ComputableUnit(std::move(lossUnit)),
+    : ComputableUnit<T>(std::move(lossUnit)),
       m_predictionUnitId(std::move(lossUnit.m_predictionUnitId)),
       m_labelUnitId(std::move(lossUnit.m_labelUnitId))
 
@@ -48,55 +48,71 @@ MSELoss<T>& MSELoss<T>::operator=(MSELoss<T>&& lossUnit) noexcept
 }
 
 template <typename T>
-MSELoss<T> MSELoss<T>::CreateUnit(const UnitMetaData<T>& unitMetaData)
+MSELoss<T> MSELoss<T>::CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData)
 
 {
-    auto predictionUnitId = unitMetaData.GetInputUnitId("prediction");
-    auto labelUnitId = unitMetaData.GetInputUnitId("label");
-    auto predictionTensor =
-        Tensor(unitMetaData.GetInputShape("prediction"), unitMetaData.Device,
-               unitMetaData.NumericType);
-    auto labelTensor = Tensor(unitMetaData.GetInputShape("label"),
-                              unitMetaData.Device, unitMetaData.NumericType);
-    auto backwardOutputTensor =
-        Tensor(unitMetaData.GetInputShape("prediction"), unitMetaData.Device,
-               unitMetaData.NumericType);
+    const auto unitId = unitMetaData.Id();
+    const auto predictionUnitId = unitMetaData.GetInputUnitId("prediction");
+    const auto labelUnitId = unitMetaData.GetInputUnitId("label");
 
-    return MSELoss(unitMetaData.Id(), predictionUnitId, labelUnitId,
-                   predictionTensor, labelTensor, backwardOutputTensor);
+    const auto predictionShape = unitMetaData.GetInputShape("prediction");
+    const auto labelShape = unitMetaData.GetInputShape("label");
+    const auto batchSize = unitMetaData.BatchSize();
+    const auto device = unitMetaData.Device;
+
+    MSELoss<T>::m_checkArguments(predictionShape, labelShape, unitId.UnitName);
+
+    auto predictionTensor =
+        Tensor<T>(predictionShape, batchSize, device);
+    auto labelTensor = Tensor<T>(labelShape, batchSize, device);
+    auto backwardOutputTensor = Tensor<T>(predictionShape, batchSize, device);
+    auto outputTensor = Tensor<T>(predictionShape, batchSize, device);
+
+    return MSELoss<T>(unitMetaData.Id(), predictionUnitId, labelUnitId,
+                      predictionTensor, labelTensor, backwardOutputTensor,
+                      outputTensor,
+                      batchSize);
 }
 
 template <typename T>
 void MSELoss<T>::Forward()
 {
-    using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::m_trainableTensorMap;
-
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
+    const Tensor<T>& label = ComputableUnit<T>::ForwardInputMap.at(
+        m_labelUnitId);
     Tensor<T>& outputTensor = ForwardOutput;
-    const auto batchSize = prediction.BatchSize;
 
     Compute::Sub(label, prediction, outputTensor);
     Compute::Dot(outputTensor, outputTensor);
-    Compute::ScalarDiv(ForwardOutput, 2 * static_cast<T>(batchSize));
+    Compute::ScalarDiv(outputTensor, static_cast<T>(2));
+
+    const auto size = ForwardOutput.TensorShape.Size() * ForwardOutput.
+                      BatchSize;
+    T sum = static_cast<T>(0);
+    for (std::size_t i = 0; i < size; ++i)
+    {
+        const auto output = outputTensor.At(i);
+        sum += output;
+    }
+
+    sum /= static_cast<T>(size);
+    m_loss = sum;
+    std::cout << "Loss : " << m_loss << std::endl;
 }
 
 template <typename T>
 void MSELoss<T>::AsyncForward(std::promise<bool> promise)
 {
-    using ComputableUnit<T>::ForwardOutput;
-
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
+    const Tensor<T>& label =
+        ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
     Tensor<T>& outputTensor = ForwardOutput;
-    const auto batchSize = prediction.BatchSize;
 
     Compute::Sub(label, prediction, outputTensor);
     Compute::Dot(outputTensor, outputTensor);
-    Compute::ScalarDiv(ForwardOutput, 2 * static_cast<T>(batchSize));
+    Compute::ScalarDiv(outputTensor, static_cast<T>(2));
 
     promise.set_value(true);
 }
@@ -104,36 +120,45 @@ void MSELoss<T>::AsyncForward(std::promise<bool> promise)
 template <typename T>
 void MSELoss<T>::Backward()
 {
-    using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::m_trainableTensorMap;
-
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
-    Tensor<T>& outputTensor = ForwardOutput;
-    const auto batchSize = prediction.BatchSize;
+    const Tensor<T>& label = ComputableUnit<T>::ForwardInputMap.at(
+        m_labelUnitId);
+    Tensor<T>& outputTensor = BackwardOutputMap[m_predictionUnitId];
 
     Compute::Sub(label, prediction, outputTensor);
-    Compute::ScalarDiv(ForwardOutput, static_cast<T>(batchSize));
 }
 
 template <typename T>
 void MSELoss<T>::AsyncBackward(std::promise<bool> promise)
 
 {
-    using ComputableUnit<T>::ForwardOutput;
-    using TrainableUnit<T>::m_trainableTensorMap;
-
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor& label = ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
+    const Tensor<T>& label = ComputableUnit<T>::ForwardInputMap.at(
+        m_labelUnitId);
     Tensor<T>& outputTensor = ForwardOutput;
-    const auto batchSize = prediction.BatchSize;
 
     Compute::Sub(label, prediction, outputTensor);
-    Compute::ScalarDiv(ForwardOutput, static_cast<T>(batchSize));
 
     promise.set_value(true);
+}
+
+template <typename T>
+void MSELoss<T>::m_checkArguments(const Shape& predictionShape,
+                                  const Shape& labelShape,
+                                  const std::string& unitName)
+{
+    if (predictionShape != labelShape)
+    {
+        const std::string errorMessage =
+            std::string("MSELoss ") + unitName +
+            " - prediction and label shape mismatch. " +
+            "prediction : " + predictionShape.ToString() +
+            " label : " + labelShape.ToString();
+
+        throw std::runtime_error(errorMessage);
+    }
 }
 } // namespace Takion::Graph
 

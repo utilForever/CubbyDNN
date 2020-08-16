@@ -1,7 +1,7 @@
-#ifndef CUBBYDNN_SIMPLE_TEST_HPP
-#define CUBBYDNN_SIMPLE_TEST_HPP
+#ifndef TAKION_SIMPLE_TEST_HPP
+#define TAKION_SIMPLE_TEST_HPP
 
-int Add(int a, int b)
+inline int AddTest(int a, int b)
 {
     return a + b;
 }

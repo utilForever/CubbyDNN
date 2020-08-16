@@ -27,10 +27,25 @@ public:
 
     Shape& operator=(const Shape& shape);
     Shape& operator=(Shape&& shape) noexcept;
-
     std::size_t& operator[](std::size_t index);
 
+    bool operator==(const Shape& shape) const;
+    bool operator!=(const Shape& shape) const;
+
     Shape operator*(const Shape& shape) const;
+
+    [[nodiscard]] std::string ToString() const
+    {
+        std::string msg;
+        msg += "Dim : " + std::to_string(Dim()) + " ";
+        msg += " [";
+
+        for (auto dim : m_shapeVector)
+            msg += (std::to_string(dim) + " ");
+
+        msg += " ] ";
+        return msg;
+    }
 
     [[nodiscard]] std::size_t At(std::size_t index) const;
 
@@ -41,16 +56,6 @@ public:
     void Squeeze();
 
     [[nodiscard]] std::size_t Dim() const;
-
-    friend bool operator==(const Shape& lhs, const Shape& rhs)
-    {
-        return lhs.m_shapeVector == rhs.m_shapeVector;
-    }
-
-    friend bool operator!=(const Shape& lhs, const Shape& rhs)
-    {
-        return !(lhs == rhs);
-    }
 
     [[nodiscard]] std::size_t Size() const noexcept;
 
@@ -72,6 +77,12 @@ public:
 
     void SetNumRows(std::size_t row)
     {
+        if (m_shapeVector.size() == 1)
+        {
+            const auto col = NumCol();
+            m_shapeVector = { row, col };
+        }
+
         if (m_shapeVector.size() < 2)
             throw std::invalid_argument(
                 "SetNumRows requires dimension larger than 1");
@@ -99,7 +110,7 @@ public:
 
     Shape& Reshape(std::initializer_list<std::size_t> newShape);
 
-    Shape& Transpose();
+    void Transpose();
 
     [[nodiscard]] Shape GetTransposedShape() const;
 

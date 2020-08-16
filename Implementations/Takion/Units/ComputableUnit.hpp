@@ -18,11 +18,13 @@ ComputableUnit<T>::ComputableUnit(
     std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
     Tensor<T> forwardOutput,
     std::unordered_map<UnitId, Tensor<T>> backwardOutputMap,
+    std::unordered_map<std::string, Tensor<T>> internalTensorMap,
     std::size_t batchSize)
     : ForwardInputMap(std::move(forwardInputMap)),
       BackwardInputMap(std::move(backwardInputMap)),
       ForwardOutput(std::move(forwardOutput)),
       BackwardOutputMap(std::move(backwardOutputMap)),
+      InternalTensorMap(std::move(internalTensorMap)),
       BatchSize(batchSize),
       m_unitId(std::move(subjectUnitId))
 {
@@ -34,6 +36,7 @@ ComputableUnit<T>::ComputableUnit(ComputableUnit<T>&& computableUnit) noexcept
       BackwardInputMap(std::move(computableUnit.BackwardInputMap)),
       ForwardOutput(std::move(computableUnit.ForwardOutput)),
       BackwardOutputMap(std::move(computableUnit.BackwardOutputMap)),
+      InternalTensorMap(std::move(computableUnit.InternalTensorMap)),
       BatchSize(computableUnit.BatchSize),
       m_unitId(std::move(computableUnit.m_unitId))
 {
@@ -48,6 +51,8 @@ noexcept
     BackwardInputMap = std::move(computableUnit.BackwardInputMap);
     ForwardOutput = std::move(computableUnit.ForwardOutput);
     BackwardOutputMap = std::move(computableUnit.BackwardOutputMap);
+    InternalTensorMap = std::move(computableUnit.InternalTensorMap);
+    BatchSize = computableUnit.BatchSize;
     m_unitId = std::move(computableUnit.m_unitId);
     return *this;
 }

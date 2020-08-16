@@ -3,4 +3,4 @@ steps:
   fetchDepth: 2
   submodules: true
 - script: |
-    docker build -t utilforever/cubbydnn . 
+    docker build -t jwkim98/Takion . 

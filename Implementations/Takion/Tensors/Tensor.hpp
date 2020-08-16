@@ -8,8 +8,8 @@
 #define TAKION_TENSOR_HPP
 
 #include <cstring>
-#include <Takion/Tensors/TensorDecl.hpp>
 #include <iostream>
+#include <Takion/Tensors/TensorDecl.hpp>
 
 namespace Takion
 {
@@ -19,14 +19,17 @@ Tensor<T>::Tensor(Shape shape, Compute::Device device)
       Device(std::move(device)),
       BatchSize(1)
 {
-    m_paddedColumnSize = m_getPaddedColumnSize();
-    const auto totalSize = (TensorShape.Size() / TensorShape.NumCol()) *
-                           m_paddedColumnSize * BatchSize;
+    m_columnElementSize = m_getPaddedColumnSize();
+    m_elementSize = m_getElementSize();
+    const auto totalSize = m_elementSize * BatchSize;
+    const auto size = TensorShape.Size();
 
-    T* ptr = new T[totalSize];
-    for (std::size_t i = 0; i < totalSize; ++i)
-        *(ptr + i) = 0;
-    Data = Utils::Span<T>(ptr, totalSize);
+    Data = Utils::Span<T>(new T[totalSize], totalSize);
+
+    for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
+    {
+        At(idx) = 0;
+    }
 
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
@@ -38,15 +41,20 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
       Device(std::move(device)),
       BatchSize(batchSize)
 {
-    m_paddedColumnSize = m_getPaddedColumnSize();
-    const auto totalSize =
-        (TensorShape.Size() / TensorShape.NumCol()) * m_paddedColumnSize *
-        BatchSize;
+    if (batchSize == 0)
+        throw std::invalid_argument("Batch size must be larger than 0");
 
-    T* ptr = new T[totalSize];
-    for (std::size_t i = 0; i < totalSize; ++i)
-        *(ptr + i) = 0;
-    Data = Utils::Span<T>(ptr, totalSize);
+    m_columnElementSize = m_getPaddedColumnSize();
+    m_elementSize = m_getElementSize();
+    const auto totalSize = m_elementSize * BatchSize;
+    const auto size = TensorShape.Size();
+
+    Data = Utils::Span<T>(new T[totalSize], totalSize);
+
+    for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
+    {
+        At(idx) = 0;
+    }
 
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
@@ -58,20 +66,20 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
       Device(std::move(device)),
       BatchSize(batchSize)
 {
-    m_paddedColumnSize = m_getPaddedColumnSize();
-    const auto totalSize =
-        (TensorShape.Size() / TensorShape.NumCol()) * m_paddedColumnSize;
-    T* ptr = new T[totalSize];
+    if (batchSize == 0)
+        throw std::invalid_argument("Batch size must be larger than 0");
 
-    for (std::size_t i = 0; i < TensorShape.Size() / TensorShape.NumCol(); ++i)
-        for (std::size_t j = 0; j < TensorShape.NumCol(); ++j)
-        {
-            const auto tensorDataIndex = m_paddedColumnSize * i + j;
-            const auto dataIndex = TensorShape.NumCol() * i + j;
-            *(ptr + tensorDataIndex) = data.at(dataIndex);
-        }
+    m_columnElementSize = m_getPaddedColumnSize();
+    m_elementSize = m_getElementSize();
+    const auto totalSize = m_elementSize * BatchSize;
+    const auto size = TensorShape.Size();
 
-    Data = Utils::Span<T>(ptr, totalSize);
+    Data = Utils::Span<T>(new T[totalSize], totalSize);
+
+    for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
+    {
+        At(idx) = data[idx];
+    }
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
 
@@ -88,37 +96,21 @@ Tensor<T>::Tensor(const Tensor<T>& tensor)
       Device(tensor.Device),
       BatchSize(tensor.BatchSize)
 {
-    if (tensor.m_hasOwnership)
-    {
-        auto dataSize = BatchElementSize();
-
-        if (!m_hasOwnership)
-        {
-            dataSize *= sizeof(T);
-            Data = Utils::Span<T>(new float[dataSize], dataSize);
-        }
-        Utils::Span<T>::DeepCopy(Data, tensor.Data);
-        m_hasOwnership.exchange(true, std::memory_order_release);
-    }
+    m_columnElementSize = m_getPaddedColumnSize();
+    m_elementSize = m_getElementSize();
+    Tensor::CopyTensorData(tensor, *this);
 }
 
 //! Performs shallow copy
 template <typename T>
 Tensor<T>::Tensor(Tensor&& tensor) noexcept
-    : Data(tensor.Data),
-      TensorShape(std::move(tensor.TensorShape)),
-      Device(std::move(tensor.Device)),
+    : TensorShape(tensor.TensorShape),
+      Device(tensor.Device),
       BatchSize(tensor.BatchSize),
       m_elementSize(tensor.m_elementSize),
-      m_paddedColumnSize(tensor.m_paddedColumnSize)
+      m_columnElementSize(tensor.m_columnElementSize)
 {
-    if (tensor.m_hasOwnership)
-    {
-        tensor.m_hasOwnership.exchange(false, std::memory_order_acquire);
-        Data = tensor.Data;
-        tensor.Data.Clear();
-        m_hasOwnership.exchange(true, std::memory_order_release);
-    }
+    Tensor::MoveTensorData(tensor, *this);
 }
 
 template <typename T>
@@ -131,19 +123,10 @@ Tensor<T>& Tensor<T>::operator=(const Tensor<T>& tensor)
     Device = tensor.Device;
     BatchSize = tensor.BatchSize;
     m_elementSize = tensor.m_elementSize;
-    m_paddedColumnSize = tensor.m_paddedColumnSize;
+    m_columnElementSize = tensor.m_columnElementSize;
 
-    if (tensor.m_hasOwnership)
-    {
-        const auto elementSize = BatchElementSize();
-        if (!m_hasOwnership)
-        {
-            Data = Utils::Span<T>(new T[elementSize], elementSize);
-        }
+    Tensor<T>::CopyTensorData(tensor, *this);
 
-        Utils::Span<T>::DeepCopy(Data, tensor.Data);
-        m_hasOwnership.exchange(true, std::memory_order_release);
-    }
     return *this;
 }
 
@@ -151,22 +134,42 @@ template <typename T>
 Tensor<T>& Tensor<T>::operator=(Tensor<T>&& tensor) noexcept
 {
     TensorShape = tensor.TensorShape;
-    Device = std::move(tensor.Device);
+    Device = tensor.Device;
     BatchSize = tensor.BatchSize;
     m_elementSize = tensor.m_elementSize;
-    m_paddedColumnSize = tensor.m_paddedColumnSize;
+    m_columnElementSize = tensor.m_columnElementSize;
 
-    if (m_hasOwnership)
-        m_freeData();
+    Tensor<T>::MoveTensorData(tensor, *this);
 
-    if (tensor.m_hasOwnership)
-    {
-        Data = tensor.Data;
-        m_hasOwnership.exchange(true, std::memory_order_release);
-        tensor.m_hasOwnership.exchange(false, std::memory_order_acquire);
-    }
     return *this;
 }
+
+template <typename T>
+void Tensor<T>::SetData(const std::vector<T>& data)
+{
+    const auto totalSize = m_elementSize * BatchSize;
+    const auto size = TensorShape.Size();
+
+    if (m_hasOwnership == false)
+    {
+        T* ptr = new T[totalSize];
+        Data = Utils::Span<T>(ptr, totalSize);
+    }
+
+    for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
+    {
+        At(idx) = data[idx];
+    }
+
+    m_hasOwnership.exchange(true, std::memory_order_release);
+}
+
+template <typename T>
+std::size_t Tensor<T>::NumMatrix() const
+{
+    return TotalElementSize() / (m_columnElementSize * TensorShape.NumRow());
+}
+
 
 template <typename T>
 Tensor<T> Tensor<T>::SubTensor(std::initializer_list<int> index)
@@ -226,21 +229,76 @@ T& Tensor<T>::At(std::size_t batchIdx, std::vector<std::size_t> index)
         throw std::invalid_argument(
             "Index must have same dimension with tensor shape");
     const auto columnIdx = static_cast<int>(TensorShape.Dim() - 1);
-    auto shapeIdx = columnIdx;
     auto idx = columnIdx;
     std::size_t multiplier = 1;
     std::size_t offset = 0;
-    for (; shapeIdx >= 0 && idx != static_cast<int>(index.size());
-           --shapeIdx, --idx)
+    for (; idx >= 0 && idx != static_cast<int>(index.size()); --idx)
     {
         offset += multiplier * index.at(idx);
-        if (idx == columnIdx && Device.PadSize() > 0)
-            multiplier = m_paddedColumnSize;
+        if (idx == columnIdx)
+            multiplier = m_columnElementSize;
         else
             multiplier *= TensorShape.At(idx);
     }
-    T& val = Data.At(offset + ElementSize() * batchIdx);
+    T& val = Data.At(offset + m_elementSize * batchIdx);
     return val;
+}
+
+template <typename T>
+const T& Tensor<T>::At(std::size_t batchIdx,
+                       std::vector<std::size_t> index) const
+{
+    if (index.size() != TensorShape.Dim())
+        throw std::invalid_argument(
+            "Index must have same dimension with tensor shape");
+    const auto columnIdx = static_cast<int>(TensorShape.Dim() - 1);
+    auto idx = columnIdx;
+    std::size_t multiplier = 1;
+    std::size_t offset = 0;
+    for (; idx >= 0 && idx != static_cast<int>(index.size()); --idx)
+    {
+        offset += multiplier * index.at(idx);
+        if (idx == columnIdx)
+            multiplier = m_columnElementSize;
+        else
+            multiplier *= TensorShape.At(idx);
+    }
+    const T& val = Data.At(offset + m_elementSize * batchIdx);
+    return val;
+}
+
+template <typename T>
+T& Tensor<T>::At(std::size_t idx)
+{
+    if (TensorShape.NumCol() == 0)
+        throw std::invalid_argument("Accessing data of empty tensor");
+
+    const auto colIdx = idx / TensorShape.NumCol();
+    const auto dataIdx =
+        m_columnElementSize * colIdx + idx % TensorShape.NumCol();
+
+    const auto limit = m_elementSize * BatchSize;
+    if (dataIdx >= limit)
+        throw std::invalid_argument("Idx exceeds allocated size");
+
+    return Data[dataIdx];
+}
+
+template <typename T>
+const T& Tensor<T>::At(std::size_t idx) const
+{
+    if (TensorShape.NumCol() == 0)
+        throw std::invalid_argument("Accessing data of empty tensor");
+
+    const auto colIdx = idx / TensorShape.NumCol();
+    const auto dataIdx =
+        m_columnElementSize * colIdx + idx % TensorShape.NumCol();
+
+    const auto limit = m_elementSize * BatchSize;
+    if (dataIdx >= limit)
+        throw std::invalid_argument("Idx exceeds allocated size");
+
+    return Data[dataIdx];
 }
 
 template <typename T>
@@ -276,9 +334,9 @@ void Tensor<T>::MoveTensorData(Tensor<T>& source, Tensor<T>& destination)
     if (destination.m_hasOwnership)
         destination.m_freeData();
 
+    source.m_hasOwnership.exchange(false, std::memory_order_acquire);
     destination.Data = source.Data;
     destination.m_hasOwnership.exchange(true, std::memory_order_release);
-    source.m_hasOwnership.exchange(false, std::memory_order_acquire);
 }
 
 template <typename T>
@@ -294,33 +352,33 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
 
     const auto sourceShape = source.TensorShape;
     const auto destShape = destination.TensorShape;
-    const auto batchSize = sourceShape.NumMatrices();
-    const auto numRows = sourceShape.NumRow();
-    const auto numCols = sourceShape.NumCol();
-    const auto sourceColSize = source.ColumnElementSize();
-    const auto destColSize = destination.ColumnElementSize();
+    const auto sourceBatchElementSize = source.TotalElementSize();
+    const auto unitSize = destination.TensorShape.Size();
 
-    const auto batchElementSize = destination.BatchElementSize();
     if (!destination.m_hasOwnership)
     {
-        destination.Data = Utils::Span<T>(new T[batchElementSize],
-                                          batchElementSize);
+        destination.Data = Utils::Span<T>(new T[sourceBatchElementSize],
+                                          sourceBatchElementSize);
     }
 
-#pragma omp parallel for schedule(static)
-    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    const long blockSize = 100;
+    const auto loopSize = unitSize * destination.BatchSize;
+
+    for (long blockIdx = 0; static_cast<std::size_t>(blockIdx) < loopSize;
+         blockIdx += blockSize)
     {
-        for (std::size_t rowIdx = 0; rowIdx < numRows; ++rowIdx)
-            for (std::size_t colIdx = 0; colIdx < numCols; ++colIdx)
-            {
-                destination
-                    .Data[batchIdx * (destColSize * numRows) +
-                          destColSize * rowIdx + colIdx] =
-                    source
-                    .Data[batchIdx * (sourceColSize * numRows) +
-                          sourceColSize * rowIdx + colIdx];
-            }
+        const auto boundary = blockIdx + blockSize;
+        const auto limit =
+            static_cast<long>(loopSize) < boundary
+                ? loopSize
+                : static_cast<std::size_t>(boundary);
+        for (std::size_t idx = blockIdx; idx < limit; ++idx)
+            destination.At(idx) = source.At(idx);
     }
+
+    if (!destination.m_hasOwnership)
+        destination.m_hasOwnership.exchange(true,
+                                            std::memory_order_release);
 }
 
 
@@ -328,11 +386,11 @@ template <typename T>
 std::size_t Tensor<T>::m_getElementSize() const
 {
     std::size_t size = 1;
-    for (std::size_t i = 0; i < TensorShape.Dim() - 2; ++i)
+    for (std::size_t i = 0; i < TensorShape.Dim() - 1; ++i)
     {
         size *= TensorShape.At(i);
     }
-    size *= m_paddedColumnSize;
+    size *= m_columnElementSize;
     return size;
 }
 

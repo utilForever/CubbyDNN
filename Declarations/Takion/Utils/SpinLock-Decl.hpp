@@ -1,11 +1,11 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CUBBYDNN_SPINLOCK_DECL_HPP
-#define CUBBYDNN_SPINLOCK_DECL_HPP
+#ifndef TAKION_SPINLOCK_DECL_HPP
+#define TAKION_SPINLOCK_DECL_HPP
 
 #include <atomic>
 
@@ -13,7 +13,7 @@ namespace Takion
 {
 //! Shared spinlock class
 //! thread will busy wait for accessing some data with atomic variable
-//!  \tparam T : 
+//!  \tparam T :
 template <typename T>
 class SpinLock
 {
@@ -48,4 +48,4 @@ private:
 
 } // namespace Captain
 
-#endif //CAPTAIN_SPINLOCK_DECL_HPP
+#endif //TAKION_SPINLOCK_DECL_HPP

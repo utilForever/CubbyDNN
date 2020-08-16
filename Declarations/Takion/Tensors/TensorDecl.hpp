@@ -20,6 +20,8 @@ template <typename T>
 class Tensor
 {
 public:
+    Tensor() = default;
+
     Tensor(Shape shape, Compute::Device device);
 
     Tensor(Shape shape, std::size_t batchSize, Compute::Device device);
@@ -35,6 +37,10 @@ public:
     Tensor<T>& operator=(const Tensor<T>& tensor);
     Tensor<T>& operator=(Tensor<T>&& tensor) noexcept;
 
+    void SetData(const std::vector<T>& data);
+
+    [[nodiscard]] std::size_t NumMatrix() const;
+
     [[nodiscard]] Tensor<T> SubTensor(std::initializer_list<int> index);
 
     //! If both tensors are on same device, data is moved rather than copied
@@ -46,9 +52,16 @@ public:
 
     T& At(std::size_t batchIdx, std::vector<std::size_t> index);
 
+    const T& At(std::size_t batchIdx, std::vector<std::size_t> index) const;
+
+    //! Access the data linearly considering paddings
+    T& At(std::size_t idx);
+
+    const T& At(std::size_t idx) const;
+
     [[nodiscard]] std::size_t ColumnElementSize() const
     {
-        return m_paddedColumnSize;
+        return m_columnElementSize;
     }
 
     [[nodiscard]] std::size_t ElementSize() const
@@ -56,14 +69,14 @@ public:
         return m_elementSize;
     }
 
-    [[nodiscard]] std::size_t BatchElementSize() const
+    [[nodiscard]] std::size_t TotalElementSize() const
     {
         return m_elementSize * BatchSize;
     }
 
     [[nodiscard]] std::size_t GetDataByteSize() const
     {
-        return BatchElementSize() * sizeof(T);
+        return TotalElementSize() * sizeof(T);
     }
 
     /// Data vector which possesses actual data
@@ -76,7 +89,7 @@ public:
 
 private:
     std::size_t m_elementSize = 0;
-    std::size_t m_paddedColumnSize = 0;
+    std::size_t m_columnElementSize = 0;
     std::atomic<bool> m_hasOwnership = false;
 
     std::size_t m_getElementSize() const;

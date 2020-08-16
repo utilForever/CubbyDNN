@@ -8,17 +8,21 @@
 #define TAKION_GRAPH_UNITMANAGER_DECL_HPP
 
 #include <Takion/Units/ComputableUnit.hpp>
-#include <Takion/Units/UnitMetadata.hpp>
+#include <Takion/FrontEnd/UnitMetaData.hpp>
 #include <Takion/Computations/Optimizers/Optimizer.hpp>
 #include <unordered_map>
 
-namespace Takion::Graph
+namespace Takion::Engine
 {
 template <typename T>
 class UnitManager
 {
 public:
-    UnitManager() = default;
+    UnitManager(std::size_t batchSize)
+        : m_batchSize(batchSize)
+    {
+    }
+
     virtual ~UnitManager() = default;
 
     UnitManager(const UnitManager<T>& unitManager) = delete;
@@ -26,15 +30,13 @@ public:
     UnitManager<T>& operator=(const UnitManager<T>& unitManager) = delete;
     UnitManager<T>& operator=(UnitManager<T>&& unitManager) noexcept;
 
-    void AppendUnit(UnitMetaData&& unitMetaData);
+    FrontEnd::UnitMetaData<T>& GetUnitMetaData(const UnitId& unitId);
 
-    Shape GetUnitOutputShape(const UnitId& unitId)
-    {
-        return m_unitMetaDataMap[unitId]->OutputShape();
-    }
+    void AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData);
 
-    void Compile(const std::string& optimizerName,
-                 const Parameter& optimizerParameters);
+    Shape GetUnitOutputShape(const UnitId& unitId);
+
+    void Compile(const std::string& optimizerName, const Parameter& parameter);
 
     virtual void Forward(std::size_t cycle);
 
@@ -56,11 +58,13 @@ private:
 
     [[nodiscard]] std::unique_ptr<Compute::Optimizer<T>> m_makeOptimizer(
         const std::string& optimizerName,
-        const Parameter& parameters) const;
+        const Parameter& parameter) const;
 
-    std::unordered_map<UnitId, std::unique_ptr<UnitMetaData<T>>>
+    std::unordered_map<UnitId, FrontEnd::UnitMetaData<T>>
     m_unitMetaDataMap;
-    std::unordered_map<UnitId, std::unique_ptr<ComputableUnit<T>>> m_unitMap;
+    std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
+    m_unitMap;
+    std::size_t m_batchSize;
 };
 } // namespace Takion::Graph
 

@@ -11,6 +11,6 @@ COPY . /app
 
 WORKDIR /app/build
 RUN cmake .. && \
-    make -j "$(nproc)" && \
-    make install && \
+    make  && \
+    make install &&\
     bin/UnitTests

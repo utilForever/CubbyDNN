@@ -1,11 +1,12 @@
-// Copyright (c) 2019 Chris Ohk, Justin Kim
+// Copyright (c) 2020, Jaewoo Kim
 
 // We are making my contributions/submissions to this project solely in our
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
+
 #pragma once
-#include <cubbydnn/Utils/SharedPtr.hpp>
+#include <Takion/Utils/SharedPtr.hpp>
 
 namespace Takion
 {

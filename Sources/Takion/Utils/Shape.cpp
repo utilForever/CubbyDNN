@@ -8,7 +8,6 @@
 
 namespace Takion
 {
-
 Shape::Shape(std::initializer_list<std::size_t> shape)
     : m_shapeVector(shape)
 {
@@ -47,6 +46,16 @@ Shape& Shape::operator=(Shape&& shape) noexcept
 std::size_t& Shape::operator[](std::size_t index)
 {
     return m_shapeVector.at(index);
+}
+
+bool Shape::operator==(const Shape& shape) const
+{
+    return m_shapeVector == shape.m_shapeVector;
+}
+
+bool Shape::operator!=(const Shape& shape) const
+{
+    return !(*this == shape);
 }
 
 std::size_t Shape::At(std::size_t index) const
@@ -143,12 +152,11 @@ Shape& Shape::Reshape(std::initializer_list<std::size_t> newShape)
     return *this;
 }
 
-Shape& Shape::Transpose()
+void Shape::Transpose()
 {
     const auto temp = m_shapeVector.at(0);
     m_shapeVector.at(0) = m_shapeVector.at(1);
     m_shapeVector.at(1) = temp;
-    return *this;
 }
 
 Shape Shape::GetTransposedShape() const

@@ -15,26 +15,26 @@
 #include <memory>
 #include <unordered_map>
 
-namespace Takion::Graph
+namespace Takion::FrontEnd
 {
 template <typename T>
 class UnitMetaData
 {
 public:
+    UnitMetaData() = default;
+
     UnitMetaData(
-        UnitId unitId,
+        UnitId unitId, std::size_t batchSize,
         std::unordered_map<std::string, Shape> internalVariableShapeMap,
         std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap,
         std::unordered_map<std::string, Shape> inputShapeMap, Shape outputShape,
         std::unordered_map<std::string, UnitId> inputUnitIdMap,
         Compute::Device device,
-        std::size_t batchSize,
         Parameter params = Parameter());
 
     ~UnitMetaData() = default;
     UnitMetaData(const UnitMetaData& unitMetaData) = delete;
-
     UnitMetaData(UnitMetaData&& unitMetaData) noexcept;
     UnitMetaData& operator=(const UnitMetaData& unitMetaData) = delete;
     UnitMetaData& operator=(UnitMetaData&& unitMetaData) noexcept;
@@ -48,6 +48,8 @@ public:
     //! \param tensor: tensor to store
     void AddInternalTensor(const std::string& key, Tensor<T> tensor);
 
+    [[nodiscard]] std::size_t BatchSize() const;
+
     [[nodiscard]] UnitId Id() const;
 
     [[nodiscard]] const Tensor<T>& GetInternalTensor(
@@ -57,7 +59,7 @@ public:
 
     [[nodiscard]] UnitId GetInputUnitId(const std::string& key) const;
 
-    [[nodiscard]] Shape OutputShape() const;
+    [[nodiscard]] Shape GetOutputShape() const;
 
     [[nodiscard]] std::unordered_map<std::string, UnitId>
     InputUnitMap() const;
@@ -70,13 +72,9 @@ public:
 
     [[nodiscard]] Shape InternalVariableShape(const std::string& name) const;
 
-    [[nodiscard]] std::size_t BatchSize() const
-    {
-        return m_batchSize;
-    }
 
 private:
-    UnitId m_unitId;
+    UnitId m_unitId = UnitId();
     std::unordered_map<std::string, Shape> m_internalVariableShapeMap;
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
     m_initializerMap;
@@ -89,7 +87,8 @@ private:
     //! key of inputShapeMap and inputUnitIdMap must be identical
     std::unordered_map<std::string, UnitId> m_inputUnitMap;
     std::vector<UnitId> m_outputUnitIdVector;
-    std::size_t m_batchSize;
+
+    std::size_t m_batchSize = 0;
 
 public:
     Compute::Device Device;

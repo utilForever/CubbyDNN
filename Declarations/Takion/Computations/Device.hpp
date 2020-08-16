@@ -20,6 +20,8 @@ enum class DeviceType
 class Device
 {
 public:
+    Device() = default;
+
     Device(int id, DeviceType type, std::string name);
     ~Device() = default;
 
@@ -47,10 +49,10 @@ public:
     }
 
 private:
-    int m_id;
-    DeviceType m_type;
-    std::string m_name;
-    std::size_t m_padByteSize;
+    int m_id = -1;
+    DeviceType m_type = DeviceType::CPU;
+    std::string m_name = "Undefined";
+    std::size_t m_padByteSize = 0;
 };
 }
 
