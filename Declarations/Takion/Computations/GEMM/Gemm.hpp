@@ -134,10 +134,10 @@ void ApplyCpu(const Span<T> input, Span<T> output, Function function,
     for (int batchIdx = 0; batchIdx < static_cast<int>(batchSize); batchIdx++)
     {
         const auto batchOffset = size * batchIdx;
-        for (unsigned i = 0; i < size; i += 16)
+        for (unsigned i = 0; i < size; i += 1)
         {
             output[batchOffset + i] = static_cast<T>(function(
-                input[batchOffset + size]));
+                input[batchOffset + i]));
         }
     }
 }
