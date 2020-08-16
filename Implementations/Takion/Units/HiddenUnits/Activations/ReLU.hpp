@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_GRAPH_ACTIVATIONUNIT_HPP
-#define TAKION_GRAPH_ACTIVATIONUNIT_HPP
+#ifndef TAKION_GRAPH_RELU_HPP
+#define TAKION_GRAPH_RELU_HPP
 
 #include <Takion/Computations/GEMM/MathKernel.hpp>
 #include <Takion/Units/HiddenUnits/Activations/ReLUDecl.hpp>
@@ -88,7 +88,10 @@ void ReLU<T>::Forward()
 {
     const Tensor<T>& inputTensor = ForwardInputMap.at(m_sourceUnitId);
 
-    const auto lambdaForward = [](T val) { return val > 0 ? val : 0; };
+    const auto lambdaForward = [](T val)
+    {
+        return val > static_cast<T>(0) ? val : static_cast<T>(0);
+    };
     Compute::Apply(inputTensor, ForwardOutput, lambdaForward);
 }
 
@@ -97,7 +100,10 @@ void ReLU<T>::AsyncForward(std::promise<bool> promise)
 {
     const Tensor<T>& inputTensor = ForwardInputMap.at(m_sourceUnitId);
 
-    const auto lambdaForward = [](T val) { return val > 0 ? val : 0; };
+    const auto lambdaForward = [](T val)
+    {
+        return val > static_cast<T>(0) ? val : static_cast<T>(0);
+    };
     Compute::Apply(inputTensor, ForwardOutput, lambdaForward);
 
     promise.set_value(true);
@@ -117,12 +123,43 @@ void ReLU<T>::Backward()
     zeroInitializer.Initialize(backwardTemp);
 
     for (const auto& [unitId, tensor] : BackwardInputMap)
-        Compute::Add(tensor, backwardTemp);
+    {
+        const auto tensorSize =
+            tensor.TensorShape.Size() * tensor.BatchSize;
 
-    const auto lambdaBackward = [](T val) { return val > 0 ? 1 : 0; };
+#ifdef DEBUG
+        for (std::size_t i = 0; i < tensorSize; ++i)
+        {
+            std::cout << "backwardInput ReLU : " << tensor.At(i)
+                << std::endl;
+        }
+        Compute::Add(tensor, backwardTemp);
+#endif
+    }
+
+    const auto lambdaBackward = [](T val)
+    {
+        return val > static_cast<T>(0) ? static_cast<T>(1) : static_cast<T>(0);
+    };
 
     Compute::ScalarDiv(backwardTemp, static_cast<T>(BackwardInputMap.size()));
     Compute::Apply(backwardTemp, backwardOutput, lambdaBackward);
+
+#ifdef DEBUG
+    const auto backwardTempSize =
+        backwardTemp.TensorShape.Size() * backwardTemp.BatchSize;
+    for (std::size_t i = 0; i < backwardTempSize; ++i)
+    {
+        std::cout << "backwardTemp ReLU : " << backwardTemp.At(i) << std::endl;
+    }
+    const auto backwardOutputSize =
+        backwardOutput.TensorShape.Size() * backwardOutput.BatchSize;
+    for (std::size_t i = 0; i < backwardOutputSize; ++i)
+    {
+        std::cout << "backwardOutput ReLU : " << backwardOutput.At(i) <<
+            std::endl;
+    }
+#endif
     Compute::Dot(inputTensor, backwardOutput, backwardOutput);
 }
 

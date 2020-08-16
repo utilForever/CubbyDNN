@@ -124,6 +124,29 @@ AbsTensor<T> Model<T>::ReLU(AbsTensor<T> source, std::string name)
     return AbsTensor<T>(shape, subjectUnitId);
 }
 
+template <typename T>
+AbsTensor<T> Model<T>::Sigmoid(AbsTensor<T> source, std::string name)
+{
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Sigmoid"), m_id++,
+                                std::move(name) };
+
+    const auto prevUnitId = source.GetPrevOutput();
+    const auto shape = source.GetShape();
+
+    m_appendSubjectUnitToPreviousOutput(subjectUnitId, prevUnitId);
+
+    std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
+        initializerMap;
+
+    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
+                                 { { "input", shape } }, shape,
+                                 { { "input", prevUnitId } }, m_device);
+
+    m_unitManager.AppendUnit(std::move(unitMetaData));
+
+    return AbsTensor<T>(shape, subjectUnitId);
+}
+
 
 template <typename T>
 void Model<T>::MSE(AbsTensor<T> prediction, AbsTensor<T> label,

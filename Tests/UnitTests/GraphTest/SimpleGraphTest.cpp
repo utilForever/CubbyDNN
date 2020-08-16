@@ -6,6 +6,7 @@
 
 #include <Takion/FrontEnd/Model.hpp>
 #include "SimpleGraphTest.hpp"
+
 namespace Takion::Test
 {
 using namespace FrontEnd;
@@ -16,15 +17,17 @@ void SimpleGraphTest()
                        10);
 
     auto tensor =
-        model.Constant(Shape({ 10 }), std::vector<float>(100, 3), "input");
+        model.Constant(Shape({ 12 }), std::vector<float>(120, 10), "input");
     const auto label = model.Constant(Shape({ 3 }), std::vector<float>(30, 1),
                                       "label");
 
+    // tensor = model.Dense(tensor, 5);
+    // tensor = model.Sigmoid(tensor);
     tensor = model.Dense(tensor, 3);
-    tensor = model.ReLU(tensor);
+    tensor = model.Sigmoid(tensor);
     model.MSE(tensor, label, "MseLoss");
 
-    model.Compile("SGD", Parameter({}, { { "epsilon", 0.01f } }, {}));
-    model.Fit(100);
+    model.Compile("SGD", Parameter({}, { { "epsilon", 0.0001f } }, {}));
+    model.Fit(1000);
 }
 } // namespace Takion::Test

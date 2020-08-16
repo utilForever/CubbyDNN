@@ -45,8 +45,16 @@ public:
 
     void Optimize(Tensor<T>& tensor, Tensor<T>& update) override
     {
+#ifdef DEBUG
+        const auto updateSize =
+            update.TensorShape.Size() * update.BatchSize;
+        for (std::size_t i = 0; i < updateSize; ++i)
+        {
+            std::cout << "SGD update : " << update.At(i) << std::endl;
+        }
+#endif
         Compute::ScalarMul(update, m_epsilon);
-        Add(tensor, update, tensor);
+        Compute::Add(tensor, update, tensor);
     }
 
 private:

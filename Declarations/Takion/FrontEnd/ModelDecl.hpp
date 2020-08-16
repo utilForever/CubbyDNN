@@ -42,6 +42,8 @@ public:
     AbsTensor<T> ReLU(AbsTensor<T> source,
                       std::string name = "");
 
+    AbsTensor<T> Sigmoid(AbsTensor<T> source, std::string name = "");
+
     AbsTensor<T> SoftMax(AbsTensor<T> source, std::string name = "");
 
     void MSE(AbsTensor<T> prediction, AbsTensor<T> label, std::string name);

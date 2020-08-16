@@ -143,6 +143,15 @@ void DenseUnit<T>::Forward()
 
     Compute::Multiply(input, weight, output);
     Compute::Add(bias, output, output);
+
+    const auto outputSize = output.TensorShape.Size() * output.BatchSize;
+
+#ifdef DEBUG
+    for (std::size_t i = 0; i < outputSize; ++i)
+    {
+        std::cout << "output : " << output.At(i) << std::endl;
+    }
+#endif
 }
 
 template <typename T>
@@ -182,7 +191,18 @@ void DenseUnit<T>::Backward()
     zeroInitializer.Initialize(delta);
 
     for (auto& [unitId, gradient] : BackwardInputMap)
-        Compute::Add(delta, gradient);
+    {
+#ifdef DEBUG
+        const auto gradientSize =
+            gradient.TensorShape.Size() * gradient.BatchSize;
+
+        for (std::size_t i = 0; i < gradientSize; ++i)
+        {
+            std::cout << "gradient : " << gradient.At(i) << std::endl;
+        }
+#endif
+        Compute::Add(gradient, delta);
+    }
 
     Compute::ScalarDiv(delta, static_cast<T>(BackwardInputMap.size()));
     Compute::Transpose(weight, weightTranspose);

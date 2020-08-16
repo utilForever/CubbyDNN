@@ -4,11 +4,10 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_GRAPH_ACTIVATIONUNIT_DECL_HPP
-#define TAKION_GRAPH_ACTIVATIONUNIT_DECL_HPP
+#ifndef TAKION_GRAPH_RELU_DECL_HPP
+#define TAKION_GRAPH_RELU_DECL_HPP
 
 #include <Takion/Units/ComputableUnit.hpp>
-#include <Takion/Units/TrainableUnit.hpp>
 #include <Takion/FrontEnd/UnitMetaData.hpp>
 
 

@@ -12,6 +12,8 @@
 #include <Takion/Units/SinkUnits/LossUnit.hpp>
 #include <Takion/Units/SourceUnits/ConstantUnit.hpp>
 #include <Takion/Units/HiddenUnits/Activations/ReLU.hpp>
+#include <Takion/Units/HiddenUnits/Activations/Sigmoid.hpp>
+
 
 namespace Takion::Engine
 {
@@ -85,6 +87,13 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
                 std::make_unique<Graph::ReLU<T>>(std::move(unit));
             continue;
         }
+        if (type.Name() == "Sigmoid")
+        {
+            auto unit = Graph::Sigmoid<T>::CreateUnit(unitMetaData);
+            m_unitMap[unitMetaData.Id()] =
+                std::make_unique<Graph::Sigmoid<T>>(std::move(unit));
+            continue;
+        }
         if (type.Name() == "Reshape")
         {
             throw std::runtime_error("Not implemented");
@@ -134,8 +143,8 @@ void UnitManager<T>::Forward(std::size_t cycle)
         {
             if (unitPtr->IsForwardReady(cycle))
             {
-                std::cout << "Forward " << unitPtr->Id().Type.Name() <<
-                    " at cycle : " << cycle << std::endl;
+                // std::cout << "Forward " << unitPtr->Id().Type.Name() <<
+                //     " at cycle : " << cycle << std::endl;
                 unitPtr->Forward();
                 unitPtr->UpdateForwardState();
                 done = false;
@@ -165,8 +174,8 @@ void UnitManager<T>::Backward(std::size_t cycle)
         {
             if (unitPtr->IsBackwardReady(cycle))
             {
-                std::cout << "Backward " << unitPtr->Id().Type.Name()
-                    << " at cycle : " << cycle << std::endl;
+                // std::cout << "Backward " << unitPtr->Id().Type.Name()
+                //     << " at cycle : " << cycle << std::endl;
                 unitPtr->Backward();
                 unitPtr->UpdateBackwardState();
                 done = false;

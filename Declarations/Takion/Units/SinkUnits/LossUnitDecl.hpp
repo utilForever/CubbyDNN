@@ -30,6 +30,7 @@ public:
     MSELoss(const UnitId& unitId, const UnitId& predictionUnitId,
             const UnitId& labelUnitId,
             Tensor<T> predictionTensor, Tensor<T> labelTensor,
+            Tensor<T> outputTensor,
             Tensor<T> backwardOutputTensor,
             std::size_t batchSize);
     ~MSELoss() = default;
@@ -49,6 +50,11 @@ public:
 
     void AsyncBackward(std::promise<bool> promise) override;
 
+    T GetCurrentLoss() const
+    {
+        return m_loss;
+    }
+
 private:
     static void m_checkArguments(const Shape& predictionShape,
                                  const Shape& labelShape,
@@ -56,6 +62,7 @@ private:
 
     UnitId m_predictionUnitId;
     UnitId m_labelUnitId;
+    T m_loss = 0;
 };
 }
 
