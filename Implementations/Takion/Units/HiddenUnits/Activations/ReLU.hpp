@@ -90,7 +90,7 @@ void ReLU<T>::Forward()
 
     const auto lambdaForward = [](T val)
     {
-        return val > static_cast<T>(0) ? val : static_cast<T>(0);
+        return val > static_cast<T>(0) ? val : static_cast<T>(0.1f*val);
     };
     Compute::Apply(inputTensor, ForwardOutput, lambdaForward);
 }
@@ -102,7 +102,7 @@ void ReLU<T>::AsyncForward(std::promise<bool> promise)
 
     const auto lambdaForward = [](T val)
     {
-        return val > static_cast<T>(0) ? val : static_cast<T>(0);
+        return val > static_cast<T>(0) ? val : static_cast<T>(0.1f * val);
     };
     Compute::Apply(inputTensor, ForwardOutput, lambdaForward);
 
@@ -127,40 +127,20 @@ void ReLU<T>::Backward()
         const auto tensorSize =
             tensor.TensorShape.Size() * tensor.BatchSize;
 
-#ifdef DEBUG
-        for (std::size_t i = 0; i < tensorSize; ++i)
-        {
-            std::cout << "backwardInput ReLU : " << tensor.At(i)
-                << std::endl;
-        }
         Compute::Add(tensor, backwardTemp);
-#endif
     }
 
     const auto lambdaBackward = [](T val)
     {
-        return val > static_cast<T>(0) ? static_cast<T>(1) : static_cast<T>(0);
+
+        return val > static_cast<T>(0)
+                   ? static_cast<T>(1)
+                   : static_cast<T>(0.1f);
     };
 
     Compute::ScalarDiv(backwardTemp, static_cast<T>(BackwardInputMap.size()));
-    Compute::Apply(backwardTemp, backwardOutput, lambdaBackward);
-
-#ifdef DEBUG
-    const auto backwardTempSize =
-        backwardTemp.TensorShape.Size() * backwardTemp.BatchSize;
-    for (std::size_t i = 0; i < backwardTempSize; ++i)
-    {
-        std::cout << "backwardTemp ReLU : " << backwardTemp.At(i) << std::endl;
-    }
-    const auto backwardOutputSize =
-        backwardOutput.TensorShape.Size() * backwardOutput.BatchSize;
-    for (std::size_t i = 0; i < backwardOutputSize; ++i)
-    {
-        std::cout << "backwardOutput ReLU : " << backwardOutput.At(i) <<
-            std::endl;
-    }
-#endif
-    Compute::Dot(inputTensor, backwardOutput, backwardOutput);
+    Compute::Apply(inputTensor, backwardOutput, lambdaBackward);
+    Compute::Dot(backwardTemp, backwardOutput, backwardOutput);
 }
 
 template <typename T>
@@ -175,13 +155,20 @@ void ReLU<T>::AsyncBackward(std::promise<bool> promise)
     zeroInitializer.Initialize(backwardTemp);
 
     for (const auto& [unitId, tensor] : BackwardInputMap)
-        Compute::Add(tensor, backwardTemp);
+    {
+        const auto tensorSize = tensor.TensorShape.Size() * tensor.BatchSize;
 
-    const auto lambdaBackward = [](T val) { return val > 0 ? 1 : 0; };
+        Compute::Add(tensor, backwardTemp);
+    }
+
+    const auto lambdaBackward = [](T val) {
+        return val > static_cast<T>(0) ? static_cast<T>(1)
+                                       : static_cast<T>(0.1f);
+    };
 
     Compute::ScalarDiv(backwardTemp, static_cast<T>(BackwardInputMap.size()));
-    Compute::Apply(backwardTemp, backwardOutput, lambdaBackward);
-    Compute::Dot(inputTensor, backwardOutput, backwardOutput);
+    Compute::Apply(inputTensor, backwardOutput, lambdaBackward);
+    Compute::Dot(backwardTemp, backwardOutput, backwardOutput);
 
     promise.set_value(true);
 }

@@ -24,15 +24,19 @@ public:
     Initializer(Initializer<T>&& initializer) noexcept = default;
     Initializer& operator=(const Initializer<T>& initializer) = default;
     Initializer& operator=(Initializer<T>&& initializer) noexcept = default;
+
     virtual void Initialize(Tensor<T>& tensor) const = 0;
+
+    std::size_t FanIn = 1;
+    std::size_t FanOut = 1;
 };
 
 template <typename T>
 class VectorInitializer : public Initializer<T>
 {
 public:
-    VectorInitializer(const std::vector<T>& data)
-        : m_data(data)
+    VectorInitializer(std::vector<T> data)
+        : m_data(std::move(data))
     {
     }
 
@@ -91,7 +95,7 @@ public:
     void Initialize(Tensor<T>& tensor) const override
     {
         InitializerOperations::XavierNormal(
-            tensor.TensorShape, tensor.Data,
+            Initializer<T>::FanIn, Initializer<T>::FanOut, tensor.Data,
             tensor.ElementSize(), tensor.BatchSize);
     }
 };
@@ -106,7 +110,7 @@ public:
 
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::HeNormal<T>(tensor.TensorShape.NumRow(),
+        InitializerOperations::HeNormal<T>(Initializer<T>::FanIn,
                                            tensor.Data,
                                            tensor.ElementSize(),
                                            tensor.BatchSize);
@@ -123,7 +127,7 @@ public:
 
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::LecunNormal<T>(tensor.TensorShape,
+        InitializerOperations::LecunNormal<T>(Initializer<T>::FanIn,
                                               tensor.Data,
                                               tensor.BatchSize);
     }
@@ -144,10 +148,10 @@ public:
 
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::RandomUniform<T>(
-            tensor.TensorShape, m_min,
-            m_max, tensor.Data,
-            tensor.BatchSize);
+        InitializerOperations::RandomUniform<T>(m_min,
+                                                m_max, tensor.Data,
+                                                tensor.ElementSize(),
+                                                tensor.BatchSize);
     }
 
 private:

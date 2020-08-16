@@ -9,7 +9,9 @@
 
 namespace Takion::Test
 {
-void SimpleGraphTest();
+void SimpleGraphTestReLU();
+
+void SimpleGraphTestSigmoid();
 }
 
 #endif

@@ -86,6 +86,11 @@ AbsTensor<T> Model<T>::Dense(AbsTensor<T> source, unsigned numUnits,
     std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
         initializerMap;
 
+    weightInitializer->FanIn = prevOutputShape.NumCol();
+    weightInitializer->FanOut = numUnits;
+    biasInitializer->FanIn = prevOutputShape.NumCol();
+    biasInitializer->FanOut = numUnits;
+
     initializerMap["weight"] = std::move(weightInitializer);
     initializerMap["bias"] = std::move(biasInitializer);
 
@@ -127,7 +132,8 @@ AbsTensor<T> Model<T>::ReLU(AbsTensor<T> source, std::string name)
 template <typename T>
 AbsTensor<T> Model<T>::Sigmoid(AbsTensor<T> source, std::string name)
 {
-    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Sigmoid"), m_id++,
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "Sigmoid"),
+                                m_id++,
                                 std::move(name) };
 
     const auto prevUnitId = source.GetPrevOutput();

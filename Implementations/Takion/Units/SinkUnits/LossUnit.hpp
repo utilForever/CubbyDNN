@@ -93,10 +93,11 @@ void MSELoss<T>::Forward()
     T sum = static_cast<T>(0);
     for (std::size_t i = 0; i < size; ++i)
     {
-        sum += outputTensor.At(i);
+        const auto output = outputTensor.At(i);
+        sum += output;
     }
 
-    sum /= size;
+    sum /= static_cast<T>(size);
     m_loss = sum;
     std::cout << "Loss : " << m_loss << std::endl;
 }

@@ -100,7 +100,8 @@ void Sigmoid<T>::AsyncForward(std::promise<bool> promise)
 
     const auto lambdaForward = [](T val)
     {
-        return static_cast<T>(static_cast<T>(1) / (1 + std::exp(-val)));
+        return static_cast<T>(static_cast<T>(std::exp(val)) / (1 + std::exp(val)
+                              ));
     };
     Compute::Apply(inputTensor, ForwardOutput, lambdaForward);
 
@@ -120,42 +121,23 @@ void Sigmoid<T>::Backward()
 
     for (const auto& [unitId, tensor] : BackwardInputMap)
     {
-#ifdef DEBUG
-        const auto tensorSize = tensor.TensorShape.Size() * tensor.BatchSize;
-        for (std::size_t i = 0; i < tensorSize; ++i)
-        {
-            std::cout << "backwardInput Sigmoid : " << tensor.At(i) <<
-                std::endl;
-        }
-#endif
         Compute::Add(tensor, backwardTemp);
     }
 
-    const auto lambdaBackward = [](T val)
+    const auto lambdaForward = [](T val)
     {
-        return static_cast<T>(std::exp(-val) / std::pow(1 + std::exp(-val), 2));
+        return static_cast<T>(static_cast<T>(std::exp(val)) /
+                              (1 + std::exp(val)));
+    };
+
+    const auto lambdaBackward = [=](T val)
+    {
+        return static_cast<T>(lambdaForward(val) * (1 - lambdaForward(val)));
     };
 
     Compute::ScalarDiv(backwardTemp, static_cast<T>(BackwardInputMap.size()));
-    Compute::Apply(backwardTemp, backwardOutput, lambdaBackward);
-
-#ifdef DEBUG
-    const auto backwardTempSize =
-        backwardTemp.TensorShape.Size() * backwardTemp.BatchSize;
-    for (std::size_t i = 0; i < backwardTempSize; ++i)
-    {
-        std::cout << "backwardTemp Sigmoid : " << backwardTemp.At(i)
-                  << std::endl;
-    }
-    const auto backwardOutputSize =
-        backwardOutput.TensorShape.Size() * backwardOutput.BatchSize;
-    for (std::size_t i = 0; i < backwardOutputSize; ++i)
-    {
-        std::cout << "backwardOutput Sigmoid : " << backwardOutput.At(i)
-            << std::endl;
-    }
-#endif
-    Compute::Dot(inputTensor, backwardOutput, backwardOutput);
+    Compute::Apply(inputTensor, backwardOutput, lambdaBackward);
+    Compute::Dot(backwardTemp, backwardOutput, backwardOutput);
 }
 
 template <typename T>
