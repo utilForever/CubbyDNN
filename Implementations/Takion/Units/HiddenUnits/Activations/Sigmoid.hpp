@@ -88,7 +88,7 @@ void Sigmoid<T>::Forward()
 
     const auto lambdaForward = [](T val)
     {
-        return static_cast<T>(std::exp(val) / (1 + exp(val)));
+        return static_cast<T>(static_cast<T>(1) / (1 + std::exp(-val)));
     };
     Compute::Apply(inputTensor, ForwardOutput, lambdaForward);
 }
@@ -133,7 +133,7 @@ void Sigmoid<T>::Backward()
 
     const auto lambdaBackward = [](T val)
     {
-        return -static_cast<T>(std::exp(-val) / std::pow(1 + std::exp(-val), 2));
+        return static_cast<T>(std::exp(-val) / std::pow(1 + std::exp(-val), 2));
     };
 
     Compute::ScalarDiv(backwardTemp, static_cast<T>(BackwardInputMap.size()));

@@ -17,17 +17,19 @@ void SimpleGraphTest()
                        10);
 
     auto tensor =
-        model.Constant(Shape({ 12 }), std::vector<float>(120, 10), "input");
+        model.Constant(Shape({ 200 }), std::vector<float>(2000, 10), "input");
     const auto label = model.Constant(Shape({ 3 }), std::vector<float>(30, 1),
                                       "label");
 
-    // tensor = model.Dense(tensor, 5);
-    // tensor = model.Sigmoid(tensor);
+    tensor = model.Dense(tensor, 100);
+    tensor = model.Sigmoid(tensor);
+    tensor = model.Dense(tensor, 50);
+    tensor = model.Sigmoid(tensor);
     tensor = model.Dense(tensor, 3);
     tensor = model.Sigmoid(tensor);
     model.MSE(tensor, label, "MseLoss");
 
-    model.Compile("SGD", Parameter({}, { { "epsilon", 0.0001f } }, {}));
-    model.Fit(1000);
+    model.Compile("SGD", Parameter({}, { { "epsilon", -0.0002f } }, {}));
+    model.Fit(10000);
 }
 } // namespace Takion::Test

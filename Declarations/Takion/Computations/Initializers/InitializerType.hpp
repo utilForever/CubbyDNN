@@ -106,7 +106,7 @@ public:
 
     void Initialize(Tensor<T>& tensor) const override
     {
-        InitializerOperations::HeNormal<T>(tensor.TensorShape.NumCol(),
+        InitializerOperations::HeNormal<T>(tensor.TensorShape.NumRow(),
                                            tensor.Data,
                                            tensor.ElementSize(),
                                            tensor.BatchSize);

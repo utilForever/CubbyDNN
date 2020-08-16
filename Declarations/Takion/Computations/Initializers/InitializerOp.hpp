@@ -133,7 +133,7 @@ public:
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-        const auto stddev = static_cast<T>(sqrt(2 / static_cast<T>(fanIn)));
+        const auto stddev = static_cast<T>(std::sqrt(2 / static_cast<T>(fanIn)));
         std::normal_distribution<T> normal(0, stddev);
 
         for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -151,7 +151,7 @@ public:
     {
         std::random_device rd;
         std::mt19937 engine(rd());
-        const auto range = static_cast<T>(sqrt(6 / static_cast<T>(fanIn)));
+        const auto range = static_cast<T>(std::sqrt(6 / static_cast<T>(fanIn)));
         std::uniform_int_distribution<T> uniform(-range, range);
 
         for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
