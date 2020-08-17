@@ -13,6 +13,7 @@
 #include <Takion/Units/SourceUnits/ConstantUnit.hpp>
 #include <Takion/Units/HiddenUnits/Activations/ReLU.hpp>
 #include <Takion/Units/HiddenUnits/Activations/Sigmoid.hpp>
+#include <Takion/Units/SourceUnits/PlaceHolder.hpp>
 
 
 namespace Takion::Engine
@@ -47,6 +48,14 @@ void UnitManager<T>::AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData)
 }
 
 template <typename T>
+void UnitManager<T>::AppendLoader(const UnitId& unitId,
+                                  const std::function<std::vector<T>()>& loader)
+{
+    m_loaderMap[unitId] = loader;
+}
+
+
+template <typename T>
 Shape UnitManager<T>::GetUnitOutputShape(const UnitId& unitId)
 {
     return m_unitMetaDataMap[unitId].GetOutputShape();
@@ -56,23 +65,25 @@ template <typename T>
 void UnitManager<T>::Compile(const std::string& optimizerName,
                              const Parameter& parameter)
 {
-    //m_connectUnits();
-
     for (const auto& [key, unitMetaData] : m_unitMetaDataMap)
     {
         const auto unitId = unitMetaData.Id();
         auto type = unitId.Type;
 
-        if (type.Name() == "DataLoader")
+        if (type.Name() == "PlaceHolder")
         {
-            throw std::runtime_error("Not implemented");
+            auto unit = Graph::PlaceHolder<T>::CreateUnit(unitMetaData,
+                                                          m_loaderMap[unitId]);
+            m_unitMap[unitId] =
+                std::make_unique<Graph::PlaceHolder<T>>(std::move(unit));
+            continue;
         }
         if (type.Name() == "Dense")
         {
             auto unit = Graph::DenseUnit<T>::CreateUnit(
                 unitMetaData, m_makeOptimizer(optimizerName, parameter));
 
-            m_unitMap[unitMetaData.Id()] =
+            m_unitMap[unitId] =
                 std::make_unique<Graph::DenseUnit<T>>(std::move(unit));
             continue;
         }
@@ -83,14 +94,14 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
         if (type.Name() == "ReLU")
         {
             auto unit = Graph::ReLU<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitMetaData.Id()] =
+            m_unitMap[unitId] =
                 std::make_unique<Graph::ReLU<T>>(std::move(unit));
             continue;
         }
         if (type.Name() == "Sigmoid")
         {
             auto unit = Graph::Sigmoid<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitMetaData.Id()] =
+            m_unitMap[unitId] =
                 std::make_unique<Graph::Sigmoid<T>>(std::move(unit));
             continue;
         }
@@ -101,14 +112,14 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
         if (type.Name() == "MSE")
         {
             auto unit = Graph::MSELoss<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitMetaData.Id()] =
+            m_unitMap[unitId] =
                 std::make_unique<Graph::MSELoss<T>>(std::move(unit));
             continue;
         }
         if (type.Name() == "Constant")
         {
             auto unit = Graph::ConstantUnit<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitMetaData.Id()] =
+            m_unitMap[unitId] =
                 std::make_unique<Graph::ConstantUnit<T>>(std::move(unit));
             continue;
         }
@@ -325,20 +336,6 @@ void UnitManager<T>::m_backwardCopy(const UnitId& subjectUnitId)
                 Tensor<T>::CopyTensorData(outputTensor, destTensor);
                 destTensor.State.fetch_add(1);
             }
-        }
-    }
-}
-
-template <typename T>
-void UnitManager<T>::m_connectUnits()
-{
-    for (auto& [subjectKey, metaData] : m_unitMetaDataMap)
-    {
-        const auto unitId = metaData.Id();
-        //! Analyzes dependency between units
-        for (const auto& [inputKey, inputUnitId] : metaData.InputUnitMap())
-        {
-            m_unitMetaDataMap[inputUnitId].AppendOutputUnitId(unitId);
         }
     }
 }

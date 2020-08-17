@@ -193,10 +193,10 @@ TEST_CASE("GraphTest")
         SimpleGraphTestReLU();
     }
 
-    // SUBCASE("SimpleGraph - Sigmoid")
-    // {
-    //     SimpleGraphTestSigmoid();
-    // }
+    SUBCASE("SimpleGraph - Sigmoid")
+    {
+        SimpleGraphTestSigmoid();
+    }
 }
 
 // TEST_CASE("ConcurrentCopy - small")

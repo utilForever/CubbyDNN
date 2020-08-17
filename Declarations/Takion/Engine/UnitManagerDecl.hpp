@@ -34,6 +34,9 @@ public:
 
     void AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData);
 
+    void AppendLoader(const UnitId& unitId,
+                      const std::function<std::vector<T>()>& loader);
+
     Shape GetUnitOutputShape(const UnitId& unitId);
 
     void Compile(const std::string& optimizerName, const Parameter& parameter);
@@ -53,8 +56,7 @@ private:
     void m_forwardCopy(const UnitId& subjectUnitId);
     //! Copies backward outputs of subject unit to backward inputs of destination units with direct connection
     void m_backwardCopy(const UnitId& subjectUnitId);
-    //! Creates dependencies between output units and input units
-    void m_connectUnits();
+
 
     [[nodiscard]] std::unique_ptr<Compute::Optimizer<T>> m_makeOptimizer(
         const std::string& optimizerName,
@@ -64,6 +66,7 @@ private:
     m_unitMetaDataMap;
     std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
     m_unitMap;
+    std::unordered_map<UnitId, std::function<std::vector<T>()>> m_loaderMap;
     std::size_t m_batchSize;
 };
 } // namespace Takion::Graph

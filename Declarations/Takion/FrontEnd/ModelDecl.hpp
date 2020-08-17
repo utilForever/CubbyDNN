@@ -27,6 +27,10 @@ public:
 
     void SetDevice(Compute::Device device);
 
+    AbsTensor<T> PlaceHolder(const Shape& shape,
+                             std::function<std::vector<T>()> loaderFunction,
+                             std::string name);
+
     AbsTensor<T> Constant(const Shape& shape, std::vector<T> data,
                           std::string name);
 

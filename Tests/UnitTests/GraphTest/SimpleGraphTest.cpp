@@ -30,7 +30,7 @@ void SimpleGraphTestReLU()
     model.MSE(tensor, label, "MseLoss");
 
     model.Compile("SGD", Parameter({}, { { "epsilon", 0.00001f } }, {}));
-    model.Fit(10000);
+    model.Fit(5000);
 }
 
 void SimpleGraphTestSigmoid()
@@ -52,6 +52,6 @@ void SimpleGraphTestSigmoid()
     model.MSE(tensor, label, "MseLoss");
 
     model.Compile("SGD", Parameter({}, { { "epsilon", 0.00001f } }, {}));
-    model.Fit(10000);
+    model.Fit(5000);
 }
 } // namespace Takion::Test

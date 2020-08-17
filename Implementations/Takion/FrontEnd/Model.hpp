@@ -31,6 +31,23 @@ void Model<T>::SetDevice(Compute::Device device)
 }
 
 template <typename T>
+AbsTensor<T> Model<T>::PlaceHolder(const Shape& shape,
+                                   std::function<std::vector<T>()>
+                                   loaderFunction, std::string name)
+{
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Source, "PlaceHolder"),
+                                m_id++, std::move(name) };
+
+    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {}, {}, shape,
+                                 {}, m_device);
+
+    m_unitManager.AppendUnit(std::move(unitMetaData));
+    m_unitManager.AppendLoader(subjectUnitId, loaderFunction);
+
+    return AbsTensor<T>(shape, subjectUnitId);
+}
+
+template <typename T>
 AbsTensor<T> Model<T>::Constant(const Shape& shape, std::vector<T> data,
                                 std::string name)
 {
