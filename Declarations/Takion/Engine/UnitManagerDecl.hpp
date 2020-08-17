@@ -49,6 +49,8 @@ public:
 
     virtual void AsyncBackward(std::size_t cycle);
 
+    virtual void Predict();
+
 private:
     [[nodiscard]] bool m_isForwardCopyReady(const UnitId& subjectUnitId) const;
     [[nodiscard]] bool m_isBackwardCopyReady(const UnitId& subjectUnitId) const;

@@ -154,8 +154,37 @@ void UnitManager<T>::Forward(std::size_t cycle)
         {
             if (unitPtr->IsForwardReady(cycle))
             {
-                // std::cout << "Forward " << unitPtr->Id().Type.Name() <<
-                //     " at cycle : " << cycle << std::endl;
+                unitPtr->Forward();
+                unitPtr->UpdateForwardState();
+                done = false;
+            }
+            if (m_isForwardCopyReady(key))
+            {
+                m_forwardCopy(key);
+                done = false;
+            }
+        }
+    }
+}
+
+template <typename T>
+void UnitManager<T>::Predict()
+{
+    for (const auto& [key, unitPtr] : m_unitMap)
+        if (key.Type.BaseType == UnitBaseType::Source)
+        {
+            for (auto& [unitId, tensor] : unitPtr->ForwardInputMap)
+                tensor.State.fetch_add(1);
+        }
+
+    bool done = false;
+    while (!done)
+    {
+        done = true;
+        for (const auto& [key, unitPtr] : m_unitMap)
+        {
+            if (unitPtr->IsForwardReady(0))
+            {
                 unitPtr->Forward();
                 unitPtr->UpdateForwardState();
                 done = false;
