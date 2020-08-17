@@ -53,7 +53,7 @@ void PlaceHolder<T>::Forward()
         throw std::runtime_error(errorMessage);
     }
 
-    Compute::VectorInitializer<T> initializer(std::move(vector));
+    VectorInitializer<T> initializer(std::move(vector));
     initializer.Initialize(ForwardOutput);
 }
 
