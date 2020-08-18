@@ -12,6 +12,8 @@ namespace Takion::Test
 void SimpleGraphTestReLU();
 
 void SimpleGraphTestSigmoid();
+
+void MnistTrainTest();
 }
 
 #endif

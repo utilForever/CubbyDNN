@@ -31,7 +31,7 @@ PlaceHolder<T> PlaceHolder<T>::CreateUnit(
     const auto batchSize = unitMetaData.BatchSize();
     const auto device = unitMetaData.Device;
 
-    if (device.Type() != DeviceType::CPU)
+    if (device.Type() != Compute::DeviceType::CPU)
         throw std::runtime_error(
             "CreateUnit - Device type of placeHolder must be CPU");
 
@@ -43,29 +43,13 @@ template <typename T>
 void PlaceHolder<T>::Forward()
 {
     auto vector = m_loader();
-    if (vector.size() != ForwardOutput.TensorShape.Size())
+    if (vector.size() != 
+        ForwardOutput.TensorShape.Size() * ForwardOutput.BatchSize)
     {
         const std::string errorMessage =
             std::string("Loaded vector mismatches expected size ") +
-            "Given size : " + std::to_string(vector.size()) +
-            " Expected size : " +
-            std::to_string(ForwardOutput.TensorShape.Size());
-        throw std::runtime_error(errorMessage);
-    }
-
-    VectorInitializer<T> initializer(std::move(vector));
-    initializer.Initialize(ForwardOutput);
-}
-
-template <typename T>
-void PlaceHolder<T>::AsyncForward(std::promise<bool> promise)
-{
-    auto vector = m_loader();
-    if (vector.size() != ForwardOutput.TensorShape.Size())
-    {
-        const std::string errorMessage =
-            std::string("Loaded vector mismatches expected size ") +
-            "Given size : " + std::to_string(vector.size()) +
+            "Given size including batch: " + std::to_string(
+                vector.size() * ForwardOutput.BatchSize) +
             " Expected size : " +
             std::to_string(ForwardOutput.TensorShape.Size());
         throw std::runtime_error(errorMessage);
@@ -73,6 +57,27 @@ void PlaceHolder<T>::AsyncForward(std::promise<bool> promise)
 
     Compute::VectorInitializer<T> initializer(std::move(vector));
     initializer.Initialize(ForwardOutput);
+}
+
+template <typename T>
+void PlaceHolder<T>::AsyncForward(std::promise<bool> promise)
+{
+    auto vector = m_loader();
+    if (vector.size() !=
+        ForwardOutput.TensorShape.Size() * ForwardOutput.BatchSize)
+    {
+        const std::string errorMessage =
+            std::string("Loaded vector mismatches expected size ") +
+            "Given size including batch: " +
+            std::to_string(vector.size() * ForwardOutput.BatchSize) +
+            " Expected size : " +
+            std::to_string(ForwardOutput.TensorShape.Size());
+        throw std::runtime_error(errorMessage);
+    }
+
+    Compute::VectorInitializer<T> initializer(std::move(vector));
+    initializer.Initialize(ForwardOutput);
+
     promise.set_value(true);
 }
 
