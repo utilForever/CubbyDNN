@@ -105,6 +105,21 @@ void DotWithBroadcastCpu(const Span<T> inputA, const Span<T> inputB,
 }
 
 template <typename T>
+void DivCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
+            std::size_t size, std::size_t batchSize)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
+template <typename T>
+void DivWithBroadcastCpu(const Span<T> inputA, const Span<T> inputB,
+                         Span<T> out, std::size_t size, std::size_t batchSize,
+                         bool broadCastA)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
+template <typename T>
 void ScalarMulCpu(const Span<T> input, T toMul, Span<T> output,
                   std::size_t size,
                   std::size_t batchSize)
