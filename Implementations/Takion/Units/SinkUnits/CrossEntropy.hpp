@@ -9,6 +9,7 @@
 
 #include <Takion/Units/SinkUnits/CrossEntropyDecl.hpp>
 #include <Takion/Units/UnitType.hpp>
+#include <iostream>
 
 namespace Takion::Graph
 {

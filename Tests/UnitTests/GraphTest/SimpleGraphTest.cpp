@@ -18,11 +18,11 @@ template <typename T>
 class GetMnistData
 {
 public:
-    GetMnistData(const std::vector<std::vector<T>>& data,
-                 const std::vector<std::vector<std::size_t>>& randomIndices,
+    GetMnistData(std::vector<std::vector<T>> data,
+                 std::vector<std::vector<std::size_t>> randomIndices,
                  std::size_t batchSize)
-        : m_data(data),
-          m_randomIndices(randomIndices),
+        : m_data(std::move(data)),
+          m_randomIndices(std::move(randomIndices)),
           m_batchSize(batchSize)
     {
     }
@@ -38,7 +38,8 @@ public:
             const auto data = m_data.at(idx);
             for (std::size_t dataIdx = 0; dataIdx < 785; ++dataIdx)
             {
-                dataVector.at(i * elemSize + dataIdx) = data.at(dataIdx);
+                dataVector.at(i * elemSize + dataIdx) =
+                    data.at(dataIdx) / static_cast<T>(255);
             }
         }
         return dataVector;
@@ -55,11 +56,11 @@ template <typename T>
 class GetMnistLabel
 {
 public:
-    GetMnistLabel(const std::vector<T>& label,
-                  const std::vector<std::vector<std::size_t>>& randomIndices,
+    GetMnistLabel(std::vector<T> label,
+                  std::vector<std::vector<std::size_t>> randomIndices,
                   std::size_t batchSize)
-        : m_label(label),
-          m_randomIndices(randomIndices),
+        : m_label(std::move(label)),
+          m_randomIndices(std::move(randomIndices)),
           m_batchSize(batchSize)
     {
     }
@@ -73,7 +74,8 @@ public:
         {
             const auto idx = indices.at(i);
             std::vector<T> label(numCategories, 0);
-            label.at(i) = m_label.at(idx);
+            label.at(static_cast<std::size_t>(m_label.at(idx))) =
+                static_cast<T>(1);
             for (std::size_t labelIdx = 0; labelIdx < numCategories; ++labelIdx)
                 labelVector.at(i * numCategories + labelIdx) = label.at(
                     labelIdx);
@@ -233,10 +235,10 @@ void MnistTrainTest()
     tensor = model.Dense(tensor, 50);
     tensor = model.ReLU(tensor);
     tensor = model.Dense(tensor, 10);
-    tensor = model.SoftMax(tensor);
+    tensor = model.ReLU(tensor);
     model.MSE(tensor, labelTensor, "MSELoss");
 
-    model.Compile("SGD", Parameter({}, { { "epsilon", 0.0001f } }, {}));
-    model.Fit(5000);
+    model.Compile("SGD", Parameter({}, { { "epsilon", 0.001f } }, {}));
+    model.Fit(10000);
 }
 } // namespace Takion::Test

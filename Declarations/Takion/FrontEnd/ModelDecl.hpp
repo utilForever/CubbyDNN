@@ -52,6 +52,9 @@ public:
 
     void MSE(AbsTensor<T> prediction, AbsTensor<T> label, std::string name);
 
+    void CrossEntropy(AbsTensor<T> prediction, AbsTensor<T> label,
+                      std::string name);
+
     void Compile(std::string optimizer, Parameter optimizerParams);
 
     void Fit(std::size_t epochs);

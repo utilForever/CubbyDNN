@@ -213,6 +213,30 @@ void Model<T>::MSE(AbsTensor<T> prediction, AbsTensor<T> label,
 }
 
 template <typename T>
+void Model<T>::CrossEntropy(AbsTensor<T> prediction, AbsTensor<T> label,
+                            std::string name)
+{
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "CrossEntropy"), m_id++,
+                                std::move(name) };
+
+    const auto predictionId = prediction.GetPrevOutput();
+    const auto labelId = label.GetPrevOutput();
+    const auto predictionShape = prediction.GetShape();
+    const auto labelShape = label.GetShape();
+
+    m_appendSubjectUnitToPreviousOutput(subjectUnitId, predictionId);
+    m_appendSubjectUnitToPreviousOutput(subjectUnitId, labelId);
+
+    UnitMetaData<T> unitMetaData(
+        subjectUnitId, m_batchSize, {}, {},
+        { { "prediction", predictionShape }, { "label", labelShape } }, Shape(),
+        { { "prediction", predictionId }, { "label", labelId } }, m_device);
+
+    m_unitManager.AppendUnit(std::move(unitMetaData));
+}
+
+
+template <typename T>
 void Model<T>::Compile(std::string optimizer, Parameter optimizerParams)
 {
     m_unitManager.Compile(optimizer, optimizerParams);

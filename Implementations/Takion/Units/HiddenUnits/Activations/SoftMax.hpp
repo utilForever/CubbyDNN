@@ -9,6 +9,7 @@
 
 #include <Takion/Computations/GEMM/MathKernel.hpp>
 #include <Takion/Units/HiddenUnits/Activations/SoftMaxDecl.hpp>
+#include <algorithm>
 
 namespace Takion::Graph
 {
@@ -75,21 +76,34 @@ void SoftMax<T>::Forward()
     const auto size = shape.Size();
     const Tensor<T>& inputTensor = ForwardInputMap[m_sourceUnitId];
 
-#pragma omp parallel for schedule(static)
-    for (long batchIdx = 0; batchIdx < static_cast<long>(batchSize); ++batchIdx)
+    if (m_device.Type() == Compute::DeviceType::CPU)
     {
-        T sum = static_cast<T>(0);
-        for (std::size_t idx = 0; idx < size; ++idx)
+#pragma omp parallel for schedule(static)
+        for (long batchIdx = 0; batchIdx < static_cast<long>(batchSize);
+             ++batchIdx)
         {
-            const auto index = batchIdx * size + idx;
-            sum += static_cast<T>(std::exp(inputTensor.At(index)));
+            T sum = static_cast<T>(0);
+            for (std::size_t idx = 0; idx < size; ++idx)
+            {
+                const auto index = batchIdx * size + idx;
+                const auto val = inputTensor.At(index);
+                T toAdd = std::min(static_cast<T>(std::exp(val)),
+                                   std::numeric_limits<T>::max());
+                sum = std::min(sum + toAdd, std::numeric_limits<T>::max());
+            }
+            for (std::size_t idx = 0; idx < size; ++idx)
+            {
+                const auto index = batchIdx * size + idx;
+                const auto val = inputTensor.At(index);
+                ForwardOutput.At(index) =
+                    std::min(static_cast<T>(std::exp(val)),
+                             std::numeric_limits<T>::max()) / sum;
+            }
         }
-        for (std::size_t idx = 0; idx < size; ++idx)
-        {
-            const auto index = batchIdx * size + idx;
-            ForwardOutput.At(index) =
-                static_cast<T>(std::exp(inputTensor.At(index) / sum));
-        }
+    }
+    else
+    {
+        throw std::runtime_error("Not implemented");
     }
 }
 
@@ -101,22 +115,34 @@ void SoftMax<T>::AsyncForward(std::promise<bool> promise)
     const auto size = shape.Size();
     const Tensor<T>& inputTensor = ForwardInputMap[m_sourceUnitId];
 
-#pragma omp parallel for schedule(static)
-    for (long batchIdx = 0; batchIdx < static_cast<long>(batchSize);
-         ++batchIdx)
+    if (m_device.Type() == Compute::DeviceType::CPU)
     {
-        T sum = static_cast<T>(0);
-        for (std::size_t idx = 0; idx < size; ++idx)
+#pragma omp parallel for schedule(static)
+        for (long batchIdx = 0; batchIdx < static_cast<long>(batchSize);
+             ++batchIdx)
         {
-            const auto index = batchIdx * size + idx;
-            sum += static_cast<T>(std::exp(inputTensor.At(index)));
+            T sum = static_cast<T>(0);
+            for (std::size_t idx = 0; idx < size; ++idx)
+            {
+                const auto index = batchIdx * size + idx;
+                const auto val = inputTensor.At(index);
+                T toAdd = std::min(static_cast<T>(std::exp(val)),
+                                   std::numeric_limits<T>::max());
+                sum = std::min(sum + toAdd, std::numeric_limits<T>::max());
+            }
+            for (std::size_t idx = 0; idx < size; ++idx)
+            {
+                const auto index = batchIdx * size + idx;
+                const auto val = inputTensor.At(index);
+                ForwardOutput.At(index) =
+                    std::min(static_cast<T>(std::exp(val)),
+                             std::numeric_limits<T>::max()) / sum;
+            }
         }
-        for (std::size_t idx = 0; idx < size; ++idx)
-        {
-            const auto index = batchIdx * size + idx;
-            ForwardOutput.At(index) =
-                static_cast<T>(std::exp(inputTensor.At(index) / sum));
-        }
+    }
+    else
+    {
+        throw std::runtime_error("Not implemented");
     }
 
     promise.set_value(true);
@@ -163,9 +189,12 @@ void SoftMax<T>::Backward()
                     }
                     else
                     {
-                        const auto prevOutput =
+                        const auto prevOutIn =
                             ForwardOutput.At(backwardInputIdx);
-                        const auto derivative = -prevOutput * prevOutput;
+                        const auto prevOutOut =
+                            ForwardOutput.At(backwardOutputIdx);
+
+                        const auto derivative = -prevOutIn * prevOutOut;
                         const auto val =
                             backwardTemp.At(backwardInputIdx) * derivative;
                         sum += val;
@@ -223,9 +252,12 @@ void SoftMax<T>::AsyncBackward(std::promise<bool> promise)
                     }
                     else
                     {
-                        const auto prevOutput =
+                        const auto prevOutIn =
                             ForwardOutput.At(backwardInputIdx);
-                        const auto derivative = -prevOutput * prevOutput;
+                        const auto prevOutOut =
+                            ForwardOutput.At(backwardOutputIdx);
+
+                        const auto derivative = -prevOutIn * prevOutOut;
                         const auto val =
                             backwardTemp.At(backwardInputIdx) * derivative;
                         sum += val;
