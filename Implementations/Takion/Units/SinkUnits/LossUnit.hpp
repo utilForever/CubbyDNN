@@ -77,33 +77,7 @@ MSELoss<T> MSELoss<T>::CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData)
 template <typename T>
 void MSELoss<T>::Forward()
 {
-    Tensor<T>& prediction =
-        ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
-    const Tensor<T>& label = ComputableUnit<T>::ForwardInputMap.at(
-        m_labelUnitId);
-    Tensor<T>& outputTensor = ForwardOutput;
-
-    Compute::Sub(label, prediction, outputTensor);
-    Compute::Dot(outputTensor, outputTensor);
-    Compute::ScalarDiv(outputTensor, static_cast<T>(2));
-
-    const auto size = ForwardOutput.TensorShape.Size() * ForwardOutput.
-                      BatchSize;
-    T sum = static_cast<T>(0);
-    for (std::size_t i = 0; i < size; ++i)
-    {
-        const auto output = outputTensor.At(i);
-        sum += output;
-    }
-
-    sum /= static_cast<T>(size);
-    m_loss = sum;
-    std::cout << "Loss : " << m_loss << std::endl;
-}
-
-template <typename T>
-void MSELoss<T>::AsyncForward(std::promise<bool> promise)
-{
+    const auto batchSize = ComputableUnit<T>::BatchSize;
     Tensor<T>& prediction =
         ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
     const Tensor<T>& label =
@@ -113,6 +87,43 @@ void MSELoss<T>::AsyncForward(std::promise<bool> promise)
     Compute::Sub(label, prediction, outputTensor);
     Compute::Dot(outputTensor, outputTensor);
     Compute::ScalarDiv(outputTensor, static_cast<T>(2));
+
+    const auto size = ForwardOutput.TensorShape.Size() * batchSize;
+    T sum = static_cast<T>(0);
+    for (std::size_t i = 0; i < size; ++i)
+    {
+        const auto output = outputTensor.At(i);
+        sum += output;
+    }
+
+    m_loss = sum / static_cast<T>(batchSize);
+    std::cout << "Loss : " << m_loss << std::endl;
+}
+
+template <typename T>
+void MSELoss<T>::AsyncForward(std::promise<bool> promise)
+{
+    const auto batchSize = ComputableUnit<T>::BatchSize;
+    Tensor<T>& prediction =
+        ComputableUnit<T>::ForwardInputMap.at(m_predictionUnitId);
+    const Tensor<T>& label =
+        ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
+    Tensor<T>& outputTensor = ForwardOutput;
+
+    Compute::Sub(label, prediction, outputTensor);
+    Compute::Dot(outputTensor, outputTensor);
+    Compute::ScalarDiv(outputTensor, static_cast<T>(2));
+
+    const auto size = ForwardOutput.TensorShape.Size() * batchSize;
+    T sum = static_cast<T>(0);
+    for (std::size_t i = 0; i < size; ++i)
+    {
+        const auto output = outputTensor.At(i);
+        sum += output;
+    }
+
+    m_loss = sum / static_cast<T>(batchSize);
+    std::cout << "Loss : " << m_loss << std::endl;
 
     promise.set_value(true);
 }

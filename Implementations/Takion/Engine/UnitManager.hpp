@@ -9,11 +9,13 @@
 
 #include <Takion/Engine/UnitManagerDecl.hpp>
 #include <Takion/Units/HiddenUnits/Dense.hpp>
-#include <Takion/Units/SinkUnits/LossUnit.hpp>
 #include <Takion/Units/SourceUnits/ConstantUnit.hpp>
+#include <Takion/Units/SourceUnits/PlaceHolder.hpp>
 #include <Takion/Units/HiddenUnits/Activations/ReLU.hpp>
 #include <Takion/Units/HiddenUnits/Activations/Sigmoid.hpp>
-#include <Takion/Units/SourceUnits/PlaceHolder.hpp>
+#include <Takion/Units/HiddenUnits/Activations/SoftMax.hpp>
+#include <Takion/Units/SinkUnits/LossUnit.hpp>
+#include <Takion/Units/SinkUnits/CrossEntropy.hpp>
 
 
 namespace Takion::Engine
@@ -105,6 +107,13 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
                 std::make_unique<Graph::Sigmoid<T>>(std::move(unit));
             continue;
         }
+        if (type.Name() == "SoftMax")
+        {
+            auto unit = Graph::SoftMax<T>::CreateUnit(unitMetaData);
+            m_unitMap[unitId] =
+                std::make_unique<Graph::SoftMax<T>>(std::move(unit));
+            continue;
+        }
         if (type.Name() == "Reshape")
         {
             throw std::runtime_error("Not implemented");
@@ -114,6 +123,13 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
             auto unit = Graph::MSELoss<T>::CreateUnit(unitMetaData);
             m_unitMap[unitId] =
                 std::make_unique<Graph::MSELoss<T>>(std::move(unit));
+            continue;
+        }
+        if (type.Name() == "CrossEntropy")
+        {
+            auto unit = Graph::CrossEntropy<T>::CreateUnit(unitMetaData);
+            m_unitMap[unitId] =
+                std::make_unique<Graph::CrossEntropy<T>>(std::move(unit));
             continue;
         }
         if (type.Name() == "Constant")
@@ -214,8 +230,6 @@ void UnitManager<T>::Backward(std::size_t cycle)
         {
             if (unitPtr->IsBackwardReady(cycle))
             {
-                // std::cout << "Backward " << unitPtr->Id().Type.Name()
-                //     << " at cycle : " << cycle << std::endl;
                 unitPtr->Backward();
                 unitPtr->UpdateBackwardState();
                 done = false;

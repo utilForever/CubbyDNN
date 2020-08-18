@@ -18,10 +18,14 @@ template <typename T>
 class GetMnistData
 {
 public:
-    GetMnistData(const std::vector<std::vector<T>>& data);
+    GetMnistData(const std::vector<std::vector<T>>& data)
+        : m_data(data)
+    {
+    }
 
     std::vector<T> operator()()
     {
+        return m_data.at(m_cycle++);
     }
 
 private:
@@ -33,23 +37,32 @@ template <typename T>
 class GetMnistLabel
 {
 public:
-    GetMnistLabel(const std::vector<T>& label);
-
-    std::vector<T> operator()()
+    GetMnistLabel(const std::vector<std::size_t>& label)
+        : m_label(label)
     {
     }
 
+    std::vector<T> operator()()
+    {
+        std::vector<T> label(10, 0);
+        std::size_t labelIdx = m_label.at(m_cycle);
+        label.at(labelIdx) = static_cast<T>(1);
+        m_cycle++;
+        return label;
+    }
+
 private:
-    std::vector<T> m_label;
-    std::size_t m_cycle;
+    std::vector<std::size_t> m_label;
+    std::size_t m_cycle = 0;
 };
 
 template <typename T>
-std::pair<std::vector<T>, std::vector<std::vector<T>>> GetMnistDataSet(
+std::pair<std::vector<std::size_t>, std::vector<std::vector<T>>>
+GetMnistDataSet(
     std::filesystem::path path)
 {
-    std::vector<T> label(60000);
-    std::vector<T> data(60000);
+    std::vector<std::size_t> label(60000);
+    std::vector<std::vector<T>> data(60000);
 
     std::string line;
     std::stringstream ss;
@@ -60,6 +73,7 @@ std::pair<std::vector<T>, std::vector<std::vector<T>>> GetMnistDataSet(
 
     T val;
 
+    std::size_t lineIdx = 0;
     while (std::getline(file, line))
     {
         std::stringstream stream;
@@ -70,7 +84,7 @@ std::pair<std::vector<T>, std::vector<std::vector<T>>> GetMnistDataSet(
         {
             if (isLabel)
             {
-                label.at(index) = val;
+                label.at(lineIdx) = static_cast<std::size_t>(val);
                 isLabel = false;
             }
             else
@@ -81,7 +95,11 @@ std::pair<std::vector<T>, std::vector<std::vector<T>>> GetMnistDataSet(
 
             index++;
         }
+
+        data.at(lineIdx) = std::move(colData);
     }
+
+    return std::make_pair(label, data);
 }
 
 

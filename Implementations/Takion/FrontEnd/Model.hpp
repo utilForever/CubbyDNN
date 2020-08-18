@@ -158,8 +158,25 @@ AbsTensor<T> Model<T>::Sigmoid(AbsTensor<T> source, std::string name)
 
     m_appendSubjectUnitToPreviousOutput(subjectUnitId, prevUnitId);
 
-    std::unordered_map<std::string, std::unique_ptr<Compute::Initializer<T>>>
-        initializerMap;
+    UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
+                                 { { "input", shape } }, shape,
+                                 { { "input", prevUnitId } }, m_device);
+
+    m_unitManager.AppendUnit(std::move(unitMetaData));
+
+    return AbsTensor<T>(shape, subjectUnitId);
+}
+
+template <typename T>
+AbsTensor<T> Model<T>::SoftMax(AbsTensor<T> source, std::string name)
+{
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Hidden, "SoftMax"),
+                                m_id++, std::move(name) };
+
+    const auto prevUnitId = source.GetPrevOutput();
+    const auto shape = source.GetShape();
+
+    m_appendSubjectUnitToPreviousOutput(subjectUnitId, prevUnitId);
 
     UnitMetaData<T> unitMetaData(subjectUnitId, m_batchSize, {}, {},
                                  { { "input", shape } }, shape,
