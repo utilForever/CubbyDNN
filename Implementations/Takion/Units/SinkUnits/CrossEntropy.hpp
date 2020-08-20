@@ -154,7 +154,7 @@ void CrossEntropy<T>::Backward()
         ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
     Tensor<T>& backwardOutput = BackwardOutputMap[m_predictionUnitId];
 
-    Compute::ScalarMul(label, static_cast<T>(-1));
+    //Compute::ScalarMul(label, static_cast<T>(-1));
     Compute::Div(label, prediction, backwardOutput);
 }
 
@@ -168,7 +168,7 @@ void CrossEntropy<T>::AsyncBackward(std::promise<bool> promise)
         ComputableUnit<T>::ForwardInputMap.at(m_labelUnitId);
     Tensor<T>& backwardOutput = BackwardOutputMap[m_predictionUnitId];
 
-    Compute::ScalarMul(label, static_cast<T>(-1));
+    //Compute::ScalarMul(label, static_cast<T>(-1));
     Compute::Div(label, prediction, backwardOutput);
 
     promise.set_value(true);

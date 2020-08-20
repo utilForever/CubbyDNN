@@ -87,17 +87,15 @@ void SoftMax<T>::Forward()
             {
                 const auto index = batchIdx * size + idx;
                 const auto val = inputTensor.At(index);
-                T toAdd = std::min(static_cast<T>(std::exp(val)),
-                                   std::numeric_limits<T>::max());
-                sum = std::min(sum + toAdd, std::numeric_limits<T>::max());
+                T toAdd = static_cast<T>(std::exp(val));
+                sum = sum + toAdd;
             }
             for (std::size_t idx = 0; idx < size; ++idx)
             {
                 const auto index = batchIdx * size + idx;
                 const auto val = inputTensor.At(index);
                 ForwardOutput.At(index) =
-                    std::min(static_cast<T>(std::exp(val)),
-                             std::numeric_limits<T>::max()) / sum;
+                    static_cast<T>(std::exp(val)) / sum;
             }
         }
     }
@@ -173,10 +171,11 @@ void SoftMax<T>::Backward()
             for (std::size_t idxOut = 0; idxOut < size; ++idxOut)
             {
                 const auto backwardOutputIdx = batchIdx * size + idxOut;
+                T sum = static_cast<T>(0);
+
                 for (std::size_t idxIn = 0; idxIn < size; ++idxIn)
                 {
                     const auto backwardInputIdx = batchIdx * size + idxIn;
-                    T sum = static_cast<T>(0);
 
                     if (idxIn == idxOut)
                     {
@@ -199,9 +198,8 @@ void SoftMax<T>::Backward()
                             backwardTemp.At(backwardInputIdx) * derivative;
                         sum += val;
                     }
-
-                    backwardOutput.At(backwardOutputIdx) = sum;
                 }
+                backwardOutput.At(backwardOutputIdx) = sum;
             }
         }
     }
@@ -236,10 +234,11 @@ void SoftMax<T>::AsyncBackward(std::promise<bool> promise)
             for (std::size_t idxOut = 0; idxOut < size; ++idxOut)
             {
                 const auto backwardOutputIdx = batchIdx * size + idxOut;
+                T sum = static_cast<T>(0);
+
                 for (std::size_t idxIn = 0; idxIn < size; ++idxIn)
                 {
                     const auto backwardInputIdx = batchIdx * size + idxIn;
-                    T sum = static_cast<T>(0);
 
                     if (idxIn == idxOut)
                     {
@@ -262,9 +261,8 @@ void SoftMax<T>::AsyncBackward(std::promise<bool> promise)
                             backwardTemp.At(backwardInputIdx) * derivative;
                         sum += val;
                     }
-
-                    backwardOutput.At(backwardOutputIdx) = sum;
                 }
+                backwardOutput.At(backwardOutputIdx) = sum;
             }
         }
     }
