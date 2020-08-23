@@ -10,13 +10,12 @@ using namespace CubbyDNN;
 
 TEST_CASE("[DataLoader] - Big batchsize than dataset size")
 {
-    CHECK_THROWS(
-        DataLoader<TestDataset> loader(std::make_unique<TestDataset>(), 500));
+    CHECK_THROWS(DataLoader<TestDataset> loader(TestDataset(), 500));
 }
 
 TEST_CASE("[DataLoader] - NotBatched")
 {
-    DataLoader<TestDataset> loader(std::make_unique<TestDataset>());
+    DataLoader<TestDataset> loader{ TestDataset() };
 
     CHECK_EQ(loader.GetBatchSize(), 1);
     CHECK_EQ(loader.GetSize(), 5);
@@ -38,7 +37,7 @@ TEST_CASE("[DataLoader] - NotBatched")
 
 TEST_CASE("[DataLoader] - Batched(Drop Last)")
 {
-    DataLoader<TestDataset> loader(std::make_unique<TestDataset>(), 2);
+    DataLoader<TestDataset> loader{ TestDataset(), 2 };
 
     CHECK_EQ(loader.GetBatchSize(), 2);
     CHECK_EQ(loader.GetSize(), 2);  // 5 = 2 * 2 + 1(dropped)
@@ -67,7 +66,7 @@ TEST_CASE("[DataLoader] - Batched(Drop Last)")
 
 TEST_CASE("[DataLoader] - Batched(Not Drop Last)")
 {
-    DataLoader<TestDataset> loader(std::make_unique<TestDataset>(), 5);
+    DataLoader<TestDataset> loader{ TestDataset(), 5 };
 
     CHECK_EQ(loader.GetBatchSize(), 5);
     CHECK_EQ(loader.GetSize(), 1);  // 5 = 5 * 1
@@ -81,7 +80,8 @@ TEST_CASE("[DataLoader] - Batched(Not Drop Last)")
 
     for (int i = 0; i < 5; ++i)
     {
-        CHECK_EQ(batch.value().Data.GetSpan()[i * 4], static_cast<float>(i + 1));
+        CHECK_EQ(batch.value().Data.GetSpan()[i * 4],
+                 static_cast<float>(i + 1));
     }
 
     batch = loader.Next();

@@ -18,19 +18,19 @@ template <class Dataset>
 class DataLoader
 {
  public:
-    DataLoader(std::unique_ptr<Dataset> dataset, std::size_t batchSize = 1,
+    DataLoader(Dataset dataset, std::size_t batchSize = 1,
                bool shuffle = false)
         : m_dataset(std::move(dataset)),
           m_batchSize(batchSize),
           m_shuffle(shuffle)
     {
-        if (m_dataset->GetSize() < batchSize)
+        if (m_dataset.GetSize() < batchSize)
         {
             throw std::invalid_argument(
                 "Batch size cannot bigger than dataset size");
         }
 
-        m_datasetSize = m_dataset->GetSize();
+        m_datasetSize = m_dataset.GetSize();
         m_datasetSize -= m_datasetSize % batchSize;  // Drop Last
 
         m_indices.resize(m_datasetSize);
@@ -55,7 +55,7 @@ class DataLoader
     }
 
  private:
-    std::unique_ptr<Dataset> m_dataset;
+    Dataset m_dataset;
 
     std::size_t m_batchSize;
     std::size_t m_datasetSize;
@@ -101,7 +101,7 @@ std::optional<SimpleBatch> DataLoader<Dataset>::Next()
     std::size_t dataSize = 0, targetSize = 0;
     for (std::size_t b = 0; b < m_batchSize; ++b)
     {
-        batches[b] = m_dataset->Get(indices[b]);
+        batches[b] = m_dataset.Get(indices[b]);
 
         dataSize += batches[b].Data.Size();
         targetSize += batches[b].Target.Size();
