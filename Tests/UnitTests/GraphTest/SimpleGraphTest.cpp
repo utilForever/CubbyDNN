@@ -42,6 +42,7 @@ public:
                     data.at(dataIdx) / static_cast<T>(255);
             }
         }
+        m_cycle++;
         return dataVector;
     }
 
@@ -80,6 +81,7 @@ public:
                 labelVector.at(i * numCategories + labelIdx) = label.at(
                     labelIdx);
         }
+        m_cycle++;
         return labelVector;
     }
 
@@ -148,7 +150,7 @@ std::vector<std::vector<std::size_t>> GetRandomSequence(std::size_t batchSize,
 {
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_int_distribution<std::size_t> dist(0, lineLength);
+    std::uniform_int_distribution<std::size_t> dist(0, lineLength - 1);
 
     std::vector<std::vector<std::size_t>> epochBatchIndices(epochs);
 
@@ -216,8 +218,8 @@ void MnistTrainTest()
         "C:\\Users\\user\\Desktop\\Files\\projects\\Takion\\Mnist\\27352_34877_"
         "bundle_archive\\mnist_train.csv";
 
-    const std::size_t batchSize = 100;
-    const std::size_t epochs = 10000;
+    const std::size_t batchSize = 150;
+    const std::size_t epochs = 80000;
 
     const auto [label, data] = GetMnistDataSet<float>(filepath);
     const auto randomIndices = GetRandomSequence(batchSize, epochs, 60000);
@@ -226,19 +228,21 @@ void MnistTrainTest()
     auto getLabel = GetMnistLabel<float>(label, randomIndices, batchSize);
 
     Model<float> model(Compute::Device(0, Compute::DeviceType::CPU, "device0"),
-                       100);
+                       batchSize);
     auto tensor = model.PlaceHolder(Shape({ 785 }), getData, "DataLoader");
     auto labelTensor =
         model.PlaceHolder(Shape({ 10 }), getLabel, "LabelLoader");
-    tensor = model.Dense(tensor, 150);
+    tensor = model.Dense(tensor, 200);
+    tensor = model.ReLU(tensor);
+    tensor = model.Dense(tensor, 100);
     tensor = model.ReLU(tensor);
     tensor = model.Dense(tensor, 50);
     tensor = model.ReLU(tensor);
     tensor = model.Dense(tensor, 10);
-    tensor = model.ReLU(tensor);
-    model.MSE(tensor, labelTensor, "MSELoss");
+    tensor = model.SoftMax(tensor);
+    model.CrossEntropy(tensor, labelTensor, "CrossEntropy Loss");
 
-    model.Compile("SGD", Parameter({}, { { "epsilon", 0.001f } }, {}));
-    model.Fit(10000);
+    model.Compile("SGD", Parameter({}, { { "epsilon", 0.0002f } }, {}));
+    model.Fit(epochs);
 }
 } // namespace Takion::Test
