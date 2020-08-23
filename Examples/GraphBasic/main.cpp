@@ -1,7 +1,11 @@
 #include <CubbyDNN/Core/Graph.hpp>
 #include <CubbyDNN/Core/Shape.hpp>
+#include <CubbyDNN/Datas/DataLoader.hpp>
+#include <CubbyDNN/Datas/Dataset/MNISTDataset.hpp>
+#include <CubbyDNN/Datas/TransformedDataset.hpp>
 #include <CubbyDNN/Node/Parameter.hpp>
 #include <CubbyDNN/Optimizer/Momentum.hpp>
+#include <CubbyDNN/Preprocess/ImageTransforms.hpp>
 
 #include <chrono>
 #include <fstream>
@@ -12,39 +16,6 @@ using namespace CubbyDNN;
 
 auto main() -> int
 {
-    std::vector<float> trainX(60000 * 784);
-    std::vector<float> trainY(60000 * 10);
-    std::vector<float> testX(10000 * 784);
-    std::vector<float> testY(10000 * 10);
-
-    {
-        std::ifstream input{ L"train_input.dat",
-                             std::ifstream::binary | std::ifstream::in };
-        input.read(reinterpret_cast<char*>(trainX.data()),
-                   sizeof(float) * trainX.size());
-    }
-
-    {
-        std::ifstream input{ L"train_label.dat",
-                             std::ifstream::binary | std::ifstream::in };
-        input.read(reinterpret_cast<char*>(trainY.data()),
-                   sizeof(float) * trainY.size());
-    }
-
-    {
-        std::ifstream input{ L"test_input.dat",
-                             std::ifstream::binary | std::ifstream::in };
-        input.read(reinterpret_cast<char*>(testX.data()),
-                   sizeof(float) * testX.size());
-    }
-
-    {
-        std::ifstream input{ L"test_label.dat",
-                             std::ifstream::binary | std::ifstream::in };
-        input.read(reinterpret_cast<char*>(testY.data()),
-                   sizeof(float) * testY.size());
-    }
-
     Core::Graph graph;
 
     auto x = graph.Builder().Input("x");
@@ -79,50 +50,47 @@ auto main() -> int
         shuffledIndexList.emplace_back(index);
     }
 
+    auto trainDataset = MNISTDataset("./data", true, true)
+                            .Transform(Transforms::ImageTransforms::ToMemory());
+    auto testDataset = MNISTDataset("./data", false, true)
+                           .Transform(Transforms::ImageTransforms::ToMemory());
+
+    auto trainLoader = DataLoader(std::move(trainDataset), 32, true);
+    auto testLoader = DataLoader(std::move(testDataset), 10000, false);
+
     while (true)
     {
         auto begin(std::chrono::system_clock::now());
 
-        graph.Feed({ { "x", Core::Shape{ 784, 60000 },
-                       Core::Span<float>{ trainX.begin(), trainX.end() } },
-                     { "y", Core::Shape{ 10, 60000 },
-                       Core::Span<float>{ trainY.begin(), trainY.end() } } });
+        float runningLoss = 0;
 
-        std::cout << "Training Loss: " << loss.EvalOutput().Output()[0]
+        trainLoader.Begin();
+        std::optional<SimpleBatch> batch;
+        while ((batch = trainLoader.Next()).has_value())
+        {
+            graph.Feed(
+                { { "x", Core::Shape{ 784, 32 }, batch.value().Data.GetSpan() },
+                  { "y", Core::Shape{ 10, 32 },
+                    batch.value().Target.GetSpan() } });
+
+            runningLoss += loss.EvalOutput().Output()[0];
+
+            auto g = o1.EvalOutput().Output();
+            optimizer.Reduce(1e-3f, loss);
+        }
+
+        std::cout << "Training Loss: " << runningLoss  / trainLoader.GetSize()
                   << std::endl;
 
-        graph.Feed({ { "x", Core::Shape{ 784, 10000 },
-                       Core::Span<float>{ testX.begin(), testX.end() } },
-                     { "y", Core::Shape{ 10, 10000 },
-                       Core::Span<float>{ testY.begin(), testY.end() } } });
+        testLoader.Begin();
+        batch = testLoader.Next();
+
+        graph.Feed(
+            { { "x", Core::Shape{ 784, 10000 }, batch.value().Data.GetSpan() },
+              { "y", Core::Shape{ 10, 10000 }, batch.value().Target.GetSpan() } });
 
         std::cout << "Test Loss: " << loss.EvalOutput().Output()[0]
                   << std::endl;
-
-        for (std::size_t index = 1; index < 60000; ++index)
-        {
-            std::swap(
-                shuffledIndexList[index - 1],
-                shuffledIndexList[std::uniform_int_distribution<std::size_t>{
-                    index, 60000 - 1 }(engine)]);
-        }
-
-        for (std::size_t index = 0; index + 32 <= 60000; index += 32)
-        {
-            std::size_t actualBatchSize =
-                std::min<std::size_t>(60000 - index, 32);
-
-            graph.Feed({ { "x", Core::Shape{ 784, actualBatchSize },
-                           Core::Span<float>{ trainX.data() + index * 784,
-                                              actualBatchSize * 784 } },
-                         { "y", Core::Shape{ 10, actualBatchSize },
-                           Core::Span<float>{ trainY.data() + index * 10,
-                                              actualBatchSize * 10 } } });
-
-            auto g = o1.EvalOutput().Output();
-
-            optimizer.Reduce(0.001f, loss);
-        }
 
         auto end(std::chrono::system_clock::now());
 
