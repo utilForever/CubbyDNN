@@ -10,13 +10,13 @@ template <class DatasetT, class TransformT>
 class TransformedDataset final
     : public Dataset<TransformedDataset<DatasetT, TransformT>,
                      SimpleData<typename TransformT::OutputType,
-                                typename DatasetT::OutputType>>
+                                typename DatasetT::OutputType::OutputType>>
 {
  public:
     using
         typename Dataset<TransformedDataset<DatasetT, TransformT>,
                          SimpleData<typename TransformT::OutputType,
-                                    typename DatasetT::OutputType>>::OutputType;
+                                    typename DatasetT::OutputType::OutputType>>::OutputType;
 
     TransformedDataset(DatasetT dataset, TransformT transform)
         : m_dataset(std::move(dataset)), m_transform(std::move(transform))
@@ -28,8 +28,8 @@ class TransformedDataset final
         auto data = m_dataset.Get(index);
 
         OutputType ret;
-        ret.Data = m_transform(data.Data);  
-        ret.Target = data.Target;
+        ret.Data = m_transform(data.Data);
+        Core::Swap(ret.Target, data.Target);
 
         return ret;
     }

@@ -13,10 +13,13 @@ namespace CubbyDNN
 class MNISTDataset final : public Dataset<MNISTDataset, SimpleData<Image, Core::Memory<float>>>
 {
  public:
+    using OutputType = SimpleData<Image, Core::Memory<float>>;
+
     MNISTDataset(const std::string& root, bool train, bool download);
 
     bool IsTrain() const;
     OutputType Get(std::size_t index) override;
+
     std::size_t GetSize() const override;
 
  private:

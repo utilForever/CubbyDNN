@@ -1,14 +1,16 @@
 #ifndef CUBBYDNN_DATA_LOADER_HPP
 #define CUBBYDNN_DATA_LOADER_HPP
 
-#include <CubbyDNN/Datas/Tensor.hpp>
+#include <CubbyDNN/Core/Memory.hpp>
+#include <CubbyDNN/Datas/SimpleData.hpp>
 
 #include <algorithm>
 #include <effolkronium/random.hpp>
 #include <memory>
 #include <numeric>
 #include <optional>
-#include <tuple>
+#include <type_traits>
+#include <vector>
 
 namespace CubbyDNN
 {
@@ -16,8 +18,6 @@ template <class Dataset>
 class DataLoader
 {
  public:
-    using Batch = std::tuple<FloatTensor, LongTensor>;
-
     DataLoader(std::unique_ptr<Dataset> dataset, std::size_t batchSize = 1,
                bool shuffle = false)
         : m_dataset(std::move(dataset)),
@@ -37,7 +37,7 @@ class DataLoader
     }
 
     void Begin();
-    std::optional<Batch> Next();
+    std::optional<SimpleBatch> Next();
 
     std::size_t GetSize() const
     {
@@ -78,8 +78,15 @@ void DataLoader<Dataset>::Begin()
 }
 
 template <class Dataset>
-std::optional<typename DataLoader<Dataset>::Batch> DataLoader<Dataset>::Next()
+std::optional<SimpleBatch> DataLoader<Dataset>::Next()
 {
+    static_assert(
+        std::is_same<Core::Memory<float>,
+                     typename Dataset::OutputType::InputType>::value == true);
+    static_assert(
+        std::is_same<Core::Memory<float>,
+                     typename Dataset::OutputType::OutputType>::value == true);
+
     if (m_nowPos >= m_datasetSize)
         return std::nullopt;
 
@@ -88,24 +95,39 @@ std::optional<typename DataLoader<Dataset>::Batch> DataLoader<Dataset>::Next()
          dataIdx < m_nowPos + m_batchSize; ++dataIdx, ++batch)
         indices[batch] = m_indices[dataIdx];
 
-    const auto batch = m_dataset->GetBatch(indices);
-
-    const std::size_t inputSize = batch[0].Data.size();
-
-    FloatTensor input(m_batchSize * inputSize);
-    LongTensor target(m_batchSize);
-
-    for (std::size_t batchIdx = 0; batchIdx < m_batchSize; ++batchIdx)
-    {
-        auto [inp, tar] = batch[batchIdx];
-
-        std::copy(begin(inp), end(inp), begin(input) + inputSize * batchIdx);
-        target[batchIdx] = tar;
-    }
-
     m_nowPos += m_batchSize;
 
-    return std::make_optional(std::make_tuple(input, target));
+    std::vector<typename Dataset::OutputType> batches(m_batchSize);
+    std::size_t dataSize = 0, targetSize = 0;
+    for (std::size_t b = 0; b < m_batchSize; ++b)
+    {
+        batches[b] = m_dataset->Get(indices[b]);
+
+        dataSize += batches[b].Data.Size();
+        targetSize += batches[b].Target.Size();
+    }
+
+    Core::Memory<float> data(dataSize);
+    Core::Memory<float> target(targetSize);
+
+    std::size_t dataPos = 0, targetPos = 0;
+    for (std::size_t b = 0; b < m_batchSize; ++b)
+    {
+        const std::size_t dataLength = batches[b].Data.Size();
+        const std::size_t targetLength = batches[b].Target.Size();
+
+        std::copy(batches[b].Data.GetSpan().begin(),
+                  batches[b].Data.GetSpan().end(),
+                  data.GetSpan().begin() + dataPos);
+        std::copy(batches[b].Target.GetSpan().begin(),
+                  batches[b].Target.GetSpan().end(),
+                  target.GetSpan().begin() + targetPos);
+
+        dataPos += dataLength;
+        targetPos += targetLength;
+    }
+
+    return SimpleBatch{ data, target };
 }
 }  // namespace CubbyDNN
 

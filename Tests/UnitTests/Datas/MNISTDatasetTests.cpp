@@ -18,7 +18,6 @@ TEST_CASE("[MNISTDataset] - Load Data Set")
         CHECK_EQ(img.GetHeight(), 28);
         CHECK_EQ(img.GetWidth(), 28);
         CHECK_EQ(img.IsGrayScale(), true);
-        CHECK_EQ(target < 10, true);
     }
 
     {
@@ -32,6 +31,5 @@ TEST_CASE("[MNISTDataset] - Load Data Set")
         CHECK_EQ(img.GetHeight(), 28);
         CHECK_EQ(img.GetWidth(), 28);
         CHECK_EQ(img.IsGrayScale(), true);
-        CHECK_EQ(target < 10, true);
     }
 }

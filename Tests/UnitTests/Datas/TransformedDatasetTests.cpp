@@ -11,26 +11,24 @@ using namespace CubbyDNN;
 
 TEST_CASE("[TransformedDataset] - Single transform")
 {
-    auto dataset = TransformedDataset(
-        TestDataset(), Transforms::Normalize<long>({ 3 }, { 2 }));
+    auto dataset = TestDataset().Transform(
+        Transforms::Normalize({ 3 }, { 2 }, { 1, 1, 1 }));
 
     CHECK_EQ(dataset.GetSize(), 5);
 
     const auto data = dataset.Get(0);
-    CHECK_EQ(data.Data[0], doctest::Approx(-1));
-    CHECK_EQ(data.Target, 10);
+    CHECK_EQ(data.Data.GetSpan()[0], doctest::Approx(-1));
 }
 
 TEST_CASE("[TransformedDataset] - Multiple transforms")
 {
-    auto dataset = TransformedDataset(
-        TransformedDataset(TestDataset(),
-                           Transforms::Normalize<long>({ 3 }, { 2 })),
-        Transforms::Normalize<long>({ 1 }, { 5 }));
-
+    auto dataset =
+        TestDataset()
+            .Transform(Transforms::Normalize({ 3 }, { 2 }, { 1, 1, 1 }))
+            .Transform(Transforms::Normalize({ 1 }, { 5 }, { 1, 1, 1 }));
+    
     CHECK_EQ(dataset.GetSize(), 5);
 
     const auto data = dataset.Get(3);
-    CHECK_EQ(data.Data[0], doctest::Approx(-0.1));
-    CHECK_EQ(data.Target, 40);
+    CHECK_EQ(data.Data.GetSpan()[0], doctest::Approx(-0.1));
 }

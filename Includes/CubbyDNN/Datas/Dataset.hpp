@@ -19,9 +19,18 @@ class Dataset
     virtual std::size_t GetSize() const = 0;
 
     template <class TransformT>
-    TransformedDataset<Self, TransformT> Transform(TransformT transform)
+    TransformedDataset<Self, TransformT> Transform(TransformT transform) &
     {
-        return TransformedDataset<Self, TransformT>(std::move(*this), std::move(transform));
+        return TransformedDataset<Self, TransformT>{ static_cast<Self&>(*this),
+                                                     std::move(transform) };
+    }
+
+    template <class TransformT>
+    TransformedDataset<Self, TransformT> Transform(TransformT transform) &&
+    {
+        return TransformedDataset<Self, TransformT>{
+            std::move(static_cast<Self&>(*this)), std::move(transform)
+        };
     }
 };
 }  // namespace CubbyDNN
