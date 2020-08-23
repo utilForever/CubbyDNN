@@ -19,7 +19,7 @@ class TestDataset
         Memory<float> data(4);
         Memory<float> target(5);
 
-        data.GetSpan().FillScalar(index * 10.f);
+        data.GetSpan().FillScalar(index + 1.f);
         target.GetSpan()[index] = 1;
 
         return { data, target };
