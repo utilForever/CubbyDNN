@@ -121,14 +121,14 @@ Transform<Image, Image>::OutputType RandomGrayScale::operator()(
     return Image::ToGrayScale(input);
 }
 
-ToTensor::OutputType ToTensor::operator()(const InputType& input)
+ToMemory::OutputType ToMemory::operator()(const InputType& input)
 {
     const std::size_t heightSize = input.GetHeight();
     const std::size_t imageSize = input.GetHeight() * input.GetWidth();
     const std::size_t channelSize =
         (input.IsGrayScale() ? 1 : (input.HasAlpha() ? 4 : 3));
 
-    std::vector<float> data(imageSize * channelSize);
+    Core::Memory<float> data(imageSize * channelSize);
 
     const auto index = [&imageSize, &heightSize](std::size_t x, std::size_t y,
                                                  std::size_t c) -> std::size_t {
@@ -142,7 +142,7 @@ ToTensor::OutputType ToTensor::operator()(const InputType& input)
             for (std::size_t x = 0; x < input.GetWidth(); ++x)
             {
                 const auto& pixel = input.At(x, y);
-                data[index(x, y, 0)] = pixel.Gray() / 255.f;
+                data.GetSpan()[index(x, y, 0)] = pixel.Gray() / 255.f;
             }
         }
     }
@@ -153,12 +153,12 @@ ToTensor::OutputType ToTensor::operator()(const InputType& input)
             for (std::size_t x = 0; x < input.GetWidth(); ++x)
             {
                 const auto& pixel = input.At(x, y);
-                data[index(x, y, 0)] = pixel.R() / 255.f;
-                data[index(x, y, 1)] = pixel.G() / 255.f;
-                data[index(x, y, 2)] = pixel.B() / 255.f;
+                data.GetSpan()[index(x, y, 0)] = pixel.R() / 255.f;
+                data.GetSpan()[index(x, y, 1)] = pixel.G() / 255.f;
+                data.GetSpan()[index(x, y, 2)] = pixel.B() / 255.f;
 
                 if (channelSize == 4)
-                    data[index(x, y, 3)] = pixel.A() / 255.f;
+                    data.GetSpan()[index(x, y, 3)] = pixel.A() / 255.f;
             }
         }
     }

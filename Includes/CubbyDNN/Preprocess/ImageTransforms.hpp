@@ -1,8 +1,8 @@
 #ifndef CUBBYDNN_IMAGE_TRANSFORMS_HPP
 #define CUBBYDNN_IMAGE_TRANSFORMS_HPP
 
+#include <CubbyDNN/Core/Memory.hpp>
 #include <CubbyDNN/Datas/Image.hpp>
-#include <CubbyDNN/Datas/Tensor.hpp>
 #include <CubbyDNN/Preprocess/Transforms.hpp>
 
 namespace CubbyDNN::Transforms::ImageTransforms
@@ -69,7 +69,7 @@ class RandomGrayScale : public Transform<Image, Image>
     double m_prob;
 };
 
-class ToTensor : public Transform<Image, FloatTensor>
+class ToMemory : public Transform<Image, Core::Memory<float>>
 {
  public:
     OutputType operator()(const InputType& input) override;

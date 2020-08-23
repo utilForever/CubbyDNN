@@ -1,6 +1,7 @@
 #ifndef CUBBYDNN_MNIST_DATASET_HPP
 #define CUBBYDNN_MNIST_DATASET_HPP
 
+#include <CubbyDNN/Core/Memory.hpp>
 #include <CubbyDNN/Datas/Dataset.hpp>
 #include <CubbyDNN/Datas/Image.hpp>
 #include <CubbyDNN/Datas/SimpleData.hpp>
@@ -9,7 +10,7 @@
 
 namespace CubbyDNN
 {
-class MNISTDataset final : public Dataset<MNISTDataset, SimpleData<Image, long>>
+class MNISTDataset final : public Dataset<MNISTDataset, SimpleData<Image, Core::Memory<float>>>
 {
  public:
     MNISTDataset(const std::string& root, bool train, bool download);

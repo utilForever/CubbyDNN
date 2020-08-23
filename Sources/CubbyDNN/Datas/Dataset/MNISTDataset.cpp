@@ -111,7 +111,10 @@ bool MNISTDataset::IsTrain() const
 
 MNISTDataset::OutputType MNISTDataset::Get(std::size_t index)
 {
-    return OutputType { m_images[index], m_labels[index] };
+    Core::Memory<float> target(10);
+    target.GetSpan()[m_labels[index]] = 1;
+
+    return OutputType { m_images[index], target };
 }
 
 std::size_t MNISTDataset::GetSize() const

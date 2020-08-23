@@ -1,8 +1,10 @@
 #ifndef CUBBYDNN_TRANSFORMS_HPP
 #define CUBBYDNN_TRANSFORMS_HPP
 
-#include <CubbyDNN/Datas/SimpleData.hpp>
-#include <CubbyDNN/Datas/Tensor.hpp>
+#include <CubbyDNN/Core/Memory.hpp>
+#include <CubbyDNN/Core/Shape.hpp>
+
+#include <vector>
 
 namespace CubbyDNN::Transforms
 {
@@ -18,35 +20,21 @@ class Transform
     virtual OutputType operator()(const InputType& input) = 0;
 };
 
-template <class Target>
-class Normalize : public Transform<SimpleData<FloatTensor, Target>,
-                                   SimpleData<FloatTensor, Target>>
+class Normalize : public Transform<Core::Memory<float>, Core::Memory<float>>
 {
  public:
-    using DType = SimpleData<FloatTensor, Target>;
-    using typename Transform<DType, DType>::InputType;
-    using typename Transform<DType, DType>::OutputType;
+    using InputType = Core::Memory<float>;
+    using OutputType = Core::Memory<float>;
 
-    Normalize(FloatTensor mean, FloatTensor std)
-        : mean_(std::move(mean)), std_(std::move(std))
-    {
-        // Do nothing
-    }
+    Normalize(std::vector<float> mean, std::vector<float> std,
+              Core::Shape shape);
+       
 
-    OutputType operator()(const InputType& input) override
-    {
-        OutputType t(input);
-
-        for (auto& data : t.Data)
-        {
-            data = (data - mean_[0]) / std_[0];
-        }
-
-        return t;
-    }
+    OutputType operator()(const InputType& input) override;
 
  private:
-    FloatTensor mean_, std_;
+    std::vector<float> mean_, std_;
+    Core::Shape shape_;
 };
 }  // namespace CubbyDNN::Transforms
 

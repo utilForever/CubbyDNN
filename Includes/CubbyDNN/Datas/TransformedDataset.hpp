@@ -2,17 +2,21 @@
 #define CUBBYDNN_TRANSFORMED_DATASET_HPP
 
 #include <CubbyDNN/Datas/Dataset.hpp>
+#include <CubbyDNN/Datas/SimpleData.hpp>
 
 namespace CubbyDNN
 {
 template <class DatasetT, class TransformT>
 class TransformedDataset final
     : public Dataset<TransformedDataset<DatasetT, TransformT>,
-                     typename TransformT::OutputType>
+                     SimpleData<typename TransformT::OutputType,
+                                typename DatasetT::OutputType>>
 {
  public:
-    using InputType = typename TransformT::InputType;
-    using OutputType = typename TransformT::OutputType;
+    using
+        typename Dataset<TransformedDataset<DatasetT, TransformT>,
+                         SimpleData<typename TransformT::OutputType,
+                                    typename DatasetT::OutputType>>::OutputType;
 
     TransformedDataset(DatasetT dataset, TransformT transform)
         : m_dataset(std::move(dataset)), m_transform(std::move(transform))
@@ -21,7 +25,13 @@ class TransformedDataset final
 
     OutputType Get(std::size_t index) override
     {
-        return m_transform(m_dataset.Get(index));
+        auto data = m_dataset.Get(index);
+
+        OutputType ret;
+        ret.Data = m_transform(data.Data);  
+        ret.Target = data.Target;
+
+        return ret;
     }
 
     std::size_t GetSize() const override
