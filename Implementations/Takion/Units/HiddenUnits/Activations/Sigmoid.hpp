@@ -168,6 +168,14 @@ void Sigmoid<T>::AsyncBackward(std::promise<bool> promise)
 }
 
 template <typename T>
+void Sigmoid<T>::ChangeBatchSize(std::size_t batchSize)
+{
+    ComputableUnit<T>::ChangeBatchSize(batchSize);
+    Tensor<T>& backwardTemp = InternalTensorMap.at("backwardTemp");
+    backwardTemp.ChangeBatchSize(batchSize);
+}
+
+template <typename T>
 void Sigmoid<T>::m_checkArguments(const Shape& inputShape,
                                   const Shape& outputShape,
                                   const std::string& unitName)

@@ -50,6 +50,8 @@ public:
 
     static void CopyTensorData(const Tensor<T>& source, Tensor<T>& destination);
 
+    void ChangeBatchSize(std::size_t newBatchSize);
+
     T& At(std::size_t batchIdx, std::vector<std::size_t> index);
 
     const T& At(std::size_t batchIdx, std::vector<std::size_t> index) const;

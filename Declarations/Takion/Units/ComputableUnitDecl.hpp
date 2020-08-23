@@ -80,6 +80,10 @@ public:
 
     void UpdateBackwardState();
 
+    void ResetState();
+
+    virtual void ChangeBatchSize(std::size_t batchSize);
+
     //! vector of input Tensor<T>s used to compute forward propagation
     std::unordered_map<UnitId, Tensor<T>> ForwardInputMap;
     //! vector of output Tensor<T>s used to compute back propagation

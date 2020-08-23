@@ -381,6 +381,16 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
                                             std::memory_order_release);
 }
 
+template <typename T>
+void Tensor<T>::ChangeBatchSize(std::size_t newBatchSize)
+{
+    m_hasOwnership.exchange(false, std::memory_order_acquire);
+    const auto newTotalSize = ElementSize() * newBatchSize;
+    Data.Clear();
+    Data = Utils::Span<T>(new T[newTotalSize], newTotalSize);
+    m_hasOwnership.exchange(true, std::memory_order_release);
+}
+
 
 template <typename T>
 std::size_t Tensor<T>::m_getElementSize() const

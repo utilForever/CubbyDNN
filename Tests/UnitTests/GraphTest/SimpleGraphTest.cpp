@@ -228,7 +228,8 @@ void MnistTrainTest()
     auto getLabel = GetMnistLabel<float>(label, randomIndices, batchSize);
 
     Model<float> model(Compute::Device(0, Compute::DeviceType::CPU, "device0"),
-                       batchSize);
+                       100);
+    model.ChangeBatchSize(batchSize);
     auto tensor = model.PlaceHolder(Shape({ 785 }), getData, "DataLoader");
     auto labelTensor =
         model.PlaceHolder(Shape({ 10 }), getLabel, "LabelLoader");
@@ -242,7 +243,7 @@ void MnistTrainTest()
     tensor = model.SoftMax(tensor);
     model.CrossEntropy(tensor, labelTensor, "CrossEntropy Loss");
 
-    model.Compile("SGD", Parameter({}, { { "epsilon", 0.0002f } }, {}));
+    model.Compile("SGD", Parameter({}, { { "epsilon", 0.001f } }, {}));
     model.Fit(epochs);
 }
 } // namespace Takion::Test

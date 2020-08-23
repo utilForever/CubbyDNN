@@ -47,6 +47,8 @@ public:
 
     void AsyncBackward(std::promise<bool> promise) override;
 
+    void ChangeBatchSize(std::size_t batchSize) override;
+
 private:
 
     static void m_checkArguments(const Shape& inputShape,

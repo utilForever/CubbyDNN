@@ -42,7 +42,7 @@ AbsTensor<T> Model<T>::PlaceHolder(const Shape& shape,
                                  {}, m_device);
 
     m_unitManager.AppendUnit(std::move(unitMetaData));
-    m_unitManager.AppendLoader(subjectUnitId, loaderFunction);
+    m_unitManager.SetLoader(subjectUnitId, loaderFunction);
 
     return AbsTensor<T>(shape, subjectUnitId);
 }
@@ -216,7 +216,8 @@ template <typename T>
 void Model<T>::CrossEntropy(AbsTensor<T> prediction, AbsTensor<T> label,
                             std::string name)
 {
-    const UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "CrossEntropy"), m_id++,
+    const UnitId subjectUnitId{ UnitType(UnitBaseType::Sink, "CrossEntropy"),
+                                m_id++,
                                 std::move(name) };
 
     const auto predictionId = prediction.GetPrevOutput();
@@ -243,6 +244,20 @@ void Model<T>::Compile(std::string optimizer, Parameter optimizerParams)
 }
 
 template <typename T>
+void Model<T>::Train(std::size_t cycle)
+{
+    m_unitManager.Forward(cycle);
+    m_unitManager.Backward(cycle);
+}
+
+template <typename T>
+void Model<T>::Predict()
+{
+    m_unitManager.Forward(0);
+}
+
+
+template <typename T>
 void Model<T>::Fit(std::size_t epochs)
 {
     for (std::size_t cycle = 0; cycle < epochs; ++cycle)
@@ -251,6 +266,27 @@ void Model<T>::Fit(std::size_t epochs)
         m_unitManager.Backward(cycle);
     }
 }
+
+template <typename T>
+std::tuple<std::vector<T>, Shape, std::size_t> Model<T>::Output(
+    AbsTensor<T> absTensor) const
+{
+    auto unitId = absTensor.GetPrevOutput();
+    const auto& tensor = m_unitManager.GetOutput(unitId);
+    const auto size = tensor.TensorShape.Size();
+
+    std::vector<T> data(tensor.BatchSize * size);
+
+    for (long batchIdx = 0; batchIdx < tensor.BatchSize; ++batchIdx)
+        for (std::size_t i = 0; i < size; ++i)
+        {
+            const auto idx = batchIdx * size + i;
+            data[idx] = tensor.At(idx);
+        }
+
+    return std::make_tuple(data, tensor.TensorShape, tensor.BatchSize);
+}
+
 
 template <typename T>
 void Model<T>::m_appendSubjectUnitToPreviousOutput(

@@ -57,7 +57,20 @@ public:
 
     void Compile(std::string optimizer, Parameter optimizerParams);
 
+    void Train(std::size_t cycle);
+
+    void Predict();
+
     void Fit(std::size_t epochs);
+
+    [[nodiscard]] std::tuple<std::vector<T>, Shape, std::size_t> Output(
+        AbsTensor<T> absTensor) const;
+
+    void ChangeBatchSize(std::size_t batchSize)
+    {
+        m_unitManager.ChangeBatchSize(batchSize);
+        m_batchSize = batchSize;
+    }
 
 private:
 

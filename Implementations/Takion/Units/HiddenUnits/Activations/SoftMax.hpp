@@ -275,6 +275,14 @@ void SoftMax<T>::AsyncBackward(std::promise<bool> promise)
 }
 
 template <typename T>
+void SoftMax<T>::ChangeBatchSize(std::size_t batchSize)
+{
+    ComputableUnit<T>::ChangeBatchSize(batchSize);
+    Tensor<T>& backwardTemp = InternalTensorMap.at("backwardTemp");
+    backwardTemp.ChangeBatchSize(batchSize);
+}
+
+template <typename T>
 void SoftMax<T>::m_checkArguments(const Shape& inputShape,
                                   const Shape& outputShape,
                                   const std::string& unitName)

@@ -34,8 +34,8 @@ public:
 
     void AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData);
 
-    void AppendLoader(const UnitId& unitId,
-                      const std::function<std::vector<T>()>& loader);
+    void SetLoader(const UnitId& unitId,
+                   const std::function<std::vector<T>()>& loader);
 
     Shape GetUnitOutputShape(const UnitId& unitId);
 
@@ -51,6 +51,12 @@ public:
 
     virtual void Predict();
 
+    virtual void Reset();
+
+    virtual void ChangeBatchSize(std::size_t batchSize);
+
+    [[nodiscard]] const Tensor<T>& GetOutput(UnitId unitId) const;
+
 private:
     [[nodiscard]] bool m_isForwardCopyReady(const UnitId& subjectUnitId) const;
     [[nodiscard]] bool m_isBackwardCopyReady(const UnitId& subjectUnitId) const;
@@ -58,6 +64,12 @@ private:
     void m_forwardCopy(const UnitId& subjectUnitId);
     //! Copies backward outputs of subject unit to backward inputs of destination units with direct connection
     void m_backwardCopy(const UnitId& subjectUnitId);
+
+    bool m_appendSource(const FrontEnd::UnitMetaData<T>& unitMetaData);
+    bool m_appendHidden(const FrontEnd::UnitMetaData<T>& unitMetaData,
+                        const std::string& optimizerName,
+                        const Parameter& parameter);
+    bool m_appendLoss(const FrontEnd::UnitMetaData<T>& unitMetaData);
 
 
     [[nodiscard]] std::unique_ptr<Compute::Optimizer<T>> m_makeOptimizer(
@@ -68,6 +80,10 @@ private:
     m_unitMetaDataMap;
     std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
     m_unitMap;
+    std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
+    m_lossUniMap;
+    std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
+    m_sourceMap;
     std::unordered_map<UnitId, std::function<std::vector<T>()>> m_loaderMap;
     std::size_t m_batchSize;
 };

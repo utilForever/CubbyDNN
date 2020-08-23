@@ -50,8 +50,8 @@ void UnitManager<T>::AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData)
 }
 
 template <typename T>
-void UnitManager<T>::AppendLoader(const UnitId& unitId,
-                                  const std::function<std::vector<T>()>& loader)
+void UnitManager<T>::SetLoader(const UnitId& unitId,
+                               const std::function<std::vector<T>()>& loader)
 {
     m_loaderMap[unitId] = loader;
 }
@@ -69,85 +69,12 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
 {
     for (const auto& [key, unitMetaData] : m_unitMetaDataMap)
     {
-        const auto unitId = unitMetaData.Id();
-        auto type = unitId.Type;
-
-        if (type.Name() == "PlaceHolder")
-        {
-            auto unit = Graph::PlaceHolder<T>::CreateUnit(unitMetaData,
-                                                          m_loaderMap[unitId]);
-            m_unitMap[unitId] =
-                std::make_unique<Graph::PlaceHolder<T>>(std::move(unit));
+        if (m_appendSource(unitMetaData))
             continue;
-        }
-        if (type.Name() == "Dense")
-        {
-            auto unit = Graph::DenseUnit<T>::CreateUnit(
-                unitMetaData, m_makeOptimizer(optimizerName, parameter));
-
-            m_unitMap[unitId] =
-                std::make_unique<Graph::DenseUnit<T>>(std::move(unit));
+        if (m_appendHidden(unitMetaData, optimizerName, parameter))
             continue;
-        }
-        if (type.Name() == "Dropout")
-        {
-            throw std::runtime_error("Not implemented");
-        }
-        if (type.Name() == "ReLU")
-        {
-            auto unit = Graph::ReLU<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitId] =
-                std::make_unique<Graph::ReLU<T>>(std::move(unit));
+        if (m_appendLoss(unitMetaData))
             continue;
-        }
-        if (type.Name() == "Sigmoid")
-        {
-            auto unit = Graph::Sigmoid<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitId] =
-                std::make_unique<Graph::Sigmoid<T>>(std::move(unit));
-            continue;
-        }
-        if (type.Name() == "SoftMax")
-        {
-            auto unit = Graph::SoftMax<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitId] =
-                std::make_unique<Graph::SoftMax<T>>(std::move(unit));
-            continue;
-        }
-        if (type.Name() == "Reshape")
-        {
-            throw std::runtime_error("Not implemented");
-        }
-        if (type.Name() == "MSE")
-        {
-            auto unit = Graph::MSELoss<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitId] =
-                std::make_unique<Graph::MSELoss<T>>(std::move(unit));
-            continue;
-        }
-        if (type.Name() == "CrossEntropy")
-        {
-            auto unit = Graph::CrossEntropy<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitId] =
-                std::make_unique<Graph::CrossEntropy<T>>(std::move(unit));
-            continue;
-        }
-        if (type.Name() == "Constant")
-        {
-            auto unit = Graph::ConstantUnit<T>::CreateUnit(unitMetaData);
-            m_unitMap[unitId] =
-                std::make_unique<Graph::ConstantUnit<T>>(std::move(unit));
-            continue;
-        }
-        if (type.Name() == "Multiply")
-        {
-            throw std::runtime_error("Not implemented");
-        }
-        if (type.Name() == "Add")
-        {
-            throw std::runtime_error("Not implemented");
-        }
-
         throw std::runtime_error("No matching unit type");
     }
 }
@@ -213,6 +140,30 @@ void UnitManager<T>::Predict()
         }
     }
 }
+
+template <typename T>
+void UnitManager<T>::Reset()
+{
+    for (const auto& [key, unitPtr] : m_unitMap)
+        unitPtr->ResetState();
+}
+
+template <typename T>
+void UnitManager<T>::ChangeBatchSize(std::size_t batchSize)
+{
+    for (const auto& [key, unitPtr] : m_unitMap)
+        unitPtr->ChangeBatchSize(batchSize);
+
+    m_batchSize = batchSize;
+}
+
+
+template <typename T>
+const Tensor<T>& UnitManager<T>::GetOutput(UnitId unitId) const
+{
+    return m_unitMap.at(unitId)->ForwardOutput;
+}
+
 
 template <typename T>
 void UnitManager<T>::Backward(std::size_t cycle)
@@ -394,6 +345,110 @@ std::unique_ptr<Compute::Optimizer<T>> UnitManager<T>::m_makeOptimizer(
         return std::move(optimizer);
     }
     throw std::runtime_error("Unsupported optimizer type");
+}
+
+template <typename T>
+bool UnitManager<T>::m_appendSource(
+    const FrontEnd::UnitMetaData<T>& unitMetaData)
+{
+    const auto unitId = unitMetaData.Id();
+    auto type = unitId.Type;
+
+    if (type.Name() == "PlaceHolder")
+    {
+        auto unit = Graph::PlaceHolder<T>::CreateUnit(unitMetaData,
+                                                      m_loaderMap[unitId]);
+        m_unitMap[unitId] =
+            std::make_unique<Graph::PlaceHolder<T>>(std::move(unit));
+        return true;
+    }
+    if (type.Name() == "Constant")
+    {
+        auto unit = Graph::ConstantUnit<T>::CreateUnit(unitMetaData);
+        m_unitMap[unitId] =
+            std::make_unique<Graph::ConstantUnit<T>>(std::move(unit));
+        return true;
+    }
+    return false;
+}
+
+template <typename T>
+bool UnitManager<T>::m_appendHidden(
+    const FrontEnd::UnitMetaData<T>& unitMetaData,
+    const std::string& optimizerName, const Parameter& parameter)
+{
+    const auto unitId = unitMetaData.Id();
+    auto type = unitId.Type;
+
+    if (type.Name() == "Dense")
+    {
+        auto unit = Graph::DenseUnit<T>::CreateUnit(
+            unitMetaData, m_makeOptimizer(optimizerName, parameter));
+
+        m_unitMap[unitId] =
+            std::make_unique<Graph::DenseUnit<T>>(std::move(unit));
+        return true;
+    }
+    if (type.Name() == "ReLU")
+    {
+        auto unit = Graph::ReLU<T>::CreateUnit(unitMetaData);
+        m_unitMap[unitId] = std::make_unique<Graph::ReLU<T>>(std::move(unit));
+        return true;
+    }
+    if (type.Name() == "Sigmoid")
+    {
+        auto unit = Graph::Sigmoid<T>::CreateUnit(unitMetaData);
+        m_unitMap[unitId] =
+            std::make_unique<Graph::Sigmoid<T>>(std::move(unit));
+        return true;
+    }
+    if (type.Name() == "SoftMax")
+    {
+        auto unit = Graph::SoftMax<T>::CreateUnit(unitMetaData);
+        m_unitMap[unitId] =
+            std::make_unique<Graph::SoftMax<T>>(std::move(unit));
+        return true;
+    }
+    if (type.Name() == "Dropout")
+    {
+        throw std::runtime_error("Not implemented");
+    }
+    if (type.Name() == "Reshape")
+    {
+        throw std::runtime_error("Not implemented");
+    }
+    if (type.Name() == "Multiply")
+    {
+        throw std::runtime_error("Not implemented");
+    }
+    if (type.Name() == "Add")
+    {
+        throw std::runtime_error("Not implemented");
+    }
+    return false;
+}
+
+template <typename T>
+bool UnitManager<T>::m_appendLoss(const FrontEnd::UnitMetaData<T>& unitMetaData)
+{
+    const auto unitId = unitMetaData.Id();
+    auto type = unitId.Type;
+
+    if (type.Name() == "CrossEntropy")
+    {
+        auto unit = Graph::CrossEntropy<T>::CreateUnit(unitMetaData);
+        m_unitMap[unitId] =
+            std::make_unique<Graph::CrossEntropy<T>>(std::move(unit));
+        return true;
+    }
+    if (type.Name() == "MSE")
+    {
+        auto unit = Graph::MSELoss<T>::CreateUnit(unitMetaData);
+        m_unitMap[unitId] =
+            std::make_unique<Graph::MSELoss<T>>(std::move(unit));
+        return true;
+    }
+    return false;
 }
 } // namespace Takion::Graph
 
