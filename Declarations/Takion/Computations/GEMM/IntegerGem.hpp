@@ -446,7 +446,7 @@ inline void DivWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
         const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
         for (std::size_t i = 0; i < size; i += 1)
         {
-            out[batchOffset + i] =
+            out[batchOffsetOut + i] =
                 inputA[batchOffsetA + i] / inputB[batchOffsetB + i];
         }
     }
@@ -461,7 +461,7 @@ inline void DivWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
         const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
         for (std::size_t i = 0; i < size; i += 1)
         {
-            out[batchOffset + i] =
+            out[batchOffsetOut + i] =
                 inputA[batchOffsetA + i] / inputB[batchOffsetB + i];
         }
     }

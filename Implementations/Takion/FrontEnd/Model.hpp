@@ -367,7 +367,7 @@ Util::TensorData<T> Model<T>::Output(
 
     std::vector<T> data(tensor.BatchSize * size);
 
-    for (long batchIdx = 0; batchIdx < tensor.BatchSize; ++batchIdx)
+    for (long batchIdx = 0; batchIdx < static_cast<long>(tensor.BatchSize); ++batchIdx)
         for (std::size_t i = 0; i < size; ++i)
         {
             const auto idx = batchIdx * size + i;
