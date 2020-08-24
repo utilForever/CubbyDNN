@@ -364,6 +364,53 @@ inline void DotWithBroadcastCpu(const Span<float> inputA,
     }
 }
 
+
+template <>
+inline void DivCpu(const Span<float> inputA, const Span<float> inputB,
+                   Span<float> out, std::size_t size, std::size_t batchSize)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (std::size_t i = 0; i < size; i += 8)
+        {
+            const auto vecA = _mm256_load_ps(
+                static_cast<float const*>(&inputA[batchOffset + i]));
+            const auto vecB = _mm256_load_ps(
+                static_cast<float const*>(&inputB[batchOffset + i]));
+            const auto mul = _mm256_div_ps(vecA, vecB);
+            _mm256_store_ps(static_cast<float*>(&out[batchOffset + i]), mul);
+        }
+    }
+}
+
+template <>
+inline void DivWithBroadcastCpu(const Span<float> inputA,
+                                const Span<float> inputB, Span<float> out,
+                                std::size_t size, std::size_t batchSize,
+                                bool broadCastA)
+{
+#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
+        const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
+        const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
+        for (std::size_t i = 0; i < size; i += 8)
+        {
+            const auto vecA = _mm256_load_ps(
+                static_cast<float const*>(&inputA[batchOffsetA + i]));
+            const auto vecB = _mm256_load_ps(
+                static_cast<float const*>(&inputB[batchOffsetB + i]));
+            const auto div = _mm256_div_ps(vecA, vecB);
+            _mm256_store_ps(static_cast<float*>(&out[batchOffsetOut + i]), div);
+        }
+    }
+}
+
 template <>
 inline void ScalarMulCpu(const Span<float> input, float toMul, Span<float> out,
                          std::size_t size, std::size_t batchSize)
@@ -378,8 +425,8 @@ inline void ScalarMulCpu(const Span<float> input, float toMul, Span<float> out,
             const auto vecMul = _mm256_set1_ps(toMul);
             const auto vecA = _mm256_load_ps(
                 static_cast<float const*>(&input[batchOffset + i]));
-            const auto mul = _mm256_mul_ps(vecA, vecMul);
-            _mm256_store_ps(static_cast<float*>(&out[batchOffset + i]), mul);
+            const auto div = _mm256_mul_ps(vecA, vecMul);
+            _mm256_store_ps(static_cast<float*>(&out[batchOffset + i]), div);
         }
     }
 }

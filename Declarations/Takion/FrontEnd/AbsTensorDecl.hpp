@@ -32,6 +32,26 @@ public:
         return m_shape;
     }
 
+    friend bool operator<(const AbsTensor& lhs, const AbsTensor& rhs)
+    {
+        return lhs.m_sourceUnitId < rhs.m_sourceUnitId;
+    }
+
+    friend bool operator<=(const AbsTensor& lhs, const AbsTensor& rhs)
+    {
+        return !(rhs < lhs);
+    }
+
+    friend bool operator>(const AbsTensor& lhs, const AbsTensor& rhs)
+    {
+        return rhs < lhs;
+    }
+
+    friend bool operator>=(const AbsTensor& lhs, const AbsTensor& rhs)
+    {
+        return !(lhs < rhs);
+    }
+
 private:
     Shape m_shape;
     UnitId m_sourceUnitId;

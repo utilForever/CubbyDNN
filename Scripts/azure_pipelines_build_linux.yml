@@ -3,4 +3,4 @@ steps:
   fetchDepth: 2
   submodules: true
 - script: |
-    docker build -t jwkim98/Takion . 
+    docker build -t jwkim98/takion . 

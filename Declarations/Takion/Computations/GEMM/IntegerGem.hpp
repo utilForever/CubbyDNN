@@ -365,6 +365,110 @@ inline void DotWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
 }
 
 template <>
+inline void DivCpu(const Span<int> inputA, const Span<int> inputB,
+                   Span<int> out, std::size_t size, std::size_t batchSize)
+{
+#ifdef _MSC_VER
+#if _MSC_VER >= 1920
+#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (std::size_t i = 0; i < size; i += 8)
+        {
+            const auto vecA =
+                _mm256_loadu_si256((__m256i*)&inputA[batchOffset + i]);
+            const auto vecB =
+                _mm256_loadu_si256((__m256i*)&inputB[batchOffset + i]);
+            const auto div = _mm256_div_epi32(vecA, vecB);
+            _mm256_storeu_si256((__m256i*)&out[batchOffset + i], div);
+        }
+    }
+#else
+#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (std::size_t i = 0; i < size; i += 1)
+        {
+            out[batchOffset + i] = inputA[batchOffset + i] / inputB[batchOffset + i];
+        }
+    }
+#endif
+#else
+#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffset = size * batchIdx;
+        for (std::size_t i = 0; i < size; i += 1)
+        {
+            out[batchOffset + i] =
+                inputA[batchOffset + i] / inputB[batchOffset + i];
+        }
+    }
+#endif
+}
+
+template <>
+inline void DivWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
+                                Span<int> out, std::size_t size,
+                                std::size_t batchSize, bool broadCastA)
+{
+#ifdef _MSC_VER
+#if _MSC_VER >= 1920
+#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
+        const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
+        const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
+        for (std::size_t i = 0; i < size; i += 8)
+        {
+            const auto vecA =
+                _mm256_loadu_si256((__m256i*)&inputA[batchOffsetA + i]);
+            const auto vecB =
+                _mm256_loadu_si256((__m256i*)&inputB[batchOffsetB + i]);
+            const auto div = _mm256_div_epi32(vecA, vecB);
+            _mm256_storeu_si256((__m256i*)&out[batchOffsetOut + i], div);
+        }
+    }
+#else
+#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
+        const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
+        const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
+        for (std::size_t i = 0; i < size; i += 1)
+        {
+            out[batchOffsetOut + i] =
+                inputA[batchOffsetA + i] / inputB[batchOffsetB + i];
+        }
+    }
+#endif
+#else
+#pragma omp parallel for schedule(static) default(shared)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         batchIdx++)
+    {
+        const auto batchOffsetA = broadCastA ? 0 : size * batchIdx;
+        const auto batchOffsetB = broadCastA ? size * batchIdx : 0;
+        const auto batchOffsetOut = broadCastA ? batchOffsetB : batchOffsetA;
+        for (std::size_t i = 0; i < size; i += 1)
+        {
+            out[batchOffsetOut + i] =
+                inputA[batchOffsetA + i] / inputB[batchOffsetB + i];
+        }
+    }
+#endif
+}
+
+template <>
 inline void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
                          std::size_t size, std::size_t batchSize)
 {

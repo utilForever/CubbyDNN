@@ -3,7 +3,12 @@ steps:
     fetchDepth: 2
     submodules: true
   - script: |
+      git submodule update --init
       md build
       cd build
-      cmake -GNinja ..
-      cmake --build .
+      cmake .. -G "Visual Studio 15 2017 Win64"
+  - task: VSBuild@1
+    inputs:
+      solution: 'D:\a\1\s\build\Takion.sln'
+      configuration: Release
+      platform: x64

@@ -252,6 +252,39 @@ void Dot(const Tensor<T>& in, Tensor<T>& out)
 }
 
 template <typename T>
+void Div(const Tensor<T>& A, const Tensor<T>& B, Tensor<T>& out)
+{
+    const auto device = out.Device;
+    if (device.Type() == DeviceType::CPU)
+    {
+        if (A.BatchSize == B.BatchSize)
+            CPU::DivCpu(A.Data, B.Data, out.Data, out.ElementSize(),
+                        out.BatchSize);
+        else if (A.BatchSize == 1)
+            CPU::DivWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(), out.BatchSize, true);
+        else if (B.BatchSize == 1)
+            CPU::DivWithBroadcastCpu(A.Data, B.Data, out.Data,
+                                     out.ElementSize(), out.BatchSize, false);
+    }
+    else
+        throw std::runtime_error("Not implemented");
+}
+
+template <typename T>
+void Div(const Tensor<T>& in, Tensor<T>& out)
+{
+    const auto device = out.Device;
+    if (device.Type() == DeviceType::CPU)
+    {
+        CPU::DivCpu(out.Data, in.Data, out.Data, out.ElementSize(),
+                    out.BatchSize);
+    }
+    else
+        throw std::runtime_error("Not implemented");
+}
+
+template <typename T>
 void ScalarMul(const Tensor<T>& in, T toMul, Tensor<T>& out)
 {
     const auto device = out.Device;

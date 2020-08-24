@@ -15,7 +15,7 @@ namespace Takion::Graph
 template <typename T>
 class Sigmoid : public ComputableUnit<T>
 {
- public:
+public:
     using ComputableUnit<T>::BackwardInputMap;
     using ComputableUnit<T>::BackwardOutputMap;
     using ComputableUnit<T>::ForwardInputMap;
@@ -23,10 +23,10 @@ class Sigmoid : public ComputableUnit<T>
     using ComputableUnit<T>::InternalTensorMap;
 
     Sigmoid(const UnitId& unitId, UnitId sourceUnitId, Tensor<T> forwardInput,
-         std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
-         Tensor<T> forwardOutput, Tensor<T> backwardOutput,
-         std::unordered_map<std::string, Tensor<T>> internalTensorMap,
-         std::size_t batchSize);
+            std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
+            Tensor<T> forwardOutput, Tensor<T> backwardOutput,
+            std::unordered_map<std::string, Tensor<T>> internalTensorMap,
+            std::size_t batchSize);
     ~Sigmoid() = default;
 
     Sigmoid(const Sigmoid& activationUnit) = delete;
@@ -44,13 +44,15 @@ class Sigmoid : public ComputableUnit<T>
 
     void AsyncBackward(std::promise<bool> promise) override;
 
- private:
+    void ChangeBatchSize(std::size_t batchSize) override;
+
+private:
     UnitId m_sourceUnitId;
 
     static void m_checkArguments(const Shape& inputShape,
                                  const Shape& outputShape,
                                  const std::string& unitName);
 };
-}  // namespace Takion::Graph
+} // namespace Takion::Graph
 
 #endif

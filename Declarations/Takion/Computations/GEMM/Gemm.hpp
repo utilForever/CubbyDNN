@@ -11,10 +11,10 @@
 
 namespace Takion::Compute::CPU
 {
-using namespace Utils;
+using namespace Util;
 
 //! Performs out = AB
-//! Data given to this function must be aligned by 256 bytes
+//! TensorData given to this function must be aligned by 256 bytes
 //! \param numRowA : number of rows of inputA, C and out
 //! \param inputA: input A
 //! \param inputB : input B
@@ -99,6 +99,21 @@ template <typename T>
 void DotWithBroadcastCpu(const Span<T> inputA, const Span<T> inputB,
                          Span<T> out,
                          std::size_t size, std::size_t batchSize,
+                         bool broadCastA)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
+template <typename T>
+void DivCpu(const Span<T> inputA, const Span<T> inputB, Span<T> out,
+            std::size_t size, std::size_t batchSize)
+{
+    throw std::invalid_argument("Unsupported data type");
+}
+
+template <typename T>
+void DivWithBroadcastCpu(const Span<T> inputA, const Span<T> inputB,
+                         Span<T> out, std::size_t size, std::size_t batchSize,
                          bool broadCastA)
 {
     throw std::invalid_argument("Unsupported data type");

@@ -50,6 +50,8 @@ public:
 
     static void CopyTensorData(const Tensor<T>& source, Tensor<T>& destination);
 
+    void ChangeBatchSize(std::size_t newBatchSize);
+
     T& At(std::size_t batchIdx, std::vector<std::size_t> index);
 
     const T& At(std::size_t batchIdx, std::vector<std::size_t> index) const;
@@ -79,8 +81,8 @@ public:
         return TotalElementSize() * sizeof(T);
     }
 
-    /// Data vector which possesses actual data
-    Utils::Span<T> Data;
+    /// TensorData vector which possesses actual data
+    Util::Span<T> Data;
     /// Shape of this tensorData
     Shape TensorShape;
     Compute::Device Device;

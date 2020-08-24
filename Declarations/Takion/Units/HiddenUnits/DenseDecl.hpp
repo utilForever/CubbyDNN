@@ -22,6 +22,7 @@ public:
     using ComputableUnit<T>::ForwardOutput;
     using ComputableUnit<T>::BackwardInputMap;
     using ComputableUnit<T>::BackwardOutputMap;
+    using ComputableUnit<T>::InternalTensorMap;
     using TrainableUnit<T>::m_optimizer;
 
 
@@ -29,7 +30,8 @@ public:
               Tensor<T> forwardInput,
               std::unordered_map<UnitId, Tensor<T>> backwardInputMap,
               Tensor<T> forwardOutput, Tensor<T> backwardOutput,
-              std::unordered_map<std::string, Tensor<T>> trainableUnit,
+              std::unordered_map<std::string, Tensor<T>> internalTensorMap,
+              std::unordered_map<std::string, Tensor<T>> trainableTensorMap,
               std::unique_ptr<Compute::Optimizer<T>> optimizer,
               std::size_t batchSize);
     ~DenseUnit() = default;
@@ -51,10 +53,13 @@ public:
 
     void AsyncBackward(std::promise<bool> promise) override;
 
+    void ChangeBatchSize(std::size_t batchSize) override;
+
 private:
     UnitId m_sourceUnitId;
-   static void m_checkShape(const Shape& inputShape, const Shape& outputShape,
-                            const Shape& weightShape, const Shape& biasShape, const std::string& unitName);
+    static void m_checkShape(const Shape& inputShape, const Shape& outputShape,
+                             const Shape& weightShape, const Shape& biasShape,
+                             const std::string& unitName);
 };
 } // namespace Takion
 

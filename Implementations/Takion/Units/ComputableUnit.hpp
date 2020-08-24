@@ -105,6 +105,34 @@ void ComputableUnit<T>::UpdateBackwardState()
     for (auto& [unitId, tensor] : BackwardOutputMap)
         tensor.State.fetch_add(1);
 }
+
+template <typename T>
+void ComputableUnit<T>::ResetState()
+{
+    for (auto& [unitId, tensor] : ForwardInputMap)
+        tensor.State = 0;
+    for (auto& [unitId, tensor] : BackwardInputMap)
+        tensor.State = 0;
+    ForwardOutput.State = 0;
+    for (auto& [unitId, tensor] : BackwardOutputMap)
+        tensor.State = 0;
+
+    m_unitState.BackwardStateCount = 0;
+    m_unitState.ForwardStateCount = 0;
+}
+
+template <typename T>
+void ComputableUnit<T>::ChangeBatchSize(std::size_t batchSize)
+{
+    for (auto& [unitId, tensor] : ForwardInputMap)
+        tensor.ChangeBatchSize(batchSize);
+    for (auto& [unitId, tensor] : BackwardInputMap)
+        tensor.ChangeBatchSize(batchSize);
+    ForwardOutput.ChangeBatchSize(batchSize);
+    for (auto& [unitId, tensor] : BackwardOutputMap)
+        tensor.ChangeBatchSize(batchSize);
+    BatchSize = batchSize;
+}
 } // namespace Takion::Graph
 
 #endif

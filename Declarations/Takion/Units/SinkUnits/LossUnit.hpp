@@ -4,19 +4,18 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_TEST_SIMPLEGRAPHTEST_HPP
-#define TAKION_TEST_SIMPLEGRAPHTEST_HPP
+#ifndef TAKION_GRAPH_LOSSUNIT_HPP
+#define TAKION_GRAPH_LOSSUNIT_HPP
 
-namespace Takion::Test
+namespace Takion::Graph
 {
-void SimpleGraphTestReLU();
-
-void SimpleGraphTestSigmoid();
-
-void MnistTrainTest();
-
-void MnistTrainTest2();
-
+template <typename T>
+class LossUnit
+{
+public:
+    virtual ~LossUnit() = default;
+    virtual T GetLoss() = 0;
+};
 }
 
 #endif

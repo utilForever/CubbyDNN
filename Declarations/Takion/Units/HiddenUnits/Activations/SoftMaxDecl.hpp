@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_GRAPH_RELU_DECL_HPP
-#define TAKION_GRAPH_RELU_DECL_HPP
+#ifndef TAKION_GRAPH_SOFTMAX_DECL_HPP
+#define TAKION_GRAPH_SOFTMAX_DECL_HPP
 
 #include <Takion/Units/ComputableUnit.hpp>
 #include <Takion/FrontEnd/UnitMetaData.hpp>
@@ -14,8 +14,7 @@
 namespace Takion::Graph
 {
 template <typename T>
-class ReLU
-    : public ComputableUnit<T>
+class SoftMax : public ComputableUnit<T>
 {
 public:
     using ComputableUnit<T>::BackwardInputMap;
@@ -24,20 +23,21 @@ public:
     using ComputableUnit<T>::ForwardOutput;
     using ComputableUnit<T>::InternalTensorMap;
 
-    ReLU(const UnitId& unitId, UnitId sourceUnitId,
-         Tensor<T> forwardInput,
-         std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
-         Tensor<T> forwardOutput, Tensor<T> backwardOutput,
-         std::unordered_map<std::string, Tensor<T>> internalTensorMap,
-         std::size_t batchSize);
-    ~ReLU() = default;
+    SoftMax(const UnitId& unitId, UnitId sourceUnitId, Tensor<T> forwardInput,
+            std::unordered_map<UnitId, Tensor<T>> backwardInputVector,
+            Tensor<T> forwardOutput, Tensor<T> backwardOutput,
+            std::unordered_map<std::string, Tensor<T>> internalTensorMap,
+            Compute::Device device,
+            std::size_t batchSize);
 
-    ReLU(const ReLU& activationUnit) = delete;
-    ReLU(ReLU&& activationUnit) noexcept;
-    ReLU& operator=(const ReLU& activationUnit) = delete;
-    ReLU& operator=(ReLU&& activationUnit) noexcept;
+    ~SoftMax() = default;
 
-    static ReLU<T> CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData);
+    SoftMax(const SoftMax& softMax) = delete;
+    SoftMax(SoftMax&& softMax) noexcept = default;
+    SoftMax& operator=(const SoftMax& softMax) = delete;
+    SoftMax& operator=(SoftMax&& softMax) noexcept = default;
+
+    static SoftMax<T> CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData);
 
     void Forward() override;
 
@@ -51,12 +51,14 @@ public:
 
 private:
 
-    UnitId m_sourceUnitId;
-
     static void m_checkArguments(const Shape& inputShape,
                                  const Shape& outputShape,
                                  const std::string& unitName);
+
+    UnitId m_sourceUnitId;
+    Compute::Device m_device;
 };
-} // namespace Takion::Graph
+}
+
 
 #endif

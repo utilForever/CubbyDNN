@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_GRAPH_LOSSUNIT_DECL_HPP
-#define TAKION_GRAPH_LOSSUNIT_DECL_HPP
+#ifndef TAKION_GRAPH_MSE_DECL_HPP
+#define TAKION_GRAPH_MSE_DECL_HPP
 
 #include <Takion/Units/ComputableUnit.hpp>
 
@@ -19,6 +19,7 @@ public:
     using ComputableUnit<T>::BackwardOutputMap;
     using ComputableUnit<T>::ForwardInputMap;
     using ComputableUnit<T>::ForwardOutput;
+    using ComputableUnit<T>::m_loss;
 
     //! \param unitId : subject UnitId
     //! \param predictionUnitId : unitId for prediction
@@ -50,11 +51,6 @@ public:
 
     void AsyncBackward(std::promise<bool> promise) override;
 
-    T GetCurrentLoss() const
-    {
-        return m_loss;
-    }
-
 private:
     static void m_checkArguments(const Shape& predictionShape,
                                  const Shape& labelShape,
@@ -62,7 +58,6 @@ private:
 
     UnitId m_predictionUnitId;
     UnitId m_labelUnitId;
-    T m_loss = 0;
 };
 }
 

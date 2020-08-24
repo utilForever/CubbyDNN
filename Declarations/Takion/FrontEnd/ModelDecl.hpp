@@ -13,9 +13,11 @@
 #include <Takion/Engine/UnitManager.hpp>
 #include <Takion/Utils/Parameter.hpp>
 #include <Takion/Utils/Shape.hpp>
+#include <Takion/Utils/Loaders/Loader.hpp>
+#include <Takion/Utils/TensorData.hpp>
 #include <memory>
 #include <vector>
-
+#include <map>
 
 namespace Takion::FrontEnd
 {
@@ -26,6 +28,12 @@ public:
     Model(Compute::Device device, std::size_t batchSize = 1);
 
     void SetDevice(Compute::Device device);
+
+    AbsTensor<T> Fetcher(const Shape& shape,
+                         std::unique_ptr<Util::Loader<T>> loaderFunction,
+                         std::string name = "Fetcher");
+
+    AbsTensor<T> Fetcher(const Shape& shape, std::string name = "Fetcher");
 
     AbsTensor<T> Constant(const Shape& shape, std::vector<T> data,
                           std::string name);
@@ -46,11 +54,42 @@ public:
 
     AbsTensor<T> SoftMax(AbsTensor<T> source, std::string name = "");
 
-    void MSE(AbsTensor<T> prediction, AbsTensor<T> label, std::string name);
+    AbsTensor<T> MSE(AbsTensor<T> prediction, AbsTensor<T> label,
+                     std::string name);
+
+    AbsTensor<T> CrossEntropy(AbsTensor<T> prediction, AbsTensor<T> label,
+                              std::string name);
 
     void Compile(std::string optimizer, Parameter optimizerParams);
 
+    void Train();
+
+    void Train(std::map<AbsTensor<T>, std::vector<T>> inputDataMap,
+               AbsTensor<T> labelUnit, std::vector<T> label);
+
+    void Predict();
+
+    void Predict(std::map<AbsTensor<T>, std::vector<T>> inputDataMap);
+
+    void Predict(std::map<AbsTensor<T>, std::vector<T>> inputDataMap,
+                 AbsTensor<T> labelUnit, std::vector<T> label);
+
     void Fit(std::size_t epochs);
+
+    [[nodiscard]] Util::TensorData<T> Output(
+        AbsTensor<T> absTensor) const;
+
+    [[nodiscard]] T GetLoss(AbsTensor<T> lossId);
+
+
+    void ChangeBatchSize(std::size_t batchSize)
+    {
+        m_unitManager.ChangeBatchSize(batchSize);
+        m_batchSize = batchSize;
+    }
+
+    void ChangeLoader(AbsTensor<T> loaderId,
+                      std::function<std::vector<T>()> loaderFunction);
 
 private:
 

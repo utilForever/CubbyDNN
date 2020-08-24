@@ -24,7 +24,7 @@ Tensor<T>::Tensor(Shape shape, Compute::Device device)
     const auto totalSize = m_elementSize * BatchSize;
     const auto size = TensorShape.Size();
 
-    Data = Utils::Span<T>(new T[totalSize], totalSize);
+    Data = Util::Span<T>(new T[totalSize], totalSize);
 
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
     {
@@ -49,7 +49,7 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
     const auto totalSize = m_elementSize * BatchSize;
     const auto size = TensorShape.Size();
 
-    Data = Utils::Span<T>(new T[totalSize], totalSize);
+    Data = Util::Span<T>(new T[totalSize], totalSize);
 
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
     {
@@ -74,7 +74,7 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
     const auto totalSize = m_elementSize * BatchSize;
     const auto size = TensorShape.Size();
 
-    Data = Utils::Span<T>(new T[totalSize], totalSize);
+    Data = Util::Span<T>(new T[totalSize], totalSize);
 
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
     {
@@ -153,7 +153,7 @@ void Tensor<T>::SetData(const std::vector<T>& data)
     if (m_hasOwnership == false)
     {
         T* ptr = new T[totalSize];
-        Data = Utils::Span<T>(ptr, totalSize);
+        Data = Util::Span<T>(ptr, totalSize);
     }
 
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
@@ -214,7 +214,7 @@ Tensor<T> Tensor<T>::SubTensor(std::initializer_list<int> index)
         for (std::size_t elementIdx = 0; elementIdx < newElementSize;
              ++elementIdx)
         {
-            newTensor.Data[batchIdx * newElementSize + elementIdx] =
+            newTensor.TensorData[batchIdx * newElementSize + elementIdx] =
                 Data[batchIdx * elementSize + offset + elementIdx];
         }
     }
@@ -357,7 +357,7 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
 
     if (!destination.m_hasOwnership)
     {
-        destination.Data = Utils::Span<T>(new T[sourceBatchElementSize],
+        destination.Data = Util::Span<T>(new T[sourceBatchElementSize],
                                           sourceBatchElementSize);
     }
 
@@ -379,6 +379,16 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
     if (!destination.m_hasOwnership)
         destination.m_hasOwnership.exchange(true,
                                             std::memory_order_release);
+}
+
+template <typename T>
+void Tensor<T>::ChangeBatchSize(std::size_t newBatchSize)
+{
+    m_hasOwnership.exchange(false, std::memory_order_acquire);
+    const auto newTotalSize = ElementSize() * newBatchSize;
+    Data.Clear();
+    Data = Util::Span<T>(new T[newTotalSize], newTotalSize);
+    m_hasOwnership.exchange(true, std::memory_order_release);
 }
 
 
