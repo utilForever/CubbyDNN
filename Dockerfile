@@ -12,5 +12,4 @@ COPY . /app
 WORKDIR /app/build
 RUN cmake .. && \
     make  && \
-    make install &&\
-    bin/UnitTests
+    make install
