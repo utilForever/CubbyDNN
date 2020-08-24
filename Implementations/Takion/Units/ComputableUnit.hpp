@@ -22,7 +22,7 @@ ComputableUnit<T>::ComputableUnit(
     std::size_t batchSize)
     : ForwardInputMap(std::move(forwardInputMap)),
       BackwardInputMap(std::move(backwardInputMap)),
-      ForwardOutput(std::move(forwardOutput)),
+      ForwardOutput(forwardOutput),
       BackwardOutputMap(std::move(backwardOutputMap)),
       InternalTensorMap(std::move(internalTensorMap)),
       BatchSize(batchSize),
@@ -34,7 +34,7 @@ template <typename T>
 ComputableUnit<T>::ComputableUnit(ComputableUnit<T>&& computableUnit) noexcept
     : ForwardInputMap(std::move(computableUnit.ForwardInputMap)),
       BackwardInputMap(std::move(computableUnit.BackwardInputMap)),
-      ForwardOutput(std::move(computableUnit.ForwardOutput)),
+      ForwardOutput(computableUnit.ForwardOutput),
       BackwardOutputMap(std::move(computableUnit.BackwardOutputMap)),
       InternalTensorMap(std::move(computableUnit.InternalTensorMap)),
       BatchSize(computableUnit.BatchSize),

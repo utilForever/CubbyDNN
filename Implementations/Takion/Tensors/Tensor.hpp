@@ -101,18 +101,6 @@ Tensor<T>::Tensor(const Tensor<T>& tensor)
     Tensor::CopyTensorData(tensor, *this);
 }
 
-//! Performs shallow copy
-template <typename T>
-Tensor<T>::Tensor(Tensor&& tensor) noexcept
-    : TensorShape(tensor.TensorShape),
-      Device(tensor.Device),
-      BatchSize(tensor.BatchSize),
-      m_elementSize(tensor.m_elementSize),
-      m_columnElementSize(tensor.m_columnElementSize)
-{
-    Tensor::MoveTensorData(tensor, *this);
-}
-
 template <typename T>
 Tensor<T>& Tensor<T>::operator=(const Tensor<T>& tensor)
 {
@@ -126,20 +114,6 @@ Tensor<T>& Tensor<T>::operator=(const Tensor<T>& tensor)
     m_columnElementSize = tensor.m_columnElementSize;
 
     Tensor<T>::CopyTensorData(tensor, *this);
-
-    return *this;
-}
-
-template <typename T>
-Tensor<T>& Tensor<T>::operator=(Tensor<T>&& tensor) noexcept
-{
-    TensorShape = tensor.TensorShape;
-    Device = tensor.Device;
-    BatchSize = tensor.BatchSize;
-    m_elementSize = tensor.m_elementSize;
-    m_columnElementSize = tensor.m_columnElementSize;
-
-    Tensor<T>::MoveTensorData(tensor, *this);
 
     return *this;
 }
@@ -358,7 +332,7 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
     if (!destination.m_hasOwnership)
     {
         destination.Data = Util::Span<T>(new T[sourceBatchElementSize],
-                                          sourceBatchElementSize);
+                                         sourceBatchElementSize);
     }
 
     const long blockSize = 100;

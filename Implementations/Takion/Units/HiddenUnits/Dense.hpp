@@ -24,7 +24,7 @@ DenseUnit<T>::DenseUnit(
     std::unordered_map<std::string, Tensor<T>> trainableTensorMap,
     std::unique_ptr<Compute::Optimizer<T>> optimizer, std::size_t batchSize)
     : ComputableUnit<T>(unitId, { { sourceUnitId, std::move(forwardInput) } },
-                        std::move(backwardInputMap), std::move(forwardOutput),
+                        std::move(backwardInputMap), forwardOutput,
                         { { sourceUnitId, std::move(backwardOutput) } },
                         std::move(internalTensorMap),
                         batchSize),
@@ -82,7 +82,7 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
         Tensor<T> tensor(unitMetaData.GetOutputShape(),
                          unitMetaData.BatchSize(),
                          unitMetaData.Device);
-        backwardInputMap[outputUnitId] = std::move(tensor);
+        backwardInputMap[outputUnitId] = tensor;
     }
 
     Tensor<T> forwardOutputTensor(outputShape,
@@ -128,11 +128,11 @@ DenseUnit<T> DenseUnit<T>::CreateUnit(
     };
 
     auto denseUnit = DenseUnit<T>(
-        unitId, sourceUnitId, std::move(forwardInputTensor),
-        std::move(backwardInputMap), std::move(forwardOutputTensor),
-        std::move(backwardOutputTensor),
-        std::move(internalTensorMap),
-        std::move(trainableUnitMap),
+        unitId, sourceUnitId, forwardInputTensor,
+        backwardInputMap, forwardOutputTensor,
+        backwardOutputTensor,
+        internalTensorMap,
+        trainableUnitMap,
         std::move(optimizer), batchSize);
 
     return denseUnit;

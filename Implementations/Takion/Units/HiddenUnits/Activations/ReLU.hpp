@@ -24,7 +24,7 @@ ReLU<T>::ReLU(
     : ComputableUnit<T>(unitId,
                         { { sourceUnitId, std::move(forwardInput) } },
                         std::move(backwardInputVector),
-                        std::move(forwardOutput),
+                        forwardOutput,
                         { { sourceUnitId, std::move(backwardOutput) } },
                         std::move(internalTensorMap),
                         batchSize),
@@ -67,7 +67,7 @@ ReLU<T> ReLU<T>::CreateUnit(
     for (const auto& backwardInputUnitId : unitMetaData.OutputUnitVector())
     {
         Tensor<T> tensor(inputShape, batchSize, device);
-        backwardInputMap[backwardInputUnitId] = std::move(tensor);
+        backwardInputMap[backwardInputUnitId] = tensor;
     }
 
     Tensor<T> forwardOutputTensor(outputShape, batchSize, device);
@@ -75,9 +75,9 @@ ReLU<T> ReLU<T>::CreateUnit(
     Tensor<T> backwardTempTensor(outputShape, batchSize, device);
 
     auto activationUnit = ReLU<T>(
-        unitMetaData.Id(), sourceUnitId, std::move(forwardInputTensor),
-        std::move(backwardInputMap), std::move(forwardOutputTensor),
-        std::move(backwardOutputTensor),
+        unitMetaData.Id(), sourceUnitId, forwardInputTensor,
+        backwardInputMap, forwardOutputTensor,
+        backwardOutputTensor,
         { { "backwardTemp", backwardTempTensor } }, batchSize);
 
     return activationUnit;

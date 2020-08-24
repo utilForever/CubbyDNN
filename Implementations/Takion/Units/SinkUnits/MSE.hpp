@@ -20,11 +20,11 @@ MSELoss<T>::MSELoss(const UnitId& unitId, const UnitId& predictionUnitId,
                     std::size_t batchSize)
     : ComputableUnit<T>(
           unitId,
-          { { predictionUnitId, std::move(predictionTensor) },
-            { labelUnitId, std::move(labelTensor) } },
+          { { predictionUnitId, predictionTensor },
+            { labelUnitId, labelTensor } },
           {},
-          std::move(outputTensor),
-          { { predictionUnitId, std::move(backwardOutputTensor) } },
+          outputTensor,
+          { { predictionUnitId, backwardOutputTensor } },
           {}, batchSize),
       m_predictionUnitId(predictionUnitId),
       m_labelUnitId(labelUnitId)

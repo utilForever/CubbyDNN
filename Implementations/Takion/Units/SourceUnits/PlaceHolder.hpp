@@ -15,7 +15,7 @@ template <typename T>
 PlaceHolder<T>::PlaceHolder(const UnitId& unitId, Tensor<T> forwardOutput,
                             std::unique_ptr<Util::Loader<T>> loader,
                             std::size_t batchSize)
-    : ComputableUnit<T>(unitId, {}, {}, std::move(forwardOutput), {}, {},
+    : ComputableUnit<T>(unitId, {}, {}, forwardOutput, {}, {},
                         batchSize),
       m_loader(std::move(loader))
 {

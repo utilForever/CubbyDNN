@@ -15,7 +15,7 @@ template <typename T>
 ConstantUnit<T>::ConstantUnit(UnitId unitId, Tensor<T> tensor,
                               std::size_t batchSize)
     : ComputableUnit<T>(
-        std::move(unitId), {}, {}, std::move(tensor), {}, {},
+        std::move(unitId), {}, {}, tensor, {}, {},
         batchSize)
 {
 }

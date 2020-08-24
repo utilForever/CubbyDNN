@@ -21,9 +21,9 @@ SoftMax<T>::SoftMax(const UnitId& unitId, UnitId sourceUnitId,
                     std::unordered_map<std::string, Tensor<T>>
                     internalTensorMap, Compute::Device device,
                     std::size_t batchSize)
-    : ComputableUnit<T>(unitId, { { sourceUnitId, std::move(forwardInput) } },
+    : ComputableUnit<T>(unitId, { { sourceUnitId, forwardInput } },
                         std::move(backwardInputVector),
-                        std::move(forwardOutput),
+                        forwardOutput,
                         { { sourceUnitId, std::move(backwardOutput) } },
                         std::move(internalTensorMap), batchSize),
       m_sourceUnitId(std::move(sourceUnitId)),
@@ -50,7 +50,7 @@ SoftMax<T> SoftMax<T>::CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData)
     for (const auto& backwardInputUnitId : unitMetaData.OutputUnitVector())
     {
         Tensor<T> tensor(inputShape, batchSize, device);
-        backwardInputMap[backwardInputUnitId] = std::move(tensor);
+        backwardInputMap[backwardInputUnitId] = tensor;
     }
 
     Tensor<T> forwardOutputTensor(outputShape, batchSize, device);
@@ -59,9 +59,9 @@ SoftMax<T> SoftMax<T>::CreateUnit(const FrontEnd::UnitMetaData<T>& unitMetaData)
 
     auto activationUnit =
         SoftMax<T>(unitMetaData.Id(), sourceUnitId,
-                   std::move(forwardInputTensor),
-                   std::move(backwardInputMap), std::move(forwardOutputTensor),
-                   std::move(backwardOutputTensor),
+                   forwardInputTensor,
+                   backwardInputMap, forwardOutputTensor,
+                   backwardOutputTensor,
                    { { "backwardTemp", backwardTempTensor } }, device,
                    batchSize);
 
