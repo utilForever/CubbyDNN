@@ -14,11 +14,11 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git
 RUN git submodule update  --init
-RUN sudo apt install software-properties-common && \
-    sudo add-apt-repository ppa:ubuntu-toolchain-r/test && \
-    sudo apt install gcc-9 g++-9 && \
-    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 && \
-    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90 && \
+RUN apt install software-properties-common && \
+    add-apt-repository ppa:ubuntu-toolchain-r/test && \
+    apt install gcc-9 g++-9 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90 && \
 RUN cmake .. && \
     make  && \
     make install
