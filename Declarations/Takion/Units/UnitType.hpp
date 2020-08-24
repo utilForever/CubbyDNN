@@ -14,10 +14,11 @@ namespace Takion
 {
 enum class UnitBaseType
 {
-    Source,
+    Fetcher,
+    Constant,
     Hidden,
-    Sink,
-    Copy,
+    Activation,
+    Loss,
     Undefined,
 };
 
@@ -83,6 +84,26 @@ struct UnitId
     bool operator!=(const UnitId& unitId) const
     {
         return !(*this == unitId);
+    }
+
+    friend bool operator<(const UnitId& lhs, const UnitId& rhs)
+    {
+        return lhs.Id < rhs.Id;
+    }
+
+    friend bool operator<=(const UnitId& lhs, const UnitId& rhs)
+    {
+        return !(rhs < lhs);
+    }
+
+    friend bool operator>(const UnitId& lhs, const UnitId& rhs)
+    {
+        return rhs < lhs;
+    }
+
+    friend bool operator>=(const UnitId& lhs, const UnitId& rhs)
+    {
+        return !(lhs < rhs);
     }
 
     UnitType Type;
