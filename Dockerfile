@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
 COPY . /app
 
 WORKDIR /app/build
-RUN cmake .. && \
+RUN git submodule init && \
+    git submodule update && \
+    cmake .. && \
     make  && \
     make install
