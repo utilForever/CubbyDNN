@@ -3,10 +3,11 @@ steps:
     fetchDepth: 2
     submodules: true
   - script: |
+      git submodule init
+      git submodule sync --recursive
+      git submodule update
       md build
       cd build
-      git submodule init
-      git submodule update
       cmake .. -G "Visual Studio 15 2017 Win64"
   - task: VSBuild@1
     inputs:

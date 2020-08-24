@@ -10,8 +10,7 @@ RUN apt-get update && apt-get install -y \
 COPY . /app
 
 WORKDIR /app/build
-RUN 
-    apt-get update && \
+RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git && \
     git submodule init && \
