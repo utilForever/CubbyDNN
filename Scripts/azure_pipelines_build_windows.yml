@@ -9,6 +9,6 @@ steps:
       cmake .. -G "Visual Studio 15 2017 Win64"
   - task: VSBuild@1
     inputs:
-      solution: 'D:\a\1\s\Captain\build\Takion.sln'
+      solution: 'D:\a\1\s\Takion\build\Takion.sln'
       configuration: Release
       platform: x64
