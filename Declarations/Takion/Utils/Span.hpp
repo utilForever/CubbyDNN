@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <cstring>
 
-namespace Takion::Utils
+namespace Takion::Util
 {
 template <typename T>
 class Span

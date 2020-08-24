@@ -14,7 +14,7 @@
 #include <Takion/Units/HiddenUnits/Activations/ReLU.hpp>
 #include <Takion/Units/HiddenUnits/Activations/Sigmoid.hpp>
 #include <Takion/Units/HiddenUnits/Activations/SoftMax.hpp>
-#include <Takion/Units/SinkUnits/LossUnit.hpp>
+#include <Takion/Units/SinkUnits/MSE.hpp>
 #include <Takion/Units/SinkUnits/CrossEntropy.hpp>
 
 
@@ -51,9 +51,9 @@ void UnitManager<T>::AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData)
 
 template <typename T>
 void UnitManager<T>::SetLoader(const UnitId& unitId,
-                               const std::function<std::vector<T>()>& loader)
+                               std::unique_ptr<Util::Loader<T>> loader)
 {
-    m_loaderMap[unitId] = loader;
+    m_loaderMap[unitId] = std::move(loader);
 }
 
 
@@ -80,41 +80,11 @@ void UnitManager<T>::Compile(const std::string& optimizerName,
 }
 
 template <typename T>
-void UnitManager<T>::Forward(std::size_t cycle)
+void UnitManager<T>::Forward()
 {
     for (const auto& [key, unitPtr] : m_unitMap)
-        if (key.Type.BaseType == UnitBaseType::Source)
-        {
-            for (auto& [unitId, tensor] : unitPtr->ForwardInputMap)
-                tensor.State.fetch_add(1);
-        }
-
-    bool done = false;
-    while (!done)
-    {
-        done = true;
-        for (const auto& [key, unitPtr] : m_unitMap)
-        {
-            if (unitPtr->IsForwardReady(cycle))
-            {
-                unitPtr->Forward();
-                unitPtr->UpdateForwardState();
-                done = false;
-            }
-            if (m_isForwardCopyReady(key))
-            {
-                m_forwardCopy(key);
-                done = false;
-            }
-        }
-    }
-}
-
-template <typename T>
-void UnitManager<T>::Predict()
-{
-    for (const auto& [key, unitPtr] : m_unitMap)
-        if (key.Type.BaseType == UnitBaseType::Source)
+        if (key.Type.BaseType == UnitBaseType::Fetcher ||
+            key.Type.BaseType == UnitBaseType::Constant)
         {
             for (auto& [unitId, tensor] : unitPtr->ForwardInputMap)
                 tensor.State.fetch_add(1);
@@ -142,34 +112,10 @@ void UnitManager<T>::Predict()
 }
 
 template <typename T>
-void UnitManager<T>::Reset()
+void UnitManager<T>::Backward()
 {
     for (const auto& [key, unitPtr] : m_unitMap)
-        unitPtr->ResetState();
-}
-
-template <typename T>
-void UnitManager<T>::ChangeBatchSize(std::size_t batchSize)
-{
-    for (const auto& [key, unitPtr] : m_unitMap)
-        unitPtr->ChangeBatchSize(batchSize);
-
-    m_batchSize = batchSize;
-}
-
-
-template <typename T>
-const Tensor<T>& UnitManager<T>::GetOutput(UnitId unitId) const
-{
-    return m_unitMap.at(unitId)->ForwardOutput;
-}
-
-
-template <typename T>
-void UnitManager<T>::Backward(std::size_t cycle)
-{
-    for (const auto& [key, unitPtr] : m_unitMap)
-        if (key.Type.BaseType == UnitBaseType::Sink)
+        if (key.Type.BaseType == UnitBaseType::Loss)
             for (auto& [unitId, tensor] : unitPtr->BackwardInputMap)
                 tensor.State.fetch_add(1);
 
@@ -179,7 +125,7 @@ void UnitManager<T>::Backward(std::size_t cycle)
         done = true;
         for (const auto& [key, unitPtr] : m_unitMap)
         {
-            if (unitPtr->IsBackwardReady(cycle))
+            if (unitPtr->IsBackwardReady(0))
             {
                 unitPtr->Backward();
                 unitPtr->UpdateBackwardState();
@@ -241,10 +187,40 @@ void UnitManager<T>::AsyncBackward(std::size_t cycle)
 }
 
 template <typename T>
+void UnitManager<T>::ResetState()
+{
+    for (const auto& [key, unitPtr] : m_unitMap)
+        unitPtr->ResetState();
+}
+
+template <typename T>
+void UnitManager<T>::ChangeBatchSize(std::size_t batchSize)
+{
+    for (const auto& [key, unitPtr] : m_unitMap)
+        unitPtr->ChangeBatchSize(batchSize);
+
+    m_batchSize = batchSize;
+}
+
+
+template <typename T>
+const Tensor<T>& UnitManager<T>::GetOutput(UnitId unitId) const
+{
+    return m_unitMap.at(unitId)->ForwardOutput;
+}
+
+template <typename T>
+std::unique_ptr<Graph::ComputableUnit<T>>& UnitManager<T>::GetUnit(
+    const UnitId& unitId)
+{
+    return m_unitMap[unitId];
+}
+
+template <typename T>
 bool UnitManager<T>::m_isForwardCopyReady(const UnitId& subjectUnitId) const
 {
     const auto& sourceMetaData = m_unitMetaDataMap.at(subjectUnitId);
-    if (sourceMetaData.Id().Type.BaseType == UnitBaseType::Sink)
+    if (sourceMetaData.Id().Type.BaseType == UnitBaseType::Loss)
         return false;
 
     const auto& subjectOutputTensor =
@@ -270,7 +246,7 @@ template <typename T>
 bool UnitManager<T>::m_isBackwardCopyReady(const UnitId& subjectUnitId) const
 {
     const auto& sourceMetaData = m_unitMetaDataMap.at(subjectUnitId);
-    if (sourceMetaData.Id().Type.BaseType == UnitBaseType::Source)
+    if (sourceMetaData.Id().Type.BaseType == UnitBaseType::Fetcher)
         return false;
 
     bool hasValidBackwardUnit = false;
@@ -341,7 +317,7 @@ std::unique_ptr<Compute::Optimizer<T>> UnitManager<T>::m_makeOptimizer(
     if (optimizerName == "SGD")
     {
         auto optimizer = std::make_unique<Compute::SGD<T>>(
-            parameter.GetFloatingPointParam("epsilon"));
+            parameter.GetFloatingPointParam("LearningRate"));
         return std::move(optimizer);
     }
     throw std::runtime_error("Unsupported optimizer type");
@@ -354,10 +330,11 @@ bool UnitManager<T>::m_appendSource(
     const auto unitId = unitMetaData.Id();
     auto type = unitId.Type;
 
-    if (type.Name() == "PlaceHolder")
+    if (type.Name() == "Fetcher")
     {
         auto unit = Graph::PlaceHolder<T>::CreateUnit(unitMetaData,
-                                                      m_loaderMap[unitId]);
+                                                      std::move(
+                                                          m_loaderMap[unitId]));
         m_unitMap[unitId] =
             std::make_unique<Graph::PlaceHolder<T>>(std::move(unit));
         return true;

@@ -15,19 +15,21 @@ namespace Takion::Test
 using namespace FrontEnd;
 
 template <typename T>
-class GetMnistData
+class GetMnistData : public Util::Loader<T>
 {
 public:
-    GetMnistData(std::vector<std::vector<T>> data,
+    GetMnistData(Shape shape,
+                 std::vector<std::vector<T>> data,
                  std::vector<std::vector<std::size_t>> randomIndices,
                  std::size_t batchSize)
-        : m_data(std::move(data)),
+        : Util::Loader<T>(shape, batchSize),
+          m_data(std::move(data)),
           m_randomIndices(std::move(randomIndices)),
           m_batchSize(batchSize)
     {
     }
 
-    std::vector<T> operator()()
+    std::vector<T> operator()() override
     {
         const std::size_t elemSize = 785;
         std::vector<T> dataVector(m_batchSize * elemSize);
@@ -54,19 +56,20 @@ private:
 };
 
 template <typename T>
-class GetMnistLabel
+class GetMnistLabel : public Util::Loader<T>
 {
 public:
-    GetMnistLabel(std::vector<T> label,
+    GetMnistLabel(Shape shape, std::vector<T> label,
                   std::vector<std::vector<std::size_t>> randomIndices,
                   std::size_t batchSize)
-        : m_label(std::move(label)),
+        : Util::Loader<T>(shape, batchSize),
+          m_label(std::move(label)),
           m_randomIndices(std::move(randomIndices)),
           m_batchSize(batchSize)
     {
     }
 
-    std::vector<T> operator()()
+    std::vector<T> operator()() override
     {
         const std::size_t numCategories = 10;
         std::vector<T> labelVector(m_batchSize * numCategories);
@@ -96,10 +99,10 @@ private:
 template <typename T>
 std::pair<std::vector<T>, std::vector<std::vector<T>>>
 GetMnistDataSet(
-    std::filesystem::path path)
+    std::filesystem::path path, std::size_t numLine)
 {
-    std::vector<T> label(60000);
-    std::vector<std::vector<T>> data(60000);
+    std::vector<T> label(numLine);
+    std::vector<std::vector<T>> data(numLine);
 
     std::string line;
     std::stringstream ss;
@@ -146,11 +149,11 @@ GetMnistDataSet(
 
 std::vector<std::vector<std::size_t>> GetRandomSequence(std::size_t batchSize,
                                                         std::size_t epochs,
-                                                        std::size_t lineLength)
+                                                        std::size_t numLine)
 {
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_int_distribution<std::size_t> dist(0, lineLength - 1);
+    std::uniform_int_distribution<std::size_t> dist(0, numLine - 1);
 
     std::vector<std::vector<std::size_t>> epochBatchIndices(epochs);
 
@@ -186,7 +189,7 @@ void SimpleGraphTestReLU()
     tensor = model.ReLU(tensor);
     model.MSE(tensor, label, "MseLoss");
 
-    model.Compile("SGD", Parameter({}, { { "epsilon", 0.00001f } }, {}));
+    model.Compile("SGD", Parameter({}, { { "LearningRate", 0.00001f } }, {}));
     model.Fit(5000);
 }
 
@@ -208,8 +211,46 @@ void SimpleGraphTestSigmoid()
     tensor = model.Sigmoid(tensor);
     model.MSE(tensor, label, "MseLoss");
 
-    model.Compile("SGD", Parameter({}, { { "epsilon", 0.00001f } }, {}));
+    model.Compile("SGD", Parameter({}, { { "LearningRate", 0.00001f } }, {}));
     model.Fit(5000);
+}
+
+template <typename T>
+float EvaluateAccuracy(const std::vector<T>& prediction,
+                       const std::vector<T>& label, Shape labelShape,
+                       std::size_t batchSize)
+{
+    const auto size = labelShape.Size();
+    std::size_t match = 0;
+    std::size_t mismatch = 0;
+    for (std::size_t batchIdx = 0; batchIdx < batchSize; ++batchIdx)
+    {
+        int argMaxPrediction = -1;
+        int argMaxLabel = -1;
+        T maxPredVal = std::numeric_limits<T>::min();
+        T maxLabelVal = std::numeric_limits<T>::min();
+        for (int i = 0; i < static_cast<int>(size); ++i)
+        {
+            const auto idx = size * batchIdx + i;
+            const auto predVal = prediction.at(idx);
+            const auto labelVal = label.at(idx);
+            if (maxPredVal < predVal)
+            {
+                maxPredVal = predVal;
+                argMaxPrediction = i;
+            }
+            if (maxLabelVal < labelVal)
+            {
+                maxLabelVal = labelVal;
+                argMaxLabel = i;
+            }
+        }
+        if (argMaxPrediction == argMaxLabel)
+            match += 1;
+        else
+            mismatch += 1;
+    }
+    return static_cast<float>(match) / static_cast<float>(match + mismatch);
 }
 
 void MnistTrainTest()
@@ -219,20 +260,27 @@ void MnistTrainTest()
         "bundle_archive\\mnist_train.csv";
 
     const std::size_t batchSize = 150;
-    const std::size_t epochs = 80000;
+    const std::size_t epochs = 20000;
 
-    const auto [label, data] = GetMnistDataSet<float>(filepath);
+    const auto [label, data] = GetMnistDataSet<float>(filepath, 60000);
     const auto randomIndices = GetRandomSequence(batchSize, epochs, 60000);
 
-    auto getData = GetMnistData<float>(data, randomIndices, batchSize);
-    auto getLabel = GetMnistLabel<float>(label, randomIndices, batchSize);
+    Shape dataShape(Shape({ 785 }));
+    Shape labelShape(Shape({ 10 }));
+
+    auto dataLoader = std::make_unique<GetMnistData<float>>(
+        dataShape, data, randomIndices,
+        batchSize);
+    auto labelLoader = std::make_unique<GetMnistLabel<float>>(
+        labelShape, label, randomIndices,
+        batchSize);
 
     Model<float> model(Compute::Device(0, Compute::DeviceType::CPU, "device0"),
-                       100);
-    model.ChangeBatchSize(batchSize);
-    auto tensor = model.PlaceHolder(Shape({ 785 }), getData, "DataLoader");
-    auto labelTensor =
-        model.PlaceHolder(Shape({ 10 }), getLabel, "LabelLoader");
+                       batchSize);
+
+    auto tensor = model.Fetcher(dataShape, std::move(dataLoader), "DataLoader");
+    auto labelTensor = model.Fetcher(labelShape, std::move(labelLoader),
+                                     "LabelLoader");
     tensor = model.Dense(tensor, 200);
     tensor = model.ReLU(tensor);
     tensor = model.Dense(tensor, 100);
@@ -243,7 +291,85 @@ void MnistTrainTest()
     tensor = model.SoftMax(tensor);
     model.CrossEntropy(tensor, labelTensor, "CrossEntropy Loss");
 
-    model.Compile("SGD", Parameter({}, { { "epsilon", 0.001f } }, {}));
+    model.Compile("SGD", Parameter({}, { { "LearningRate", 0.001f } }, {}));
     model.Fit(epochs);
+}
+
+void MnistTrainTest2()
+{
+    std::filesystem::path trainFilePath =
+        "C:\\Users\\user\\Desktop\\Files\\projects\\Takion\\Mnist\\27352_34877_"
+        "bundle_archive\\mnist_train.csv";
+    std::filesystem::path validationFilePath =
+        "C:\\Users\\user\\Desktop\\Files\\projects\\Takion\\Mnist\\27352_34877_"
+        "bundle_archive\\mnist_test.csv";
+
+    const std::size_t batchSize = 150;
+    const std::size_t epochs = 20000;
+    const std::size_t trainDataNumLine = 60000;
+    const std::size_t validationDataNumLine = 10000;
+
+    const auto [label, data] = GetMnistDataSet<float>(
+        trainFilePath, trainDataNumLine);
+    const auto [validationLabel, validationData] =
+        GetMnistDataSet<float>(validationFilePath, validationDataNumLine);
+    const auto trainRandomIndices = GetRandomSequence(
+        batchSize, epochs, trainDataNumLine);
+    const auto validationRandomIndices =
+        GetRandomSequence(batchSize, epochs, validationDataNumLine);
+
+    Shape dataShape(Shape({ 785 }));
+    Shape labelShape(Shape({ 10 }));
+
+    auto trainDataLoader = GetMnistData<float>(dataShape, data,
+                                               trainRandomIndices,
+                                               batchSize);
+    auto trainLabelLoader = GetMnistLabel<float>(labelShape, label,
+                                                 trainRandomIndices,
+                                                 batchSize);
+
+    auto validationDataLoader = GetMnistData<float>(
+        dataShape, validationData, validationRandomIndices, batchSize);
+    auto validationLabelLoader = GetMnistLabel<float>(
+        dataShape, validationLabel, validationRandomIndices, batchSize);
+
+    Model<float> model(Compute::Device(0, Compute::DeviceType::CPU, "device0"),
+                       batchSize);
+
+    auto dataFetcher = model.Fetcher(dataShape, "DataLoader");
+    auto labelFetcher = model.Fetcher(labelShape, "LabelLoader");
+    auto unit = model.Dense(dataFetcher, 200);
+    unit = model.ReLU(unit);
+    unit = model.Dense(unit, 100);
+    unit = model.ReLU(unit);
+    unit = model.Dense(unit, 50);
+    unit = model.ReLU(unit);
+    unit = model.Dense(unit, 10);
+    auto softMax = model.SoftMax(unit);
+    auto lossId = model.
+        CrossEntropy(softMax, labelFetcher, "CrossEntropy Loss");
+
+    model.Compile("SGD", Parameter({}, { { "LearningRate", 0.0005f } }, {}));
+
+    for (std::size_t cycle = 0; cycle < epochs; ++cycle)
+    {
+        model.Train({ { dataFetcher, trainDataLoader() } }, labelFetcher,
+                    trainLabelLoader());
+
+        if (cycle % 100 == 0)
+        {
+            auto validData = validationDataLoader();
+            const auto validLabel = validationLabelLoader();
+            model.Predict({ { dataFetcher, validData } }, labelFetcher,
+                          validLabel);
+            const auto outputData = model.Output(unit);
+            const auto accuracy = EvaluateAccuracy(outputData.Data, validLabel,
+                                                   outputData.TensorShape,
+                                                   outputData.BatchSize);
+            const auto loss = model.GetLoss(lossId);
+            std::cout << "epoch : " << cycle << " validation Loss : " << loss <<
+                " validation Accuracy : " << accuracy * 100 << "%" << std::endl;
+        }
+    }
 }
 } // namespace Takion::Test

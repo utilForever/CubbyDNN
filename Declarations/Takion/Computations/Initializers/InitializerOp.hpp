@@ -17,7 +17,7 @@ class InitializerOperations
 {
 public:
     template <typename T>
-    static void RandomNormal(T mean, T stddev, Utils::Span<T> data,
+    static void RandomNormal(T mean, T stddev, Util::Span<T> data,
                              std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
@@ -35,7 +35,7 @@ public:
 
     template <typename T>
     static void RandomUniform(T min, T max,
-                              Utils::Span<T> data, std::size_t elementSize,
+                              Util::Span<T> data, std::size_t elementSize,
                               std::size_t batchSize)
     {
         std::random_device rd;
@@ -52,7 +52,7 @@ public:
     }
 
     template <typename T>
-    static void LecunNormal(std::size_t fanIn, Utils::Span<T> data,
+    static void LecunNormal(std::size_t fanIn, Util::Span<T> data,
                             std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
@@ -70,7 +70,7 @@ public:
     }
 
     template <typename T>
-    static void LecunUniform(std::size_t fanIn, Utils::Span<T> data,
+    static void LecunUniform(std::size_t fanIn, Util::Span<T> data,
                              std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
@@ -89,7 +89,7 @@ public:
 
     template <typename T>
     static void XavierNormal(std::size_t fanIn, std::size_t fanOut,
-                             Utils::Span<T> data,
+                             Util::Span<T> data,
                              std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
@@ -109,7 +109,7 @@ public:
 
     template <typename T>
     static void XavierUniform(std::size_t fanIn, std::size_t fanOut,
-                              Utils::Span<T> data, std::size_t elementSize,
+                              Util::Span<T> data, std::size_t elementSize,
                               std::size_t batchSize)
     {
         std::random_device rd;
@@ -128,7 +128,7 @@ public:
     }
 
     template <typename T>
-    static void HeNormal(std::size_t fanIn, Utils::Span<T> data,
+    static void HeNormal(std::size_t fanIn, Util::Span<T> data,
                          std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;
@@ -146,7 +146,7 @@ public:
     }
 
     template <typename T>
-    static void HeUniform(std::size_t fanIn, Utils::Span<T> data,
+    static void HeUniform(std::size_t fanIn, Util::Span<T> data,
                           std::size_t elementSize, std::size_t batchSize)
     {
         std::random_device rd;

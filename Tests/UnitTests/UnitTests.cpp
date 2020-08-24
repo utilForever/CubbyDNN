@@ -200,7 +200,7 @@ TEST_CASE("GraphTest")
 
     SUBCASE("MNIST - ReLU")
     {
-        MnistTrainTest();
+        MnistTrainTest2();
     }
 }
 

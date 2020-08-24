@@ -8,7 +8,7 @@
 #define TAKION_TEST_COMPUTETEST_HPP
 
 #include <Takion/Computations/GEMM/MathKernel.hpp>
-//TODO : Move Device.hpp to Utils folder
+//TODO : Move Device.hpp to Util folder
 #include <Takion/Computations/Device.hpp>
 #include <Takion/Computations/Initializers/InitializerType.hpp>
 #include "SolidComputations.hpp"

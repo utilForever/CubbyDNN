@@ -13,7 +13,7 @@ namespace Takion::Graph
 {
 template <typename T>
 PlaceHolder<T>::PlaceHolder(const UnitId& unitId, Tensor<T> forwardOutput,
-                            std::function<std::vector<T>()> loader,
+                            std::unique_ptr<Util::Loader<T>> loader,
                             std::size_t batchSize)
     : ComputableUnit<T>(unitId, {}, {}, std::move(forwardOutput), {}, {},
                         batchSize),
@@ -24,7 +24,7 @@ PlaceHolder<T>::PlaceHolder(const UnitId& unitId, Tensor<T> forwardOutput,
 template <typename T>
 PlaceHolder<T> PlaceHolder<T>::CreateUnit(
     const FrontEnd::UnitMetaData<T>& unitMetaData,
-    std::function<std::vector<T>()> loader)
+    std::unique_ptr<Util::Loader<T>> loader)
 {
     const auto unitId = unitMetaData.Id();
     const auto shape = unitMetaData.GetOutputShape();
@@ -36,14 +36,14 @@ PlaceHolder<T> PlaceHolder<T>::CreateUnit(
             "CreateUnit - Device type of placeHolder must be CPU");
 
     Tensor<T> placeHolder(shape, batchSize, device);
-    return PlaceHolder<T>(unitId, placeHolder, loader, batchSize);
+    return PlaceHolder<T>(unitId, placeHolder, std::move(loader), batchSize);
 }
 
 template <typename T>
 void PlaceHolder<T>::Forward()
 {
-    auto vector = m_loader();
-    if (vector.size() != 
+    auto vector = (*m_loader)();
+    if (vector.size() !=
         ForwardOutput.TensorShape.Size() * ForwardOutput.BatchSize)
     {
         const std::string errorMessage =
@@ -62,7 +62,7 @@ void PlaceHolder<T>::Forward()
 template <typename T>
 void PlaceHolder<T>::AsyncForward(std::promise<bool> promise)
 {
-    auto vector = m_loader();
+    auto vector = (*m_loader)();
     if (vector.size() !=
         ForwardOutput.TensorShape.Size() * ForwardOutput.BatchSize)
     {

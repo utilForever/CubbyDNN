@@ -4,10 +4,10 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_GRAPH_LOSSUNIT_HPP
-#define TAKION_GRAPH_LOSSUNIT_HPP
+#ifndef TAKION_GRAPH_MSE_HPP
+#define TAKION_GRAPH_MSE_HPP
 
-#include <Takion/Units/SinkUnits/LossUnitDecl.hpp>
+#include <Takion/Units/SinkUnits/MSEDecl.hpp>
 #include <Takion/Units/UnitType.hpp>
 
 namespace Takion::Graph
@@ -97,7 +97,6 @@ void MSELoss<T>::Forward()
     }
 
     m_loss = sum / static_cast<T>(batchSize);
-    std::cout << "Loss : " << m_loss << std::endl;
 }
 
 template <typename T>

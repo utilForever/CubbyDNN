@@ -107,7 +107,6 @@ void CrossEntropy<T>::Forward()
         }
 
         m_loss = sum / static_cast<T>(batchSize);
-        std::cout << "Loss : " << m_loss << std::endl;
     }
 }
 

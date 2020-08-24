@@ -81,8 +81,8 @@ public:
         return TotalElementSize() * sizeof(T);
     }
 
-    /// Data vector which possesses actual data
-    Utils::Span<T> Data;
+    /// TensorData vector which possesses actual data
+    Util::Span<T> Data;
     /// Shape of this tensorData
     Shape TensorShape;
     Compute::Device Device;

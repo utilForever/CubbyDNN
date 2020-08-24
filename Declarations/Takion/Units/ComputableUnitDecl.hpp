@@ -84,6 +84,11 @@ public:
 
     virtual void ChangeBatchSize(std::size_t batchSize);
 
+    T GetLoss()
+    {
+        return m_loss;
+    }
+
     //! vector of input Tensor<T>s used to compute forward propagation
     std::unordered_map<UnitId, Tensor<T>> ForwardInputMap;
     //! vector of output Tensor<T>s used to compute back propagation
@@ -102,6 +107,7 @@ protected:
     UnitId m_unitId;
     /// UnitState m_objectPtr indicates execution state of ComputableUnit
     UnitState m_unitState;
+    T m_loss = 0;
 };
 }; // namespace Takion
 

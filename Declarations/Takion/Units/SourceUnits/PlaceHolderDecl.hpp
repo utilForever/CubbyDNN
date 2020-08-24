@@ -10,6 +10,7 @@
 #include <Takion/Units/ComputableUnit.hpp>
 #include <Takion/Computations/Initializers/InitializerType.hpp>
 #include <Takion/FrontEnd/UnitMetaData.hpp>
+#include <Takion/Utils/Loaders/Loader.hpp>
 #include <functional>
 
 namespace Takion::Graph
@@ -21,20 +22,31 @@ public:
 
     using ComputableUnit<T>::ForwardOutput;
     PlaceHolder(const UnitId& unitId, Tensor<T> forwardOutput,
-                std::function<std::vector<T>()> loader, std::size_t batchSize);
+                std::unique_ptr<Util::Loader<T>> loader, std::size_t batchSize);
 
     ~PlaceHolder() = default;
 
     static PlaceHolder<T> CreateUnit(
         const FrontEnd::UnitMetaData<T>& unitMetaData,
-        std::function<std::vector<T>()>
-        loader);
+        std::unique_ptr<Util::Loader<T>> loader);
 
 
     PlaceHolder(const PlaceHolder& placeHolder) = delete;
-    PlaceHolder(PlaceHolder&& placeHolder) noexcept = default;
+
+    PlaceHolder(PlaceHolder&& placeHolder) noexcept
+        : ComputableUnit<T>(std::move(placeHolder)),
+          m_loader(std::move(placeHolder.m_loader))
+    {
+    }
+
     PlaceHolder& operator=(const PlaceHolder& placeHolder) = delete;
-    PlaceHolder& operator=(PlaceHolder&& placeHolder) noexcept = default;
+
+    PlaceHolder& operator=(PlaceHolder&& placeHolder) noexcept
+    {
+        ComputableUnit<T>::operator=(std::move(placeHolder));
+        m_loader = std::move(placeHolder.m_loader);
+        return *this;
+    }
 
     void Forward() override;
 
@@ -44,9 +56,18 @@ public:
 
     void AsyncBackward(std::promise<bool> promise) override;
 
+    void SetLoader(std::function<std::vector<T>()> loader)
+    {
+        m_loader = std::move(loader);
+    }
+
+    std::unique_ptr<Util::Loader<T>>& GetLoader()
+    {
+        return m_loader;
+    }
 
 private:
-    std::function<std::vector<T>()> m_loader;
+    std::unique_ptr<Util::Loader<T>> m_loader;
 };
 }
 #endif

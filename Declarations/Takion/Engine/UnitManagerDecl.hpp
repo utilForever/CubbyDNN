@@ -10,6 +10,7 @@
 #include <Takion/Units/ComputableUnit.hpp>
 #include <Takion/FrontEnd/UnitMetaData.hpp>
 #include <Takion/Computations/Optimizers/Optimizer.hpp>
+#include <Takion/Utils/Loaders/Loader.hpp>
 #include <unordered_map>
 
 namespace Takion::Engine
@@ -35,27 +36,27 @@ public:
     void AppendUnit(FrontEnd::UnitMetaData<T>&& unitMetaData);
 
     void SetLoader(const UnitId& unitId,
-                   const std::function<std::vector<T>()>& loader);
+                   std::unique_ptr<Util::Loader<T>> loader);
 
     Shape GetUnitOutputShape(const UnitId& unitId);
 
     void Compile(const std::string& optimizerName, const Parameter& parameter);
 
-    virtual void Forward(std::size_t cycle);
+    virtual void Forward();
 
-    virtual void Backward(std::size_t cycle);
+    virtual void Backward();
 
     virtual void AsyncForward(std::size_t cycle);
 
     virtual void AsyncBackward(std::size_t cycle);
 
-    virtual void Predict();
-
-    virtual void Reset();
+    virtual void ResetState();
 
     virtual void ChangeBatchSize(std::size_t batchSize);
 
     [[nodiscard]] const Tensor<T>& GetOutput(UnitId unitId) const;
+
+    std::unique_ptr<Graph::ComputableUnit<T>>& GetUnit(const UnitId& unitId);
 
 private:
     [[nodiscard]] bool m_isForwardCopyReady(const UnitId& subjectUnitId) const;
@@ -80,11 +81,7 @@ private:
     m_unitMetaDataMap;
     std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
     m_unitMap;
-    std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
-    m_lossUniMap;
-    std::unordered_map<UnitId, std::unique_ptr<Graph::ComputableUnit<T>>>
-    m_sourceMap;
-    std::unordered_map<UnitId, std::function<std::vector<T>()>> m_loaderMap;
+    std::unordered_map<UnitId, std::unique_ptr<Util::Loader<T>>> m_loaderMap;
     std::size_t m_batchSize;
 };
 } // namespace Takion::Graph

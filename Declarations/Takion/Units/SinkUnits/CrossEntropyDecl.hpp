@@ -10,7 +10,6 @@
 #include <Takion/Units/ComputableUnit.hpp>
 #include <Takion/FrontEnd/UnitMetaData.hpp>
 
-
 namespace Takion::Graph
 {
 template <typename T>
@@ -21,6 +20,7 @@ public:
     using ComputableUnit<T>::BackwardOutputMap;
     using ComputableUnit<T>::ForwardInputMap;
     using ComputableUnit<T>::ForwardOutput;
+    using ComputableUnit<T>::m_loss;
 
     //! \param unitId : subject UnitId
     //! \param predictionUnitId : unitId for prediction
@@ -52,11 +52,6 @@ public:
 
     void AsyncBackward(std::promise<bool> promise) override;
 
-    T GetCurrentLoss() const
-    {
-        return m_loss;
-    }
-
 private:
     static void m_checkArguments(const Shape& predictionShape,
                                  const Shape& labelShape,
@@ -65,7 +60,6 @@ private:
     UnitId m_predictionUnitId;
     UnitId m_labelUnitId;
     Compute::Device m_device;
-    T m_loss = 0;
 };
 }
 

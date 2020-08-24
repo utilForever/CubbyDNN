@@ -11,10 +11,10 @@
 
 namespace Takion::Compute::CPU
 {
-using namespace Utils;
+using namespace Util;
 
 //! Performs out = AB
-//! Data given to this function must be aligned by 256 bytes
+//! TensorData given to this function must be aligned by 256 bytes
 //! \param numRowA : number of rows of inputA, C and out
 //! \param inputA: input A
 //! \param inputB : input B
