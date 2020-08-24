@@ -11,9 +11,9 @@ COPY . /app
 
 WORKDIR /app/build
 RUN 
-    sudo apt-get update && \
-    sudo apt-get upgrade -y && \
-    sodo apt-get install -y git && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git && \
     git submodule init && \
     git submodule update && \
     cmake .. && \
