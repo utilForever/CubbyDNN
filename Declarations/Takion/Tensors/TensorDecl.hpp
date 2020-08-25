@@ -92,7 +92,7 @@ public:
 private:
     std::size_t m_elementSize = 0;
     std::size_t m_columnElementSize = 0;
-    std::atomic<bool> m_hasOwnership = false;
+    std::atomic_bool m_hasOwnership = false;
 
     std::size_t m_getElementSize() const;
 

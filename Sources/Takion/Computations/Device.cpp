@@ -17,7 +17,7 @@ Device::Device(int id, DeviceType type, std::string name)
     if (type == DeviceType::CPU)
         m_padByteSize = 32;
     else if (type == DeviceType::GPU)
-        m_padByteSize = 0;
+        m_padByteSize = 1;
 }
 
 bool Device::operator==(const Device& device) const

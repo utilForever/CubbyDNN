@@ -43,7 +43,7 @@ public:
         return m_name;
     }
 
-    [[nodiscard]] std::size_t PadSize() const
+    [[nodiscard]] std::size_t PadByteSize() const
     {
         return m_padByteSize;
     }

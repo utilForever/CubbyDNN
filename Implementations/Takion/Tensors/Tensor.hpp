@@ -8,6 +8,7 @@
 #define TAKION_TENSOR_HPP
 
 #include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <Takion/Tensors/TensorDecl.hpp>
 
@@ -24,7 +25,14 @@ Tensor<T>::Tensor(Shape shape, Compute::Device device)
     const auto totalSize = m_elementSize * BatchSize;
     const auto size = TensorShape.Size();
 
-    Data = Util::Span<T>(new T[totalSize], totalSize);
+#ifdef _MSC_VER
+    T* ptr = static_cast<T*>(
+        _aligned_malloc(totalSize * sizeof(T), Device.PadByteSize()));
+#else
+    T* ptr = static_cast<T*>(
+        aligned_alloc(Device.PadByteSize(), totalSize * sizeof(T)));
+#endif
+    Data = Util::Span<T>(ptr, totalSize);
 
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
     {
@@ -49,7 +57,15 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device)
     const auto totalSize = m_elementSize * BatchSize;
     const auto size = TensorShape.Size();
 
-    Data = Util::Span<T>(new T[totalSize], totalSize);
+#ifdef _MSC_VER
+    T* ptr = static_cast<T*>(
+        _aligned_malloc(totalSize * sizeof(T), Device.PadByteSize()));
+#else
+    T* ptr = static_cast<T*>(
+        aligned_alloc(Device.PadByteSize(), totalSize * sizeof(T)));
+#endif
+
+    Data = Util::Span<T>(ptr, totalSize);
 
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
     {
@@ -74,7 +90,14 @@ Tensor<T>::Tensor(Shape shape, std::size_t batchSize, Compute::Device device,
     const auto totalSize = m_elementSize * BatchSize;
     const auto size = TensorShape.Size();
 
-    Data = Util::Span<T>(new T[totalSize], totalSize);
+#ifdef _MSC_VER
+    T* ptr = static_cast<T*>(
+        _aligned_malloc(totalSize * sizeof(T), Device.PadByteSize()));
+#else
+    T* ptr = static_cast<T*>(
+        aligned_alloc(Device.PadByteSize(), totalSize * sizeof(T)));
+#endif
+    Data = Util::Span<T>(ptr, totalSize);
 
     for (std::size_t idx = 0; idx < size * BatchSize; ++idx)
     {
@@ -126,7 +149,13 @@ void Tensor<T>::SetData(const std::vector<T>& data)
 
     if (m_hasOwnership == false)
     {
-        T* ptr = new T[totalSize];
+#ifdef _MSC_VER
+        T* ptr = static_cast<T*>(
+            _aligned_malloc(totalSize * sizeof(T), Device.PadByteSize()));
+#else
+        T* ptr = static_cast<T*>(
+            aligned_alloc(Device.PadByteSize(), totalSize * sizeof(T)));
+#endif
         Data = Util::Span<T>(ptr, totalSize);
     }
 
@@ -331,8 +360,16 @@ void Tensor<T>::CopyTensorData(const Tensor<T>& source, Tensor<T>& destination)
 
     if (!destination.m_hasOwnership)
     {
-        destination.Data = Util::Span<T>(new T[sourceBatchElementSize],
-                                         sourceBatchElementSize);
+#ifdef _MSC_VER
+        T* ptr = static_cast<T*>(_aligned_malloc(
+            sourceBatchElementSize * sizeof(T),
+            destination.Device.PadByteSize()));
+#else
+        T* ptr = static_cast<T*>(
+            aligned_alloc(destination.Device.PadByteSize(),
+                          sourceBatchElementSize * sizeof(T)));
+#endif
+        destination.Data = Util::Span<T>(ptr, sourceBatchElementSize);
     }
 
     const long blockSize = 100;
@@ -361,7 +398,15 @@ void Tensor<T>::ChangeBatchSize(std::size_t newBatchSize)
     m_hasOwnership.exchange(false, std::memory_order_acquire);
     const auto newTotalSize = ElementSize() * newBatchSize;
     Data.Clear();
-    Data = Util::Span<T>(new T[newTotalSize], newTotalSize);
+
+#ifdef _MSC_VER
+    T* ptr = static_cast<T*>(
+        _aligned_malloc(newTotalSize * sizeof(T), Device.PadByteSize()));
+#else
+    T* ptr = static_cast<T*>(
+        aligned_alloc(Device.PadByteSize(), newTotalSize * sizeof(T)));
+#endif
+    Data = Util::Span<T>(ptr, newTotalSize);
     m_hasOwnership.exchange(true, std::memory_order_release);
 }
 
@@ -381,10 +426,14 @@ std::size_t Tensor<T>::m_getElementSize() const
 template <typename T>
 std::size_t Tensor<T>::m_getPaddedColumnSize() const
 {
-    if (Device.PadSize() == 0)
+    if (Device.PadByteSize() < 2)
         return TensorShape.NumCol();
 
-    const std::size_t padUnitSize = Device.PadSize() / sizeof(T);
+    const std::size_t padUnitSize = Device.PadByteSize() / sizeof(T);
+
+    if (padUnitSize == 0)
+        throw std::runtime_error(
+            "Padding byte size cannot be smaller than default data byte size");
 
     std::size_t i = 0;
     while (padUnitSize * i < TensorShape.NumCol())

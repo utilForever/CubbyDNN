@@ -50,6 +50,13 @@ void TestMultiply(Compute::Device device)
         onesInitializer.Initialize(A);
         onesInitializer.Initialize(B);
     }
+    //
+    // for (std::size_t i = 0; i < B.BatchSize * B.ElementSize(); ++i)
+    // {
+    //     std::cout << B.Data[i] << std::endl;
+    // }
+    //
+    // std::cout << "ByteSize : " << sizeof(T) << std::endl;
 
     const auto t1 = std::chrono::system_clock::now();
     Compute::Multiply(A, B, result);

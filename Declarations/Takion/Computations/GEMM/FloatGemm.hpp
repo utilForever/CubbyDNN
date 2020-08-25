@@ -22,9 +22,6 @@ void MultiplyWithBroadcastCpu(const Span<float> inputA,
                               std::size_t numRowA, std::size_t numColA,
                               std::size_t numRowB, std::size_t numColB,
                               std::size_t numMatrices, bool broadCastA);
-void CpuTranspose(const Span<float> in, Span<float> out,
-                  std::size_t numRowInput, std::size_t numColInput,
-                  std::size_t numMatrix);
 
 void ShrinkCpu(const Span<float> input, Span<float> output, std::size_t size,
                std::size_t batchSize);

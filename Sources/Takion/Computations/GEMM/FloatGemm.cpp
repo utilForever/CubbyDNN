@@ -144,45 +144,6 @@ void MultiplyWithBroadcastCpu(const Span<float> inputA,
     }
 }
 
-void CpuTranspose(const Span<float> in, Span<float> out,
-                  std::size_t numRowInput, std::size_t numColInput,
-                  std::size_t numMatrix)
-{
-    const auto blockSize = 4;
-    const auto matrixSize = numRowInput * numColInput;
-    //! Optimized matrix transpose minimizing cache misses
-#pragma omp parallel for schedule(static) default(shared)
-    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < numMatrix;
-         ++matIdx)
-    {
-        auto batchOffset = matrixSize * matIdx;
-        for (std::size_t ii = 0; ii < numRowInput; ii += blockSize)
-            for (std::size_t jj = 0; jj < numColInput; jj += blockSize)
-            {
-                std::size_t i_lim = ii + blockSize;
-                if (i_lim > numRowInput)
-                    i_lim = numRowInput;
-
-                std::size_t j_lim = jj + blockSize;
-                if (j_lim > numColInput)
-                    j_lim = numColInput;
-
-                auto inputIndex = batchOffset + ii * numColInput + jj;
-                auto outputIndex = batchOffset + jj * numRowInput + ii;
-
-                __m128 row1 = _mm_load_ps(&in[inputIndex + blockSize * 0]);
-                __m128 row2 = _mm_load_ps(&in[inputIndex + blockSize * 1]);
-                __m128 row3 = _mm_load_ps(&in[inputIndex + blockSize * 2]);
-                __m128 row4 = _mm_load_ps(&in[inputIndex + blockSize * 3]);
-                _MM_TRANSPOSE4_PS(row1, row2, row3, row4);
-                _mm_store_ps(&out[outputIndex + blockSize * 0], row1);
-                _mm_store_ps(&out[outputIndex + blockSize * 1], row2);
-                _mm_store_ps(&out[outputIndex + blockSize * 2], row3);
-                _mm_store_ps(&out[outputIndex + blockSize * 3], row4);
-            }
-    }
-}
-
 void ShrinkCpu(const Span<float> input, Span<float> output,
                std::size_t size, std::size_t batchSize)
 {

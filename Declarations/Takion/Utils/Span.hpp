@@ -10,6 +10,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <cstring>
+#include <cstdlib>
 
 namespace Takion::Util
 {
@@ -36,7 +37,25 @@ public:
     {
     }
 
+    Span(const Span& other) = default;
+
+    Span(Span&& other) noexcept = default;
+
+    Span& operator=(const Span& other) = default;
+
+    Span& operator=(Span&& other) noexcept = default;
+
+    const T* Base() const
+    {
+        return m_base;
+    }
+
     T* Address(std::size_t idx)
+    {
+        return m_base + idx;
+    }
+
+    const T* Address(std::size_t idx) const
     {
         return m_base + idx;
     }
@@ -91,7 +110,13 @@ public:
     void Clear()
     {
         if (m_base != nullptr)
-            delete[] m_base;
+        {
+#ifdef _MSC_VER
+            _aligned_free(m_base);
+#else
+            free(m_base);
+#endif
+        }
         m_base = nullptr;
         m_length = 0;
     }

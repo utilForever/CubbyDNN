@@ -297,12 +297,22 @@ void MnistTrainTest()
 
 void MnistTrainTest2()
 {
+#ifdef _MSC_VER
     std::filesystem::path trainFilePath =
         "C:\\Users\\user\\Desktop\\Files\\projects\\Takion\\Mnist\\27352_34877_"
         "bundle_archive\\mnist_train.csv";
     std::filesystem::path validationFilePath =
         "C:\\Users\\user\\Desktop\\Files\\projects\\Takion\\Mnist\\27352_34877_"
         "bundle_archive\\mnist_test.csv";
+#else
+    std::filesystem::path trainFilePath =
+        "/mnt/c/Users/user/Desktop/Files/projects/Takion/Mnist/27352_34877_bundle_archive/mnist_train.csv";
+    std::filesystem::path validationFilePath =
+        "/mnt/c/Users/user/Desktop/Files/projects/Takion/Mnist/27352_34877_bundle_archive/mnist_test.csv";
+#endif
+
+    std::cout << "Train filepath : " << trainFilePath << std::endl;
+    std::cout << "Validation filePath : " << validationFilePath << std::endl;
 
     const std::size_t batchSize = 150;
     const std::size_t epochs = 20000;
