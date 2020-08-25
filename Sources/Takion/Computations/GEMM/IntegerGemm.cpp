@@ -4,21 +4,18 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef TAKION_COMPUTE_INTEGERGEMM_HPP
-#define TAKION_COMPUTE_INTEGERGEMM_HPP
-
-#include <Takion/Computations/GEMM/Gemm.hpp>
+#include <Takion/Computations/GEMM/IntegerGemm.hpp>
+#include <Takion/Utils/Span.hpp>
 #include <immintrin.h>
 #include <algorithm>
-#include <omp.h>
+#include <iostream>
 
-namespace Takion::Compute::CPU
+namespace Takion::Compute::CPU::Int
 {
-template <>
-inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
-                        Span<int> out, std::size_t numRowA, std::size_t numColA,
-                        std::size_t numRowB, std::size_t numColB,
-                        std::size_t numMatrices)
+void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
+                 Span<int> out, std::size_t numRowA, std::size_t numColA,
+                 std::size_t numRowB, std::size_t numColB,
+                 std::size_t numMatrices)
 {
     const auto jb = std::min(static_cast<std::size_t>(512), numColB);
     const auto kb = std::min(static_cast<std::size_t>(24), numRowB);
@@ -27,8 +24,8 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
     const auto sizeDest = numRowA * numColB;
 
 #pragma omp parallel for schedule(static) default(shared)
-    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < numMatrices; ++
-         matIdx)
+    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < numMatrices;
+         ++matIdx)
     {
         const auto batchOffsetA = sizeA * matIdx;
         const auto batchOffsetB = sizeB * matIdx;
@@ -47,8 +44,9 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
                             sum = _mm256_setzero_si256();
                         else
                         {
-                            sum = _mm256_load_si256((__m256i*)
-                                &out[batchOffsetDest + i * numColB + j]);
+                            sum = _mm256_load_si256(
+                                (__m256i*)&out[batchOffsetDest + i * numColB +
+                                               j]);
                         }
                         const auto limit = std::min(
                             static_cast<std::size_t>(numRowB), kk + kb);
@@ -61,9 +59,8 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
 
                             const auto bc_mat1_1 =
                                 _mm256_set1_epi32(inputA[input_a_offset]);
-                            const auto vecA_mat2 =
-                                _mm256_load_si256((__m256i*)
-                                    &inputB[input_b_offset]);
+                            const auto vecA_mat2 = _mm256_load_si256(
+                                (__m256i*)&inputB[input_b_offset]);
 
                             sum = _mm256_add_epi32(
                                 sum, _mm256_mullo_epi32(bc_mat1_1, vecA_mat2));
@@ -78,12 +75,12 @@ inline void MultiplyCpu(const Span<int> inputA, const Span<int> inputB,
     }
 }
 
-template <>
-inline void MultiplyWithBroadcastCpu(const Span<int> inputA,
-                                     const Span<int> inputB, Span<int> out,
-                                     std::size_t numRowA, std::size_t numColA,
-                                     std::size_t numRowB, std::size_t numColB,
-                                     std::size_t numMatrices, bool broadCastA)
+
+void MultiplyWithBroadcastCpu(const Span<int> inputA,
+                              const Span<int> inputB, Span<int> out,
+                              std::size_t numRowA, std::size_t numColA,
+                              std::size_t numRowB, std::size_t numColB,
+                              std::size_t numMatrices, bool broadCastA)
 {
     const auto jb = std::min(static_cast<std::size_t>(512), numColB);
     const auto kb = std::min(static_cast<std::size_t>(24), numRowB);
@@ -92,8 +89,8 @@ inline void MultiplyWithBroadcastCpu(const Span<int> inputA,
     const auto sizeDest = numRowA * numColB;
 
 #pragma omp parallel for schedule(static) default(shared)
-    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < numMatrices; ++
-         matIdx)
+    for (long matIdx = 0; static_cast<std::size_t>(matIdx) < numMatrices;
+         ++matIdx)
     {
         const auto batchOffsetA = broadCastA ? 0 : sizeA * matIdx;
         const auto batchOffsetB = !broadCastA ? 0 : sizeB * matIdx;
@@ -143,16 +140,16 @@ inline void MultiplyWithBroadcastCpu(const Span<int> inputA,
     }
 }
 
-template <>
-inline void CpuTranspose(const Span<int> input, Span<int> output,
-                         std::size_t numRowInput,
-                         std::size_t numColInput, std::size_t batchSize)
+
+void CpuTranspose(const Span<int> input, Span<int> output,
+                  std::size_t numRowInput, std::size_t numColInput,
+                  std::size_t batchSize)
 {
     const auto blockSize = 4;
     const auto matrixSize = numRowInput * numColInput;
 #pragma omp parallel for schedule(static) default(shared)
-    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize; ++
-         batchIdx)
+    for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
+         ++batchIdx)
     {
         for (std::size_t ii = 0; ii < numRowInput; ii += blockSize)
             for (std::size_t jj = 0; jj < numColInput; jj += blockSize)
@@ -167,17 +164,15 @@ inline void CpuTranspose(const Span<int> input, Span<int> output,
 
                 for (std::size_t i = ii; i < i_lim; i++)
                     for (std::size_t j = jj; j < j_lim; j++)
-                        output[batchIdx * matrixSize +
-                               j * numRowInput + i] =
-                            input[batchIdx * matrixSize +
-                                  i * numColInput + j];
+                        output[batchIdx * matrixSize + j * numRowInput + i] =
+                            input[batchIdx * matrixSize + i * numColInput + j];
             }
     }
 }
 
-template <>
-inline void ShrinkCpu(const Span<int> input, Span<int> output, std::size_t size,
-                      std::size_t batchSize)
+
+void ShrinkCpu(const Span<int> input, Span<int> output, std::size_t size,
+               std::size_t batchSize)
 {
     // #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -188,8 +183,7 @@ inline void ShrinkCpu(const Span<int> input, Span<int> output, std::size_t size,
         {
             const auto vecA =
                 _mm256_loadu_si256((__m256i*)&input[batchOffset + i]);
-            const auto vecB =
-                _mm256_loadu_si256((__m256i*)&output[i]);
+            const auto vecB = _mm256_loadu_si256((__m256i*)&output[i]);
             const auto sum = _mm256_add_epi32(vecA, vecB);
             // #pragma omp critical
             {
@@ -204,8 +198,7 @@ inline void ShrinkCpu(const Span<int> input, Span<int> output, std::size_t size,
     for (long i = 0; static_cast<std::size_t>(i) < size; i += 8)
     {
         const auto vecDiv = _mm256_set1_epi32(static_cast<int>(batchSize));
-        const auto vec =
-            _mm256_loadu_si256((__m256i*)&output[i]);
+        const auto vec = _mm256_loadu_si256((__m256i*)&output[i]);
         const auto div = _mm256_div_epi32(vec, vecDiv);
         _mm256_storeu_si256((__m256i*)&output[i], div);
     }
@@ -226,10 +219,8 @@ inline void ShrinkCpu(const Span<int> input, Span<int> output, std::size_t size,
 }
 
 
-template <>
-inline void AddCpu(const Span<int> A, const Span<int> B,
-                   Span<int> out,
-                   std::size_t size, std::size_t batchSize)
+void AddCpu(const Span<int> A, const Span<int> B, Span<int> out,
+            std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -248,9 +239,9 @@ inline void AddCpu(const Span<int> A, const Span<int> B,
     }
 }
 
-template <>
-inline void SubCpu(const Span<int> A, const Span<int> B, Span<int> out,
-                   std::size_t size, std::size_t batchSize)
+
+void SubCpu(const Span<int> A, const Span<int> B, Span<int> out,
+            std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -269,10 +260,10 @@ inline void SubCpu(const Span<int> A, const Span<int> B, Span<int> out,
     }
 }
 
-template <>
-inline void AddWithBroadcastCpu(const Span<int> A, const Span<int> B,
-                                Span<int> out, std::size_t size,
-                                std::size_t batchSize, bool broadCastA)
+
+void AddWithBroadcastCpu(const Span<int> A, const Span<int> B,
+                         Span<int> out, std::size_t size,
+                         std::size_t batchSize, bool broadCastA)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -294,10 +285,10 @@ inline void AddWithBroadcastCpu(const Span<int> A, const Span<int> B,
     }
 }
 
-template <>
-inline void SubWithBroadcastCpu(const Span<int> A, const Span<int> B,
-                                Span<int> out, std::size_t size,
-                                std::size_t batchSize, bool broadCastA)
+
+void SubWithBroadcastCpu(const Span<int> A, const Span<int> B,
+                         Span<int> out, std::size_t size,
+                         std::size_t batchSize, bool broadCastA)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -319,9 +310,9 @@ inline void SubWithBroadcastCpu(const Span<int> A, const Span<int> B,
     }
 }
 
-template <>
-inline void DotCpu(const Span<int> inputA, const Span<int> inputB,
-                   Span<int> out, std::size_t size, std::size_t batchSize)
+
+void DotCpu(const Span<int> inputA, const Span<int> inputB,
+            Span<int> out, std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -340,10 +331,10 @@ inline void DotCpu(const Span<int> inputA, const Span<int> inputB,
     }
 }
 
-template <>
-inline void DotWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
-                                Span<int> out, std::size_t size,
-                                std::size_t batchSize, bool broadCastA)
+
+void DotWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
+                         Span<int> out, std::size_t size,
+                         std::size_t batchSize, bool broadCastA)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -364,9 +355,9 @@ inline void DotWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
     }
 }
 
-template <>
-inline void DivCpu(const Span<int> inputA, const Span<int> inputB,
-                   Span<int> out, std::size_t size, std::size_t batchSize)
+
+void DivCpu(const Span<int> inputA, const Span<int> inputB,
+            Span<int> out, std::size_t size, std::size_t batchSize)
 {
 #ifdef _MSC_VER
 #if _MSC_VER >= 1920
@@ -393,7 +384,8 @@ inline void DivCpu(const Span<int> inputA, const Span<int> inputB,
         const auto batchOffset = size * batchIdx;
         for (std::size_t i = 0; i < size; i += 1)
         {
-            out[batchOffset + i] = inputA[batchOffset + i] / inputB[batchOffset + i];
+            out[batchOffset + i] =
+                inputA[batchOffset + i] / inputB[batchOffset + i];
         }
     }
 #endif
@@ -412,10 +404,10 @@ inline void DivCpu(const Span<int> inputA, const Span<int> inputB,
 #endif
 }
 
-template <>
-inline void DivWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
-                                Span<int> out, std::size_t size,
-                                std::size_t batchSize, bool broadCastA)
+
+void DivWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
+                         Span<int> out, std::size_t size,
+                         std::size_t batchSize, bool broadCastA)
 {
 #ifdef _MSC_VER
 #if _MSC_VER >= 1920
@@ -468,9 +460,9 @@ inline void DivWithBroadcastCpu(const Span<int> inputA, const Span<int> inputB,
 #endif
 }
 
-template <>
-inline void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
-                         std::size_t size, std::size_t batchSize)
+
+void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
+                  std::size_t size, std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -488,9 +480,9 @@ inline void ScalarMulCpu(const Span<int> input, int toMul, Span<int> out,
     }
 }
 
-template <>
-inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
-                         std::size_t size, std::size_t batchSize)
+
+void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
+                  std::size_t size, std::size_t batchSize)
 {
 #ifdef _MSC_VER
 #if _MSC_VER >= 1920
@@ -533,9 +525,9 @@ inline void ScalarDivCpu(const Span<int> input, int toDiv, Span<int> out,
 #endif
 }
 
-template <>
-inline void SetCpu(Span<int> data, int toSet, std::size_t size,
-                   std::size_t batchSize)
+
+void SetCpu(Span<int> data, int toSet, std::size_t size,
+            std::size_t batchSize)
 {
 #pragma omp parallel for schedule(static) default(shared)
     for (long batchIdx = 0; static_cast<std::size_t>(batchIdx) < batchSize;
@@ -550,5 +542,3 @@ inline void SetCpu(Span<int> data, int toSet, std::size_t size,
     }
 }
 }
-
-#endif
