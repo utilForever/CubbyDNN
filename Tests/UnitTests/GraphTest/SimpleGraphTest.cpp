@@ -314,6 +314,7 @@ void MnistTrainTest2()
     std::cout << "Train filepath : " << trainFilePath << std::endl;
     std::cout << "Validation filePath : " << validationFilePath << std::endl;
 
+    // 모델 학습에 필요한 Hyperparameter 설정
     const std::size_t batchSize = 150;
     const std::size_t epochs = 20000;
     const std::size_t trainDataNumLine = 60000;
@@ -331,6 +332,7 @@ void MnistTrainTest2()
     Shape dataShape(Shape({ 785 }));
     Shape labelShape(Shape({ 10 }));
 
+    // Data loading 을 위한 클래스 (사용자가 직접 구현 가능)
     auto trainDataLoader = GetMnistData<float>(dataShape, data,
                                                trainRandomIndices,
                                                batchSize);
@@ -343,40 +345,58 @@ void MnistTrainTest2()
     auto validationLabelLoader = GetMnistLabel<float>(
         dataShape, validationLabel, validationRandomIndices, batchSize);
 
+    // Model 선언 (Device, batchSize) Device 를 통해 원하는 실행 방식을 설정 후 배치 학습에 사용할 배치의 크기 설정 
     Model<float> model(Compute::Device(0, Compute::DeviceType::CPU, "device0"),
                        batchSize);
 
+    // Fetcher : 데이터를 로드하여 모델에 공급해주는 유닛
     auto dataFetcher = model.Fetcher(dataShape, "DataLoader");
     auto labelFetcher = model.Fetcher(labelShape, "LabelLoader");
+    // Dense : Dense 연산 수행 유닛
     auto unit = model.Dense(dataFetcher, 200);
+    // ReLU : ReLU Activation function 유닛
     unit = model.ReLU(unit);
     unit = model.Dense(unit, 100);
     unit = model.ReLU(unit);
     unit = model.Dense(unit, 50);
     unit = model.ReLU(unit);
     unit = model.Dense(unit, 10);
+    // Softmax : Softmax Activation function 유닛 - 주로 다클래스 분류에 사용
     auto softMax = model.SoftMax(unit);
+    // CrossEntropy : 다클래스 분류에 주로 사용되는 오차함수
     auto lossId = model.
         CrossEntropy(softMax, labelFetcher, "CrossEntropy Loss");
 
+    // Compile 을 통해 지금까지 모델에 넣은 유닛들을 조합하여 실행 가능한 그래프 생성
+    // 모델에 문제가 있을 경우 오류 메세지를 출력
+    // Optimizer 는 SGD (Stochatic gradient descent) 를 사용하며 Learning Rate 는 0.005로 설정
     model.Compile("SGD", Parameter({}, { { "LearningRate", 0.0005f } }, {}));
 
+    // Training 을 epoch 만큼 반복
     for (std::size_t cycle = 0; cycle < epochs; ++cycle)
     {
+        // dataFetcher (data Fetcher 유닛의 리턴 id) 에 로더를 통해 학습에 필요한 데이터 공급
+        // labelFetcher (label Fetcher 유닛의 리턴 id) 에 로더를 통해 학습에 필요한 데이터 공급
         model.Train({ { dataFetcher, trainDataLoader() } }, labelFetcher,
                     trainLabelLoader());
 
         if (cycle % 100 == 0)
         {
+            // 100 cycle 주기로 validation data 를 통해 모델 평가
             auto validData = validationDataLoader();
             const auto validLabel = validationLabelLoader();
+            // Predict : 학습을 진행하지 않고 data 와 label 을 넣어 현재 모델의 출력과 오차함수 계산
             model.Predict({ { dataFetcher, validData } }, labelFetcher,
                           validLabel);
-            const auto outputData = model.Output(unit);
+            // Output : softMax 유닛의 출력을 가져옴 
+            const auto outputData = model.Output(softMax);
+            // SoftMax 의 출력값과 레이블을 비교하여 정확도 계산
             const auto accuracy = EvaluateAccuracy(outputData.Data, validLabel,
                                                    outputData.TensorShape,
                                                    outputData.BatchSize);
+            // 오차함수 (CrossEntropy) 유닛의 loss 출력
             const auto loss = model.GetLoss(lossId);
+            // 결과를 터미널 창에 출력
             std::cout << "epoch : " << cycle << " validation Loss : " << loss <<
                 " validation Accuracy : " << accuracy * 100 << "%" << std::endl;
         }
