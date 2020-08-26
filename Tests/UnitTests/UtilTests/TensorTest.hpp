@@ -19,8 +19,8 @@ void TensorCopy()
 {
     Compute::Device device(0, Compute::DeviceType::CPU, "device0");
 
-    const auto numRow = 3;
-    const auto numCol = 5;
+    const std::size_t numRow = 3;
+    const std::size_t numCol = 5;
     const auto batchSize = 10;
     const Shape shape({ numRow, numCol });
     const auto totalSize = shape.Size() * batchSize;
@@ -48,8 +48,8 @@ void TensorCopyBetweenDevice_1()
     Compute::Device device0(0, Compute::DeviceType::CPU, "device0");
     Compute::Device device1(1, Compute::DeviceType::GPU, "device1");
 
-    const auto numRow = 3;
-    const auto numCol = 5;
+    const std::size_t numRow = 3;
+    const std::size_t numCol = 5;
     const auto batchSize = 10;
     const Shape shape({ numRow, numCol });
     const auto totalSize = shape.Size() * batchSize;
