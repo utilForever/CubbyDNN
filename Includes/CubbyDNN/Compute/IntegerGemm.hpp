@@ -4,8 +4,9 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CubbyDNN_COMPUTE_INTEGERGEMM_HPP
-#define CubbyDNN_COMPUTE_INTEGERGEMM_HPP
+#ifndef CUBBYDNN_COMPUTE_INTEGERGEMM_HPP
+#define CUBBYDNN_COMPUTE_INTEGERGEMM_HPP
+
 #include <CubbyDNN/Core/Span.hpp>
 
 namespace CubbyDNN::Compute::CPU::Int

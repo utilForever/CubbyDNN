@@ -396,7 +396,7 @@ void SetCpu(Span<float> data, float toSet, std::size_t size,
         for (std::size_t i = 0; i < size; i += 8)
         {
             const auto set = _mm256_set1_ps(toSet);
-            _mm256_store_ps(data.Address(batchOffset + i), set);
+            _mm256_store_ps(&data[batchOffset + i], set);
         }
     }
 }

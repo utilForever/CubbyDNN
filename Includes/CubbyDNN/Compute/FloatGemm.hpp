@@ -4,8 +4,8 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef CubbyDNN_COMPUTE_FLOATGEMM_HPP
-#define CubyyDNN_COMPUTE_FLOATGEMM_HPP
+#ifndef CUBBYDNN_COMPUTE_FLOATGEMM_HPP
+#define CUBBYDNN_COMPUTE_FLOATGEMM_HPP
 
 #include <CubbyDNN/Core/Span.hpp>
 
